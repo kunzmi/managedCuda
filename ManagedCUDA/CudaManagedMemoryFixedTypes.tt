@@ -1,0 +1,503 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<# 
+  string[] types = new string[]{"byte", "uchar1", "uchar2", "uchar3", "uchar4",
+								"sbyte", "char1", "char2", "char3", "char4",
+								"short", "short1", "short2", "short3", "short4",
+								"ushort", "ushort1", "ushort2", "ushort3", "ushort4",
+								"int", "int1", "int2", "int3", "int4",
+								"uint", "uint1", "uint2", "uint3", "uint4",
+								"long", "long1", "long2",
+								"ulong", "ulong1", "ulong2",
+								"float", "float1", "float2", "float3", "float4",
+								"double", "double1", "double2",
+								"cuDoubleComplex", "cuDoubleReal", "cuFloatComplex", "cuFloatReal",
+								"dim3"								
+								};
+#>
+//	Copyright (c) 2012, Michael Kunz. All rights reserved.
+//	http://kunzmi.github.io/managedcuda
+//
+//	This file is part of ManagedCuda.
+//
+//	ManagedCuda is free software: you can redistribute it and/or modify
+//	it under the terms of the GNU Lesser General Public License as 
+//	published by the Free Software Foundation, either version 2.1 of the 
+//	License, or (at your option) any later version.
+//
+//	ManagedCuda is distributed in the hope that it will be useful,
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//	GNU Lesser General Public License for more details.
+//
+//	You should have received a copy of the GNU Lesser General Public
+//	License along with this library; if not, write to the Free Software
+//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using ManagedCuda.BasicTypes;
+using ManagedCuda.VectorTypes;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+
+namespace ManagedCuda
+{
+	<# foreach (string type in types) {#>
+
+	/// <summary>
+	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// Type: <#=type#>
+	/// </summary>
+	public unsafe class CudaManagedMemory_<#=type#>: IDisposable, IEnumerable<<#=type#>>
+	{
+		CUdeviceptr _devPtr;
+		<#=type#>* _ptr;
+		SizeT _size = 0;
+		SizeT _typeSize = 0;
+		CUResult res;
+		bool disposed;
+		bool _isOwner;
+
+		#region Constructor
+		/// <summary>
+		/// Creates a new CudaManagedMemory and allocates the memory on host/device.
+		/// </summary>
+		/// <param name="size">In elements</param>
+		/// <param name="attachFlags"></param>
+		public CudaManagedMemory_<#=type#>(SizeT size, CUmemAttach_flags attachFlags)
+		{
+			_devPtr = new CUdeviceptr();
+			_size = size;
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(<#=type#>));
+
+			res = DriverAPINativeMethods.MemoryManagement.cuMemAllocManaged(ref _devPtr, _typeSize * size, attachFlags);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAllocManaged", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			_ptr = (<#=type#>*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = true;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="module">The module where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_<#=type#>(CUmodule module, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+			res = DriverAPINativeMethods.ModuleManagement.cuModuleGetGlobal_v2(ref _devPtr, ref _sizeInBytes, module, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuModuleGetGlobal_v2", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(<#=type#>));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (<#=type#>*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="kernel">The kernel which module defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_<#=type#>(CudaKernel kernel, string name)
+			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// For dispose
+		/// </summary>
+		~CudaManagedMemory_<#=type#>()
+		{
+			Dispose(false);
+		}
+		#endregion
+
+		#region Dispose
+		/// <summary>
+		/// Dispose
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// For IDisposable
+		/// </summary>
+		/// <param name="fDisposing"></param>
+		protected virtual void Dispose(bool fDisposing)
+		{
+			if (fDisposing && !disposed)
+			{
+				if (_isOwner)
+				{
+					res = DriverAPINativeMethods.MemoryManagement.cuMemFree_v2(_devPtr);
+					Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemFree_v2", res));
+				}
+				disposed = true;
+			}
+			if (!fDisposing && !disposed)
+				Debug.WriteLine(String.Format("ManagedCUDA not-disposed warning: {0}", this.GetType()));
+		}
+		#endregion
+
+		#region Properties
+		/// <summary>
+		/// UIntPtr to managed memory.
+		/// </summary>
+		public UIntPtr HostPointer
+		{
+			get { return _devPtr.Pointer; }
+		}
+
+		/// <summary>
+		/// CUdeviceptr to managed memory.
+		/// </summary>
+		public CUdeviceptr DevicePointer
+		{
+			get { return _devPtr; }
+		}
+
+		/// <summary>
+		/// Size in bytes
+		/// </summary>
+		public SizeT SizeInBytes
+		{
+			get { return _size * _typeSize; }
+		}
+
+		/// <summary>
+		/// Size in elements
+		/// </summary>
+		public SizeT Size
+		{
+			get { return _size; }
+		}
+
+		/// <summary>
+		/// Access array per element.
+		/// </summary>
+		/// <param name="index">index in elements</param>
+		/// <returns></returns>
+		public <#=type#> this[SizeT index]
+		{
+			get
+			{
+				return _ptr[index];
+			}
+			set
+			{
+				_ptr[index] = value;
+			}
+		}
+
+		/// <summary>
+		/// If the wrapper class instance is the owner of a CUDA handle, it will be destroyed while disposing.
+		/// </summary>
+		public bool IsOwner
+		{
+			get { return _isOwner; }
+		}
+		#endregion
+
+		#region Converter operators
+		/// <summary>
+		/// Converts a managed variable to a host value. In case of multiple managed values (array), only the first value is converted.
+		/// </summary>
+		/// <param name="d">managed variable</param>
+		/// <returns>newly allocated host variable with value from managed memory</returns>
+		public static implicit operator <#=type#>(CudaManagedMemory_<#=type#> d)
+		{
+			return d[0];
+		}
+		#endregion
+
+		#region GetAttributeMethods
+		/// <summary>
+		/// The <see cref="CUcontext"/> on which a pointer was allocated or registered
+		/// </summary>
+		public CUcontext AttributeContext
+		{
+			get 
+			{
+				CUcontext ret = new CUcontext();
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.Context, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// The <see cref="CUMemoryType"/> describing the physical location of a pointer 
+		/// </summary>
+		public CUMemoryType AttributeMemoryType
+		{
+			get
+			{
+				CUMemoryType ret = new CUMemoryType();
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.MemoryType, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// The address at which a pointer's memory may be accessed on the device <para/>
+		/// Except in the exceptional disjoint addressing cases, the value returned will equal the input value.
+		/// </summary>
+		public CUdeviceptr AttributeDevicePointer
+		{
+			get
+			{
+				CUdeviceptr ret = new CUdeviceptr();
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.DevicePointer, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// The address at which a pointer's memory may be accessed on the host 
+		/// </summary>
+		public IntPtr AttributeHostPointer
+		{
+			get
+			{
+				IntPtr ret = new IntPtr();
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.HostPointer, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// A pair of tokens for use with the nv-p2p.h Linux kernel interface
+		/// </summary>
+		public CudaPointerAttributeP2PTokens AttributeP2PTokens
+		{
+			get
+			{
+				CudaPointerAttributeP2PTokens ret = new CudaPointerAttributeP2PTokens();
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.P2PTokens, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// Synchronize every synchronous memory operation initiated on this region
+		/// </summary>
+		public bool AttributeSyncMemops
+		{
+			get
+			{
+				int ret = 0;
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.SyncMemops, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret != 0;
+			}
+			set 
+			{
+				int val = value ? 1 : 0;
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerSetAttribute(ref val, CUPointerAttribute.SyncMemops, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerSetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+			}
+		}
+
+		/// <summary>
+		/// A process-wide unique ID for an allocated memory region
+		/// </summary>
+		public ulong AttributeBufferID
+		{
+			get
+			{
+				ulong ret = 0;
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.BufferID, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret;
+			}
+		}
+
+		/// <summary>
+		/// Indicates if the pointer points to managed memory
+		/// </summary>
+		public bool AttributeIsManaged
+		{
+			get
+			{
+				int ret = 0;
+				CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.IsManaged, _devPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+				if (res != CUResult.Success) throw new CudaException(res);
+				return ret != 0;
+			}
+		}
+		#endregion
+
+		#region Methods
+		/// <summary>
+		/// Attach memory to a stream asynchronously
+		/// <para/>
+		/// Enqueues an operation in <c>hStream</c> to specify stream association of
+		/// <c>length</c> bytes of memory starting from <c>dptr</c>. This function is a
+		/// stream-ordered operation, meaning that it is dependent on, and will
+		/// only take effect when, previous work in stream has completed. Any
+		/// previous association is automatically replaced.
+		/// <para/>
+		/// <c>dptr</c> must point to an address within managed memory space declared
+		/// using the __managed__ keyword or allocated with cuMemAllocManaged.
+		/// <para/>
+		/// <c>length</c> must be zero, to indicate that the entire allocation's
+		/// stream association is being changed. Currently, it's not possible
+		/// to change stream association for a portion of an allocation.
+		/// <para/>
+		/// The stream association is specified using <c>flags</c> which must be
+		/// one of <see cref="CUmemAttach_flags"/>.
+		/// If the <see cref="CUmemAttach_flags.Global"/> flag is specified, the memory can be accessed
+		/// by any stream on any device.
+		/// If the <see cref="CUmemAttach_flags.Host"/> flag is specified, the program makes a guarantee
+		/// that it won't access the memory on the device from any stream.
+		/// If the <see cref="CUmemAttach_flags.Single"/> flag is specified, the program makes a guarantee
+		/// that it will only access the memory on the device from <c>hStream</c>. It is illegal
+		/// to attach singly to the NULL stream, because the NULL stream is a virtual global
+		/// stream and not a specific stream. An error will be returned in this case.
+		/// <para/>
+		/// When memory is associated with a single stream, the Unified Memory system will
+		/// allow CPU access to this memory region so long as all operations in <c>hStream</c>
+		/// have completed, regardless of whether other streams are active. In effect,
+		/// this constrains exclusive ownership of the managed memory region by
+		/// an active GPU to per-stream activity instead of whole-GPU activity.
+		/// <para/>
+		/// Accessing memory on the device from streams that are not associated with
+		/// it will produce undefined results. No error checking is performed by the
+		/// Unified Memory system to ensure that kernels launched into other streams
+		/// do not access this region. 
+		/// <para/>
+		/// It is a program's responsibility to order calls to <see cref="DriverAPINativeMethods.Streams.cuStreamAttachMemAsync"/>
+		/// via events, synchronization or other means to ensure legal access to memory
+		/// at all times. Data visibility and coherency will be changed appropriately
+		/// for all kernels which follow a stream-association change.
+		/// <para/>
+		/// If <c>hStream</c> is destroyed while data is associated with it, the association is
+		/// removed and the association reverts to the default visibility of the allocation
+		/// as specified at cuMemAllocManaged. For __managed__ variables, the default
+		/// association is always <see cref="CUmemAttach_flags.Global"/>. Note that destroying a stream is an
+		/// asynchronous operation, and as a result, the change to default association won't
+		/// happen until all work in the stream has completed.
+		/// <para/>
+		/// </summary>
+		/// <param name="hStream">Stream in which to enqueue the attach operation</param>
+		/// <param name="length">Length of memory (must be zero)</param>
+		/// <param name="flags">Must be one of <see cref="CUmemAttach_flags"/></param>
+		/// <returns></returns>
+		public void StreamAttachMemAsync(CUstream hStream, SizeT length, CUmemAttach_flags flags)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.Streams.cuStreamAttachMemAsync(hStream, _devPtr, length, flags);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamAttachMemAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
+		#endregion
+
+		#region IEnumerable
+		IEnumerator<<#=type#>> IEnumerable<<#=type#>>.GetEnumerator()
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			IEnumerator<<#=type#>> enumerator = new CudaManagedMemoryEnumerator_<#=type#>(this);
+			return enumerator;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			IEnumerator enumerator = new CudaManagedMemoryEnumerator_<#=type#>(this);
+			return enumerator;
+		}
+
+		#endregion
+	}
+	
+	/// <summary>
+	/// Enumerator class for CudaManagedMemory_<#=type#>
+	/// </summary>
+	public class CudaManagedMemoryEnumerator_<#=type#> : IEnumerator<<#=type#>>
+	{
+		private CudaManagedMemory_<#=type#> _memory = null;
+		private SizeT _currentIndex = -1;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="memory"></param>
+		public CudaManagedMemoryEnumerator_<#=type#>(CudaManagedMemory_<#=type#> memory)
+		{
+			_memory = memory;
+		}
+
+		void IDisposable.Dispose() { }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Reset()
+		{
+			_currentIndex = -1;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public <#=type#> Current
+		{
+			get { return _memory[_currentIndex]; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		object IEnumerator.Current
+		{
+			get { return _memory[_currentIndex]; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public bool MoveNext()
+		{
+			_currentIndex += 1;
+			if ((long)_currentIndex >= (long)_memory.Size)
+				return false;
+			else
+				return true;
+		}
+
+	}
+
+	<#}#>
+
+}
