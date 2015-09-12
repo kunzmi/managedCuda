@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaBlas", "CudaBlas\CudaBl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaRand", "CudaRand\CudaRand.csproj", "{93B9FB2B-083A-4320-AFCC-DC0E9F7D011B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaBitmapSource", "CudaBitmapSource\CudaBitmapSource.csproj", "{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaSparse", "CudaSparse\CudaSparse.csproj", "{6F782AA1-E9CF-4CE9-83FD-4FC035D45BC3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaSolve", "CudaSolve\CudaSolve.csproj", "{B5DE3857-D0B2-4EBB-B2CB-4BFCF57A7488}"
@@ -143,26 +141,6 @@ Global
 		{93B9FB2B-083A-4320-AFCC-DC0E9F7D011B}.Release|x64.Build.0 = Release|x64
 		{93B9FB2B-083A-4320-AFCC-DC0E9F7D011B}.Release|x86.ActiveCfg = Release|x86
 		{93B9FB2B-083A-4320-AFCC-DC0E9F7D011B}.Release|x86.Build.0 = Release|x86
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|NuGet_x64.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|NuGet_x64.Build.0 = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|NuGet_x86.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|NuGet_x86.Build.0 = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|NuGet_x64.ActiveCfg = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|NuGet_x64.Build.0 = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|NuGet_x86.ActiveCfg = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|NuGet_x86.Build.0 = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|x64.ActiveCfg = Release|Any CPU
-		{9DCF85F6-1CCE-4CEB-8E9E-7FB47DA76C1C}.Release|x86.ActiveCfg = Release|Any CPU
 		{6F782AA1-E9CF-4CE9-83FD-4FC035D45BC3}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{6F782AA1-E9CF-4CE9-83FD-4FC035D45BC3}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
 		{6F782AA1-E9CF-4CE9-83FD-4FC035D45BC3}.Debug|Mixed Platforms.Build.0 = Debug|x64
