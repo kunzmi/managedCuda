@@ -480,7 +480,7 @@ namespace ManagedCuda.CudaFFT
 		/// ostride, and odist.<para/>
 		/// All arrays are assumed to be in CPU memory
 		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
+		/// <param name="plan">cufftHandle object</param>
 		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
 		/// <param name="n">Array of size rank, describing the size of each dimension</param>
 		/// <param name="inembed">Pointer of size rank that indicates the storage dimensions of

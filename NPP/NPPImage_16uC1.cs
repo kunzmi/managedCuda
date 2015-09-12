@@ -4851,9 +4851,8 @@ namespace ManagedCuda.NPP
 		/// registration position at source image location oSrcROI.x, oSrcROI.y relative to pSrc.
 		/// </summary>
 		/// <param name="dest">Destination image</param>
-		/// <param name="Kernel">Pointer to the start address of the kernel coefficient array. Coeffcients are expected to be stored in reverse order.</param>
-		/// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		/// <param name="eGrid">enumeration value specifying bayer grid registration position at location oSrcROI.x, oSrcROI.y relative to pSrc.</param>
+		/// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
 		public void CFAToRGB(NPPImage_16uC3 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation)
 		{
 			status = NPPNativeMethods.NPPi.ColorDebayer.nppiCFAToRGB_16u_C1C3R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation);
