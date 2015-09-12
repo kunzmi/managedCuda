@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2015, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -28,6 +28,103 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.CudaDNN
 {
+	/// <summary>
+	/// Constants for LRN, #define in cudnn.h
+	/// </summary>
+	public static struct LRNConstants
+	{
+		/// <summary>
+		/// minimum allowed lrnN
+		/// </summary>
+		public const double MinN = 1;
+		/// <summary>
+		/// maximum allowed lrnN
+		/// </summary>
+		public const double MaxN = 16;
+		/// <summary>
+		/// minimum allowed lrnK
+		/// </summary>
+		public const double MinK = 1e-5;
+		/// <summary>
+		/// minimum allowed lrnBeta
+		/// </summary>
+		public const double MinBeta = 0.01;
+	}
+
+	#region struct
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cudnnConvolutionFwdAlgoPerf
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnConvolutionFwdAlgo algo;
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnStatus status;
+		/// <summary>
+		/// 
+		/// </summary>
+		public float time;
+		/// <summary>
+		/// 
+		/// </summary>
+		public SizeT memory;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cudnnConvolutionBwdFilterAlgoPerf
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnConvolutionBwdFilterAlgo algo;
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnStatus status;
+		/// <summary>
+		/// 
+		/// </summary>
+		public float time;
+		/// <summary>
+		/// 
+		/// </summary>
+		public SizeT memory;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cudnnConvolutionBwdDataAlgoPerf
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnConvolutionBwdDataAlgo algo;
+		/// <summary>
+		/// 
+		/// </summary>
+		public cudnnStatus status;
+		/// <summary>
+		/// 
+		/// </summary>
+		public float time;
+		/// <summary>
+		/// 
+		/// </summary>
+		public SizeT memory;
+	}
+	#endregion
+
 	#region struct as types
 	[StructLayout(LayoutKind.Sequential)]
 	public struct cudnnHandle
@@ -73,6 +170,15 @@ namespace ManagedCuda.CudaDNN
 		/// </summary>
 		public IntPtr Pointer;
 	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cudnnLRNDescriptor
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Pointer;
+	}
 	#endregion
 
 	#region enums
@@ -101,7 +207,8 @@ namespace ManagedCuda.CudaDNN
 	public enum cudnnDataType
 	{
 		Float = 0,
-		Double = 1
+		Double = 1,
+		Half = 2
 	}
 
 	public enum cudnnTensorFormat
@@ -147,7 +254,8 @@ namespace ManagedCuda.CudaDNN
 		ImplicitGEMM = 0,
 		ImplicitPrecompGEMM = 1,
 		GEMM = 2,
-		Direct = 3
+		Direct = 3,
+		FFT = 4
 	}
 
 
@@ -158,7 +266,8 @@ namespace ManagedCuda.CudaDNN
 	public enum cudnnSoftmaxAlgorithm
 	{
 		Fast = 0,        /* straightforward implementation */
-		Accurate = 1         /* subtract max from every point to avoid overflow */
+		Accurate = 1,         /* subtract max from every point to avoid overflow */
+		Log = 2
 	}
 
 	public enum cudnnSoftmaxMode
@@ -188,5 +297,48 @@ namespace ManagedCuda.CudaDNN
 		Tanh = 2
 	}
 
+	
+	public enum cudnnConvolutionBwdFilterPreference
+	{
+		NoWorkspace = 0,
+		PreferFastest = 1,
+		SpecifyWorkspaceLimit = 2
+	}
+	
+	public enum cudnnConvolutionBwdFilterAlgo
+	{
+		Algo0 = 0,  // non-deterministic
+		Algo1 = 1,
+		AlgoFFT = 2
+	}
+
+	public enum cudnnConvolutionBwdDataPreference
+	{
+		NoWorkspace = 0,
+		PreferFastest = 1,
+		SpecifyWorkspaceLimit = 2
+	}
+
+	public enum cudnnConvolutionBwdDataAlgo
+	{
+		Algo0 = 0,  // non-deterministic
+		Algo1 = 1,
+		AlgoFFT = 2
+	}
+
+	/// <summary>
+	/// LRN layer mode, currently only cross-channel is supported (across the tensor's dimA[1] dimension)
+	/// </summary>
+	public enum cudnnLRNMode
+	{
+		CrossChannelDim1 = 0
+	} 
+
+	public enum cudnnDivNormMode
+	{
+		PrecomputedMeans = 0
+	} 
+
+         
 	#endregion
 }

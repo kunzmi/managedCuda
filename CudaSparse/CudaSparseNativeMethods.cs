@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -37,9 +37,9 @@ namespace ManagedCuda.CudaSparse
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_70";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_75";
 #else
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_70";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_75";
 #endif
 		#region CUSPARSE initialization and managment routines
 		/// <summary/>
@@ -390,6 +390,170 @@ namespace ManagedCuda.CudaSparse
 		#endregion
 
 		#region Sparse Level 2 routines
+		//new in Cuda 7.5
+		#region ref host
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSgemvi(cusparseContext handle,
+                                    cusparseOperation transA,
+                                    int m,
+                                    int n,
+                                    ref float alpha, /* host or device pointer */
+                                    CUdeviceptr A,
+                                    int lda,
+                                    int nnz,
+                                    CUdeviceptr xVal,
+                                    CUdeviceptr xInd,
+                                    ref float beta, /* host or device pointer */
+                                    CUdeviceptr y,
+                                    cusparseIndexBase   idxBase,
+                                    CUdeviceptr pBuffer);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSgemvi_bufferSize(cusparseContext handle,
+									cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDgemvi(cusparseContext handle,
+                                    cusparseOperation transA,
+                                    int m,
+                                    int n,
+                                    ref double alpha, /* host or device pointer */
+                                    CUdeviceptr A,
+                                    int lda,
+                                    int nnz,
+                                    CUdeviceptr xVal,
+                                    CUdeviceptr xInd,
+                                    ref double beta, /* host or device pointer */
+                                    CUdeviceptr y,
+                                    cusparseIndexBase   idxBase,
+                                    CUdeviceptr pBuffer);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDgemvi_bufferSize(cusparseContext handle,
+									cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCgemvi(cusparseContext handle,
+                                    cusparseOperation transA,
+                                    int m,
+                                    int n,
+                                    ref cuFloatComplex alpha, /* host or device pointer */
+                                    CUdeviceptr A,
+                                    int lda,
+                                    int nnz,
+                                    CUdeviceptr xVal,
+                                    CUdeviceptr xInd,
+                                    ref cuFloatComplex beta, /* host or device pointer */
+                                    CUdeviceptr y,
+                                    cusparseIndexBase   idxBase,
+                                    CUdeviceptr pBuffer);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCgemvi_bufferSize(cusparseContext handle,
+									cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZgemvi(cusparseContext handle,
+                                    cusparseOperation transA,
+                                    int m,
+                                    int n,
+                                    ref cuDoubleComplex alpha, /* host or device pointer */
+                                    CUdeviceptr A,
+                                    int lda,
+                                    int nnz,
+                                    CUdeviceptr xVal,
+									CUdeviceptr xInd,
+                                    ref cuDoubleComplex beta, /* host or device pointer */
+									CUdeviceptr y,
+                                    cusparseIndexBase   idxBase,
+									CUdeviceptr pBuffer);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZgemvi_bufferSize( cusparseContext handle,
+									cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
+
+
+		#endregion
+
+		#region ref device
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSgemvi(cusparseContext handle,
+									cusparseOperation transA,
+									int m,
+									int n,
+									CUdeviceptr alpha, /* host or device pointer */
+									CUdeviceptr A,
+									int lda,
+									int nnz,
+									CUdeviceptr xVal,
+									CUdeviceptr xInd,
+									CUdeviceptr beta, /* host or device pointer */
+									CUdeviceptr y,
+									cusparseIndexBase idxBase,
+									CUdeviceptr pBuffer);
+		
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDgemvi(cusparseContext handle,
+									cusparseOperation transA,
+									int m,
+									int n,
+									CUdeviceptr alpha, /* host or device pointer */
+									CUdeviceptr A,
+									int lda,
+									int nnz,
+									CUdeviceptr xVal,
+									CUdeviceptr xInd,
+									CUdeviceptr beta, /* host or device pointer */
+									CUdeviceptr y,
+									cusparseIndexBase idxBase,
+									CUdeviceptr pBuffer);
+		
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCgemvi(cusparseContext handle,
+									cusparseOperation transA,
+									int m,
+									int n,
+									CUdeviceptr alpha, /* host or device pointer */
+									CUdeviceptr A,
+									int lda,
+									int nnz,
+									CUdeviceptr xVal,
+									CUdeviceptr xInd,
+									CUdeviceptr beta, /* host or device pointer */
+									CUdeviceptr y,
+									cusparseIndexBase idxBase,
+									CUdeviceptr pBuffer);
+		
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZgemvi(cusparseContext handle,
+									cusparseOperation transA,
+									int m,
+									int n,
+									CUdeviceptr alpha, /* host or device pointer */
+									CUdeviceptr A,
+									int lda,
+									int nnz,
+									CUdeviceptr xVal,
+									CUdeviceptr xInd,
+									CUdeviceptr beta, /* host or device pointer */
+									CUdeviceptr y,
+									cusparseIndexBase idxBase,
+									CUdeviceptr pBuffer);
+
+		#endregion
+
 
 		/* Description: Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
    where A is a sparse matrix in CSR storage format, x and y are dense vectors. */

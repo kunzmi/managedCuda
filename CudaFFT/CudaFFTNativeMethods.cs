@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -35,9 +35,9 @@ namespace ManagedCuda.CudaFFT
 	{        
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUFFT_API_DLL_NAME = "cufft64_70";
+		internal const string CUFFT_API_DLL_NAME = "cufft64_75";
 #else
-		internal const string CUFFT_API_DLL_NAME = "cufft32_70";
+		internal const string CUFFT_API_DLL_NAME = "cufft32_75";
 #endif
 
 

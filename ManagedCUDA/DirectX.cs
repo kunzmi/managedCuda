@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //

@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -31,6 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// Graphcut of a flow network (32bit signed integer edge capacities). 4 neighborhood labeling.
 	/// </summary>
+	[Obsolete("Graphcut will be deprecated in a future release.")]
 	public class GraphCut4 : IDisposable
 	{
 		NppiGraphcutState _state;
@@ -167,6 +168,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// Graphcut of a flow network (32bit signed integer edge capacities). 8 neighborhood labeling.
 	/// </summary>
+	[Obsolete("Graphcut will be deprecated in a future release.")]
 	public class GraphCut8 : IDisposable
 	{
 		NppiGraphcutState _state;
@@ -315,6 +317,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// Graphcut of a flow network (32bit floating point edge capacities). 4 neighborhood labeling.
 	/// </summary>
+	[Obsolete("Graphcut will be deprecated in a future release.")]
 	public class GraphCut4f : IDisposable
 	{
 		NppiGraphcutState _state;
@@ -451,6 +454,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// Graphcut of a flow network (32bit floating point edge capacities). 8 neighborhood labeling.
 	/// </summary>
+	[Obsolete("Graphcut will be deprecated in a future release.")]
 	public class GraphCut8f : IDisposable
 	{
 		NppiGraphcutState _state;

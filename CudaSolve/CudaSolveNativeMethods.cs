@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2015, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -36,9 +36,9 @@ namespace ManagedCuda.CudaSolve
 	public static class CudaSolveNativeMethods
 	{
 #if _x64
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_70.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_75.dll";
 #else
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_70.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_75.dll";
 #endif
 		/// <summary>
 		/// The cuSolverDN library was designed to solve dense linear systems of the form Ax=B

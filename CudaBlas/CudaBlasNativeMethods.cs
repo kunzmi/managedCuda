@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -35,9 +35,9 @@ namespace ManagedCuda.CudaBlas
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUBLAS_API_DLL_NAME = "cublas64_70";
+		internal const string CUBLAS_API_DLL_NAME = "cublas64_75";
 #else
-		internal const string CUBLAS_API_DLL_NAME = "cublas32_70";
+		internal const string CUBLAS_API_DLL_NAME = "cublas32_75";
 #endif
 
 		#region Basics

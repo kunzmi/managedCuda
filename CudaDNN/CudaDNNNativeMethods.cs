@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2015, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -32,7 +32,7 @@ namespace ManagedCuda.CudaDNN
 	/// <summary/>
 	public static class CudaDNNNativeMethods
 	{
-		internal const string CUDNN_API_DLL_NAME = "cudnn64_65.dll";
+		internal const string CUDNN_API_DLL_NAME = "cudnn64_70.dll";
 
 
 		[DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetVersion")]
@@ -296,7 +296,7 @@ namespace ManagedCuda.CudaDNN
 																 );
 
 		[DllImport(CUDNN_API_DLL_NAME)]  
-		public static extern cudnnStatus cudnnGetConvolutionNdDescriptor( cudnnConvolutionDescriptor convDesc,
+		public static extern cudnnStatus cudnnGetConvolutionNdDescriptor(cudnnConvolutionDescriptor convDesc,
 																   int arrayLengthRequested,
 																   ref int arrayLength,
 																   int[] padA,                                        
@@ -304,6 +304,29 @@ namespace ManagedCuda.CudaDNN
 																   int[] upscaleA,
 																   ref cudnnConvolutionMode mode
 																 );
+
+		[DllImport(CUDNN_API_DLL_NAME)]  
+		public static extern cudnnStatus cudnnSetConvolutionNdDescriptor_v3(cudnnConvolutionDescriptor convDesc,
+                                                              int arrayLength,             /* nbDims-2 size */  
+                                                              int[] padA,                                          
+                                                              int[] filterStrideA,         
+                                                              int[] upscaleA,              
+                                                              cudnnConvolutionMode mode,
+                                                              cudnnDataType dataType   // convolution data type
+                                                         );
+                                                         
+		[DllImport(CUDNN_API_DLL_NAME)]  
+		public static extern cudnnStatus cudnnGetConvolutionNdDescriptor_v3(cudnnConvolutionDescriptor convDesc,
+                                                              int arrayLengthRequested,
+                                                              ref int arrayLength,
+                                                              int[] padA,                                        
+                                                              int[] strideA,
+                                                              int[] upscaleA,
+                                                              ref cudnnConvolutionMode mode,
+                                                              ref cudnnDataType dataType     // convolution data type
+                                                         );
+
+
 
 
 		/* Helper function to return the dimensions of the output tensor given a convolution descriptor */
@@ -319,6 +342,18 @@ namespace ManagedCuda.CudaDNN
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDestroyConvolutionDescriptor( cudnnConvolutionDescriptor convDesc );
 
+
+
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnFindConvolutionForwardAlgorithm(cudnnHandle   handle,
+                                                                 cudnnTensorDescriptor      srcDesc,
+                                                                 cudnnFilterDescriptor      filterDesc,
+                                                                 cudnnConvolutionDescriptor convDesc, 
+                                                                 cudnnTensorDescriptor      destDesc,
+                                                                 int                        requestedAlgoCount,
+                                                                 ref int                    returnedAlgoCount,
+                                                                 cudnnConvolutionFwdAlgoPerf[] perfResults                                                 
+                                                                );
 
 
 
@@ -406,6 +441,81 @@ namespace ManagedCuda.CudaDNN
 
 
 		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnFindConvolutionBackwardFilterAlgorithm( cudnnHandle     handle,
+                                                                       cudnnTensorDescriptor          srcDesc,
+                                                                       cudnnTensorDescriptor          diffDesc,
+                                                                       cudnnConvolutionDescriptor     convDesc, 
+                                                                       cudnnFilterDescriptor          gradDesc,
+                                                                       int                              requestedAlgoCount,
+                                                                       ref int                          returnedAlgoCount,
+                                                                       cudnnConvolutionBwdFilterAlgoPerf[] perfResults   
+                                                                     );
+                                                       
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnGetConvolutionBackwardFilterAlgorithm( cudnnHandle             handle,
+                                                                      cudnnTensorDescriptor          srcDesc,
+                                                                      cudnnTensorDescriptor          diffDesc,
+                                                                      cudnnConvolutionDescriptor     convDesc, 
+                                                                      cudnnFilterDescriptor          gradDesc,
+                                                                      cudnnConvolutionBwdFilterPreference  preference,
+                                                                      SizeT                                memoryLimitInbytes,
+                                                                      ref cudnnConvolutionBwdFilterAlgo algo
+                                                                     );
+
+
+
+		/*
+		 *  convolution algorithm (which requires potentially some workspace)
+		 */
+
+		 /* Helper function to return the minimum size of the workspace to be passed to the convolution given an algo*/ 
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnGetConvolutionBackwardFilterWorkspaceSize( cudnnHandle          handle, 
+																				  cudnnTensorDescriptor       srcDesc,
+																				  cudnnTensorDescriptor       diffDesc,
+																				  cudnnConvolutionDescriptor  convDesc,  
+																				  cudnnFilterDescriptor       gradDesc,
+																				  cudnnConvolutionBwdFilterAlgo     algo,
+																				  ref SizeT                         sizeInBytes
+																				);
+                                                       
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnConvolutionBackwardFilter_v3( cudnnHandle                 handle,
+																	 ref float alpha,
+																	 cudnnTensorDescriptor       srcDesc,
+																	 CUdeviceptr srcData,
+																	 cudnnTensorDescriptor       diffDesc,
+																	 CUdeviceptr diffData,
+																	 cudnnConvolutionDescriptor  convDesc,
+																	 cudnnConvolutionBwdFilterAlgo     algo,
+																	 CUdeviceptr workSpace,
+																	 SizeT                              workSpaceSizeInBytes,
+																	 ref float beta,
+																	 cudnnFilterDescriptor       gradDesc,
+																	 CUdeviceptr gradData
+																   );
+                                             
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnConvolutionBackwardFilter_v3( cudnnHandle                 handle,
+																	 ref double alpha,
+																	 cudnnTensorDescriptor       srcDesc,
+																	 CUdeviceptr srcData,
+																	 cudnnTensorDescriptor       diffDesc,
+																	 CUdeviceptr diffData,
+																	 cudnnConvolutionDescriptor  convDesc,
+																	 cudnnConvolutionBwdFilterAlgo     algo,
+																	 CUdeviceptr workSpace,
+																	 SizeT                              workSpaceSizeInBytes,
+																	 ref double beta,
+																	 cudnnFilterDescriptor       gradDesc,
+																	 CUdeviceptr gradData
+																   );
+
+
+
+
+
+		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardFilter( cudnnHandle handle,
 																  ref float alpha,
 																  cudnnTensorDescriptor srcDesc,
@@ -429,6 +539,77 @@ namespace ManagedCuda.CudaDNN
 																  cudnnFilterDescriptor gradDesc,
 																  CUdeviceptr gradData
 																);
+
+
+
+
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnFindConvolutionBackwardDataAlgorithm( cudnnHandle handle,
+                                                                     cudnnFilterDescriptor       filterDesc,
+                                                                     cudnnTensorDescriptor       diffDesc,
+                                                                     cudnnConvolutionDescriptor  convDesc, 
+                                                                     cudnnTensorDescriptor       gradDesc,
+                                                                     int                           requestedAlgoCount,
+                                                                     ref int                               *returnedAlgoCount,
+                                                                     cudnnConvolutionBwdDataAlgoPerf[] perfResults  
+                                                                   );
+                                          
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnGetConvolutionBackwardDataAlgorithm( cudnnHandle handle,
+																	   cudnnFilterDescriptor       filterDesc,
+																	   cudnnTensorDescriptor       diffDesc,
+																	   cudnnConvolutionDescriptor  convDesc, 
+																	   cudnnTensorDescriptor       gradDesc,
+																	   cudnnConvolutionBwdDataPreference preference, 
+																	   SizeT                              memoryLimitInbytes,
+																	   ref cudnnConvolutionBwdDataAlgo algo
+																	 );
+
+		 /* Helper function to return the minimum size of the workspace to be passed to the convolution given an algo*/ 
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnGetConvolutionBackwardDataWorkspaceSize( cudnnHandle handle,
+																		   cudnnFilterDescriptor      filterDesc,
+																		   cudnnTensorDescriptor       diffDesc,
+																		   cudnnConvolutionDescriptor convDesc,  
+																		   cudnnTensorDescriptor       gradDesc,
+																		   cudnnConvolutionBwdDataAlgo          algo,
+																		   ref SizeT                            sizeInBytes
+																		);        
+
+                                         
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnConvolutionBackwardData_v3( cudnnHandle handle,
+																 ref float alpha,
+																 cudnnFilterDescriptor       filterDesc,
+																 CUdeviceptr filterData,
+																 cudnnTensorDescriptor       diffDesc,
+																 CUdeviceptr diffData,
+																 cudnnConvolutionDescriptor  convDesc,
+																 cudnnConvolutionBwdDataAlgo           algo,
+																 CUdeviceptr workSpace,
+																 SizeT                              workSpaceSizeInBytes,
+																 ref float beta,
+																 cudnnTensorDescriptor       gradDesc,
+																 CUdeviceptr gradData
+															   );
+   
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnConvolutionBackwardData_v3( cudnnHandle handle,
+																 ref double alpha,
+																 cudnnFilterDescriptor       filterDesc,
+																 CUdeviceptr filterData,
+																 cudnnTensorDescriptor       diffDesc,
+																 CUdeviceptr diffData,
+																 cudnnConvolutionDescriptor  convDesc,
+																 cudnnConvolutionBwdDataAlgo           algo,
+																 CUdeviceptr workSpace,
+																 SizeT                              workSpaceSizeInBytes,
+																 ref double beta,
+																 cudnnTensorDescriptor       gradDesc,
+																 CUdeviceptr gradData
+															   );
+
+
 
 
 		[DllImport(CUDNN_API_DLL_NAME)]
@@ -458,16 +639,6 @@ namespace ManagedCuda.CudaDNN
 
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnIm2Col(  cudnnHandle handle,
-												ref float alpha,
-												cudnnTensorDescriptor srcDesc,
-												CUdeviceptr srcData,
-												cudnnFilterDescriptor filterDesc,                                        
-												cudnnConvolutionDescriptor convDesc,
-												CUdeviceptr colBuffer
-											 );
-		[DllImport(CUDNN_API_DLL_NAME)]
-		public static extern cudnnStatus cudnnIm2Col(  cudnnHandle handle,
-												ref double alpha,
 												cudnnTensorDescriptor srcDesc,
 												CUdeviceptr srcData,
 												cudnnFilterDescriptor filterDesc,                                        
@@ -706,5 +877,171 @@ namespace ManagedCuda.CudaDNN
 														   cudnnTensorDescriptor destDiffDesc,
 														   CUdeviceptr destDiffData
 														 );
+
+
+		/// <summary>
+		/// Create an instance of LRN (Local Response Normalization) descriptor <para/>
+		/// This function will set lrnN=5, lrnAlpha=1e-4, lrnBeta=0.75, lrnK=2.0 as defaults from Krizhevsky'12 ImageNet paper
+		/// </summary>
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnCreateLRNDescriptor(ref cudnnLRNDescriptor normDesc);
+
+		// LRN uses a window [center-lookBehind, center+lookAhead], where
+		// lookBehind = floor( (lrnN-1)/2 ), lookAhead = lrnN-lookBehind-1.
+		// So for n=10, the window is [k-4...k...k+5] with a total of 10 samples.
+		// Values of double parameters will be cast down to tensor data type.
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnSetLRNDescriptor(
+									  cudnnLRNDescriptor   normDesc,
+									  uint               lrnN,
+									  double                 lrnAlpha,
+									  double                 lrnBeta,
+									  double                 lrnK);
+
+		// Retrieve the settings currently stored in an LRN layer descriptor
+		// Any of the provided pointers can be NULL (no corresponding value will be returned)
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnGetLRNDescriptor(
+									  cudnnLRNDescriptor   normDesc,
+									  ref uint              lrnN,
+									  ref double                lrnAlpha,
+									  ref double                lrnBeta,
+									  ref double                lrnK);
+
+		// Destroy an instance of LRN descriptor
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnDestroyLRNDescriptor( cudnnLRNDescriptor lrnDesc );
+
+		// LRN functions: of the form "output = alpha * normalize(srcData) + beta * destData"
+
+		// Function to perform LRN forward cross-channel computation
+		// Values of double parameters will be cast down to tensor data type
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnLRNCrossChannelForward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnLRNMode                   lrnMode,
+									  ref float alpha,
+									  cudnnTensorDescriptor    srcDesc,
+									  CUdeviceptr srcData,
+									  ref float beta,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData);
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnLRNCrossChannelForward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnLRNMode                   lrnMode,
+									  ref double alpha,
+									  cudnnTensorDescriptor    srcDesc,
+									  CUdeviceptr srcData,
+									  ref double beta,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData);
+
+		// Function to perform LRN cross-channel backpropagation
+		// values of double parameters will be cast down to tensor data type
+		// src is the front layer, dst is the back layer
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnLRNMode                   lrnMode,
+									  ref float alpha,
+									  cudnnTensorDescriptor    srcDesc,
+									  CUdeviceptr srcData,
+									  cudnnTensorDescriptor    srcDiffDesc,
+									  CUdeviceptr srcDiffData,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData,
+									  ref float beta,
+									  cudnnTensorDescriptor    destDiffDesc,
+									  CUdeviceptr destDiffData);
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnLRNMode                   lrnMode,
+									  ref double alpha,
+									  cudnnTensorDescriptor    srcDesc,
+									  CUdeviceptr srcData,
+									  cudnnTensorDescriptor    srcDiffDesc,
+									  CUdeviceptr srcDiffData,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData,
+									  ref double beta,
+									  cudnnTensorDescriptor    destDiffDesc,
+									  CUdeviceptr destDiffData);
+
+		
+
+		// LCN/divisive normalization functions: of the form "output = alpha * normalize(srcData) + beta * destData"
+		// srcMeansData can be NULL to reproduce Caffe's LRN within-channel behavior
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnDivNormMode               mode,
+									  ref float alpha,
+									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
+									  CUdeviceptr srcData,
+									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
+									  CUdeviceptr tempData,
+									  CUdeviceptr tempData2,
+									  ref float beta,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData
+									  );
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnDivNormMode               mode,
+									  ref double alpha,
+									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
+									  CUdeviceptr srcData,
+									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
+									  CUdeviceptr tempData,
+									  CUdeviceptr tempData2,
+									  ref double beta,
+									  cudnnTensorDescriptor    destDesc,
+									  CUdeviceptr destData
+									  );
+
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnDivNormMode               mode,
+									  ref float alpha,
+									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
+									  CUdeviceptr srcData,
+									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
+									  CUdeviceptr srcDiffData,
+									  CUdeviceptr tempData,
+									  CUdeviceptr tempData2,
+									  ref float betaData,
+									  cudnnTensorDescriptor    destDataDesc, // same desc for dest, means, meansDiff
+									  CUdeviceptr destDataDiff, // output data differential
+									  CUdeviceptr destMeansDiff // output means differential, can be NULL
+									  );
+		[DllImport(CUDNN_API_DLL_NAME)]
+		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
+									  cudnnHandle                    handle,
+									  cudnnLRNDescriptor             normDesc,
+									  cudnnDivNormMode               mode,
+									  ref double alpha,
+									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
+									  CUdeviceptr srcData,
+									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
+									  CUdeviceptr srcDiffData,
+									  CUdeviceptr tempData,
+									  CUdeviceptr tempData2,
+									  ref double betaData,
+									  cudnnTensorDescriptor    destDataDesc, // same desc for dest, means, meansDiff
+									  CUdeviceptr destDataDiff, // output data differential
+									  CUdeviceptr destMeansDiff // output means differential, can be NULL
+									  );
+
 	}
 }

@@ -12,10 +12,10 @@ function Update-BuildVersionFromRevision
     $rawVersionNumberGroup = get-content $foundFiles | select-string -pattern $assemblyVersionPattern | select -first 1 | % { $_.Matches }              
     $rawVersionNumber = $rawVersionNumberGroup.Groups[1].Value  
                     
-    $hgCommitDistance = hg log -r tip --template '{rev}'
+    $gitCommitDistance = git rev-list HEAD --count
 
     $versionParts = $rawVersionNumber.Split('.')       
-    $updatedAssemblyVersion = "{0}.{1}.{2}" -f $versionParts[0], $versionParts[1], $hgCommitDistance 
+    $updatedAssemblyVersion = "{0}.{1}.{2}" -f $versionParts[0], $versionParts[1], $gitCommitDistance 
       
     $assemblyVersion  
                   
@@ -41,10 +41,10 @@ function Get-BuildVersion
     $rawVersionNumberGroup = get-content $foundFiles | select-string -pattern $assemblyVersionPattern | select -first 1 | % { $_.Matches }              
     $rawVersionNumber = $rawVersionNumberGroup.Groups[1].Value  
                     
-    $hgCommitDistance = hg log -r tip --template '{rev}'
+    $gitCommitDistance = git rev-list HEAD --count
 
     $versionParts = $rawVersionNumber.Split('.')       
-    $updatedAssemblyVersion = "{0}.{1}.{2}" -f $versionParts[0], $versionParts[1], $hgCommitDistance 
+    $updatedAssemblyVersion = "{0}.{1}.{2}" -f $versionParts[0], $versionParts[1], $gitCommitDistance 
       
     return $updatedAssemblyVersion
 } 

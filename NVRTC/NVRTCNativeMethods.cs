@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2014, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -33,9 +33,9 @@ namespace ManagedCuda.NVRTC
 	public static class NVRTCNativeMethods
 	{
 #if _x64
-		internal const string NVRTC_API_DLL_NAME = "nvrtc64_70.dll";
+		internal const string NVRTC_API_DLL_NAME = "nvrtc64_75.dll";
 #else
-		internal const string NVRTC_API_DLL_NAME = "nvrtc32_70.dll";
+		internal const string NVRTC_API_DLL_NAME = "nvrtc32_75.dll";
 #endif
 		
 		[DllImport(NVRTC_API_DLL_NAME, EntryPoint="nvrtcGetErrorString")]

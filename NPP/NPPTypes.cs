@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -404,9 +404,25 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		Cuda3_5 = 350,
 		/// <summary>
-		/// Indicates that CUDA 5.0 or better is machine's default device
+		/// Indicates that CUDA 3.7 capable device is machine's default device
 		/// </summary>
-		Cuda5_0 = 500
+		Cuda3_7 = 370,
+		/// <summary>
+		/// Indicates that CUDA 5.0 capable device is machine's default device
+		/// </summary>
+		Cuda5_0 = 500, 
+		/// <summary>
+		/// Indicates that CUDA 5.2 capable device is machine's default device
+		/// </summary>
+		Cuda5_2 = 520,
+		/// <summary>
+		/// Indicates that CUDA 5.3 capable device is machine's default device
+		/// </summary>
+		Cuda5_3 = 530,
+		/// <summary>
+		/// Indicates that CUDA 6.0 or better is machine's default device
+		/// </summary>
+		Cuda6_0 = 600
 	}
 
 	/// <summary>
@@ -543,7 +559,9 @@ namespace ManagedCuda.NPP
 		/// <summary/>
 		Replicate = 2,
 		/// <summary/>
-		Wrap = 3
+		Wrap = 3,
+		/// <summary/>
+		Mirror = 4
 	} 
 
 

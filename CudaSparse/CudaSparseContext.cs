@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -737,6 +737,293 @@ namespace ManagedCuda.CudaSparse
 		#endregion
 
 		#region Sparse Level 2 routines
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, float alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, 
+			float beta, CudaDeviceVariable<float> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseSgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, double alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
+			double beta, CudaDeviceVariable<double> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseDgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
+			cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseCgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
+			cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseZgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd,
+			CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseSgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
+			CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseDgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
+			CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseCgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function performs the matrix-vector operation <para/>
+		/// y = alpha * op(A) * x + B * y <para/>
+		/// A is an m x n dense matrix and a sparse vector x that is defined in a sparse storage format
+		/// by the two arrays xVal, xInd of length nnz, and y is a dense vector; alpha and beta are scalars.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix A.</param>
+		/// <param name="alpha">scalar used for multiplication.</param>
+		/// <param name="A">the pointer to dense matrix A.</param>
+		/// <param name="lda">size of the leading dimension of A.</param>
+		/// <param name="nnz">number of nonzero elements of vector x.</param>
+		/// <param name="xVal">sparse vector of nnz elements of size n if op(A) = A, and of size m if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="xInd">Indices of non-zero values in x</param>
+		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
+		/// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
+		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
+		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
+			CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+		{
+			res = CudaSparseNativeMethods.cusparseZgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgemvi", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// This function returns size of buffer used in gemvi(). A is an (m)x(n) dense matrix.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix Y.</param>
+		/// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
+		/// <returns>number of elements needed the buffer used in gemvi().</returns>
+		public int GemviSBufferSize(cusparseOperation transA, int m, int n, int nnz)
+		{
+			int size = 0;
+			res = CudaSparseNativeMethods.cusparseSgemvi_bufferSize(_handle, transA, m, n, nnz, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgemvi_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+		/// <summary>
+		/// This function returns size of buffer used in gemvi(). A is an (m)x(n) dense matrix.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix Y.</param>
+		/// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
+		/// <returns>number of elements needed the buffer used in gemvi().</returns>
+		public int GemviDBufferSize(cusparseOperation transA, int m, int n, int nnz)
+		{
+			int size = 0;
+			res = CudaSparseNativeMethods.cusparseDgemvi_bufferSize(_handle, transA, m, n, nnz, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgemvi_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+		/// <summary>
+		/// This function returns size of buffer used in gemvi(). A is an (m)x(n) dense matrix.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix Y.</param>
+		/// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
+		/// <returns>number of elements needed the buffer used in gemvi().</returns>
+		public int GemviCBufferSize(cusparseOperation transA, int m, int n, int nnz)
+		{
+			int size = 0;
+			res = CudaSparseNativeMethods.cusparseCgemvi_bufferSize(_handle, transA, m, n, nnz, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgemvi_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+		/// <summary>
+		/// This function returns size of buffer used in gemvi(). A is an (m)x(n) dense matrix.
+		/// </summary>
+		/// <param name="transA">the operation op(A).</param>
+		/// <param name="m">number of rows of matrix A.</param>
+		/// <param name="n">number of columns of matrix Y.</param>
+		/// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
+		/// <returns>number of elements needed the buffer used in gemvi().</returns>
+		public int GemviZBufferSize(cusparseOperation transA, int m, int n, int nnz)
+		{
+			int size = 0;
+			res = CudaSparseNativeMethods.cusparseZgemvi_bufferSize(_handle, transA, m, n, nnz, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgemvi_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+
+
 		/// <summary>
 		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
 		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.

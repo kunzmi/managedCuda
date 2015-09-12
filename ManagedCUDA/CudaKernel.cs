@@ -1,5 +1,5 @@
 ﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedcuda
+//	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
 //
@@ -2917,5 +2917,48 @@ namespace ManagedCuda
 			return occupancy;
 		}
 		#endregion
+
+
+		/// <summary>
+		/// Sets the grid dimensions according to block dimensions, so that each dimension has at least computeSize threads
+		/// </summary>
+		/// <param name="computeSizeX">Minimum number of threads in X dimension</param>
+		/// <param name="computeSizeY">Minimum number of threads in Y dimension</param>
+		/// <param name="computeSizeZ">Minimum number of threads in Z dimension</param>
+		public void SetComputeSize(uint computeSizeX, uint computeSizeY, uint computeSizeZ)
+		{
+			_gridDim.x = (computeSizeX + _blockDim.x - 1) / _blockDim.x;
+			_gridDim.y = (computeSizeY + _blockDim.y - 1) / _blockDim.y;
+			_gridDim.z = (computeSizeZ + _blockDim.z - 1) / _blockDim.z;
+		}
+
+		/// <summary>
+		/// Sets the grid dimensions according to block dimensions, so that each dimension has at least computeSize threads
+		/// </summary>
+		/// <param name="computeSizeX">Minimum number of threads in X dimension</param>
+		/// <param name="computeSizeY">Minimum number of threads in Y dimension</param>
+		public void SetComputeSize(uint computeSizeX, uint computeSizeY)
+		{
+			SetComputeSize(computeSizeX, computeSizeY, 1);
+		}
+
+		/// <summary>
+		/// Sets the grid dimensions according to block dimensions, so that each dimension has at least computeSize threads
+		/// </summary>
+		/// <param name="computeSizeX">Minimum number of threads in X dimension</param>
+		public void SetComputeSize(uint computeSizeX)
+		{
+			SetComputeSize(computeSizeX, 1, 1);
+		}
+
+		/// <summary>
+		/// Sets the grid dimensions according to block dimensions, so that each dimension has at least computeSize threads
+		/// </summary>
+		/// <param name="computeSize">Minimum number of threads in X, Y and Z dimension</param>
+		public void SetComputeSize(dim3 computeSize)
+		{
+			SetComputeSize(computeSize.x, computeSize.y, computeSize.z);
+		}
+
 	}
 }
