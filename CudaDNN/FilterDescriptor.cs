@@ -26,6 +26,10 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.CudaDNN
 {
+	/// <summary>
+	/// An opaque structure holding the description
+	/// of a filter dataset.
+	/// </summary>
 	public class FilterDescriptor : IDisposable
 	{
 		private cudnnFilterDescriptor _desc;
@@ -89,6 +93,15 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+		/// <summary>
+		/// This function initializes a previously created filter descriptor object into a 4D filter.
+		/// Filters layout must be contiguous in memory.
+		/// </summary>
+		/// <param name="dataType">Data type.</param>
+		/// <param name="k">Number of output feature maps.</param>
+		/// <param name="c">Number of input feature maps.</param>
+		/// <param name="h">Height of each filter.</param>
+		/// <param name="w">Width of each filter.</param>
 		public void SetFilter4dDescriptor(cudnnDataType dataType, // image data type
 												int k,        // number of output feature maps
 												int c,        // number of input feature maps
@@ -102,6 +115,14 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+		/// <summary>
+		/// This function queries the parameters of the previouly initialized filter descriptor object.
+		/// </summary>
+		/// <param name="dataType">Data type.</param>
+		/// <param name="k">Number of output feature maps.</param>
+		/// <param name="c">Number of input feature maps.</param>
+		/// <param name="h">Height of each filter.</param>
+		/// <param name="w">Width of each filter.</param>
 		public void GetFilter4dDescriptor(ref cudnnDataType dataType, // image data type
 											ref int k,        // number of output feature maps
 											ref int c,        // number of input feature maps
@@ -115,6 +136,13 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+		/// <summary>
+		/// This function initializes a previously created filter descriptor object. Filters layout must
+		/// be contiguous in memory.
+		/// </summary>
+		/// <param name="dataType">Data type.</param>
+		/// <param name="nbDims">Dimension of the filter.</param>
+		/// <param name="filterDimA">Array of dimension nbDims containing the size of the filter for each dimension.</param>
 		public void SetFilterNdDescriptor(cudnnDataType dataType, // image data type
 											int nbDims,
 											int[] filterDimA
@@ -126,6 +154,15 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+		/// <summary>
+		/// This function queries a previously initialized filter descriptor object.
+		/// </summary>
+		/// <param name="nbDimsRequested">Dimension of the expected filter descriptor. It is also the minimum size of
+		/// the arrays filterDimA in order to be able to hold the results</param>
+		/// <param name="dataType">Data type.</param>
+		/// <param name="nbDims">Actual dimension of the filter.</param>
+		/// <param name="filterDimA">Array of dimension of at least nbDimsRequested that will be filled with
+		/// the filter parameters from the provided filter descriptor.</param>
 		public void GetFilterNdDescriptor(int nbDimsRequested,
 											ref cudnnDataType dataType, // image data type
 											ref int nbDims,

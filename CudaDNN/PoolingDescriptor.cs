@@ -26,7 +26,10 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.CudaDNN
 {
-
+	/// <summary>
+	/// An opaque structure holding
+	/// the description of a pooling operation.
+	/// </summary>
 	public class PoolingDescriptor : IDisposable
 	{
 		private cudnnPoolingDescriptor _desc;
@@ -90,6 +93,16 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+		/// <summary>
+		/// This function initializes a previously created generic pooling descriptor object into a 2D description.
+		/// </summary>
+		/// <param name="mode">Enumerant to specify the pooling mode.</param>
+		/// <param name="windowHeight">Height of the pooling window.</param>
+		/// <param name="windowWidth">Width of the pooling window.</param>
+		/// <param name="verticalPadding">Size of vertical padding.</param>
+		/// <param name="horizontalPadding">Size of horizontal padding</param>
+		/// <param name="verticalStride">Pooling vertical stride.</param>
+		/// <param name="horizontalStride">Pooling horizontal stride.</param>
 		public void SetPooling2dDescriptor(cudnnPoolingMode mode,
 																int windowHeight,
 																int windowWidth,
@@ -104,6 +117,17 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+
+		/// <summary>
+		/// This function queries a previously created 2D pooling descriptor object.
+		/// </summary>
+		/// <param name="mode">Enumerant to specify the pooling mode.</param>
+		/// <param name="windowHeight">Height of the pooling window.</param>
+		/// <param name="windowWidth">Width of the pooling window.</param>
+		/// <param name="verticalPadding">Size of vertical padding.</param>
+		/// <param name="horizontalPadding">Size of horizontal padding.</param>
+		/// <param name="verticalStride">Pooling vertical stride.</param>
+		/// <param name="horizontalStride">Pooling horizontal stride.</param>
 		public void GetPooling2dDescriptor(ref cudnnPoolingMode mode,
 											ref int windowHeight,
 											ref int windowWidth,
@@ -118,6 +142,14 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+		/// <summary>
+		/// This function initializes a previously created generic pooling descriptor object.
+		/// </summary>
+		/// <param name="mode">Enumerant to specify the pooling mode.</param>
+		/// <param name="nbDims">Dimension of the pooling operation.</param>
+		/// <param name="windowDimA">Array of dimension nbDims containing the window size for each dimension.</param>
+		/// <param name="paddingA">Array of dimension nbDims containing the padding size for each dimension.</param>
+		/// <param name="strideA">Array of dimension nbDims containing the striding size for each dimension.</param>
 		public void SetPoolingNdDescriptor(cudnnPoolingMode mode,
 											int nbDims,
 											int[] windowDimA,
@@ -130,6 +162,20 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+		/// <summary>
+		/// This function queries a previously initialized generic pooling descriptor object.
+		/// </summary>
+		/// <param name="nbDimsRequested">Dimension of the expected pooling descriptor. It is also the minimum
+		/// size of the arrays windowDimA, paddingA and strideA in order to be
+		/// able to hold the results</param>
+		/// <param name="mode">Enumerant to specify the pooling mode.</param>
+		/// <param name="nbDims">Actual dimension of the pooling descriptor.</param>
+		/// <param name="windowDimA">Array of dimension of at least nbDimsRequested that will be filled with
+		/// the window parameters from the provided pooling descriptor.</param>
+		/// <param name="paddingA">Array of dimension of at least nbDimsRequested that will be filled with
+		/// the padding parameters from the provided pooling descriptor.</param>
+		/// <param name="strideA">Array of dimension at least nbDimsRequested that will be filled with
+		/// the stride parameters from the provided pooling descriptor.</param>
 		public void GetPoolingNdDescriptor(int nbDimsRequested,
 											ref cudnnPoolingMode mode,
 											ref int nbDims,
@@ -143,6 +189,12 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+		/// <summary>
+		/// This function provides the output dimensions of a tensor after Nd pooling has been applied
+		/// </summary>
+		/// <param name="inputTensorDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="nbDims">Number of dimensions in which pooling is to be applied.</param>
+		/// <param name="outputTensorDimA">Array of nbDims output dimensions</param>
 		public void GetPoolingNdForwardOutputDim(TensorDescriptor inputTensorDesc,
 																	 int nbDims,
 																	 int[] outputTensorDimA)
@@ -152,6 +204,14 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+		/// <summary>
+		/// This function provides the output dimensions of a tensor after 2d pooling has been applied
+		/// </summary>
+		/// <param name="inputTensorDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="outN">Number of images in the output</param>
+		/// <param name="outC">Number of channels in the output</param>
+		/// <param name="outH">Height of images in the output</param>
+		/// <param name="outW">Width of images in the output</param>
 		public void GetPooling2dForwardOutputDim(TensorDescriptor inputTensorDesc,
 																	 ref int outN,
 																	 ref int outC,

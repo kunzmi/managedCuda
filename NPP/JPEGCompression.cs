@@ -256,18 +256,35 @@ namespace ManagedCuda.NPP
 		/// <param name="Se">End Coefficient, see JPEG standard.</param>
 		/// <param name="Ah">Bit Approximation High, see JPEG standard.</param>
 		/// <param name="Al">Bit Approximation Low, see JPEG standard.</param>
-		/// <param name="pDst">Destination image pointer</param>
+		/// <param name="pDstY">Destination first image channel</param>
+		/// <param name="pDstCb">Destination second image channel</param>
+		/// <param name="pDstCr">Destination third image channel</param>
 		/// <param name="nDstStep">destination image line step.</param>
 		/// <param name="pHuffmanTableDC">DC Huffman table.</param>
 		/// <param name="pHuffmanTableAC">AC Huffman table.</param>
 		/// <param name="oSizeROI">ROI</param>
 		public static void DecodeHuffmanScanHost(byte[] pSrc, int restartInterval, int Ss, int Se, int Ah, int Al,
-					IntPtr[] pDst, int[] nDstStep, NppiDecodeHuffmanSpec[] pHuffmanTableDC, NppiDecodeHuffmanSpec[] pHuffmanTableAC, NppiSize[] oSizeROI)
+					short[] pDstY, short[] pDstCb, short[] pDstCr, int[] nDstStep, NppiDecodeHuffmanSpec[] pHuffmanTableDC, NppiDecodeHuffmanSpec[] pHuffmanTableAC, NppiSize[] oSizeROI)
 		{
 			NppStatus status;
-			status = NPPNativeMethods.NPPi.CompressionDCT.nppiDecodeHuffmanScanHost_JPEG_8u16s_P3R(pSrc, pSrc.Length, restartInterval, Ss, Se, Ah, Al, pDst, nDstStep, pHuffmanTableDC, pHuffmanTableAC, oSizeROI);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDecodeHuffmanScanHost_JPEG_8u16s_P3R", status));
-			NPPException.CheckNppStatus(status, null);			
+			GCHandle[] handles = new GCHandle[3];
+			try
+			{
+				handles[0] = GCHandle.Alloc(pDstY, GCHandleType.Pinned);
+				handles[1] = GCHandle.Alloc(pDstCb, GCHandleType.Pinned);
+				handles[2] = GCHandle.Alloc(pDstCr, GCHandleType.Pinned);
+
+				IntPtr[] temp = new IntPtr[] { handles[0].AddrOfPinnedObject(), handles[1].AddrOfPinnedObject(), handles[2].AddrOfPinnedObject() };
+				status = NPPNativeMethods.NPPi.CompressionDCT.nppiDecodeHuffmanScanHost_JPEG_8u16s_P3R(pSrc, pSrc.Length, restartInterval, Ss, Se, Ah, Al, temp, nDstStep, pHuffmanTableDC, pHuffmanTableAC, oSizeROI);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDecodeHuffmanScanHost_JPEG_8u16s_P3R", status));
+			}
+			finally
+			{
+				handles[0].Free();
+				handles[1].Free();
+				handles[2].Free();
+			}
+			NPPException.CheckNppStatus(status, null);
 		}
 
 		/// <summary>
@@ -303,7 +320,7 @@ namespace ManagedCuda.NPP
 		/// <param name="pHuffmanTableAC">AC Huffman table.</param>
 		/// <param name="oSizeROI">ROI</param>
 		/// <param name="buffer">Scratch buffer</param>
-		public static void EnodeHuffmanScan(NPPImage_16sC1 pSrc, int restartInterval, int Ss, int Se, int Ah, int Al,
+		public static void EncodeHuffmanScan(NPPImage_16sC1 pSrc, int restartInterval, int Ss, int Se, int Ah, int Al,
 					CudaDeviceVariable<byte> pDst, ref int nLength, NppiEncodeHuffmanSpec pHuffmanTableDC, NppiEncodeHuffmanSpec pHuffmanTableAC, NppiSize oSizeROI, CudaDeviceVariable<byte> buffer)
 		{
 			NppStatus status;
@@ -346,7 +363,7 @@ namespace ManagedCuda.NPP
 		/// Returns the length of the NppiDecodeHuffmanSpec structure.
 		/// </summary>
 		/// <returns>the length of the NppiDecodeHuffmanSpec structure.</returns>
-		public static int DecodeHuffmanSpecGetBufSize_JPEG()
+		public static int DecodeHuffmanSpecGetBufSize()
 		{
 			NppStatus status;
 			int res = 0;
@@ -364,7 +381,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eTableType">Enum specifying type of table (nppiDCTable or nppiACTable)</param>
 		/// <param name="pHuffmanSpec">Pointer to the Huffman table for the decoder</param>
 		/// <returns>NPP_NULL_POINTER_ERROR If one of the pointers is 0.</returns>
-		public static void DecodeHuffmanSpecInitHost_JPEG(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType, NppiDecodeHuffmanSpec pHuffmanSpec)
+		public static void DecodeHuffmanSpecInitHost(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType, NppiDecodeHuffmanSpec pHuffmanSpec)
 		{
 			NppStatus status;
 			status = NPPNativeMethods.NPPi.CompressionDCT.nppiDecodeHuffmanSpecInitHost_JPEG(pRawHuffmanTable, eTableType, pHuffmanSpec);
@@ -378,7 +395,7 @@ namespace ManagedCuda.NPP
 		/// <param name="pRawHuffmanTable">Huffman table formated as specified in the JPEG standard.</param>
 		/// <param name="eTableType">Enum specifying type of table (nppiDCTable or nppiACTable).</param>
 		/// <returns>Huffman table for the decoder</returns>
-		public static NppiDecodeHuffmanSpec DecodeHuffmanSpecInitAllocHost_JPEG(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType)
+		public static NppiDecodeHuffmanSpec DecodeHuffmanSpecInitAllocHost(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType)
 		{
 			NppiDecodeHuffmanSpec spec = new NppiDecodeHuffmanSpec();
 			NppStatus status;
@@ -392,7 +409,7 @@ namespace ManagedCuda.NPP
 		/// Frees the host memory allocated by nppiDecodeHuffmanSpecInitAllocHost_JPEG.
 		/// </summary>
 		/// <param name="pHuffmanSpec">Pointer to the Huffman table for the decoder</param>
-		public static void DecodeHuffmanSpecFreeHost_JPEG(NppiDecodeHuffmanSpec pHuffmanSpec)
+		public static void DecodeHuffmanSpecFreeHost(NppiDecodeHuffmanSpec pHuffmanSpec)
 		{
 			NppStatus status;
 			status = NPPNativeMethods.NPPi.CompressionDCT.nppiDecodeHuffmanSpecFreeHost_JPEG(pHuffmanSpec);
@@ -407,7 +424,7 @@ namespace ManagedCuda.NPP
 		/// Returns the length of the NppiEncodeHuffmanSpec structure.
 		/// </summary>
 		/// <returns>length of the NppiEncodeHuffmanSpec structure.</returns>
-		public static int EncodeHuffmanSpecGetBufSize_JPEG()
+		public static int EncodeHuffmanSpecGetBufSize()
 		{
 			NppStatus status;
 			int res = 0;
@@ -424,7 +441,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eTableType">Enum specifying type of table (nppiDCTable or nppiACTable).</param>
 		/// <param name="pHuffmanSpec">Pointer to the Huffman table for the decoder</param>
 		/// <returns>Huffman table for the encoder</returns>
-		public static void EncodeHuffmanSpecInit_JPEG(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType, NppiEncodeHuffmanSpec pHuffmanSpec)
+		public static void EncodeHuffmanSpecInit(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType, NppiEncodeHuffmanSpec pHuffmanSpec)
 		{
 			NppStatus status;
 			status = NPPNativeMethods.NPPi.CompressionDCT.nppiEncodeHuffmanSpecInit_JPEG(pRawHuffmanTable, eTableType, pHuffmanSpec);
@@ -438,7 +455,7 @@ namespace ManagedCuda.NPP
 		/// <param name="pRawHuffmanTable">Huffman table formated as specified in the JPEG standard.</param>
 		/// <param name="eTableType">Enum specifying type of table (nppiDCTable or nppiACTable).</param>
 		/// <returns>Huffman table for the encoder.</returns>
-		public static NppiEncodeHuffmanSpec EncodeHuffmanSpecInitAllocHost_JPEG(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType)
+		public static NppiEncodeHuffmanSpec EncodeHuffmanSpecInitAlloc(byte[] pRawHuffmanTable, NppiHuffmanTableType eTableType)
 		{
 			NppiEncodeHuffmanSpec spec = new NppiEncodeHuffmanSpec();
 			NppStatus status;
@@ -452,7 +469,7 @@ namespace ManagedCuda.NPP
 		/// Frees the memory allocated by nppiEncodeHuffmanSpecInitAlloc_JPEG.
 		/// </summary>
 		/// <param name="pHuffmanSpec">Pointer to the Huffman table for the encoder</param>
-		public static void EncodeHuffmanSpecFree_JPEG(NppiEncodeHuffmanSpec pHuffmanSpec)
+		public static void EncodeHuffmanSpecFree(NppiEncodeHuffmanSpec pHuffmanSpec)
 		{
 			NppStatus status;
 			status = NPPNativeMethods.NPPi.CompressionDCT.nppiEncodeHuffmanSpecFree_JPEG(pHuffmanSpec);
