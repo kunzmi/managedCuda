@@ -221,6 +221,35 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms and outputs performance metrics to a
+        /// user-allocated array of cudnnConvolutionFwdAlgoPerf_t. These metrics are written
+        /// in sorted fashion where the first element has the lowest compute time.
+        /// </summary>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
+        /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by
+        /// compute time.</param>
+        public void FindConvolutionForwardAlgorithm(TensorDescriptor srcDesc,
+                                                    FilterDescriptor filterDesc,
+                                                    ConvolutionDescriptor convDesc,
+                                                    TensorDescriptor destDesc,
+                                                    int requestedAlgoCount,
+                                                    ref int returnedAlgoCount,
+                                                    cudnnConvolutionFwdAlgoPerf[] perfResults
+                                                )
+        {
+            res = CudaDNNNativeMethods.cudnnFindConvolutionForwardAlgorithm(_handle, srcDesc.Desc, filterDesc.Desc, convDesc.Desc, destDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, perfResults);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionForwardAlgorithm", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
 		/// <summary>
 		/// This function serves as a heuristic for obtaining the best suited algorithm for
 		/// cudnnConvolutionForward for the given layer specifications. Based on the input
@@ -356,6 +385,91 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
+	    /// <summary>
+	    /// This function attempts all cuDNN algorithms for cudnnConvolutionBackwardFilter_v3 and outputs performance metrics to a user-
+	    /// allocated array of cudnnConvolutionBwdFilterAlgoPerf_t. These metrics are
+	    /// written in sorted fashion where the first element has the lowest compute time. 
+	    /// </summary>
+	    /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+	    /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+	    /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+	    /// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+	    /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+	    /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
+	    /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
+	    public void FindConvolutionBackwardFilterAlgorithm(TensorDescriptor srcDesc,
+	                                                        TensorDescriptor diffDesc,
+	                                                        ConvolutionDescriptor convDesc,
+	                                                        FilterDescriptor gradDesc,
+	                                                        int requestedAlgoCount,
+	                                                        ref int returnedAlgoCount,
+	                                                        cudnnConvolutionBwdFilterAlgoPerf[] perfResults
+	                                                        )
+        {
+            res = CudaDNNNativeMethods.cudnnFindConvolutionBackwardFilterAlgorithm(_handle, srcDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, perfResults);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardFilterAlgorithm", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function serves as a heuristic for obtaining the best suited algorithm for
+        /// cudnnConvolutionBackwardFilter_v3 for the given layer specifications. Based
+        /// on the input preference, this function will either return the fastest algorithm or the
+        /// fastest algorithm within a given memory limit. For an exhaustive search for the fastest
+        /// algorithm, please use cudnnFindConvolutionBackwardFilterAlgorithm.
+        /// </summary>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="preference">Enumerant to express the preference criteria in terms of memory requirement and speed.</param>
+        /// <param name="memoryLimitInbytes">It is to specify the maximum amount of GPU memory the user is willing to 
+        /// use as a workspace. This is currently a placeholder and is not used.</param>
+        /// <param name="algo">Enumerant that specifies which convolution algorithm should be used to
+        /// compute the results according to the specified preference</param>
+        public void GetConvolutionBackwardFilterAlgorithm(TensorDescriptor srcDesc,
+                                                            TensorDescriptor diffDesc,
+                                                            ConvolutionDescriptor convDesc,
+                                                            FilterDescriptor gradDesc,
+                                                            cudnnConvolutionBwdFilterPreference preference,
+                                                            SizeT memoryLimitInbytes,
+                                                            ref cudnnConvolutionBwdFilterAlgo algo
+                                                            )
+        {
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardFilterAlgorithm(_handle, srcDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, preference, memoryLimitInbytes, ref algo);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardFilterAlgorithm", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+		/// <summary>
+		/// This function returns the amount of GPU memory workspace the user needs
+		/// to allocate to be able to call cudnnConvolutionBackwardFilter_v3 with the
+		/// specified algorithm. The workspace allocated will then be passed to the routine
+		/// cudnnConvolutionBackwardFilter_v3. The specified algorithm can be the result
+		/// of the call to cudnnGetConvolutionBackwardFilterAlgorithm or can be chosen
+		/// arbitrarily by the user. Note that not every algorithm is available for every configuration
+		/// of the input tensor and/or every configuration of the convolution descriptor.
+		/// </summary>
+		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
+		/// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="algo">Enumerant that specifies the chosen convolution algorithm
+		/// sizeInBytes output Amount of GPU memory needed as workspace to be able to execute</param>
+		/// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a
+		/// forward convolution with the specified algo</param>
+		public void GetConvolutionBackwardFilterWorkspaceSize(TensorDescriptor       srcDesc,
+																	TensorDescriptor       diffDesc,
+																	ConvolutionDescriptor  convDesc,  
+																	FilterDescriptor       gradDesc,
+																	cudnnConvolutionBwdFilterAlgo     algo,
+																	ref SizeT                         sizeInBytes
+																)
+        {
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardFilterWorkspaceSize(_handle, srcDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, algo, ref sizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardFilterWorkspaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
 		/// <summary>
 		/// This function computes the convolution gradient with respect to filter coefficients using
@@ -400,6 +514,92 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms for
+        /// cudnnConvolutionBackwardData_v3 and outputs performance metrics to a user-
+        /// allocated array of cudnnConvolutionBwdDataAlgoPerf_t. These metrics are written
+        /// in sorted fashion where the first element has the lowest compute time.
+        /// </summary>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
+        /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
+        public void FindConvolutionBackwardDataAlgorithm(FilterDescriptor filterDesc,
+                                                            TensorDescriptor diffDesc,
+                                                            ConvolutionDescriptor convDesc,
+                                                            TensorDescriptor gradDesc,
+                                                            int requestedAlgoCount,
+                                                            ref int returnedAlgoCount,
+                                                            cudnnConvolutionBwdDataAlgoPerf[] perfResults
+                                                        )
+        {
+            res = CudaDNNNativeMethods.cudnnFindConvolutionBackwardDataAlgorithm(_handle, filterDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, perfResults);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardDataAlgorithm", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function serves as a heuristic for obtaining the best suited algorithm for
+        /// cudnnConvolutionBackwardData_v3 for the given layer specifications. Based
+        /// on the input preference, this function will either return the fastest algorithm or the
+        /// fastest algorithm within a given memory limit. For an exhaustive search for the fastest
+        /// algorithm, please use cudnnFindConvolutionBackwardDataAlgorithm.
+        /// </summary>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="preference">Enumerant to express the preference criteria in terms of memory
+        /// requirement and speed.</param>
+        /// <param name="memoryLimitInbytes">It is to specify the maximum amount of GPU memory the user is willing to
+        /// use as a workspace. This is currently a placeholder and is not used.</param>
+        /// <param name="algo">Enumerant that specifies which convolution algorithm should be used to
+        /// compute the results according to the specified preference</param>
+        public void GetConvolutionBackwardDataAlgorithm(FilterDescriptor filterDesc,
+                                                        TensorDescriptor diffDesc,
+                                                        ConvolutionDescriptor convDesc,
+                                                        TensorDescriptor gradDesc,
+                                                        cudnnConvolutionBwdDataPreference preference,
+                                                        SizeT memoryLimitInbytes,
+                                                        ref cudnnConvolutionBwdDataAlgo algo
+                                                        )
+        {
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardDataAlgorithm(_handle, filterDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, preference, memoryLimitInbytes, ref algo);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardDataAlgorithm", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function returns the amount of GPU memory workspace the user needs
+        /// to allocate to be able to call cudnnConvolutionBackwardData_v3 with the
+        /// specified algorithm. The workspace allocated will then be passed to the routine
+        /// cudnnConvolutionBackwardData_v3. The specified algorithm can be the result of the
+        /// call to cudnnGetConvolutionBackwardDataAlgorithm or can be chosen arbitrarily
+        /// by the user. Note that not every algorithm is available for every configuration of the
+        /// input tensor and/or every configuration of the convolution descriptor.
+        /// </summary>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="algo">Enumerant that specifies the chosen convolution algorithm</param>
+        /// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a forward convolution with the specified algo</param>
+        public void GetConvolutionBackwardDataWorkspaceSize(FilterDescriptor filterDesc,
+                                                            TensorDescriptor diffDesc,
+                                                            ConvolutionDescriptor convDesc,
+                                                            TensorDescriptor gradDesc,
+                                                            cudnnConvolutionBwdDataAlgo algo,
+                                                            ref SizeT sizeInBytes
+                                                        )
+        {
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardDataWorkspaceSize(_handle, filterDesc.Desc, diffDesc.Desc, convDesc.Desc, gradDesc.Desc, algo, ref sizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardDataWorkspaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
 		/// <summary>
 		/// This function computes the convolution gradient with respect to the output tensor using
