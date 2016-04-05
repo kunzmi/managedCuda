@@ -1161,7 +1161,7 @@ namespace ManagedCuda.CudaBlas
 		#region Imin
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1172,13 +1172,13 @@ namespace ManagedCuda.CudaBlas
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIsamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Min(CudaDeviceVariable<float> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Min(CudaDeviceVariable<float> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIsamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1186,28 +1186,28 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<float> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<float> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIsamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIsamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<double> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<double> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIdamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIdamin_v2", _status));
@@ -1227,40 +1227,40 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<double> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<double> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIdamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIdamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<cuFloatComplex> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<cuFloatComplex> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIcamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIcamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Min(CudaDeviceVariable<cuFloatComplex> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Min(CudaDeviceVariable<cuFloatComplex> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIcamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1268,40 +1268,40 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<cuFloatComplex> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<cuFloatComplex> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIcamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIcamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<cuDoubleComplex> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<cuDoubleComplex> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIzamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Min(CudaDeviceVariable<cuDoubleComplex> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Min(CudaDeviceVariable<cuDoubleComplex> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIzamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1309,41 +1309,41 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Min(CudaDeviceVariable<cuDoubleComplex> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Min(CudaDeviceVariable<cuDoubleComplex> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIzamin_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		#endregion
-		#region Imax
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<float> x, int incx, ref int result)
+        #endregion
+        #region Imax
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<float> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIsamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIsamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Max(CudaDeviceVariable<float> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Max(CudaDeviceVariable<float> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIsamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1351,40 +1351,40 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<float> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<float> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIsamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIsamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<double> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<double> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIdamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIdamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Max(CudaDeviceVariable<double> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Max(CudaDeviceVariable<double> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIdamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1392,40 +1392,40 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<double> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<double> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIdamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIdamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<cuFloatComplex> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<cuFloatComplex> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIcamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIcamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Max(CudaDeviceVariable<cuFloatComplex> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Max(CudaDeviceVariable<cuFloatComplex> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIcamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1433,40 +1433,40 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<cuFloatComplex> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<cuFloatComplex> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIcamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIcamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<cuDoubleComplex> x, int incx, ref int result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<cuDoubleComplex> x, int incx, ref int result)
 		{
 			_status = CudaBlasNativeMethods.cublasIzamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		public int Max(CudaDeviceVariable<cuDoubleComplex> x, int incx)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        public int Max(CudaDeviceVariable<cuDoubleComplex> x, int incx)
 		{
 			int result = 0;
 			_status = CudaBlasNativeMethods.cublasIzamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, ref result);
@@ -1474,14 +1474,14 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 			return result;
 		}
-		/// <summary>
-		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="incx"></param>
-		/// <param name="result"></param>
-		public void Max(CudaDeviceVariable<cuDoubleComplex> x, int incx, CudaDeviceVariable<int> result)
+        /// <summary>
+        /// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+        /// First index starts at 1 (Fortran notation)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="incx"></param>
+        /// <param name="result"></param>
+        public void Max(CudaDeviceVariable<cuDoubleComplex> x, int incx, CudaDeviceVariable<int> result)
 		{
 			_status = CudaBlasNativeMethods.cublasIzamax_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamax_v2", _status));

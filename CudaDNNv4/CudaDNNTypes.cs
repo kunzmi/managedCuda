@@ -51,6 +51,11 @@ namespace ManagedCuda.CudaDNN
 		public const double MinBeta = 0.01;
 	}
 
+    public struct BNConstants
+    {
+        public const double MinEpsilon = 1e-5;
+    }
+
 	#region struct
 	/// <summary>
 	/// cudnnConvolutionFwdAlgoPerf is a structure containing performance results

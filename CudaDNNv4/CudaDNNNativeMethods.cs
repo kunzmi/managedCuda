@@ -451,7 +451,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnSetFilter4dDescriptor_v4")]
         public static extern cudnnStatus cudnnSetFilter4dDescriptor(cudnnFilterDescriptor filterDesc,
                                                                cudnnDataType dataType, // image data type
-                                                               ref cudnnTensorFormat format, // layout format
+                                                               cudnnTensorFormat format, // layout format
                                                                int k,        // number of output feature maps
                                                                int c,        // number of input feature maps
                                                                int h,        // height of each input filter
@@ -492,7 +492,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnSetFilterNdDescriptor_v4")]
         public static extern cudnnStatus cudnnSetFilterNdDescriptor(cudnnFilterDescriptor filterDesc,
                                                                cudnnDataType dataType, // image data type
-                                                               ref cudnnTensorFormat format, // layout format
+                                                               cudnnTensorFormat format, // layout format
                                                                int nbDims,
                                                                int[] filterDimA
                                                              );
@@ -2411,6 +2411,58 @@ namespace ManagedCuda.CudaDNN
                                 CUdeviceptr resultSaveMean,
                                 CUdeviceptr resultSaveInvVariance );
 
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationForwardTraining(
+                        cudnnHandle handle,
+                        cudnnBatchNormMode mode,
+
+                        ref double alpha, // alpha[0] = result blend factor
+                        ref double beta,  // beta[0] = dest layer blend factor
+
+                        cudnnTensorDescriptor xDesc,
+                        CUdeviceptr x,     // NxCxHxW
+                        cudnnTensorDescriptor yDesc,
+                        CUdeviceptr y,     // NxCxHxW
+
+                        /* Shared desc for the next 6 tensors in the argument list.
+                           Data type to be set as follows:
+                           type = (typeOf(x) == double) ? double : float
+                           Dimensions for this descriptor depend on normalization mode
+                           - Spatial Normalization : tensors are expected to have dims 1xCx1x1
+                            (normalization is performed across NxHxW)
+                           - Per-Activation Normalization : tensors are expected to have dims of 1xCxHxW 
+                            (normalization is performed across N) */
+                        cudnnTensorDescriptor bnScaleBiasMeanVarDesc,
+
+                        // 'Gamma' and 'Beta' respectively in Ioffe and Szegedy's paper's notation
+                        CUdeviceptr bnScale,
+                        CUdeviceptr bnBias,
+
+                        /* MUST use factor=1 in the very first call of a complete training cycle.
+                           Use a factor=1/(1+n) at N-th call to the function to get
+                           Cumulative Moving Average (CMA) behavior
+                           CMA[n] = (x[1]+...+x[n])/n
+                           Since CMA[n+1] = (n*CMA[n]+x[n+1])/(n+1) =
+                           ((n+1)*CMA[n]-CMA[n])/(n+1) + x[n+1]/(n+1) =
+                           CMA[n]*(1-1/(n+1)) + x[n+1]*1/(n+1) */
+                        double exponentialAverageFactor,
+
+                        /* Used in Training phase only. 
+                           runningMean = newMean*factor + runningMean*(1-factor) */
+                        CUdeviceptr resultRunningMean,
+                        /* Output in training mode, input in inference. Is the moving average
+                           of 1 / sqrt( epsilon + variance[x] ) */
+                        CUdeviceptr resultRunningInvVariance,
+
+                        /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and backward functions. */
+                        double epsilon,
+
+                        /* Optionally save intermediate results from the forward pass here
+                           - can be reused to speed up backward pass. NULL if unused */
+                        CUdeviceptr resultSaveMean,
+                        CUdeviceptr resultSaveInvVariance);
+
+
         /*
         * Performs Batch Normalization during Inference: 
         * y[i] = bnScale[k]*(x[i]-estimatedMean[k])*estimatedInvVariance[k] + bnBias[k]
@@ -2422,8 +2474,25 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnBatchNormalizationForwardInference(
                                         cudnnHandle handle,
                                         cudnnBatchNormMode mode,
-                                        CUdeviceptr alpha, // alpha[0] = result blend factor
-                                        CUdeviceptr beta,  // beta[0] = dest layer blend factor
+                                        ref float alpha, // alpha[0] = result blend factor
+                                        ref float beta,  // beta[0] = dest layer blend factor
+                                        cudnnTensorDescriptor xDesc,
+                                        CUdeviceptr x,     // NxCxHxW
+                                        cudnnTensorDescriptor yDesc,
+                                        CUdeviceptr y,     // NxCxHxW
+                                        cudnnTensorDescriptor bnScaleBiasMeanVarDesc,
+                                        CUdeviceptr bnScale,
+                                        CUdeviceptr bnBias,
+                                        CUdeviceptr estimatedMean,
+                                        CUdeviceptr estimatedInvVariance,
+                                        double epsilon);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationForwardInference(
+                                        cudnnHandle handle,
+                                        cudnnBatchNormMode mode,
+                                        ref double alpha, // alpha[0] = result blend factor
+                                        ref double beta,  // beta[0] = dest layer blend factor
                                         cudnnTensorDescriptor xDesc,
                                         CUdeviceptr x,     // NxCxHxW
                                         cudnnTensorDescriptor yDesc,
@@ -2441,10 +2510,10 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnBatchNormalizationBackward(
                                         cudnnHandle handle,
                                         cudnnBatchNormMode mode,
-                                        CUdeviceptr alphaDataDiff,
-                                        CUdeviceptr betaDataDiff,
-                                        CUdeviceptr alphaParamDiff,
-                                        CUdeviceptr betaParamDiff,
+                                        ref float alphaDataDiff,
+                                        ref float betaDataDiff,
+                                        ref float alphaParamDiff,
+                                        ref float betaParamDiff,
                                         cudnnTensorDescriptor xDesc, // same desc for x, dx, dy
                                         CUdeviceptr x,
                                         cudnnTensorDescriptor dyDesc,
@@ -2464,6 +2533,35 @@ namespace ManagedCuda.CudaDNN
                                            forward pass */
                                         CUdeviceptr savedMean,
                                         CUdeviceptr savedInvVariance );
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationBackward(
+                                        cudnnHandle handle,
+                                        cudnnBatchNormMode mode,
+                                        ref double alphaDataDiff,
+                                        ref double betaDataDiff,
+                                        ref double alphaParamDiff,
+                                        ref double betaParamDiff,
+                                        cudnnTensorDescriptor xDesc, // same desc for x, dx, dy
+                                        CUdeviceptr x,
+                                        cudnnTensorDescriptor dyDesc,
+                                        CUdeviceptr dy,
+                                        cudnnTensorDescriptor dxDesc,
+                                        CUdeviceptr dx,
+                                        /* Shared tensor desc for the 4 tensors below */
+                                        cudnnTensorDescriptor dBnScaleBiasDesc,
+                                        CUdeviceptr bnScale, // bnBias doesn't affect backpropagation
+                                                             /* scale and bias diff are not backpropagated below this layer */
+                                        CUdeviceptr dBnScaleResult,
+                                        CUdeviceptr dBnBiasResult,
+                                        /* Same epsilon as forward pass */
+                                        double epsilon,
+
+                                        /* Optionally cached intermediate results from
+                                           forward pass */
+                                        CUdeviceptr savedMean,
+                                        CUdeviceptr savedInvVariance);
 
     }
 }

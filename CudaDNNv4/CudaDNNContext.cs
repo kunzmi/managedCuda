@@ -197,21 +197,21 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="value">Pointer in Host memory to a value that all elements of the tensor will be set to.</param>
 		public void SetTensor(TensorDescriptor srcDestDesc,
 									CudaDeviceVariable<float> srcDestData,
-									CudaDeviceVariable<float> value
+									float value
 									)
 		{
-			res = CudaDNNNativeMethods.cudnnSetTensor(_handle, srcDestDesc.Desc, srcDestData.DevicePointer, value.DevicePointer);
+			res = CudaDNNNativeMethods.cudnnSetTensor(_handle, srcDestDesc.Desc, srcDestData.DevicePointer, ref value);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetTensor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
-		/// <summary>
-		/// This function scale all the elements of a tensor by a give factor.
-		/// </summary>
-		/// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
-		/// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
-		public void ScaleTensor(TensorDescriptor srcDestDesc,
+        /// <summary>
+        /// This function scale all the elements of a tensor by a give factor.
+        /// </summary>
+        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
+        public void ScaleTensor(TensorDescriptor srcDestDesc,
 										CudaDeviceVariable<float> srcDestData,
 										float alpha
 									)
@@ -221,35 +221,32 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
-
-
-
-		/// <summary>
-		/// This function executes convolutions or cross-correlations over src using the specified
-		/// filters, returning results in dest. Scaling factors alpha and beta can be used to scale
-		/// the input tensor and the output tensor respectively.
-		/// </summary>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
-		/// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
-		/// the specified algorithm. If no workspace is needed for a particular
-		/// algorithm, that pointer can be nil</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the tensor descriptor
-		/// destDesc that carries the result of the convolution.</param>
-		public void ConvolutionForward(float alpha,
+        /// <summary>
+        /// This function executes convolutions or cross-correlations over src using the specified
+        /// filters, returning results in dest. Scaling factors alpha and beta can be used to scale
+        /// the input tensor and the output tensor respectively.
+        /// </summary>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
+        /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
+        /// the specified algorithm. If no workspace is needed for a particular
+        /// algorithm, that pointer can be nil</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="destData">Data pointer to GPU memory associated with the tensor descriptor
+        /// destDesc that carries the result of the convolution.</param>
+        public void ConvolutionForward(float alpha,
 										TensorDescriptor srcDesc,
 										CudaDeviceVariable<float> srcData,
 										FilterDescriptor filterDesc,
@@ -557,26 +554,26 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
-		/* Activation functions: All of the form "output = alpha * Op(inputs) + beta * output" */
+        /* Activation functions: All of the form "output = alpha * Op(inputs) + beta * output" */
 
-		/// <summary>
-		/// This routine applies a specified neuron activation function element-wise over each input value.
-		/// </summary>
-		/// <param name="mode">Enumerant to specify the activation mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		public void ActivationForward(cudnnActivationMode mode,
-										float alpha,
+        /// <summary>
+        /// This routine applies a specified neuron activation function element-wise over each input value.
+        /// </summary>
+        /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        public void ActivationForward( ActivationDescriptor activationDesc,
+                                        float alpha,
 										TensorDescriptor srcDesc,
 										CudaDeviceVariable<float> srcData,
 										float beta,
@@ -584,33 +581,33 @@ namespace ManagedCuda.CudaDNN
 										CudaDeviceVariable<float> destData
 									)
 		{
-			res = CudaDNNNativeMethods.cudnnActivationForward(_handle, mode, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+			res = CudaDNNNativeMethods.cudnnActivationForward(_handle, activationDesc.Desc, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnActivationForward", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
-		/// <summary>
-		/// This routine computes the gradient of a neuron activation function.
-		/// </summary>
-		/// <param name="mode">Enumerant to specify the activation mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		public void ActivationBackward(cudnnActivationMode mode,
-										float alpha,
+        /// <summary>
+        /// This routine computes the gradient of a neuron activation function.
+        /// </summary>
+        /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        public void ActivationBackward(ActivationDescriptor activationDesc,
+                                        float alpha,
 										TensorDescriptor srcDesc,
 										CudaDeviceVariable<float> srcData,
 										TensorDescriptor srcDiffDesc,
@@ -622,34 +619,224 @@ namespace ManagedCuda.CudaDNN
 										CudaDeviceVariable<float> destDiffData
 										)
 		{
-			res = CudaDNNNativeMethods.cudnnActivationBackward(_handle, mode, ref alpha, srcDesc.Desc, srcData.DevicePointer, srcDiffDesc.Desc, srcDiffData.DevicePointer, destDesc.Desc, destData.DevicePointer, ref beta, destDiffDesc.Desc, destDiffData.DevicePointer);
+			res = CudaDNNNativeMethods.cudnnActivationBackward(_handle, activationDesc.Desc, ref alpha, srcDesc.Desc, srcData.DevicePointer, srcDiffDesc.Desc, srcDiffData.DevicePointer, destDesc.Desc, destData.DevicePointer, ref beta, destDiffDesc.Desc, destDiffData.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnActivationForward", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
-		}
+        }
 
-		#endregion
+        /// <summary>
+        /// Derives a tensor descriptor from layer data descriptor for BatchNormalization 
+        /// scale, invVariance, bnBias, bnScale tensors.Use this tensor desc for 
+        /// bnScaleBiasMeanVarDesc and bnScaleBiasDiffDesc in Batch Normalization forward and backward functions.
+        /// </summary>
+        public void DeriveBNTensorDescriptor(
+                                        TensorDescriptor derivedBnDesc,
+                                        TensorDescriptor xDesc,
+                                        cudnnBatchNormMode mode)
+        {
+            res = CudaDNNNativeMethods.cudnnDeriveBNTensorDescriptor(derivedBnDesc.Desc, xDesc.Desc, mode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDeriveBNTensorDescriptor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
-		#region doubles
-		/// <summary>
-		/// This function copies the scaled data from one tensor to another tensor with a different
-		/// layout. Those descriptors need to have the same dimensions but not necessarily the
-		/// same strides. The input and output tensors must not overlap in any way (i.e., tensors
-		/// cannot be transformed in place). This function can be used to convert a tensor with an
-		/// unsupported format to a supported one.
-		/// </summary>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the source
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Pointer to data of the tensor described by the srcDesc descriptor.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Pointer to data of the tensor described by the destDesc descriptor.</param>
-		public void TransformTensor(double alpha,
+
+        /// <summary>
+        /// This function performs the forward BatchNormalization layer computation for the training phase. 
+        /// This layer is based on the paper "Batch Normalization: Accelerating Deep Network Training by 
+        /// Reducing Internal Covariate Shift", S. Ioffe, C. Szegedy, 2015.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alpha"> Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="xDesc">Tensor descriptor layer's x data.</param>
+        /// <param name="x">Pointer in device memory for the layer's x data.</param>
+        /// <param name="yDesc">Tensor descriptor the layer's y data.</param>
+        /// <param name="y">Pointer in device memory for the layer's y data.</param>
+        /// <param name="bnScaleBiasMeanVarDesc">Shared tensor descriptor desc for all the 6 tensors below in the argument list. The dimensions for this tensor descriptor are dependent on the normalization mode.</param>
+        /// <param name="bnScale">Pointer in device memory for the batch normalization scale parameters (in original paper scale is referred to as gamma).</param>
+        /// <param name="bnBias">Pointers in device memory for the batch normalization bias parameters (in original paper bias is referred to as beta). Note that bnBias parameter can replace the previous layer's bias parameter for improved efficiency. </param>
+        /// <param name="exponentialAverageFactor">Factor used in the moving average computation runningMean = newMean*factor + runningMean*(1-factor). Use a factor=1/(1+n) at Nth call to the function to get Cumulative Moving Average (CMA) behavior CMA[n] = (x[1]+...+x[n])/n. Since CMA[n+1] = (n*CMA[n]+x[n+1])/(n+1)= ((n+1)*CMA[n]-CMA[n])/(n+1) + x[n+1]/(n+1) = CMA[n]*(1-1/(n+1))+x[n +1]*1/(n+1)</param>
+        /// <param name="resultRunningMean">Running mean tensor (it has the same descriptor as the bias and scale). If this tensor is initially uninitialized, it is required that exponentialAverageFactor=1 is used for the very first call of a complete training cycle. This is necessary to properly initialize the moving average. Both resultRunningMean and resultRunningInvVariance can be NULL but only at the same time.</param>
+        /// <param name="resultRunningInvVariance">Running variance tensor (it has the same descriptor as the bias and scale). If this tensors is initially uninitialized, it is required that exponentialAverageFactor=1 is used for the very first call of a complete training cycle. This is necessary to properly initialize the moving average. Both resultRunningMean and resultRunningInvVariance can be NULL but only at the same time. The value stored in resultRunningInvVariance (or passed as an input in inference mode) is the moving average of the expression 1 / sqrt(eps+variance[x]) where variance is computed either over batch or spatial+batch dimensions depending on the mode. </param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        /// <param name="resultSaveMean">Optional cache to save intermediate results computed during the forward pass - these can then be reused to speed up the backward pass. For this to work correctly, the bottom layer data has to remain unchanged until the backward function is called. Note that both resultSaveMean and resultSaveInvVariance can be NULL but only at the same time. It is recommended to use this cache since memory overhead is relatively small because these tensors have a much lower product of dimensions than the data tensors.</param>
+        /// <param name="resultSaveInvVariance">Optional cache to save intermediate results computed during the forward pass - these can then be reused to speed up the backward pass. For this to work correctly, the bottom layer data has to remain unchanged until the backward function is called. Note that both resultSaveMean and resultSaveInvVariance can be NULL but only at the same time. It is recommended to use this cache since memory overhead is relatively small because these tensors have a much lower product of dimensions than the data tensors.</param>
+        public void BatchNormalizationForwardTraining(
+                                cudnnBatchNormMode mode,
+
+                                ref float alpha, // alpha[0] = result blend factor
+                                ref float beta,  // beta[0] = dest layer blend factor
+
+                                TensorDescriptor xDesc,
+                                CudaDeviceVariable<float> x,     // NxCxHxW
+                                TensorDescriptor yDesc,
+                                CudaDeviceVariable<float> y,     // NxCxHxW
+
+                                /* Shared desc for the next 6 tensors in the argument list.
+                                   Data type to be set as follows:
+                                   type = (typeOf(x) == double) ? double : float
+                                   Dimensions for this descriptor depend on normalization mode
+                                   - Spatial Normalization : tensors are expected to have dims 1xCx1x1
+                                    (normalization is performed across NxHxW)
+                                   - Per-Activation Normalization : tensors are expected to have dims of 1xCxHxW 
+                                    (normalization is performed across N) */
+                                TensorDescriptor bnScaleBiasMeanVarDesc,
+
+                                // 'Gamma' and 'Beta' respectively in Ioffe and Szegedy's paper's notation
+                                CudaDeviceVariable<float> bnScale,
+                                CudaDeviceVariable<float> bnBias,
+
+                                /* MUST use factor=1 in the very first call of a complete training cycle.
+                                   Use a factor=1/(1+n) at N-th call to the function to get
+                                   Cumulative Moving Average (CMA) behavior
+                                   CMA[n] = (x[1]+...+x[n])/n
+                                   Since CMA[n+1] = (n*CMA[n]+x[n+1])/(n+1) =
+                                   ((n+1)*CMA[n]-CMA[n])/(n+1) + x[n+1]/(n+1) =
+                                   CMA[n]*(1-1/(n+1)) + x[n+1]*1/(n+1) */
+                                double exponentialAverageFactor,
+
+                                /* Used in Training phase only. 
+                                   runningMean = newMean*factor + runningMean*(1-factor) */
+                                CudaDeviceVariable<float> resultRunningMean,
+                                /* Output in training mode, input in inference. Is the moving average
+                                   of 1 / sqrt( epsilon + variance[x] ) */
+                                CudaDeviceVariable<float> resultRunningInvVariance,
+
+                                /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and backward functions. */
+                                double epsilon,
+
+                                /* Optionally save intermediate results from the forward pass here
+                                   - can be reused to speed up backward pass. NULL if unused */
+                                CudaDeviceVariable<float> resultSaveMean,
+                                CudaDeviceVariable<float> resultSaveInvVariance)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardTraining(
+                _handle, mode, ref alpha, ref beta, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer,
+                bnScaleBiasMeanVarDesc.Desc, bnScale.DevicePointer, bnBias.DevicePointer, exponentialAverageFactor,
+                resultRunningMean.DevicePointer, resultRunningInvVariance.DevicePointer, epsilon, resultSaveMean.DevicePointer, resultSaveInvVariance.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "BatchNormalizationForwardTraining", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function performs the forward BatchNormalization layer computation for the inference phase. 
+        /// This layer is based on the paper "Batch Normalization: Accelerating Deep Network 
+        /// Training by Reducing Internal Covariate Shift", S. Ioffe, C. Szegedy, 2015.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alpha"> Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="xDesc">Tensor descriptor layer's x data.</param>
+        /// <param name="x">Pointer in device memory for the layer's x data.</param>
+        /// <param name="yDesc">Tensor descriptor the layer's y data.</param>
+        /// <param name="y">Pointer in device memory for the layer's y data.</param>
+        /// <param name="bnScaleBiasMeanVarDesc">Shared tensor descriptor desc for all the 4 tensors below in the argument list. The dimensions for this tensor descriptor are dependent on the normalization mode.</param>
+        /// <param name="bnScale">Pointer in device memory for the batch normalization scale parameters (in original paper scale is referred to as gamma).</param>
+        /// <param name="bnBias">Pointers in device memory for the batch normalization bias parameters (in original paper bias is referred to as beta). Note that bnBias parameter can replace the previous layer's bias parameter for improved efficiency. </param>
+        /// <param name="estimatedMean">Mean tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningMean from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
+        /// <param name="estimatedInvVariance">Variance tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningVariance from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        public void cudnnBatchNormalizationForwardInference(
+                                        cudnnBatchNormMode mode,
+                                        ref float alpha, // alpha[0] = result blend factor
+                                        ref float beta,  // beta[0] = dest layer blend factor
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<float> x,     // NxCxHxW
+                                        TensorDescriptor yDesc,
+                                        CudaDeviceVariable<float> y,     // NxCxHxW
+                                        TensorDescriptor bnScaleBiasMeanVarDesc,
+                                        CudaDeviceVariable<float> bnScale,
+                                        CudaDeviceVariable<float> bnBias,
+                                        CudaDeviceVariable<float> estimatedMean,
+                                        CudaDeviceVariable<float> estimatedInvVariance,
+                                        double epsilon)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardInference(
+                _handle, mode, ref alpha, ref beta, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer,
+                bnScaleBiasMeanVarDesc.Desc, bnScale.DevicePointer, bnBias.DevicePointer, estimatedMean.DevicePointer, estimatedInvVariance.DevicePointer, epsilon);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationForwardInference", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function performs the backward BatchNormalization layer computation.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alphaDataDiff">Pointer to scaling factors in host memory used to blend the gradient output dx with a prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="betaDataDiff">Pointer to scaling factors in host memory used to blend the gradient output dx with a prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="alphaParamDiff">Pointer to scaling factors (in host memory) used to blend the gradient outputs dBnScaleResult and dBnBiasResult with prior values in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="betaParamDiff">Pointer to scaling factors (in host memory) used to blend the gradient outputs dBnScaleResult and dBnBiasResult with prior values in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="xDesc">Tensor descriptor for the layer's x data.</param>
+        /// <param name="x">Pointers in device memory for the layer's x data.</param>
+        /// <param name="dyDesc">Tensor descriptor for the layer's backpropagated differential dy (inputs).</param>
+        /// <param name="dy">Pointers in device memory for the layer's backpropagated differential dy (inputs).</param>
+        /// <param name="dxDesc">Tensor descriptor for the layer's resulting differential with respect to x, dx (output).</param>
+        /// <param name="dx">Pointer in device memory for the layer's resulting differential with respect to x, dx (output).</param>
+        /// <param name="dBnScaleBiasDesc">Shared tensor descriptor for all the 5 tensors below in the argument list (bnScale, resultBnScaleDiff, resultBnBiasDiff, savedMean, savedInvVariance). The dimensions for this tensor descriptor are dependent on normalization mode. Note: The data type of this tensor descriptor must be 'float' for FP16 and FP32 input tensors, and 'double' for FP64 input tensors.</param>
+        /// <param name="bnScale">Pointers in device memory for the batch normalization scale parameter (in original paper bias is referred to as gamma). Note that bnBias parameter is not needed for this layer's computation.</param>
+        /// <param name="dBnScaleResult">Pointer in device memory for the resulting scale differentials computed by this routine. Note that scale and bias gradients are not backpropagated below this layer (since they are dead-end computation DAG nodes).</param>
+        /// <param name="dBnBiasResult">Pointer in device memory for the resulting bias differentials computed by this routine. Note that scale and bias gradients are not backpropagated below this layer (since they are dead-end computation DAG nodes).</param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        /// <param name="savedMean">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
+        /// <param name="savedInvVariance">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
+        public void BatchNormalizationBackward(
+                                        cudnnBatchNormMode mode,
+                                        ref float alphaDataDiff,
+                                        ref float betaDataDiff,
+                                        ref float alphaParamDiff,
+                                        ref float betaParamDiff,
+                                        TensorDescriptor xDesc, // same desc for x, dx, dy
+                                        CudaDeviceVariable<float> x,
+                                        TensorDescriptor dyDesc,
+                                        CudaDeviceVariable<float> dy,
+                                        TensorDescriptor dxDesc,
+                                        CudaDeviceVariable<float> dx,
+                                        /* Shared tensor desc for the 5 tensors below */
+                                        TensorDescriptor dBnScaleBiasDesc,
+                                        CudaDeviceVariable<float> bnScale, // bnBias doesn't affect backpropagation
+                                                                           /* scale and bias diff are not backpropagated below this layer */
+                                        CudaDeviceVariable<float> dBnScaleResult,
+                                        CudaDeviceVariable<float> dBnBiasResult,
+                                        /* Same epsilon as forward pass */
+                                        double epsilon,
+
+                                        /* Optionally cached intermediate results from
+                                           forward pass */
+                                        CudaDeviceVariable<float> savedMean,
+                                        CudaDeviceVariable<float> savedInvVariance)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationBackward(
+                _handle, mode, ref alphaDataDiff, ref betaDataDiff, ref alphaParamDiff, ref betaParamDiff, 
+                xDesc.Desc, x.DevicePointer, dyDesc.Desc, dy.DevicePointer, dxDesc.Desc, dx.DevicePointer,
+                dBnScaleBiasDesc.Desc, bnScale.DevicePointer, dBnScaleResult.DevicePointer, dBnBiasResult.DevicePointer,
+                epsilon, savedMean.DevicePointer, savedInvVariance.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "BatchNormalizationBackward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        #endregion
+
+        #region doubles
+        /// <summary>
+        /// This function copies the scaled data from one tensor to another tensor with a different
+        /// layout. Those descriptors need to have the same dimensions but not necessarily the
+        /// same strides. The input and output tensors must not overlap in any way (i.e., tensors
+        /// cannot be transformed in place). This function can be used to convert a tensor with an
+        /// unsupported format to a supported one.
+        /// </summary>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the source
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="srcData">Pointer to data of the tensor described by the srcDesc descriptor.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="destData">Pointer to data of the tensor described by the destDesc descriptor.</param>
+        public void TransformTensor(double alpha,
 											TensorDescriptor srcDesc,
 											CudaDeviceVariable<double> srcData,
 											double beta,
@@ -695,29 +882,29 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
-		/// <summary>
-		/// This function sets all the elements of a tensor to a given value
-		/// </summary>
-		/// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
-		/// <param name="value">Pointer in Host memory to a value that all elements of the tensor will be set to.</param>
-		public void SetTensor(TensorDescriptor srcDestDesc,
-									CudaDeviceVariable<double> srcDestData,
-									CudaDeviceVariable<double> value
-									)
-		{
-			res = CudaDNNNativeMethods.cudnnSetTensor(_handle, srcDestDesc.Desc, srcDestData.DevicePointer, value.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetTensor", res));
-			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
-		}
+        /// <summary>
+        /// This function sets all the elements of a tensor to a given value
+        /// </summary>
+        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="value">Pointer in Host memory to a value that all elements of the tensor will be set to.</param>
+        public void SetTensor(TensorDescriptor srcDestDesc,
+                                    CudaDeviceVariable<double> srcDestData,
+                                    double value
+                                    )
+        {
+            res = CudaDNNNativeMethods.cudnnSetTensor(_handle, srcDestDesc.Desc, srcDestData.DevicePointer, ref value);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetTensor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
-		/// <summary>
-		/// This function scale all the elements of a tensor by a give factor.
-		/// </summary>
-		/// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
-		/// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
-		public void ScaleTensor(TensorDescriptor srcDestDesc,
+        /// <summary>
+        /// This function scale all the elements of a tensor by a give factor.
+        /// </summary>
+        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
+        public void ScaleTensor(TensorDescriptor srcDestDesc,
 										CudaDeviceVariable<double> srcDestData,
 										double alpha
 									)
@@ -1069,26 +1256,26 @@ namespace ManagedCuda.CudaDNN
 		}
 
 
-		/* Activation functions: All of the form "output = alpha * Op(inputs) + beta * output" */
+        /* Activation functions: All of the form "output = alpha * Op(inputs) + beta * output" */
 
-		/// <summary>
-		/// This routine applies a specified neuron activation function element-wise over each input value.
-		/// </summary>
-		/// <param name="mode">Enumerant to specify the activation mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		public void ActivationForward(cudnnActivationMode mode,
-										double alpha,
+        /// <summary>
+        /// This routine applies a specified neuron activation function element-wise over each input value.
+        /// </summary>
+        /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        public void ActivationForward(cudnnActivationDescriptor activationDesc,
+                                        double alpha,
 										TensorDescriptor srcDesc,
 										CudaDeviceVariable<double> srcData,
 										double beta,
@@ -1096,32 +1283,32 @@ namespace ManagedCuda.CudaDNN
 										CudaDeviceVariable<double> destData
 									)
 		{
-			res = CudaDNNNativeMethods.cudnnActivationForward(_handle, mode, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+			res = CudaDNNNativeMethods.cudnnActivationForward(_handle, activationDesc, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnActivationForward", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
-		/// <summary>
-		/// This routine computes the gradient of a neuron activation function.
-		/// </summary>
-		/// <param name="mode">Enumerant to specify the activation mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		public void ActivationBackward(cudnnActivationMode mode,
+        /// <summary>
+        /// This routine computes the gradient of a neuron activation function.
+        /// </summary>
+        /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        public void ActivationBackward(ActivationDescriptor activationDesc,
 										double alpha,
 										TensorDescriptor srcDesc,
 										CudaDeviceVariable<double> srcData,
@@ -1134,7 +1321,7 @@ namespace ManagedCuda.CudaDNN
 										CudaDeviceVariable<double> destDiffData
 										)
 		{
-			res = CudaDNNNativeMethods.cudnnActivationBackward(_handle, mode, ref alpha, srcDesc.Desc, srcData.DevicePointer, srcDiffDesc.Desc, srcDiffData.DevicePointer, destDesc.Desc, destData.DevicePointer, ref beta, destDiffDesc.Desc, destDiffData.DevicePointer);
+			res = CudaDNNNativeMethods.cudnnActivationBackward(_handle, activationDesc.Desc, ref alpha, srcDesc.Desc, srcData.DevicePointer, srcDiffDesc.Desc, srcDiffData.DevicePointer, destDesc.Desc, destData.DevicePointer, ref beta, destDiffDesc.Desc, destDiffData.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnActivationForward", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
@@ -1417,6 +1604,181 @@ namespace ManagedCuda.CudaDNN
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 			return sizeInBytes;
 		}
-		#endregion
-	}
+
+        /// <summary>
+        /// This function performs the forward BatchNormalization layer computation for the training phase. 
+        /// This layer is based on the paper "Batch Normalization: Accelerating Deep Network Training by 
+        /// Reducing Internal Covariate Shift", S. Ioffe, C. Szegedy, 2015.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alpha"> Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="xDesc">Tensor descriptor layer's x data.</param>
+        /// <param name="x">Pointer in device memory for the layer's x data.</param>
+        /// <param name="yDesc">Tensor descriptor the layer's y data.</param>
+        /// <param name="y">Pointer in device memory for the layer's y data.</param>
+        /// <param name="bnScaleBiasMeanVarDesc">Shared tensor descriptor desc for all the 6 tensors below in the argument list. The dimensions for this tensor descriptor are dependent on the normalization mode.</param>
+        /// <param name="bnScale">Pointer in device memory for the batch normalization scale parameters (in original paper scale is referred to as gamma).</param>
+        /// <param name="bnBias">Pointers in device memory for the batch normalization bias parameters (in original paper bias is referred to as beta). Note that bnBias parameter can replace the previous layer's bias parameter for improved efficiency. </param>
+        /// <param name="exponentialAverageFactor">Factor used in the moving average computation runningMean = newMean*factor + runningMean*(1-factor). Use a factor=1/(1+n) at Nth call to the function to get Cumulative Moving Average (CMA) behavior CMA[n] = (x[1]+...+x[n])/n. Since CMA[n+1] = (n*CMA[n]+x[n+1])/(n+1)= ((n+1)*CMA[n]-CMA[n])/(n+1) + x[n+1]/(n+1) = CMA[n]*(1-1/(n+1))+x[n +1]*1/(n+1)</param>
+        /// <param name="resultRunningMean">Running mean tensor (it has the same descriptor as the bias and scale). If this tensor is initially uninitialized, it is required that exponentialAverageFactor=1 is used for the very first call of a complete training cycle. This is necessary to properly initialize the moving average. Both resultRunningMean and resultRunningInvVariance can be NULL but only at the same time.</param>
+        /// <param name="resultRunningInvVariance">Running variance tensor (it has the same descriptor as the bias and scale). If this tensors is initially uninitialized, it is required that exponentialAverageFactor=1 is used for the very first call of a complete training cycle. This is necessary to properly initialize the moving average. Both resultRunningMean and resultRunningInvVariance can be NULL but only at the same time. The value stored in resultRunningInvVariance (or passed as an input in inference mode) is the moving average of the expression 1 / sqrt(eps+variance[x]) where variance is computed either over batch or spatial+batch dimensions depending on the mode. </param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        /// <param name="resultSaveMean">Optional cache to save intermediate results computed during the forward pass - these can then be reused to speed up the backward pass. For this to work correctly, the bottom layer data has to remain unchanged until the backward function is called. Note that both resultSaveMean and resultSaveInvVariance can be NULL but only at the same time. It is recommended to use this cache since memory overhead is relatively small because these tensors have a much lower product of dimensions than the data tensors.</param>
+        /// <param name="resultSaveInvVariance">Optional cache to save intermediate results computed during the forward pass - these can then be reused to speed up the backward pass. For this to work correctly, the bottom layer data has to remain unchanged until the backward function is called. Note that both resultSaveMean and resultSaveInvVariance can be NULL but only at the same time. It is recommended to use this cache since memory overhead is relatively small because these tensors have a much lower product of dimensions than the data tensors.</param>
+        public void BatchNormalizationForwardTraining(
+                                cudnnBatchNormMode mode,
+
+                                ref double alpha, // alpha[0] = result blend factor
+                                ref double beta,  // beta[0] = dest layer blend factor
+
+                                TensorDescriptor xDesc,
+                                CudaDeviceVariable<double> x,     // NxCxHxW
+                                TensorDescriptor yDesc,
+                                CudaDeviceVariable<double> y,     // NxCxHxW
+
+                                /* Shared desc for the next 6 tensors in the argument list.
+                                   Data type to be set as follows:
+                                   type = (typeOf(x) == double) ? double : float
+                                   Dimensions for this descriptor depend on normalization mode
+                                   - Spatial Normalization : tensors are expected to have dims 1xCx1x1
+                                    (normalization is performed across NxHxW)
+                                   - Per-Activation Normalization : tensors are expected to have dims of 1xCxHxW 
+                                    (normalization is performed across N) */
+                                TensorDescriptor bnScaleBiasMeanVarDesc,
+
+                                // 'Gamma' and 'Beta' respectively in Ioffe and Szegedy's paper's notation
+                                CudaDeviceVariable<double> bnScale,
+                                CudaDeviceVariable<double> bnBias,
+
+                                /* MUST use factor=1 in the very first call of a complete training cycle.
+                                   Use a factor=1/(1+n) at N-th call to the function to get
+                                   Cumulative Moving Average (CMA) behavior
+                                   CMA[n] = (x[1]+...+x[n])/n
+                                   Since CMA[n+1] = (n*CMA[n]+x[n+1])/(n+1) =
+                                   ((n+1)*CMA[n]-CMA[n])/(n+1) + x[n+1]/(n+1) =
+                                   CMA[n]*(1-1/(n+1)) + x[n+1]*1/(n+1) */
+                                double exponentialAverageFactor,
+
+                                /* Used in Training phase only. 
+                                   runningMean = newMean*factor + runningMean*(1-factor) */
+                                CudaDeviceVariable<double> resultRunningMean,
+                                /* Output in training mode, input in inference. Is the moving average
+                                   of 1 / sqrt( epsilon + variance[x] ) */
+                                CudaDeviceVariable<double> resultRunningInvVariance,
+
+                                /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and backward functions. */
+                                double epsilon,
+
+                                /* Optionally save intermediate results from the forward pass here
+                                   - can be reused to speed up backward pass. NULL if unused */
+                                CudaDeviceVariable<double> resultSaveMean,
+                                CudaDeviceVariable<double> resultSaveInvVariance)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardTraining(
+                _handle, mode, ref alpha, ref beta, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer,
+                bnScaleBiasMeanVarDesc.Desc, bnScale.DevicePointer, bnBias.DevicePointer, exponentialAverageFactor,
+                resultRunningMean.DevicePointer, resultRunningInvVariance.DevicePointer, epsilon, resultSaveMean.DevicePointer, resultSaveInvVariance.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "BatchNormalizationForwardTraining", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function performs the forward BatchNormalization layer computation for the inference phase. 
+        /// This layer is based on the paper "Batch Normalization: Accelerating Deep Network 
+        /// Training by Reducing Internal Covariate Shift", S. Ioffe, C. Szegedy, 2015.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alpha"> Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output value with prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue. </param>
+        /// <param name="xDesc">Tensor descriptor layer's x data.</param>
+        /// <param name="x">Pointer in device memory for the layer's x data.</param>
+        /// <param name="yDesc">Tensor descriptor the layer's y data.</param>
+        /// <param name="y">Pointer in device memory for the layer's y data.</param>
+        /// <param name="bnScaleBiasMeanVarDesc">Shared tensor descriptor desc for all the 4 tensors below in the argument list. The dimensions for this tensor descriptor are dependent on the normalization mode.</param>
+        /// <param name="bnScale">Pointer in device memory for the batch normalization scale parameters (in original paper scale is referred to as gamma).</param>
+        /// <param name="bnBias">Pointers in device memory for the batch normalization bias parameters (in original paper bias is referred to as beta). Note that bnBias parameter can replace the previous layer's bias parameter for improved efficiency. </param>
+        /// <param name="estimatedMean">Mean tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningMean from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
+        /// <param name="estimatedInvVariance">Variance tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningVariance from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        public void cudnnBatchNormalizationForwardInference(
+                                        cudnnBatchNormMode mode,
+                                        ref double alpha, // alpha[0] = result blend factor
+                                        ref double beta,  // beta[0] = dest layer blend factor
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<double> x,     // NxCxHxW
+                                        TensorDescriptor yDesc,
+                                        CudaDeviceVariable<double> y,     // NxCxHxW
+                                        TensorDescriptor bnScaleBiasMeanVarDesc,
+                                        CudaDeviceVariable<double> bnScale,
+                                        CudaDeviceVariable<double> bnBias,
+                                        CudaDeviceVariable<double> estimatedMean,
+                                        CudaDeviceVariable<double> estimatedInvVariance,
+                                        double epsilon)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardInference(
+                _handle, mode, ref alpha, ref beta, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer, 
+                bnScaleBiasMeanVarDesc.Desc,bnScale.DevicePointer,bnBias.DevicePointer,estimatedMean.DevicePointer,estimatedInvVariance.DevicePointer, epsilon);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationForwardInference", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function performs the backward BatchNormalization layer computation.
+        /// </summary>
+        /// <param name="mode"> Mode of operation (spatial or per-activation). </param>
+        /// <param name="alphaDataDiff">Pointer to scaling factors in host memory used to blend the gradient output dx with a prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="betaDataDiff">Pointer to scaling factors in host memory used to blend the gradient output dx with a prior value in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="alphaParamDiff">Pointer to scaling factors (in host memory) used to blend the gradient outputs dBnScaleResult and dBnBiasResult with prior values in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="betaParamDiff">Pointer to scaling factors (in host memory) used to blend the gradient outputs dBnScaleResult and dBnBiasResult with prior values in the destination tensor as follows: dstValue = alpha[0]*resultValue + beta[0]*priorDstValue.</param>
+        /// <param name="xDesc">Tensor descriptor for the layer's x data.</param>
+        /// <param name="x">Pointers in device memory for the layer's x data.</param>
+        /// <param name="dyDesc">Tensor descriptor for the layer's backpropagated differential dy (inputs).</param>
+        /// <param name="dy">Pointers in device memory for the layer's backpropagated differential dy (inputs).</param>
+        /// <param name="dxDesc">Tensor descriptor for the layer's resulting differential with respect to x, dx (output).</param>
+        /// <param name="dx">Pointer in device memory for the layer's resulting differential with respect to x, dx (output).</param>
+        /// <param name="dBnScaleBiasDesc">Shared tensor descriptor for all the 5 tensors below in the argument list (bnScale, resultBnScaleDiff, resultBnBiasDiff, savedMean, savedInvVariance). The dimensions for this tensor descriptor are dependent on normalization mode. Note: The data type of this tensor descriptor must be 'float' for FP16 and FP32 input tensors, and 'double' for FP64 input tensors.</param>
+        /// <param name="bnScale">Pointers in device memory for the batch normalization scale parameter (in original paper bias is referred to as gamma). Note that bnBias parameter is not needed for this layer's computation.</param>
+        /// <param name="dBnScaleResult">Pointer in device memory for the resulting scale differentials computed by this routine. Note that scale and bias gradients are not backpropagated below this layer (since they are dead-end computation DAG nodes).</param>
+        /// <param name="dBnBiasResult">Pointer in device memory for the resulting bias differentials computed by this routine. Note that scale and bias gradients are not backpropagated below this layer (since they are dead-end computation DAG nodes).</param>
+        /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
+        /// <param name="savedMean">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
+        /// <param name="savedInvVariance">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
+        public void BatchNormalizationBackward(
+                                        cudnnBatchNormMode mode,
+                                        ref double alphaDataDiff,
+                                        ref double betaDataDiff,
+                                        ref double alphaParamDiff,
+                                        ref double betaParamDiff,
+                                        TensorDescriptor xDesc, // same desc for x, dx, dy
+                                        CudaDeviceVariable<double> x,
+                                        TensorDescriptor dyDesc,
+                                        CudaDeviceVariable<double> dy,
+                                        TensorDescriptor dxDesc,
+                                        CudaDeviceVariable<double> dx,
+                                        /* Shared tensor desc for the 5 tensors below */
+                                        TensorDescriptor dBnScaleBiasDesc,
+                                        CudaDeviceVariable<double> bnScale, // bnBias doesn't affect backpropagation
+                                                                           /* scale and bias diff are not backpropagated below this layer */
+                                        CudaDeviceVariable<double> dBnScaleResult,
+                                        CudaDeviceVariable<double> dBnBiasResult,
+                                        /* Same epsilon as forward pass */
+                                        double epsilon,
+
+                                        /* Optionally cached intermediate results from
+                                           forward pass */
+                                        CudaDeviceVariable<double> savedMean,
+                                        CudaDeviceVariable<double> savedInvVariance)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationBackward(
+                _handle, mode, ref alphaDataDiff, ref betaDataDiff, ref alphaParamDiff, ref betaParamDiff,
+                xDesc.Desc, x.DevicePointer, dyDesc.Desc, dy.DevicePointer, dxDesc.Desc, dx.DevicePointer,
+                dBnScaleBiasDesc.Desc, bnScale.DevicePointer, dBnScaleResult.DevicePointer, dBnBiasResult.DevicePointer,
+                epsilon, savedMean.DevicePointer, savedInvVariance.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "BatchNormalizationBackward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        #endregion
+    }
 }
