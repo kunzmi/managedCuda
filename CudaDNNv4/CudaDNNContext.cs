@@ -736,7 +736,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="estimatedMean">Mean tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningMean from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
         /// <param name="estimatedInvVariance">Variance tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningVariance from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
         /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
-        public void cudnnBatchNormalizationForwardInference(
+        public void BatchNormalizationForwardInference(
                                         cudnnBatchNormMode mode,
                                         ref float alpha, // alpha[0] = result blend factor
                                         ref float beta,  // beta[0] = dest layer blend factor
@@ -1701,7 +1701,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="estimatedMean">Mean tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningMean from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
         /// <param name="estimatedInvVariance">Variance tensor (has the same descriptor as the bias and scale). It is suggested that resultRunningVariance from the cudnnBatchNormalizationForwardTraining call accumulated during the training phase be passed as input here.</param>
         /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
-        public void cudnnBatchNormalizationForwardInference(
+        public void BatchNormalizationForwardInference(
                                         cudnnBatchNormMode mode,
                                         ref double alpha, // alpha[0] = result blend factor
                                         ref double beta,  // beta[0] = dest layer blend factor
