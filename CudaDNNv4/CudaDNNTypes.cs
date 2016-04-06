@@ -752,14 +752,14 @@ namespace ManagedCuda.CudaDNN
         /// Normalization is performed per-activation. This mode is intended to be used after nonconvolutional
         /// network layers. In this mode bnBias and bnScale tensor dimensions are 1xCxHxW.
         /// </summary>
-        BatchnormPerActivation = 0,
+        BatchNormPerActivation = 0,
 
         /// <summary>
         /// Normalization is performed over N+spatial dimensions. This mode is intended for use after
         /// convolutional layers (where spatial invariance is desired). In this mode bnBias, bnScale tensor
         /// dimensions are 1xCx1x1.
         /// </summary>
-        BatchnormSpatial = 1
+        BatchNormSpatial = 1
     }
 
     #endregion
