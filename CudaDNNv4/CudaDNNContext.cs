@@ -664,8 +664,8 @@ namespace ManagedCuda.CudaDNN
         public void BatchNormalizationForwardTraining(
                                 cudnnBatchNormMode mode,
 
-                                ref float alpha, // alpha[0] = result blend factor
-                                ref float beta,  // beta[0] = dest layer blend factor
+                                float alpha, // alpha[0] = result blend factor
+                                float beta,  // beta[0] = dest layer blend factor
 
                                 TensorDescriptor xDesc,
                                 CudaDeviceVariable<float> x,     // NxCxHxW
@@ -738,8 +738,8 @@ namespace ManagedCuda.CudaDNN
         /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
         public void BatchNormalizationForwardInference(
                                         cudnnBatchNormMode mode,
-                                        ref float alpha, // alpha[0] = result blend factor
-                                        ref float beta,  // beta[0] = dest layer blend factor
+                                        float alpha, // alpha[0] = result blend factor
+                                        float beta,  // beta[0] = dest layer blend factor
                                         TensorDescriptor xDesc,
                                         CudaDeviceVariable<float> x,     // NxCxHxW
                                         TensorDescriptor yDesc,
@@ -781,10 +781,10 @@ namespace ManagedCuda.CudaDNN
         /// <param name="savedInvVariance">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
         public void BatchNormalizationBackward(
                                         cudnnBatchNormMode mode,
-                                        ref float alphaDataDiff,
-                                        ref float betaDataDiff,
-                                        ref float alphaParamDiff,
-                                        ref float betaParamDiff,
+                                        float alphaDataDiff,
+                                        float betaDataDiff,
+                                        float alphaParamDiff,
+                                        float betaParamDiff,
                                         TensorDescriptor xDesc, // same desc for x, dx, dy
                                         CudaDeviceVariable<float> x,
                                         TensorDescriptor dyDesc,
@@ -1629,8 +1629,8 @@ namespace ManagedCuda.CudaDNN
         public void BatchNormalizationForwardTraining(
                                 cudnnBatchNormMode mode,
 
-                                ref double alpha, // alpha[0] = result blend factor
-                                ref double beta,  // beta[0] = dest layer blend factor
+                                double alpha, // alpha[0] = result blend factor
+                                double beta,  // beta[0] = dest layer blend factor
 
                                 TensorDescriptor xDesc,
                                 CudaDeviceVariable<double> x,     // NxCxHxW
@@ -1703,8 +1703,8 @@ namespace ManagedCuda.CudaDNN
         /// <param name="epsilon">Epsilon value used in the batch normalization formula. Minimum allowed value is currently 1e-5. Same epsilon value should be used in forward and backward functions.</param>
         public void BatchNormalizationForwardInference(
                                         cudnnBatchNormMode mode,
-                                        ref double alpha, // alpha[0] = result blend factor
-                                        ref double beta,  // beta[0] = dest layer blend factor
+                                        double alpha, // alpha[0] = result blend factor
+                                        double beta,  // beta[0] = dest layer blend factor
                                         TensorDescriptor xDesc,
                                         CudaDeviceVariable<double> x,     // NxCxHxW
                                         TensorDescriptor yDesc,
@@ -1746,10 +1746,10 @@ namespace ManagedCuda.CudaDNN
         /// <param name="savedInvVariance">Optional cache parameter saved intermediate results computed during the forward pass. For this to work correctly, the layer's x and bnScale, bnBias data has to remain unchanged until the backward function is called. Note that both savedMean and savedInvVariance parameters can be NULL but only at the same time. It is recommended to use this cache since the memory overhead is relatively small.</param>
         public void BatchNormalizationBackward(
                                         cudnnBatchNormMode mode,
-                                        ref double alphaDataDiff,
-                                        ref double betaDataDiff,
-                                        ref double alphaParamDiff,
-                                        ref double betaParamDiff,
+                                        double alphaDataDiff,
+                                        double betaDataDiff,
+                                        double alphaParamDiff,
+                                        double betaParamDiff,
                                         TensorDescriptor xDesc, // same desc for x, dx, dy
                                         CudaDeviceVariable<double> x,
                                         TensorDescriptor dyDesc,
