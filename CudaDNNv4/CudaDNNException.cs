@@ -26,7 +26,7 @@ using ManagedCuda.BasicTypes;
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace ManagedCuda.CudaDNN
+namespace ManagedCuda.CudaDNNv4
 {
 	/// <summary>
 	/// An CudaDNNException is thrown, if any wrapped call to the cudnn-library does not return <see cref="cudnnStatus.Success"/>.

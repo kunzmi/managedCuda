@@ -27,7 +27,7 @@ using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 
-namespace ManagedCuda.CudaDNN
+namespace ManagedCuda.CudaDNNv4
 {
 	/// <summary/>
 	public static class CudaDNNNativeMethods

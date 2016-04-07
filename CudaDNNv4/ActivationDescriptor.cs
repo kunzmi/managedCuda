@@ -23,7 +23,7 @@ using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
-namespace ManagedCuda.CudaDNN
+namespace ManagedCuda.CudaDNNv4
 {
     public class ActivationDescriptor : IDisposable
     {

@@ -24,7 +24,7 @@ using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
-namespace ManagedCuda.CudaDNN
+namespace ManagedCuda.CudaDNNv4
 {
 	/// <summary>
 	/// An opaque structure holding

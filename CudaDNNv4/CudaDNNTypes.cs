@@ -26,7 +26,7 @@ using System.Text;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace ManagedCuda.CudaDNN
+namespace ManagedCuda.CudaDNNv4
 {
 	/// <summary>
 	/// Constants for LRN, #define in cudnn.h
