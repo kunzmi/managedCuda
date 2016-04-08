@@ -31,7 +31,7 @@ namespace ManagedCuda.CudaDNNv5
 	/// </summary>
 	public class LRNDescriptor : IDisposable
 	{
-		private cudnnLRNDescriptor _desc;
+		private cudnnRRNDescriptor _desc;
 		private cudnnStatus res;
 		private bool disposed;
 		private cudnnHandle _handle;
@@ -42,7 +42,7 @@ namespace ManagedCuda.CudaDNNv5
 		public LRNDescriptor(CudaDNNContext context)
 		{
 			_handle = context.Handle;
-			_desc = new cudnnLRNDescriptor();
+			_desc = new cudnnRRNDescriptor();
 			res = CudaDNNNativeMethods.cudnnCreateLRNDescriptor(ref _desc);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnCreateLRNDescriptor", res));
 			if (res != cudnnStatus.Success)
@@ -89,7 +89,7 @@ namespace ManagedCuda.CudaDNNv5
 		/// <summary>
 		/// Returns the inner handle.
 		/// </summary>
-		public cudnnLRNDescriptor Desc
+		public cudnnRRNDescriptor Desc
 		{
 			get { return _desc; }
 		}

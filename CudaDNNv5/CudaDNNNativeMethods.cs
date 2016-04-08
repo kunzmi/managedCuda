@@ -2029,7 +2029,7 @@ namespace ManagedCuda.CudaDNNv5
 		/// This function will set lrnN=5, lrnAlpha=1e-4, lrnBeta=0.75, lrnK=2.0 as defaults from Krizhevsky'12 ImageNet paper
 		/// </summary>
 		[DllImport(CUDNN_API_DLL_NAME)]
-		public static extern cudnnStatus cudnnCreateLRNDescriptor(ref cudnnLRNDescriptor normDesc);
+		public static extern cudnnStatus cudnnCreateLRNDescriptor(ref cudnnRRNDescriptor normDesc);
 
 		// LRN uses a window [center-lookBehind, center+lookAhead], where
 		// lookBehind = floor( (lrnN-1)/2 ), lookAhead = lrnN-lookBehind-1.
@@ -2056,7 +2056,7 @@ namespace ManagedCuda.CudaDNNv5
 		/// <param name="lrnK">Value of the k parameter in normalization formula. By default this value is set to 2.0.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSetLRNDescriptor(
-									  cudnnLRNDescriptor   normDesc,
+									  cudnnRRNDescriptor   normDesc,
 									  uint               lrnN,
 									  double                 lrnAlpha,
 									  double                 lrnBeta,
@@ -2080,7 +2080,7 @@ namespace ManagedCuda.CudaDNNv5
 		/// NULL (no value is returned for the corresponding parameter).</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetLRNDescriptor(
-									  cudnnLRNDescriptor   normDesc,
+									  cudnnRRNDescriptor   normDesc,
 									  ref uint              lrnN,
 									  ref double                lrnAlpha,
 									  ref double                lrnBeta,
@@ -2090,7 +2090,7 @@ namespace ManagedCuda.CudaDNNv5
 		/// This function destroys a previously created LRN descriptor object.
 		/// </summary>
 		[DllImport(CUDNN_API_DLL_NAME)]
-		public static extern cudnnStatus cudnnDestroyLRNDescriptor( cudnnLRNDescriptor lrnDesc );
+		public static extern cudnnStatus cudnnDestroyLRNDescriptor( cudnnRRNDescriptor lrnDesc );
 
 		// LRN functions: of the form "output = alpha * normalize(srcData) + beta * destData"
 
@@ -2117,7 +2117,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelForward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref float alpha,
 									  cudnnTensorDescriptor    srcDesc,
@@ -2148,7 +2148,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelForward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref double alpha,
 									  cudnnTensorDescriptor    srcDesc,
@@ -2202,7 +2202,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref float alpha,
 									  cudnnTensorDescriptor    srcDesc,
@@ -2259,7 +2259,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref double alpha,
 									  cudnnTensorDescriptor    srcDesc,
@@ -2316,7 +2316,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref float alpha,
 									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
@@ -2371,7 +2371,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref double alpha,
 									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
@@ -2439,7 +2439,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref float alpha,
 									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
@@ -2510,7 +2510,7 @@ namespace ManagedCuda.CudaDNNv5
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
 									  cudnnHandle                    handle,
-									  cudnnLRNDescriptor             normDesc,
+									  cudnnRRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref double alpha,
 									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
@@ -2744,7 +2744,6 @@ namespace ManagedCuda.CudaDNNv5
         /// <summary>
         /// This function creates a generic spatial transformer descriptor object by allocating the memory needed to hold its opaque structure. 
         /// </summary>
-        /// <param name="stDesc"></param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnCreateSpatialTransformerDescriptor(
                                        ref cudnnSpatialTransformerDescriptor stDesc);
@@ -2995,7 +2994,7 @@ namespace ManagedCuda.CudaDNNv5
         /// This function destroys a previously created RNN descriptor object.
         /// </summary>
         [DllImport(CUDNN_API_DLL_NAME)]
-        public static extern cudnnStatus cudnnDestroyRNNDescriptor(ref cudnnRNNDescriptor rnnDesc);
+        public static extern cudnnStatus cudnnDestroyRNNDescriptor(cudnnRNNDescriptor rnnDesc);
 
         /// <summary>
         /// This function initializes a previously created RNN descriptor object.
@@ -3034,7 +3033,7 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNWorkspaceSize(cudnnHandle handle,
                                                     cudnnRNNDescriptor rnnDesc,
-                                                    ref cudnnTensorDescriptor xDesc,
+                                                    cudnnTensorDescriptor[] xDesc,
                                                     ref SizeT                     sizeInBytes
                                                     );
 
@@ -3050,7 +3049,7 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNTrainingReserveSize(cudnnHandle handle,
                                                           cudnnRNNDescriptor rnnDesc,
-                                                          ref cudnnTensorDescriptor xDesc,
+                                                          cudnnTensorDescriptor[] xDesc,
                                                           ref SizeT                     sizeInBytes
                                                     );
 
@@ -3065,7 +3064,7 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNParamsSize(cudnnHandle handle,
                                                  cudnnRNNDescriptor rnnDesc,
-                                                 ref cudnnTensorDescriptor xDesc,
+                                                 cudnnTensorDescriptor[] xDesc,
                                                  ref SizeT                     sizeInBytes
                                                     );
 
@@ -3101,7 +3100,7 @@ namespace ManagedCuda.CudaDNNv5
         public static extern cudnnStatus cudnnGetRNNLinLayerMatrixParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             ref cudnnTensorDescriptor xDesc,
+                             cudnnTensorDescriptor[] xDesc,
                              cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
@@ -3141,8 +3140,8 @@ namespace ManagedCuda.CudaDNNv5
         public static extern cudnnStatus cudnnGetRNNLinLayerBiasParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             ref cudnnTensorDescriptor xDesc,
-                             ref cudnnFilterDescriptor wDesc,
+                             cudnnTensorDescriptor[] xDesc,
+                             cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
                              cudnnFilterDescriptor linLayerBiasDesc,
@@ -3211,7 +3210,7 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNForwardInference(cudnnHandle handle,
                                                     cudnnRNNDescriptor rnnDesc,
-                                                    ref cudnnTensorDescriptor xDesc,
+                                                    cudnnTensorDescriptor[] xDesc,
                                                     CUdeviceptr x,
                                                     cudnnTensorDescriptor hxDesc,
                                                     CUdeviceptr hx,
@@ -3219,7 +3218,7 @@ namespace ManagedCuda.CudaDNNv5
                                                     CUdeviceptr cx,
                                                     cudnnFilterDescriptor wDesc,
                                                     CUdeviceptr w,
-                                                    ref cudnnTensorDescriptor yDesc,
+                                                    cudnnTensorDescriptor[] yDesc,
                                                     CUdeviceptr y,
                                                     cudnnTensorDescriptor hyDesc,
                                                     CUdeviceptr hy,
@@ -3289,7 +3288,7 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNForwardTraining(cudnnHandle handle,
                                                    cudnnRNNDescriptor rnnDesc,
-                                                   ref cudnnTensorDescriptor xDesc,
+                                                   cudnnTensorDescriptor[] xDesc,
                                                    CUdeviceptr x,
                                                    cudnnTensorDescriptor hxDesc,
                                                    CUdeviceptr hx,
@@ -3297,7 +3296,7 @@ namespace ManagedCuda.CudaDNNv5
                                                    CUdeviceptr cx,
                                                    cudnnFilterDescriptor wDesc,
                                                    CUdeviceptr w,
-                                                   ref cudnnTensorDescriptor yDesc,
+                                                   cudnnTensorDescriptor[] yDesc,
                                                    CUdeviceptr y,
                                                    cudnnTensorDescriptor hyDesc,
                                                    CUdeviceptr hy,
@@ -3394,9 +3393,9 @@ namespace ManagedCuda.CudaDNNv5
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNBackwardData(cudnnHandle handle,
                                                 cudnnRNNDescriptor rnnDesc,
-                                                ref cudnnTensorDescriptor yDesc,
+                                                cudnnTensorDescriptor[] yDesc,
                                                 CUdeviceptr y,
-                                                ref cudnnTensorDescriptor dyDesc,
+                                                cudnnTensorDescriptor[] dyDesc,
                                                 CUdeviceptr dy,
                                                 cudnnTensorDescriptor dhyDesc,
                                                 CUdeviceptr dhy,

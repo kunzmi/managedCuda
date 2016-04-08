@@ -211,7 +211,7 @@ namespace ManagedCuda.CudaDNNv5
     /// of a local response normalization operation.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-	public struct cudnnLRNDescriptor
+	public struct cudnnRRNDescriptor
 	{
 		private IntPtr Pointer;
 	}
@@ -240,7 +240,7 @@ namespace ManagedCuda.CudaDNNv5
     }
 
     /// <summary>
-    /// cudnnOpTensorDescriptor_t is a pointer to an opaque structure holding the 
+    /// cudnnOpTensorDescriptor is a pointer to an opaque structure holding the 
     /// description of a tensor operation, used as a parameter to cudnnOpTensor(). 
     /// cudnnCreateOpTensorDescriptor() is used to create one instance, and 
     /// cudnnSetOpTensorDescriptor() must be used to initialize this instance.
@@ -806,7 +806,7 @@ namespace ManagedCuda.CudaDNNv5
 	}
 
     /// <summary>
-    /// cudnnBatchNormMode_t is an enumerated type used to specify the mode of operation in 
+    /// cudnnBatchNormMode is an enumerated type used to specify the mode of operation in 
     /// cudnnBatchNormalizationForwardInference(), cudnnBatchNormalizationForwardTraining(), 
     /// cudnnBatchNormalizationBackward() and cudnnDeriveBNTensorDescriptor() routines. 
     /// </summary>
@@ -827,9 +827,9 @@ namespace ManagedCuda.CudaDNNv5
     }
 
     /// <summary>
-    /// cudnnOpTensorOp_t is an enumerated type used to indicate the tensor operation to be used 
+    /// cudnnOpTensorOp is an enumerated type used to indicate the tensor operation to be used 
     /// by the cudnnOpTensor() routine. This enumerated type is used as a field for the 
-    /// cudnnOpTensorDescriptor_t descriptor.
+    /// cudnnOpTensorDescriptor descriptor.
     /// </summary>
     public enum cudnnOpTensorOp
     {
