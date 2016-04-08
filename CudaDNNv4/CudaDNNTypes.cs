@@ -744,8 +744,13 @@ namespace ManagedCuda.CudaDNNv4
 		/// cudnnDivisiveNormalizationBackward.
 		/// </summary>
 		PrecomputedMeans = 0
-	} 
+	}
 
+    /// <summary>
+    /// cudnnBatchNormMode_t is an enumerated type used to specify the mode of operation in 
+    /// cudnnBatchNormalizationForwardInference(), cudnnBatchNormalizationForwardTraining(), 
+    /// cudnnBatchNormalizationBackward() and cudnnDeriveBNTensorDescriptor() routines. 
+    /// </summary>
     public enum cudnnBatchNormMode
     {
         /// <summary>
