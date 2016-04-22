@@ -761,10 +761,19 @@ namespace ManagedCuda.CudaDNNv5
 		AlgoFFT = 2,
 
         /// <summary>
+        /// This algorithm uses a Fast-Fourier Transform approach but splits the inputs into 
+        /// 32x32 tiles. A significant memory workspace is needed to store intermediate results 
+        /// but significantly less than CUDNN_CONVOLUTION_BWD_DATA_ALGO_FFT for big size images. 
+        /// A significant memory workspace is needed to store intermediate results. The results 
+        /// are deterministic.
+        /// </summary>
+        AlgoFFTWithTiling = 3,
+
+        /// <summary>
         /// This algorithm uses a Winograd Transform approach to compute the convolution. 
         /// A reasonably sized workspace is needed to store intermediate results. The results are deterministic.
         /// </summary>
-        Winograd = 3
+        Winograd = 4
 	}
 
 	/// <summary>
