@@ -110,16 +110,18 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="upscalex">Upscale the input in x-direction.</param>
 		/// <param name="upscaley">Upscale the input in y-direction.</param>
 		/// <param name="mode">Selects between CUDNN_CONVOLUTION and CUDNN_CROSS_CORRELATION.</param>
+		/// <param name="dataType">Selects the datatype in which the computation will be done.</param>
 		public void SetConvolution2dDescriptor(int pad_h,    // zero-padding height
 												int pad_w,    // zero-padding width
 												int u,        // vertical filter stride
 												int v,        // horizontal filter stride
 												int upscalex, // upscale the input in x-direction
 												int upscaley, // upscale the input in y-direction
-												cudnnConvolutionMode mode
-												)
+												cudnnConvolutionMode mode,
+                                                cudnnDataType dataType
+                                                )
 		{
-			res = CudaDNNNativeMethods.cudnnSetConvolution2dDescriptor(_desc, pad_h, pad_w, u, v, upscalex, upscaley, mode);
+			res = CudaDNNNativeMethods.cudnnSetConvolution2dDescriptor(_desc, pad_h, pad_w, u, v, upscalex, upscaley, mode, dataType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetConvolution2dDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
@@ -136,16 +138,18 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="upscalex">Upscale the input in x-direction.</param>
 		/// <param name="upscaley">Upscale the input in y-direction.</param>
 		/// <param name="mode">convolution mode.</param>
+		/// <param name="dataType">Selects the datatype in which the computation will be done.</param>
 		public void GetConvolution2dDescriptor(ref int pad_h,    // zero-padding height
 												ref int pad_w,    // zero-padding width
 												ref int u,        // vertical filter stride
 												ref int v,        // horizontal filter stride
 												ref int upscalex, // upscale the input in x-direction
 												ref int upscaley, // upscale the input in y-direction
-												ref cudnnConvolutionMode mode
-											)
+												ref cudnnConvolutionMode mode,
+                                                ref cudnnDataType dataType
+                                            )
 		{
-			res = CudaDNNNativeMethods.cudnnGetConvolution2dDescriptor(_desc, ref pad_h, ref pad_w, ref u, ref v, ref upscalex, ref upscaley, ref mode);
+			res = CudaDNNNativeMethods.cudnnGetConvolution2dDescriptor(_desc, ref pad_h, ref pad_w, ref u, ref v, ref upscalex, ref upscaley, ref mode, ref dataType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolution2dDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}

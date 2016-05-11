@@ -98,18 +98,20 @@ namespace ManagedCuda.CudaDNN
 		/// Filters layout must be contiguous in memory.
 		/// </summary>
 		/// <param name="dataType">Data type.</param>
+        /// <param name="format">Enumerant holding the layout format.</param>
 		/// <param name="k">Number of output feature maps.</param>
 		/// <param name="c">Number of input feature maps.</param>
 		/// <param name="h">Height of each filter.</param>
 		/// <param name="w">Width of each filter.</param>
 		public void SetFilter4dDescriptor(cudnnDataType dataType, // image data type
+                                                cudnnTensorFormat format,
 												int k,        // number of output feature maps
 												int c,        // number of input feature maps
 												int h,        // height of each input filter
 												int w         // width of  each input fitler
 											)
 		{
-			res = CudaDNNNativeMethods.cudnnSetFilter4dDescriptor(_desc, dataType, k, c, h, w);
+			res = CudaDNNNativeMethods.cudnnSetFilter4dDescriptor(_desc, dataType, format, k, c, h, w);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetFilter4dDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
@@ -119,57 +121,63 @@ namespace ManagedCuda.CudaDNN
 		/// This function queries the parameters of the previouly initialized filter descriptor object.
 		/// </summary>
 		/// <param name="dataType">Data type.</param>
+        /// <param name="format">Enumerant holding the layout format.</param>
 		/// <param name="k">Number of output feature maps.</param>
 		/// <param name="c">Number of input feature maps.</param>
 		/// <param name="h">Height of each filter.</param>
 		/// <param name="w">Width of each filter.</param>
 		public void GetFilter4dDescriptor(ref cudnnDataType dataType, // image data type
+                                            ref cudnnTensorFormat format,
 											ref int k,        // number of output feature maps
 											ref int c,        // number of input feature maps
 											ref int h,        // height of each input filter
 											ref int w         // width of  each input fitler
 										)
 		{
-			res = CudaDNNNativeMethods.cudnnGetFilter4dDescriptor(_desc, ref dataType, ref k, ref c, ref h, ref w);
+			res = CudaDNNNativeMethods.cudnnGetFilter4dDescriptor(_desc, ref dataType, ref format, ref k, ref c, ref h, ref w);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFilter4dDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
 
-		/// <summary>
-		/// This function initializes a previously created filter descriptor object. Filters layout must
-		/// be contiguous in memory.
-		/// </summary>
-		/// <param name="dataType">Data type.</param>
-		/// <param name="nbDims">Dimension of the filter.</param>
-		/// <param name="filterDimA">Array of dimension nbDims containing the size of the filter for each dimension.</param>
-		public void SetFilterNdDescriptor(cudnnDataType dataType, // image data type
+        /// <summary>
+        /// This function initializes a previously created filter descriptor object. Filters layout must
+        /// be contiguous in memory.
+        /// </summary>
+        /// <param name="dataType">Data type.</param>
+        /// <param name="format">Enumerant holding the layout format.</param>
+        /// <param name="nbDims">Dimension of the filter.</param>
+        /// <param name="filterDimA">Array of dimension nbDims containing the size of the filter for each dimension.</param>
+        public void SetFilterNdDescriptor(cudnnDataType dataType, // image data type
+                                            cudnnTensorFormat format,
 											int nbDims,
 											int[] filterDimA
 											)
 		{
-			res = CudaDNNNativeMethods.cudnnSetFilterNdDescriptor(_desc, dataType, nbDims, filterDimA);
+			res = CudaDNNNativeMethods.cudnnSetFilterNdDescriptor(_desc, dataType, format, nbDims, filterDimA);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetFilterNdDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
 
 
-		/// <summary>
-		/// This function queries a previously initialized filter descriptor object.
-		/// </summary>
-		/// <param name="nbDimsRequested">Dimension of the expected filter descriptor. It is also the minimum size of
-		/// the arrays filterDimA in order to be able to hold the results</param>
-		/// <param name="dataType">Data type.</param>
-		/// <param name="nbDims">Actual dimension of the filter.</param>
-		/// <param name="filterDimA">Array of dimension of at least nbDimsRequested that will be filled with
-		/// the filter parameters from the provided filter descriptor.</param>
-		public void GetFilterNdDescriptor(int nbDimsRequested,
+        /// <summary>
+        /// This function queries a previously initialized filter descriptor object.
+        /// </summary>
+        /// <param name="nbDimsRequested">Dimension of the expected filter descriptor. It is also the minimum size of
+        /// the arrays filterDimA in order to be able to hold the results</param>
+        /// <param name="dataType">Data type.</param>
+        /// <param name="format">Enumerant holding the layout format.</param>
+        /// <param name="nbDims">Actual dimension of the filter.</param>
+        /// <param name="filterDimA">Array of dimension of at least nbDimsRequested that will be filled with
+        /// the filter parameters from the provided filter descriptor.</param>
+        public void GetFilterNdDescriptor(int nbDimsRequested,
 											ref cudnnDataType dataType, // image data type
+                                            ref cudnnTensorFormat format,
 											ref int nbDims,
 											int[] filterDimA
 										)
 		{
-			res = CudaDNNNativeMethods.cudnnGetFilterNdDescriptor(_desc, nbDimsRequested, ref dataType, ref nbDims, filterDimA);
+			res = CudaDNNNativeMethods.cudnnGetFilterNdDescriptor(_desc, nbDimsRequested, ref dataType, ref format, ref nbDims, filterDimA);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFilterNdDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}

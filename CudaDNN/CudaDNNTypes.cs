@@ -51,6 +51,17 @@ namespace ManagedCuda.CudaDNN
 		public const double MinBeta = 0.01;
 	}
 
+	/// <summary>
+	/// Constant values for BN
+	/// </summary>
+    public struct BNConstants
+    {
+		/// <summary>
+		/// MinEpsilon = 1e-5
+		/// </summary>
+        public const double MinEpsilon = 1e-5;
+    }
+
 	#region struct
 	/// <summary>
 	/// cudnnConvolutionFwdAlgoPerf is a structure containing performance results
@@ -201,22 +212,81 @@ namespace ManagedCuda.CudaDNN
 		private IntPtr Pointer;
 	}
 
-	/// <summary>
-	/// 
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// cudnnLRNDescriptor is a pointer to an opaque structure holding the description
+    /// of a local response normalization operation.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct cudnnLRNDescriptor
 	{
 		private IntPtr Pointer;
 	}
-	#endregion
 
-	#region enums
+    /// <summary>
+    /// cudnnActivationDescriptor is a pointer to an opaque structure holding the description
+    /// of a activation operation.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnActivationDescriptor
+    {
+        private IntPtr Pointer;
+    }
 
-	/// <summary>
-	/// CUDNN return codes
-	/// </summary>
-	public enum cudnnStatus
+    /// <summary>
+    /// cudnnSpatialTransformerDescriptor_t is a pointer to an opaque structure 
+    /// holding the description of a spatial transformation operation. 
+    /// cudnnCreateSpatialTransformerDescriptor() is used to create one instance, 
+    /// cudnnSetSpatialTransformerNdDescriptor() is used to initialize this instance, 
+    /// cudnnDestroySpatialTransformerDescriptor() is used to destroy this instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnSpatialTransformerDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// cudnnOpTensorDescriptor is a pointer to an opaque structure holding the 
+    /// description of a tensor operation, used as a parameter to cudnnOpTensor(). 
+    /// cudnnCreateOpTensorDescriptor() is used to create one instance, and 
+    /// cudnnSetOpTensorDescriptor() must be used to initialize this instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnOpTensorDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// cudnnDropoutDescriptor_t is a pointer to an opaque structure holding the description of a dropout operation. 
+    /// cudnnCreateDropoutDescriptor() is used to create one instance, cudnnSetDropoutDescriptor() is be used to 
+    /// initialize this instance, cudnnDestroyDropoutDescriptor() is be used to destroy this instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnDropoutDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// cudnnRNNDescriptor_t is a pointer to an opaque structure holding the description of an RNN operation. 
+    /// cudnnCreateRNNDescriptor() is used to create one instance, and cudnnSetRNNDescriptor() must be used to 
+    /// initialize this instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnRNNDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    #endregion
+
+    #region enums
+
+    /// <summary>
+    /// CUDNN return codes
+    /// </summary>
+    public enum cudnnStatus
 	{
 		/// <summary>
 		/// The operation completed successfully.
@@ -320,11 +390,26 @@ namespace ManagedCuda.CudaDNN
 		Half = 2
 	}
 
-	/// <summary>
-	/// cudnnTensorFormat is an enumerated type used by
-	/// cudnnSetTensor4dDescriptor() to create a tensor with a pre-defined layout.
+    /// <summary>
+	/// cudnnNanPropagation is an enumerated type for the NanPropagation flag.
 	/// </summary>
-	public enum cudnnTensorFormat
+	public enum cudnnNanPropagation
+    {
+        /// <summary>
+        /// Selects the not propagate NaN option.
+        /// </summary>
+        NotPropagateNan = 0,
+        /// <summary>
+        /// Selects the propagate NaN option.
+        /// </summary>
+        PropagateNan = 1
+	}
+
+    /// <summary>
+    /// cudnnTensorFormat is an enumerated type used by
+    /// cudnnSetTensor4dDescriptor() to create a tensor with a pre-defined layout.
+    /// </summary>
+    public enum cudnnTensorFormat
 	{
 		/// <summary>
 		/// This tensor format specifies that the data is laid out in the following order: image, features map,
@@ -475,8 +560,20 @@ namespace ManagedCuda.CudaDNN
 		/// This algorithm uses a Fast-Fourier Transform approach to compute the convolution. A
 		/// significant memory workspace is needed to store intermediate results.
 		/// </summary>
-		FFT = 4
-	}
+		FFT = 4,
+        /// <summary>
+        /// This algorithm uses a Fast-Fourier Transform approach but splits the inputs into 32x32 tiles. A
+        /// significant memory workspace is needed to store intermediate results but significantly less than
+        /// FFT for big size images.
+        /// </summary>
+        FFTWithTiling = 5,
+
+        /// <summary>
+        /// This algorithm uses a Winograd Transform approach to compute the convolution. A reasonably 
+        /// sized workspace is needed to store intermediate results.
+        /// </summary>
+        Winograd = 6
+    }
 
 
 
@@ -511,7 +608,7 @@ namespace ManagedCuda.CudaDNN
 		/// <summary>
 		/// The softmax operation is computed per image (N) across the dimensions C,H,W.
 		/// </summary>
-		Instace = 0,   /* compute the softmax over all C, H, W for each N */
+		Instance = 0,   /* compute the softmax over all C, H, W for each N */
 		/// <summary>
 		/// The softmax operation is computed per spatial location (H,W) per image (N) across the dimension C.
 		/// </summary>
@@ -558,8 +655,12 @@ namespace ManagedCuda.CudaDNN
 		/// <summary>
 		/// Selects the hyperbolic tangent function.
 		/// </summary>
-		Tanh = 2
-	}
+		Tanh = 2,
+        /// <summary>
+        /// Selects the clipped rectified linear function.
+        /// </summary>
+        ClippedRelu = 3
+    }
 
 	/// <summary>
 	/// cudnnConvolutionBwdFilterPreference is an enumerated type used by
@@ -663,7 +764,13 @@ namespace ManagedCuda.CudaDNN
 		/// significant memory workspace is needed to store intermediate results. The results are
 		/// deterministic.
 		/// </summary>
-		AlgoFFT = 2
+		AlgoFFT = 2,
+
+        /// <summary>
+        /// This algorithm uses a Winograd Transform approach to compute the convolution. 
+        /// A reasonably sized workspace is needed to store intermediate results. The results are deterministic.
+        /// </summary>
+        Winograd = 3
 	}
 
 	/// <summary>
@@ -702,8 +809,154 @@ namespace ManagedCuda.CudaDNN
 		/// cudnnDivisiveNormalizationBackward.
 		/// </summary>
 		PrecomputedMeans = 0
-	} 
+	}
 
-         
-	#endregion
+    /// <summary>
+    /// cudnnBatchNormMode is an enumerated type used to specify the mode of operation in 
+    /// cudnnBatchNormalizationForwardInference(), cudnnBatchNormalizationForwardTraining(), 
+    /// cudnnBatchNormalizationBackward() and cudnnDeriveBNTensorDescriptor() routines. 
+    /// </summary>
+    public enum cudnnBatchNormMode
+    {
+        /// <summary>
+        /// Normalization is performed per-activation. This mode is intended to be used after nonconvolutional
+        /// network layers. In this mode bnBias and bnScale tensor dimensions are 1xCxHxW.
+        /// </summary>
+        BatchNormPerActivation = 0,
+
+        /// <summary>
+        /// Normalization is performed over N+spatial dimensions. This mode is intended for use after
+        /// convolutional layers (where spatial invariance is desired). In this mode bnBias, bnScale tensor
+        /// dimensions are 1xCx1x1.
+        /// </summary>
+        BatchNormSpatial = 1
+    }
+
+    /// <summary>
+    /// cudnnOpTensorOp is an enumerated type used to indicate the tensor operation to be used 
+    /// by the cudnnOpTensor() routine. This enumerated type is used as a field for the 
+    /// cudnnOpTensorDescriptor descriptor.
+    /// </summary>
+    public enum cudnnOpTensorOp
+    {
+        /// <summary>
+        /// The operation to be performed is addition.
+        /// </summary>
+        OpTensorAdd = 0,
+        /// <summary>
+        /// The operation to be performed is multiplication.
+        /// </summary>
+        OpTensorMul = 1,
+        /// <summary>
+        /// The operation to be performed is a minimum comparison.
+        /// </summary>
+        OpTensorMin = 2,
+        /// <summary>
+        /// The operation to be performed is a maximum comparison.
+        /// </summary>
+        OpTensorMax = 3
+    }
+
+    /// <summary>
+    /// cudnnSamplerType_t is an enumerated type passed to cudnnSetSpatialTransformerNdDescriptor() to 
+    /// select the sampler type to be used by cudnnSpatialTfSamplerForward() and cudnnSpatialTfSamplerBackward().
+    /// </summary>
+    public enum cudnnSamplerType
+    {
+        /// <summary>
+        /// Selects the bilinear sampler.
+        /// </summary>
+        SamplerBilinear = 0
+    }
+
+    /// <summary>
+    /// cudnnRNNMode_t is an enumerated type used to specify the type of network used in the 
+    /// cudnnRNNForwardInference(), cudnnRNNForwardTraining(), cudnnRNNBackwardData() and 
+    /// cudnnRNNBackwardWeights() routines.
+    /// </summary>
+    public enum cudnnRNNMode
+    {
+        /// <summary>
+        /// A single-gate recurrent neural network with a ReLU activation function. In the forward pass the output ht for a 
+        /// given iteration can be computed from the recurrent input ht-1 and the previous layer input xt given matrices 
+        /// W, R and biases bW, bR from the following equation:
+        /// h_t = ReLU(W_i x_t + R_i h_(t-1) + b_Wi + b_Ri) 
+        /// Where ReLU(x) = max(x, 0). 
+        /// </summary>
+        RNNRelu = 0, // Stock RNN with ReLu activation
+        /// <summary>
+        /// A single-gate recurrent neural network with a tanh activation function. In the forward pass the output ht 
+        /// for a given iteration can be computed from the recurrent input ht-1 and the previous layer input xt given 
+        /// matrices W, R and biases bW, bR from the following equation:
+        /// h_t = tanh(W_i x_t + R_i h_(t-1) + b_Wi + b_Ri) 
+        /// Where tanh is the hyperbolic tangent function.
+        /// </summary>
+        RNNTanh = 1, // Stock RNN with tanh activation
+        /// <summary>
+        /// A four-gate Long Short-Term Memory network with no peephole connections. In the forward pass the output ht 
+        /// and cell output c_t for a given iteration can be computed from the recurrent input h_(t-1), the cell input c_(t-1)
+        /// and the previous layer input x_t given matrices W, R and biases b_W, b_R from the following equations: 
+        /// i_t = σ(W_i x_t + R_i h_(t-1) + b_Wi + b_Ri) 
+        /// f_t = σ(W_f x_t + R_f h_(t-1) + b_Wf + b_Rf) 
+        /// o_t = σ(W_o x_t + R_o h_(t-1) + b_Wo + b_Ro)
+        /// c_'t = tanh(W_c x_t + R_c h_(t-1) + b_Wc + b_Rc) 
+        /// c_t = f_t◦c_'(t-1) + i_t◦c_'t 
+        /// h_t = o_t◦tanh(c_t)
+        /// Where σ is the sigmoid operator: σ(x) = 1 / (1 + e^-x), ◦ represents a point-wise multiplication 
+        /// and tanh is the hyperbolic tangent function. i_t, f_t, o_t, c_'t represent the input, forget, output 
+        /// and new gates respectively. 
+        /// </summary>
+        LSTM = 2,     // LSTM with no peephole connections
+        /// <summary>
+        /// A three-gate network consisting of Gated Recurrent Units. In the forward pass the output ht 
+        /// for a given iteration can be computed from the recurrent input ht-1 and the previous layer input 
+        /// xt given matrices W, R and biases bW, bR from the following equations:
+        /// i_t = σ(W_i x_t + R_i h_(t-1) + b_Wi + b_Ru)
+        /// r_t = σ(W_r x_t + R_r h_(t-1) + b_Wr + b_Rr)
+        /// h_'t = tanh(W_h x_t + r_t◦R_h h_(t-1) + b_Wh + b_Rh) 
+        /// h_t = (1 - i_t◦h_'t) + i_t◦h_(t-1)
+        /// Where σ is the sigmoid operator: σ(x) = 1 / (1 + e^-x), ◦ represents a point-wise multiplication 
+        /// and tanh is the hyperbolic tangent function. i_t, r_t, h_'t represent the input, reset, new gates respectively.
+        /// </summary>
+        GRU = 3       // Using h' = tanh(r * Uh(t-1) + Wx) and h = (1 - z) * h' + z * h(t-1);
+    }
+
+    /// <summary>
+    /// cudnnDirectionMode_t is an enumerated type used to specify the recurrence pattern in the cudnnRNNForwardInference(), 
+    /// cudnnRNNForwardTraining(), cudnnRNNBackwardData() and cudnnRNNBackwardWeights() routines.
+    /// </summary>
+    public enum cudnnDirectionMode
+    {
+        /// <summary>
+        /// The network iterates recurrently from the first input to the last.
+        /// </summary>
+        Unidirectional = 0,
+        /// <summary>
+        /// Each layer of the the network iterates recurrently from the first input to the last and separately 
+        /// from the last input to the first. The outputs of the two are concatenated at each iteration giving 
+        /// the output of the layer.
+        /// </summary>
+        Bidirectional = 1      // Using output concatination at each step. Do we also want to support output sum?
+    }
+
+    /// <summary>
+    /// cudnnRNNInputMode_t is an enumerated type used to specify the behavior of the first 
+    /// layer in the cudnnRNNForwardInference(), cudnnRNNForwardTraining(), 
+    /// cudnnRNNBackwardData() and cudnnRNNBackwardWeights() routines.
+    /// </summary>
+    public enum cudnnRNNInputMode
+    {
+        /// <summary>
+        /// A biased matrix multiplication is performed at the input of the first recurrent layer.
+        /// </summary>
+        LinearInput = 0,
+        /// <summary>
+        /// No operation is performed at the input of the first recurrent layer. If CUDNN_SKIP_INPUT 
+        /// is used the leading dimension of the input tensor must be equal to the hidden state size 
+        /// of the network.
+        /// </summary>
+        SkipInput = 1
+    }
+
+    #endregion
 }
