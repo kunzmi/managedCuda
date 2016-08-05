@@ -99,6 +99,17 @@ namespace ManagedCuda.NPP
 	}
 
 	/// <summary>
+	/// Differential Filter types
+	/// </summary>
+	public enum DifferentialKernel
+	{
+		/// <summary/>
+		Sobel,
+		/// <summary/>
+		Scharr
+	} 
+
+	/// <summary>
 	/// Error Status Codes <para/>
 	/// Almost all NPP function return error-status information using
 	/// these return codes.
@@ -676,6 +687,27 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		nppiACTable,
 	}
+	
+	/// <summary>
+	/// NppiNorm
+	/// </summary>
+	public enum NppiNorm
+	{
+		/// <summary>
+		/// maximum
+		/// </summary>
+		nppiNormInf = 0,
+		/// <summary>
+		/// sum
+		/// </summary>
+		nppiNormL1 = 1,
+		/// <summary>
+		/// square root of sum of squares
+		/// </summary>
+		nppiNormL2 = 2
+	}
+
+
 
 	/// <summary>
 	/// Bayer Grid Position Registration.
@@ -2626,7 +2658,7 @@ namespace ManagedCuda.NPP
 		/// <returns></returns>
 		public bool Contains(NppiPoint point)
 		{ 
-			return (point.x >= Left) && (point.x <= Right) && (point.y >= Top) && (point.y <= Bottom);
+			return (point.x >= Left) && (point.x <=  Right) && (point.y >= Top) && (point.y <=  Bottom);
 		}
 
 		/// <summary>
@@ -2637,7 +2669,7 @@ namespace ManagedCuda.NPP
 		/// <returns></returns>
 		public bool Contains(int px, int py)
 		{
-			return (px >= Left) && (px <= Right) && (py >= Top) && (py <= Bottom);
+			return (px >= Left) && (px <=  Right) && (py >= Top) && (py <=  Bottom);
 		}
 
 		/// <summary>
@@ -2750,7 +2782,7 @@ namespace ManagedCuda.NPP
 
 			int iWidth = iX2 - iX + 1;
 			int iHeight = iY2 - iY + 1;
-			if (iWidth <= 0 || iHeight <= 0)
+			if (iWidth <=  0 || iHeight <=  0)
 			{
 				iX = 0;
 				iY = 0;
@@ -2797,7 +2829,7 @@ namespace ManagedCuda.NPP
 
 			int iWidth = iX2 - iX + 1;
 			int iHeight = iY2 - iY + 1;
-			if (iWidth <= 0 || iHeight <= 0)
+			if (iWidth <=  0 || iHeight <=  0)
 			{
 				iX = 0;
 				iY = 0;
@@ -2841,7 +2873,7 @@ namespace ManagedCuda.NPP
 
 			int iWidth = iX2 - iX + 1;
 			int iHeight = iY2 - iY + 1;
-			if (iWidth <= 0 || iHeight <= 0)
+			if (iWidth <=  0 || iHeight <=  0)
 			{
 				return false;
 			}

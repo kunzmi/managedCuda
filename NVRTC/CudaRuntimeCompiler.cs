@@ -235,6 +235,29 @@ namespace ManagedCuda.NVRTC
 			string logString = enc.GetString(logCode);
 			return logString.Replace("\0", "");
 		}
+
+		/// <summary/>
+		public void AddNameExpression(string nameExpression)
+		{
+
+			res = NVRTCNativeMethods.nvrtcAddNameExpression(_program, nameExpression);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcAddNameExpression", res));
+			if (res != nvrtcResult.Success)
+				throw new NVRTCException(res);
+		}
+
+		/// <summary/>
+		public string GetLoweredName(string nameExpression)
+		{
+			IntPtr ret = new IntPtr();
+			res = NVRTCNativeMethods.nvrtcGetLoweredName(_program, nameExpression, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetLoweredName", res));
+			if (res != nvrtcResult.Success)
+				throw new NVRTCException(res);
+
+			//ret ptr is freed when _program is destroyed!
+			return Marshal.PtrToStringAnsi(ret);
+		}
 		#endregion
 	}
 }

@@ -295,6 +295,36 @@ namespace ManagedCuda.CudaSparse
 		Right = 1
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseColorAlg
+	{
+		/// <summary>
+		/// default
+		/// </summary>
+		ALG0 = 0,
+		/// <summary>
+		/// 
+		/// </summary>
+		ALG1 = 1
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseAlgMode
+	{
+		/// <summary>
+		/// default, naive
+		/// </summary>
+		ALG0 = 0,
+		/// <summary>
+		/// merge path
+		/// </summary>
+		ALG1 = 1
+	}
+
 	#endregion
 
 	#region structs (opaque handles)

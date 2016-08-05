@@ -150,6 +150,18 @@ namespace ManagedCuda.NVRTC
 				case nvrtcResult.ErrorBuiltinOperationFailure:
 					message = "Builtin operation failure.";
 					break;
+				case nvrtcResult.NoLoweredNamesBeforeCompilation:
+					message = "No lowered names before compilation error.";
+					break;
+				case nvrtcResult.NoNameExpressionsAfterCompilation:
+					message = "No name expressions after compilation error.";
+					break;
+				case nvrtcResult.ExpressionNotValid:
+					message = "Expression not valid error.";
+					break;
+				case nvrtcResult.InternalError:
+					message = "Internal error.";
+					break;
 				default:
 					break;
 			}

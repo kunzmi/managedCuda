@@ -26,7 +26,15 @@ namespace ManagedCuda.NVRTC
 		/// <summary/>
 		ErrorCompilation = 6,
 		/// <summary/>
-		ErrorBuiltinOperationFailure = 7
+		ErrorBuiltinOperationFailure = 7,
+		/// <summary/>
+		NoNameExpressionsAfterCompilation = 8,
+		/// <summary/>
+		NoLoweredNamesBeforeCompilation = 9,
+		/// <summary/>
+		ExpressionNotValid = 10,
+		/// <summary/>
+		InternalError = 11
 	}
 
 	/// <summary>

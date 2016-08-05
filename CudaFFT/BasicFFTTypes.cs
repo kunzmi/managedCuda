@@ -97,7 +97,11 @@ namespace ManagedCuda.CudaFFT
 		/// <summary>
 		/// License error
 		/// </summary>
-		LicenseError = 0xF
+		LicenseError = 0xF,
+		/// <summary>
+		/// Not supported error
+		/// </summary>
+		NotSupported = 0x10
     }
 
     /// <summary>
@@ -255,26 +259,8 @@ namespace ManagedCuda.CudaFFT
     public enum Compatibility
     {
         /// <summary>
-        /// Disable any FFTW compatibility mode
-        /// </summary>
-        NATIVE = 0x00,
-        /// <summary>
-        /// Inserts extra padding between packed in-place transforms for batched transforms with power-of-2 size.<para/>
         /// Default value
         /// </summary>
-        PADDING = 0x01,
-        /// <summary>
-        /// Guarantees FFTW-compatible output for non-symmetric complex inputs
-        /// for transforms with power-of-2 size. This is only useful for
-        /// artificial (i.e. random) datasets as actual data will always be
-        /// symmetric if it has come from the real plane. If you don't
-        /// understand what this means, you probably don't have to use it.
-        /// </summary>
-		[Obsolete("Asymmetric input is always treated as in FFTW.")]
-        ASYMMETRIC = 0x02,
-        /// <summary>
-        /// Enable full FFTW compatibility.
-        /// </summary>
-        ALL = 0x03
+        FFTWPadding = 0x01
     }
 }

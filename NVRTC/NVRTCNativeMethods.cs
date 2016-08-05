@@ -82,8 +82,8 @@ namespace ManagedCuda.NVRTC
 		/// <returns></returns>
 		[DllImport(NVRTC_API_DLL_NAME)]
 		public static extern nvrtcResult nvrtcCreateProgram(ref nvrtcProgram prog,
-                               [MarshalAs(UnmanagedType.AnsiBStr)] string src,
-                               [MarshalAs(UnmanagedType.AnsiBStr)] string name,
+                               [MarshalAs(UnmanagedType.LPStr)] string src,
+                               [MarshalAs(UnmanagedType.LPStr)] string name,
                                int numHeaders,
                                IntPtr[] headers,
                                IntPtr[] includeNames);
@@ -146,5 +146,38 @@ namespace ManagedCuda.NVRTC
 		/// <returns></returns>
 		[DllImport(NVRTC_API_DLL_NAME)]
 		public static extern nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, byte[] log);
+
+		
+		/// <summary>
+		/// nvrtcAddNameExpression notes the given name expression
+		/// denoting a __global__ function or function template
+		/// instantiation.<para/>
+		/// The identical name expression string must be provided on a subsequent
+		/// call to nvrtcGetLoweredName to extract the lowered name.
+		/// </summary>
+		/// <param name="prog">CUDA Runtime Compilation program.</param>
+		/// <param name="name_expression">constant expression denoting a __global__ function or function template instantiation.</param>
+		/// <returns></returns>
+		[DllImport(NVRTC_API_DLL_NAME)]
+		public static extern nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, [MarshalAs(UnmanagedType.LPStr)] string name_expression);
+		
+
+		/// <summary>
+		/// nvrtcGetLoweredName extracts the lowered (mangled) name
+		/// for a __global__ function or function template instantiation,
+		/// and updates *lowered_name to point to it. The memory containing
+		/// the name is released when the NVRTC program is destroyed by 
+		/// nvrtcDestroyProgram.<para/>
+		/// The identical name expression must have been previously
+		/// provided to nvrtcAddNameExpression.
+		/// </summary>
+		/// <param name="prog">CUDA Runtime Compilation program.</param>
+		/// <param name="name_expression">constant expression denoting a __global__ function or function template instantiation.</param>
+		/// <param name="lowered_name">initialized by the function to point to a C string containing the lowered (mangled) name corresponding to the provided name expression.</param>
+		/// <returns></returns>
+		[DllImport(NVRTC_API_DLL_NAME)]
+		public static extern nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog,
+										[MarshalAs(UnmanagedType.LPStr)] string name_expression, ref IntPtr lowered_name);
+
 	}
 }

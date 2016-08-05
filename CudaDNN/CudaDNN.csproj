@@ -31,8 +31,13 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x64\Release\CudaDNN.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ManagedCuda, Version=7.5.7.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\x64\ManagedCuda.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,12 +62,6 @@
     <Compile Include="RNNDescriptor.cs" />
     <Compile Include="SpatialTransformerDescriptor.cs" />
     <Compile Include="TensorDescriptor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ManagedCUDA\ManagedCuda.csproj">
-      <Project>{f5a866cc-151e-472a-8020-75f62d74d687}</Project>
-      <Name>ManagedCuda</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

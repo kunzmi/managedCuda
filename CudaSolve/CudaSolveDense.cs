@@ -702,7 +702,7 @@ namespace ManagedCuda.CudaSolve
 		/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 		/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 		/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 		/// <param name="work">working space, array of size lwork.</param>
 		/// <param name="lwork">size of working array work.</param>
 		/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -726,7 +726,7 @@ namespace ManagedCuda.CudaSolve
 		/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 		/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 		/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 		/// <param name="work">working space, array of size lwork.</param>
 		/// <param name="lwork">size of working array work.</param>
 		/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -750,7 +750,7 @@ namespace ManagedCuda.CudaSolve
 		/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 		/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 		/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 		/// <param name="work">working space, array of size lwork.</param>
 		/// <param name="lwork">size of working array work.</param>
 		/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -774,7 +774,7 @@ namespace ManagedCuda.CudaSolve
 		/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 		/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 		/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+		/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 		/// <param name="work">working space, array of size lwork.</param>
 		/// <param name="lwork">size of working array work.</param>
 		/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>

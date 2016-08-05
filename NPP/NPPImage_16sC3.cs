@@ -3334,5 +3334,85 @@ namespace ManagedCuda.NPP
 		}
 
 		#endregion
+
+		#region GradientColorToGray
+
+
+		/// <summary>
+		/// 3 channel 16-bit signed packed RGB to 1 channel 16-bit signed packed Gray Gradient conversion.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="eNorm">Gradient distance method to use.</param>
+		public void GradientColorToGray(NPPImage_16sC1 dest, NppiNorm eNorm)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GradientColorToGray.nppiGradientColorToGray_16s_C3C1R(DevicePointerRoi, Pitch, dest.DevicePointerRoi, dest.Pitch, SizeRoi, eNorm);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientColorToGray_16s_C3C1R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		#endregion
+
+		#region GradientVectorPrewittBorder
+
+		/// <summary>
+		/// 3 channel 16-bit signed packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorPrewittBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_16s32f_C3C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorPrewittBorder_16s32f_C3C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
+
+		#region GradientVectorScharrBorder
+
+		/// <summary>
+		/// 3 channel 16-bit signed packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorScharrBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_16s32f_C3C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorScharrBorder_16s32f_C3C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
+
+		#region GradientVectorSobelBorder
+
+		/// <summary>
+		/// 3 channel 16-bit signed packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorSobelBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_16s32f_C3C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_16s32f_C3C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
 	}
 }

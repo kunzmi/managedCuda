@@ -174,6 +174,9 @@ namespace ManagedCuda.CudaFFT
 				case cufftResult.LicenseError:
 					message = "License error.";
 					break;
+				case cufftResult.NotSupported:
+					message = "Not supported error.";
+					break;
                 default:
                     break;
             }

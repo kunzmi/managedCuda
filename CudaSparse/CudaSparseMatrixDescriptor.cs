@@ -212,6 +212,20 @@ namespace ManagedCuda.CudaSparse
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatIndexBase", res));
 			return indexBase;
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public CudaSparseMatrixDescriptor Copy()
+		{
+			CudaSparseMatrixDescriptor retVal = new CudaSparseMatrixDescriptor();
+			res = CudaSparseNativeMethods.cusparseCopyMatDescr(retVal.Descriptor, _descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCopyMatDescr", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return retVal;
+		}
 		#endregion
 
 		/// <summary>

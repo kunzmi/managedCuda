@@ -112,6 +112,29 @@ namespace ManagedCuda.CudaSolve
 		/// </summary>
 		InvalidLicense=11
 	}
+
+
+	/// <summary>
+	/// </summary>
+	public enum cusolverEigType
+	{
+		/// <summary/>
+		Type1 = 1,
+		/// <summary/>
+		Type2 = 2,
+		/// <summary/>
+		Type3 = 3
+	}
+
+	/// <summary>
+	/// </summary>
+	public enum cusolverEigMode
+	{
+		/// <summary/>
+		NoVector = 0,
+		/// <summary/>
+		Vector = 1
+	}
 	#endregion
 
 	#region Dense

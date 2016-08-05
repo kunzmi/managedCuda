@@ -113,6 +113,11 @@ namespace ManagedCuda
 		private bool _managedMemory;
 		private bool _multiGPUBoard;
 		private int _multiGPUBoardGroupID;
+		private bool _hostNativeAtomicSupported;
+		private int _singleToDoublePrecisionPerfRatio;
+		private bool _pageableMemoryAccess;
+		private bool _concurrentManagedAccess;
+		private bool _computePreemptionSupported;
 
 		// Properties
 		/// <summary>
@@ -861,6 +866,48 @@ namespace ManagedCuda
 		{
 			get { return this._multiGPUBoardGroupID; }
 			internal set { this._multiGPUBoardGroupID = value; }
+		}
+
+		/// <summary>
+		/// Link between the device and the host supports native atomic operations (this is a placeholder attribute, and is not supported on any current hardware)
+		/// </summary>
+		public bool HostNativeAtomicSupported
+		{
+			get { return this._hostNativeAtomicSupported; }
+			internal set { this._hostNativeAtomicSupported = value; }
+		}
+
+		/// <summary>
+		/// Ratio of single precision performance (in floating-point operations per second) to double precision performance
+		/// </summary>
+		public int SingleToDoublePrecisionPerfRatio
+		{
+			get { return this._singleToDoublePrecisionPerfRatio; }
+			internal set { this._singleToDoublePrecisionPerfRatio = value; }
+		}
+		/// <summary>
+		/// Device supports coherently accessing pageable memory without calling cudaHostRegister on it
+		/// </summary>
+		public bool PageableMemoryAccess
+		{
+			get { return this._pageableMemoryAccess; }
+			internal set { this._pageableMemoryAccess = value; }
+		}
+		/// <summary>
+		/// Device can coherently access managed memory concurrently with the CPU
+		/// </summary>
+		public bool ConcurrentManagedAccess
+		{
+			get { return this._concurrentManagedAccess; }
+			internal set { this._concurrentManagedAccess = value; }
+		}
+		/// <summary>
+		/// Device supports compute preemption.
+		/// </summary>
+		public bool ComputePreemptionSupported
+		{
+			get { return this._computePreemptionSupported; }
+			internal set { this._computePreemptionSupported = value; }
 		}
 	}
 }

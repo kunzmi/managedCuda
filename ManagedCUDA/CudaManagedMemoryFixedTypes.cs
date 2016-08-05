@@ -31,7 +31,7 @@ namespace ManagedCuda
 {
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: byte
 	/// </summary>
 	public unsafe class CudaManagedMemory_byte: IDisposable, IEnumerable<byte>
@@ -402,6 +402,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -419,6 +450,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_byte ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -482,7 +650,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uchar1
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar1: IDisposable, IEnumerable<uchar1>
@@ -853,6 +1021,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -870,6 +1069,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uchar1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -933,7 +1269,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uchar2
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar2: IDisposable, IEnumerable<uchar2>
@@ -1304,6 +1640,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -1321,6 +1688,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uchar2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -1384,7 +1888,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uchar3
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar3: IDisposable, IEnumerable<uchar3>
@@ -1755,6 +2259,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -1772,6 +2307,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uchar3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -1835,7 +2507,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uchar4
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar4: IDisposable, IEnumerable<uchar4>
@@ -2206,6 +2878,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -2223,6 +2926,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uchar4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -2286,7 +3126,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: sbyte
 	/// </summary>
 	public unsafe class CudaManagedMemory_sbyte: IDisposable, IEnumerable<sbyte>
@@ -2657,6 +3497,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -2674,6 +3545,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_sbyte ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -2737,7 +3745,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: char1
 	/// </summary>
 	public unsafe class CudaManagedMemory_char1: IDisposable, IEnumerable<char1>
@@ -3108,6 +4116,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -3125,6 +4164,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_char1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -3188,7 +4364,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: char2
 	/// </summary>
 	public unsafe class CudaManagedMemory_char2: IDisposable, IEnumerable<char2>
@@ -3559,6 +4735,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -3576,6 +4783,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_char2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -3639,7 +4983,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: char3
 	/// </summary>
 	public unsafe class CudaManagedMemory_char3: IDisposable, IEnumerable<char3>
@@ -4010,6 +5354,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -4027,6 +5402,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_char3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -4090,7 +5602,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: char4
 	/// </summary>
 	public unsafe class CudaManagedMemory_char4: IDisposable, IEnumerable<char4>
@@ -4461,6 +5973,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -4478,6 +6021,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_char4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -4541,7 +6221,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: short
 	/// </summary>
 	public unsafe class CudaManagedMemory_short: IDisposable, IEnumerable<short>
@@ -4912,6 +6592,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -4929,6 +6640,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_short ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -4992,7 +6840,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: short1
 	/// </summary>
 	public unsafe class CudaManagedMemory_short1: IDisposable, IEnumerable<short1>
@@ -5363,6 +7211,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -5380,6 +7259,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_short1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -5443,7 +7459,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: short2
 	/// </summary>
 	public unsafe class CudaManagedMemory_short2: IDisposable, IEnumerable<short2>
@@ -5814,6 +7830,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -5831,6 +7878,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_short2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -5894,7 +8078,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: short3
 	/// </summary>
 	public unsafe class CudaManagedMemory_short3: IDisposable, IEnumerable<short3>
@@ -6265,6 +8449,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -6282,6 +8497,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_short3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -6345,7 +8697,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: short4
 	/// </summary>
 	public unsafe class CudaManagedMemory_short4: IDisposable, IEnumerable<short4>
@@ -6716,6 +9068,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -6733,6 +9116,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_short4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -6796,7 +9316,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ushort
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort: IDisposable, IEnumerable<ushort>
@@ -7167,6 +9687,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -7184,6 +9735,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ushort ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -7247,7 +9935,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ushort1
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort1: IDisposable, IEnumerable<ushort1>
@@ -7618,6 +10306,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -7635,6 +10354,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ushort1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -7698,7 +10554,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ushort2
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort2: IDisposable, IEnumerable<ushort2>
@@ -8069,6 +10925,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -8086,6 +10973,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ushort2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -8149,7 +11173,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ushort3
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort3: IDisposable, IEnumerable<ushort3>
@@ -8520,6 +11544,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -8537,6 +11592,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ushort3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -8600,7 +11792,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ushort4
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort4: IDisposable, IEnumerable<ushort4>
@@ -8971,6 +12163,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -8988,6 +12211,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ushort4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -9051,7 +12411,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: int
 	/// </summary>
 	public unsafe class CudaManagedMemory_int: IDisposable, IEnumerable<int>
@@ -9422,6 +12782,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -9439,6 +12830,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_int ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -9502,7 +13030,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: int1
 	/// </summary>
 	public unsafe class CudaManagedMemory_int1: IDisposable, IEnumerable<int1>
@@ -9873,6 +13401,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -9890,6 +13449,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_int1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -9953,7 +13649,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: int2
 	/// </summary>
 	public unsafe class CudaManagedMemory_int2: IDisposable, IEnumerable<int2>
@@ -10324,6 +14020,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -10341,6 +14068,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_int2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -10404,7 +14268,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: int3
 	/// </summary>
 	public unsafe class CudaManagedMemory_int3: IDisposable, IEnumerable<int3>
@@ -10775,6 +14639,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -10792,6 +14687,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_int3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -10855,7 +14887,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: int4
 	/// </summary>
 	public unsafe class CudaManagedMemory_int4: IDisposable, IEnumerable<int4>
@@ -11226,6 +15258,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -11243,6 +15306,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_int4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -11306,7 +15506,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uint
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint: IDisposable, IEnumerable<uint>
@@ -11677,6 +15877,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -11694,6 +15925,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uint ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -11757,7 +16125,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uint1
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint1: IDisposable, IEnumerable<uint1>
@@ -12128,6 +16496,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -12145,6 +16544,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uint1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -12208,7 +16744,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uint2
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint2: IDisposable, IEnumerable<uint2>
@@ -12579,6 +17115,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -12596,6 +17163,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uint2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -12659,7 +17363,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uint3
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint3: IDisposable, IEnumerable<uint3>
@@ -13030,6 +17734,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -13047,6 +17782,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uint3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -13110,7 +17982,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: uint4
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint4: IDisposable, IEnumerable<uint4>
@@ -13481,6 +18353,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -13498,6 +18401,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_uint4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -13561,7 +18601,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: long
 	/// </summary>
 	public unsafe class CudaManagedMemory_long: IDisposable, IEnumerable<long>
@@ -13932,6 +18972,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -13949,6 +19020,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_long ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -14012,7 +19220,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: long1
 	/// </summary>
 	public unsafe class CudaManagedMemory_long1: IDisposable, IEnumerable<long1>
@@ -14383,6 +19591,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -14400,6 +19639,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_long1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -14463,7 +19839,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: long2
 	/// </summary>
 	public unsafe class CudaManagedMemory_long2: IDisposable, IEnumerable<long2>
@@ -14834,6 +20210,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -14851,6 +20258,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_long2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -14914,7 +20458,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ulong
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong: IDisposable, IEnumerable<ulong>
@@ -15285,6 +20829,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -15302,6 +20877,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ulong ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -15365,7 +21077,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ulong1
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong1: IDisposable, IEnumerable<ulong1>
@@ -15736,6 +21448,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -15753,6 +21496,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ulong1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -15816,7 +21696,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: ulong2
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong2: IDisposable, IEnumerable<ulong2>
@@ -16187,6 +22067,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -16204,6 +22115,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_ulong2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -16267,7 +22315,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: float
 	/// </summary>
 	public unsafe class CudaManagedMemory_float: IDisposable, IEnumerable<float>
@@ -16638,6 +22686,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -16655,6 +22734,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_float ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -16718,7 +22934,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: float1
 	/// </summary>
 	public unsafe class CudaManagedMemory_float1: IDisposable, IEnumerable<float1>
@@ -17089,6 +23305,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -17106,6 +23353,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_float1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -17169,7 +23553,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: float2
 	/// </summary>
 	public unsafe class CudaManagedMemory_float2: IDisposable, IEnumerable<float2>
@@ -17540,6 +23924,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -17557,6 +23972,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_float2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -17620,7 +24172,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: float3
 	/// </summary>
 	public unsafe class CudaManagedMemory_float3: IDisposable, IEnumerable<float3>
@@ -17991,6 +24543,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -18008,6 +24591,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_float3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -18071,7 +24791,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: float4
 	/// </summary>
 	public unsafe class CudaManagedMemory_float4: IDisposable, IEnumerable<float4>
@@ -18442,6 +25162,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -18459,6 +25210,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_float4 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -18522,7 +25410,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: double
 	/// </summary>
 	public unsafe class CudaManagedMemory_double: IDisposable, IEnumerable<double>
@@ -18893,6 +25781,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -18910,6 +25829,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_double ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -18973,7 +26029,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: double1
 	/// </summary>
 	public unsafe class CudaManagedMemory_double1: IDisposable, IEnumerable<double1>
@@ -19344,6 +26400,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -19361,6 +26448,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_double1 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -19424,7 +26648,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: double2
 	/// </summary>
 	public unsafe class CudaManagedMemory_double2: IDisposable, IEnumerable<double2>
@@ -19795,6 +27019,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -19812,6 +27067,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_double2 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -19875,7 +27267,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: cuDoubleComplex
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuDoubleComplex: IDisposable, IEnumerable<cuDoubleComplex>
@@ -20246,6 +27638,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -20263,6 +27686,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_cuDoubleComplex ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -20326,7 +27886,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: cuDoubleReal
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuDoubleReal: IDisposable, IEnumerable<cuDoubleReal>
@@ -20697,6 +28257,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -20714,6 +28305,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_cuDoubleReal ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -20777,7 +28505,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: cuFloatComplex
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuFloatComplex: IDisposable, IEnumerable<cuFloatComplex>
@@ -21148,6 +28876,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -21165,6 +28924,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_cuFloatComplex ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -21228,7 +29124,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: cuFloatReal
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuFloatReal: IDisposable, IEnumerable<cuFloatReal>
@@ -21599,6 +29495,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -21616,6 +29543,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_cuFloatReal ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	
@@ -21679,7 +29743,7 @@ namespace ManagedCuda
 
 	
 	/// <summary>
-	/// A variable located in page locked (pinned) host memory. Use this type of variabe for asynchronous memcpy.<para/>
+	/// A variable located in managed memory.<para/>
 	/// Type: dim3
 	/// </summary>
 	public unsafe class CudaManagedMemory_dim3: IDisposable, IEnumerable<dim3>
@@ -22050,6 +30114,37 @@ namespace ManagedCuda
 		}
 
 
+		/// <summary>
+		/// Prefetches memory to the specified destination device<para/>
+		/// Prefetches memory to the specified destination device. devPtr is the 
+		/// base device pointer of the memory to be prefetched and dstDevice is the 
+		/// destination device. count specifies the number of bytes to copy. hStream
+		/// is the stream in which the operation is enqueued.<para/>
+		/// 
+		/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+		/// 
+		/// If no physical memory has been allocated for this region, then this memory region
+		/// will be populated and mapped on the destination device. If there's insufficient
+		/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+		/// belonging to other memory regions to make room. If there's no memory that can be
+		/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+		/// 
+		/// In the normal case, any mappings to the previous location of the migrated pages are
+		/// removed and mappings for the new location are only setup on the dstDevice.
+		/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+		/// </summary>
+		/// <param name="dstDevice">Destination device to prefetch to</param>
+		/// <param name="hStream">Stream to enqueue prefetch operation</param>
+		/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+		public void PrefetchAsync(CUdevice dstDevice, CUstream hStream)
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPrefetchAsync(_devPtr, _size * _typeSize, dstDevice, hStream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPrefetchAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+
 		#endregion
 
 		#region IEnumerable
@@ -22067,6 +30162,143 @@ namespace ManagedCuda
 			return enumerator;
 		}
 
+		#endregion
+
+		#region static methods (new in Cuda 8.0)
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="devPtr">Pointer to memory to set the advice for</param>
+		/// <param name="count">Size in bytes of the memory range</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(devPtr, count, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Advise about the usage of a given memory range<para/>
+		/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+		/// <para/>
+		/// The \p advice parameter can take the following values:<para/>
+		/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+		/// from and only occasionally written to. This allows the driver to create read-only
+		/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+		/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+		/// the data on the destination processor. When a processor writes to this data, all copies
+		/// of the corresponding page are invalidated except for the one where the write occurred.
+		/// The \p device argument is ignored for this advice.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+		/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+		/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+		/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+		/// preferred location as CPU memory. Setting the preferred location does not cause data to
+		/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+		/// occurs on that memory region. If the data is already in its preferred location and the
+		/// faulting processor can establish a mapping without requiring the data to be migrated, then
+		/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+		/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+		/// it. It is important to note that setting the preferred location does not prevent data prefetching
+		/// done using ::cuMemPrefetchAsync.<para/>
+		/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+		/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+		/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+		/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+		/// When the Unified Memory driver has to evict pages from a certain location on account of that
+		/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+		/// a page should be evicted to.<para/>
+		/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+		/// location will be ignored for that subset.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+		/// and changes the preferred location to none.<para/>
+		/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+		/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+		/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+		/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+		/// the mappings are updated accordingly.<para/>
+		/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+		/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+		/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+		/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+		/// migration may be too high. But preventing faults can still help improve performance, and so having
+		/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+		/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+		/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+		/// page in CPU memory.<para/>
+		/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+		/// mappings may be removed at any time causing accesses to result in page faults.
+		/// <para/>
+		/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+		/// <para/>
+		/// Note that this function is asynchronous with respect to the host and all work
+		/// on other devices.
+		/// </summary>
+		/// <param name="ptr">managed memory variable</param>
+		/// <param name="advice">Advice to be applied for the specified memory range</param>
+		/// <param name="device">Device to apply the advice for</param>
+		public static void MemAdvise(CudaManagedMemory_dim3 ptr, CUmemAdvise advice, CUdevice device)
+		{
+			CUResult res = DriverAPINativeMethods.MemoryManagement.cuMemAdvise(ptr.DevicePointer, ptr.SizeInBytes, advice, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAdvise", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
 		#endregion
 	}
 	

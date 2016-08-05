@@ -36,9 +36,9 @@ namespace ManagedCuda.CudaRand
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CURAND_API_DLL_NAME = "curand64_75";
+		internal const string CURAND_API_DLL_NAME = "curand64_80";
 #else
-		internal const string CURAND_API_DLL_NAME = "curand32_75";
+		internal const string CURAND_API_DLL_NAME = "curand32_80";
 #endif
 
 

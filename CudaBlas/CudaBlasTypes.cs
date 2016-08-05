@@ -184,29 +184,104 @@ namespace ManagedCuda.CudaBlas
 		/// </summary>
 		Allowed=1
 	}
+	
+	/// <summary>
+	/// </summary>
+	public enum GemmAlgo
+	{
+		/// <summary>
+		/// </summary>
+		Default = 1,
+		/// <summary>
+		/// </summary>
+		Algo0 = 0,
+		/// <summary>
+		/// </summary>
+		Algo1 = 1,
+		/// <summary>
+		/// </summary>
+		Algo2 = 2,
+		/// <summary>
+		/// </summary>
+		Algo3 = 3,
+		/// <summary>
+		/// </summary>
+		Algo4 = 4
+	}
 
 	/// <summary>
 	/// The cublasDataType_t type is an enumerant to specify the data precision. It is used
-	/// when the data reference does not carry the type itself (e.g void *)
+	/// when the data reference does not carry the type itself (e.g void *).
+	/// To mimic the typedef in cublas_api.h, we redefine the enum identically to cudaDataType
 	/// </summary>
 	public enum DataType
 	{
+		///// <summary>
+		///// the data type is 32-bit floating-point
+		///// </summary>
+		//Float = 0,
+		///// <summary>
+		///// the data type is 64-bit floating-point
+		///// </summary>
+		//Double = 1,
+		///// <summary>
+		///// the data type is 16-bit floating-point
+		///// </summary>
+		//Half = 2,
+		///// <summary>
+		///// the data type is 8-bit signed integer
+		///// </summary>
+		//Int8 = 3
+
 		/// <summary>
-		/// the data type is 32-bit floating-point
+		/// 16 bit real 
 		/// </summary>
-		Float = 0,
+		CUDA_R_16F = 2,
+
 		/// <summary>
-		/// the data type is 64-bit floating-point
+		/// 16 bit complex
 		/// </summary>
-		Double = 1,
+		CUDA_C_16F = 6,
+
 		/// <summary>
-		/// the data type is 16-bit floating-point
+		/// 32 bit real
 		/// </summary>
-		Half = 2,
+		CUDA_R_32F = 0,
+
 		/// <summary>
-		/// the data type is 8-bit signed integer
+		/// 32 bit complex
 		/// </summary>
-		Int8 = 3
+		CUDA_C_32F = 4,
+
+		/// <summary>
+		/// 64 bit real
+		/// </summary>
+		CUDA_R_64F = 1,
+
+		/// <summary>
+		/// 64 bit complex
+		/// </summary>
+		CUDA_C_64F = 5,
+
+		/// <summary>
+		/// 8 bit real as a signed integer 
+		/// </summary>
+		CUDA_R_8I = 3,
+
+		/// <summary>
+		/// 8 bit complex as a pair of signed integers
+		/// </summary>
+		CUDA_C_8I = 7,
+
+		/// <summary>
+		/// 8 bit real as a signed integer 
+		/// </summary>
+		CUDA_R_8U = 8,
+
+		/// <summary>
+		/// 8 bit complex as a pair of signed integers
+		/// </summary>
+		CUDA_C_8U = 9
 	}
 
 	/// <summary>

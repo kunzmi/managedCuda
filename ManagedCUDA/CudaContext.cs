@@ -5927,6 +5927,36 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			props.MultiGPUBoardGroupID = multiGPUBoardGroupID;
 
+			
+			int hostNativeAtomicSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref hostNativeAtomicSupported, CUDeviceAttribute.HostNativeAtomicSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.HostNativeAtomicSupported = hostNativeAtomicSupported == 1;
+				
+			int singleToDoublePrecisionPerfRatio = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref singleToDoublePrecisionPerfRatio, CUDeviceAttribute.SingleToDoublePrecisionPerfRatio, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.SingleToDoublePrecisionPerfRatio = singleToDoublePrecisionPerfRatio;
+				
+			int pageableMemoryAccess = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref pageableMemoryAccess, CUDeviceAttribute.PageableMemoryAccess, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.PageableMemoryAccess = pageableMemoryAccess > 0;
+				
+			int concurrentManagedAccess = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref concurrentManagedAccess, CUDeviceAttribute.ConcurrentManagedAccess, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.ConcurrentManagedAccess = concurrentManagedAccess > 0;
+
+			int computePreemptionSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref computePreemptionSupported, CUDeviceAttribute.ComputePreemptionSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.ComputePreemptionSupported = computePreemptionSupported > 0;
 
 			return props;
 		}

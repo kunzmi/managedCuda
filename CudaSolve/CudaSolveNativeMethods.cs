@@ -36,9 +36,9 @@ namespace ManagedCuda.CudaSolve
 	public static class CudaSolveNativeMethods
 	{
 #if _x64
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_75.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_80.dll";
 #else
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_75.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_80.dll";
 #endif
 		/// <summary>
 		/// The cuSolverDN library was designed to solve dense linear systems of the form Ax=B
@@ -550,7 +550,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 			/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 			/// <param name="work">working space, array of size lwork.</param>
 			/// <param name="lwork">size of working array work.</param>
 			/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -571,7 +571,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 			/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 			/// <param name="work">working space, array of size lwork.</param>
 			/// <param name="lwork">size of working array work.</param>
 			/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -592,7 +592,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 			/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 			/// <param name="work">working space, array of size lwork.</param>
 			/// <param name="lwork">size of working array work.</param>
 			/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -613,7 +613,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="tau">array of dimension at least min(m,n). The vector tau is from geqrf,
 			/// so tau(i) is the scalar of i-th elementary reflection vector.</param>
 			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
-			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc >= max(1,m).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
 			/// <param name="work">working space, array of size lwork.</param>
 			/// <param name="lwork">size of working array work.</param>
 			/// <param name="devInfo">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
@@ -673,6 +673,291 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="Lwork">size of working array Workspace.</param>
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnZgeqrf_bufferSize(cusolverDnHandle handle, int m, int n, CUdeviceptr A, int lda, ref int Lwork);
+
+
+
+			/// <summary>
+			/// This function computes the QR factorization of a m×n matrix A=Q*R
+			/// where A is a m×n matrix, Q is a m×n matrix, and R is a n×n upper triangular matrix.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">indicates if matrix Q is on the left or right of C.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix A.</param>
+			/// <param name="n">number of columns of matrix A.</param>
+			/// <param name="k">number of elementary relfections.</param>
+			/// <param name="A">array of dimension lda * k with lda is not less than max(1,m).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+			/// <param name="tau">array of dimension at least min(m,n).</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array Workspace.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSormqr_bufferSize(cusolverDnHandle handle, SideMode side, Operation trans,
+				int m, int n, int k, CUdeviceptr A, int lda, CUdeviceptr tau, CUdeviceptr C, int ldc, ref int lwork);
+
+			/// <summary>
+			/// This function computes the QR factorization of a m×n matrix A=Q*R
+			/// where A is a m×n matrix, Q is a m×n matrix, and R is a n×n upper triangular matrix.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">indicates if matrix Q is on the left or right of C.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix A.</param>
+			/// <param name="n">number of columns of matrix A.</param>
+			/// <param name="k">number of elementary relfections.</param>
+			/// <param name="A">array of dimension lda * k with lda is not less than max(1,m).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+			/// <param name="tau">array of dimension at least min(m,n).</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array Workspace.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDormqr_bufferSize(cusolverDnHandle handle, SideMode side, Operation trans,
+				int m, int n, int k, CUdeviceptr A, int lda, CUdeviceptr tau, CUdeviceptr C, int ldc, ref int lwork);
+
+			/// <summary>
+			/// This function computes the QR factorization of a m×n matrix A=Q*R
+			/// where A is a m×n matrix, Q is a m×n matrix, and R is a n×n upper triangular matrix.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">indicates if matrix Q is on the left or right of C.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix A.</param>
+			/// <param name="n">number of columns of matrix A.</param>
+			/// <param name="k">number of elementary relfections.</param>
+			/// <param name="A">array of dimension lda * k with lda is not less than max(1,m).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+			/// <param name="tau">array of dimension at least min(m,n).</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array Workspace.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCunmqr_bufferSize(cusolverDnHandle handle, SideMode side, Operation trans,
+				int m, int n, int k, CUdeviceptr A, int lda, CUdeviceptr tau, CUdeviceptr C, int ldc, ref int lwork);
+
+			/// <summary>
+			/// This function computes the QR factorization of a m×n matrix A=Q*R
+			/// where A is a m×n matrix, Q is a m×n matrix, and R is a n×n upper triangular matrix.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">indicates if matrix Q is on the left or right of C.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix A.</param>
+			/// <param name="n">number of columns of matrix A.</param>
+			/// <param name="k">number of elementary relfections.</param>
+			/// <param name="A">array of dimension lda * k with lda is not less than max(1,m).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+			/// <param name="tau">array of dimension at least min(m,n).</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C.</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array Workspace.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZunmqr_bufferSize(cusolverDnHandle handle, SideMode side, Operation trans,
+				int m, int n, int k, CUdeviceptr A, int lda, CUdeviceptr tau, CUdeviceptr C, int ldc, ref int lwork);
+			#endregion
+
+			
+			#region generate unitary matrix Q from QR factorization
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgqr_bufferSize(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgqr_bufferSize(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungqr_bufferSize(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungqr_bufferSize(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="work">working space, rray of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the orgqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgqr(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="work">working space, rray of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the orgqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgqr(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="work">working space, rray of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the orgqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungqr(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary matrix Q from QR factorization
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="m">number of rows of matrix Q. m >= 0;</param>
+			/// <param name="n">number of columns of matrix Q. m >= n >= 0;</param>
+			/// <param name="k">number of elementary relfections whose product defines the matrix Q. n >= k >= 0;</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,m).
+			/// i-th column of A contains elementary reflection vector.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m).</param>
+			/// <param name="tau">array of dimension k. tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="work">working space, rray of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the orgqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungqr(
+				cusolverDnHandle handle,
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
 			#endregion
 
 			#region bidiagonal
@@ -768,6 +1053,34 @@ namespace ManagedCuda.CudaSolve
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnZgebrd(cusolverDnHandle handle, int m, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr TAUQ, CUdeviceptr TAUP, CUdeviceptr Work, int Lwork, CUdeviceptr devInfo);
 
+			#endregion
+
+			#region tridiagonal factorization
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSsytrd_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDsytrd_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				ref int lwork);
 
 			/// <summary/>
 			[DllImport(CUSOLVE_API_DLL_NAME)]
@@ -776,6 +1089,65 @@ namespace ManagedCuda.CudaSolve
 			/// <summary/>
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnDsytrd(cusolverDnHandle handle, char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
+
+			
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnChetrd_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				ref int lwork);
+			
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZhetrd_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnChetrd(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary/>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZhetrd(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr d,
+				CUdeviceptr e,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
 			#endregion
 
 			#region bidiagonal factorization workspace query
@@ -1120,6 +1492,1197 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="Lwork">size of working space work.</param>
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnZsytrf_bufferSize(cusolverDnHandle handle, int n, CUdeviceptr A, int lda, ref int Lwork);
+			#endregion
+
+
+			
+			#region generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgbr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgbr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungbr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungbr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgbr(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgbr(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungbr(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generates one of the unitary matrices Q or P**T determined by GEBRD
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">if side = CUBLAS_SIDE_LEFT, generate Q. if side = CUBLAS_SIDE_RIGHT, generate P**T.</param>
+			/// <param name="m">number of rows of matrix Q or P**T.</param>
+			/// <param name="n">if side = CUBLAS_SIDE_LEFT, m>= n>= min(m,k). if side = CUBLAS_SIDE_RIGHT, n>= m>= min(n,k).</param>
+			/// <param name="k">if side = CUBLAS_SIDE_LEFT, the number of columns in the original mby-
+			/// k matrix reduced by gebrd. if side = CUBLAS_SIDE_RIGHT, the number of rows in the original k-by-n matrix reduced by gebrd.</param>
+			/// <param name="A">array of dimension lda * n On entry, the vectors which define the
+			/// elementary reflectors, as returned by gebrd. On exit, the m-by-n matrix Q or P**T.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,m);</param>
+			/// <param name="tau">array of dimension min(m,k) if side is CUBLAS_SIDE_LEFT; of dimension min(n,k) if side is
+			/// CUBLAS_SIDE_RIGHT; tau(i) must contain the scalar factor of the elementary reflector H(i) or G(i), which determines Q
+			/// or P**T, as returned by gebrd in its array argument TAUQ or TAUP.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungbr(
+				cusolverDnHandle handle,
+				SideMode side, 
+				int m,
+				int n,
+				int k,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+			#endregion
+
+			#region generate unitary Q comes from sytrd
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgtr_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgtr_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungtr_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungtr_bufferSize(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				ref int lwork);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="info">if info = 0, the orgtr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSorgtr(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="info">if info = 0, the orgtr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDorgtr(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="info">if info = 0, the orgtr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCungtr(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// generate unitary Q comes from sytrd
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="uplo">uplo = CUBLAS_FILL_MODE_LOWER: Lower triangle of A contains elementary
+			/// reflectors from sytrd. uplo = CUBLAS_FILL_MODE_UPPER: Upper triangle of A contains elementary
+			/// reflectors from sytrd.</param>
+			/// <param name="n">number of rows (columns) of matrix Q.</param>
+			/// <param name="A">array of dimension lda * n On entry, matrix A from sytrd contains the elementary reflectors. On exit, matrix A
+			/// contains the n-by-n orthogonal matrix Q.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda >= max(1,n).</param>
+			/// <param name="tau">array of dimension (n-1) tau(i) is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="info">if info = 0, the orgtr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZungtr(
+				cusolverDnHandle handle,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+			#endregion
+
+			#region compute op(Q)*C or C*op(Q) where Q comes from sytrd
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSormtr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				ref int lwork);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDormtr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				ref int lwork);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCunmtr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				ref int lwork);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="lwork">size of working array work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZunmtr_bufferSize(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				ref int lwork);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSormtr(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDormtr(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCunmtr(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function overwrites m×n matrix C by
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="side">side = CUBLAS_SIDE_LEFT, apply Q or Q**T from the Left; 
+			/// side = CUBLAS_SIDE_RIGHT, apply Q or Q**T from the Right.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="trans">operation op(Q) that is non- or (conj.) transpose.</param>
+			/// <param name="m">number of rows of matrix C.</param>
+			/// <param name="n">number of columns of matrix C.</param>
+			/// <param name="A">array of dimension lda * m if side = CUBLAS_SIDE_LEFT; lda * n if
+			/// side = CUBLAS_SIDE_RIGHT. The matrix A from sytrd contains the elementary reflectors.</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. if side is
+			/// CUBLAS_SIDE_LEFT, lda &gt;= max(1,m); if side is CUBLAS_SIDE_RIGHT, lda &gt;= max(1,n).</param>
+			/// <param name="tau">array of dimension (m-1) if side is CUBLAS_SIDE_LEFT; of dimension
+			/// (n-1) if side is CUBLAS_SIDE_RIGHT; The vector tau is from sytrd, so tau(i) 
+			/// is the scalar of i-th elementary reflection vector.</param>
+			/// <param name="C">array of size ldc * n. On exit, C is overwritten by op(Q)*C or C*op(Q).</param>
+			/// <param name="ldc">leading dimension of two-dimensional array of matrix C. ldc &gt;= max(1,m).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of working array work.</param>
+			/// <param name="info">if info = 0, the ormqr is successful. if info = -i, the i-th parameter is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZunmtr(
+				cusolverDnHandle handle,
+				SideMode side,
+				FillMode uplo,
+				Operation trans,
+				int m,
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr tau,
+				CUdeviceptr C,
+				int ldc,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+			#endregion
+
+			#region standard symmetric eigenvalue solver, A*x = lambda*x, by divide-and-conquer
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSsyevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDsyevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCheevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZheevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSsyevd(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDsyevd(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCheevd(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix A.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZheevd(
+				cusolverDnHandle handle,
+				cusolverEigMode jobz, 
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region generalized symmetric eigenvalue solver, A*x = lambda*B*x, by divide-and-conquer
+
+			/// <summary>
+			/// The helper functions below can calculate the sizes needed for pre-allocated buffer.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSsygvd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigType itype,
+				cusolverEigMode jobz,
+				FillMode uplo, 
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// The helper functions below can calculate the sizes needed for pre-allocated buffer.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDsygvd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigType itype, 
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// The helper functions below can calculate the sizes needed for pre-allocated buffer.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnChegvd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigType itype, 
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				ref int lwork);
+
+			/// <summary>
+			/// The helper functions below can calculate the sizes needed for pre-allocated buffer.
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="lwork">size of work</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZhegvd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverEigType itype,   
+				cusolverEigMode jobz, 
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				ref int lwork);
+
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix-pair (A,B).
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSsygvd(
+				cusolverDnHandle handle,
+				cusolverEigType itype,   
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix-pair (A,B).
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus  cusolverDnDsygvd(
+				cusolverDnHandle handle,
+				cusolverEigType itype,  
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix-pair (A,B).
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnChegvd(
+				cusolverDnHandle handle,
+				cusolverEigType itype,   
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A,
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
+
+			/// <summary>
+			/// This function computes eigenvalues and eigenvectors of a symmetric (Hermitian) n×n matrix-pair (A,B).
+			/// </summary>
+			/// <param name="handle">handle to the cuSolverDN library context.</param>
+			/// <param name="itype">Specifies the problem type to be solved.</param>
+			/// <param name="jobz">specifies options to either compute eigenvalue only or compute eigen-pair.</param>
+			/// <param name="uplo">specifies which part of A and B are stored.</param>
+			/// <param name="n">number of rows (or columns) of matrix A and B.</param>
+			/// <param name="A">array of dimension lda * n with lda is not less than max(1,n).</param>
+			/// <param name="lda">leading dimension of two-dimensional array used to store matrix A. lda is not less than max(1,n).</param>
+			/// <param name="B">array of dimension ldb * n.</param>
+			/// <param name="ldb">leading dimension of two-dimensional array used to store matrix B. ldb is not less than max(1,n).</param>
+			/// <param name="W">a real array of dimension n. The eigenvalue values of A, sorted so that W(i) &gt;= W(i+1).</param>
+			/// <param name="work">working space, array of size lwork.</param>
+			/// <param name="lwork">size of work, returned by sygvd_bufferSize.</param>
+			/// <param name="info">if devInfo = 0, the operation is successful. if devInfo = -i, the i-th
+			/// parameter is wrong. if devInfo = i (&gt;0), devInfo indicates either potrf or syevd is wrong.</param>
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZhegvd(
+				cusolverDnHandle handle,
+				cusolverEigType itype,   
+				cusolverEigMode jobz,  
+				FillMode uplo,  
+				int n,
+				CUdeviceptr A, 
+				int lda,
+				CUdeviceptr B, 
+				int ldb,
+				CUdeviceptr W,
+				CUdeviceptr work,
+				int lwork,
+				CUdeviceptr info);
 			#endregion
 		}
 

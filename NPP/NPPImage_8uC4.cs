@@ -9260,5 +9260,42 @@ namespace ManagedCuda.NPP
 		}
 
 		#endregion
+
+		//New in Cuda 8.0
+		#region ColorConversion new in Cuda 8.0
+
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned packed RGB with alpha to 3 channel 8-bit unsigned planar YCbCr411 color conversion.
+		/// </summary>
+		/// <param name="dest0">Destination image channel 0</param>
+		/// <param name="dest1">Destination image channel 1</param>
+		/// <param name="dest2">Destination image channel 2</param>
+		public void RGBToYCbCr411(NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+		{
+			CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+			int[] arrayPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+			NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr.nppiRGBToYCbCr411_8u_AC4P3R(DevicePointerRoi, Pitch, arrayDest, arrayPitch, SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr411_8u_AC4P3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr411 to 4 channel 8-bit unsigned packed RGB color conversion with constant alpha.
+		/// </summary>
+		/// <param name="src0">Source image channel 0</param>
+		/// <param name="src1">Source image channel 1</param>
+		/// <param name="src2">Source image channel 2</param>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nAval">8-bit unsigned alpha constant.</param>
+		public static void YCbCr411ToRGB(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC4 dest, byte nAval)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+			int[] arrayPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCr411ToRGB_8u_P3C4R(arraySrc, arrayPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nAval);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr411ToRGB_8u_P3C4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+		#endregion
 	}
 }

@@ -4758,5 +4758,164 @@ namespace ManagedCuda.NPP
 		}
 
 		#endregion
+
+
+
+		//New in Cuda 8.0
+
+		#region FilterGaussAdvancedBorder
+
+
+		/// <summary>
+		/// Calculate destination image SizeROI width and height from source image ROI width and height and downsampling rate.
+		/// It is highly recommended that this function be use to determine the destination image ROI for consistent results.
+		/// </summary>
+		/// <param name="nRate">The downsampling rate to be used.  For integer equivalent rates unnecessary source pixels are just skipped. For non-integer rates the source image is bilinear interpolated. nRate must be > 1.0F and &lt;= 10.0F. </param>
+		/// <returns>
+		/// the destination image roi_specification.
+		/// </returns>
+		NppiSize GetFilterGaussPyramidLayerDownBorderDstROI(float nRate)
+		{
+			NppiSize retSize = new NppiSize();
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiGetFilterGaussPyramidLayerDownBorderDstROI(_sizeRoi.width, _sizeRoi.height, ref retSize, nRate);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGetFilterGaussPyramidLayerDownBorderDstROI", status));
+			NPPException.CheckNppStatus(status, this);
+			return retSize;
+		}
+
+		/// <summary>
+		/// Calculate destination image SizeROI width and height from source image ROI width and height and downsampling rate.
+		/// It is highly recommended that this function be use to determine the destination image ROI for consistent results.
+		/// </summary>
+		/// <param name="nRate">The downsampling rate to be used.  For integer equivalent rates unnecessary source pixels are just skipped. For non-integer rates the source image is bilinear interpolated. nRate must be > 1.0F and &lt;= 10.0F. </param>
+		/// <param name="pDstSizeROIMin">Minimum recommended destination image roi_specification.</param>
+		/// <param name="pDstSizeROIMax">Maximum recommended destination image roi_specification.</param>
+		void GetFilterGaussPyramidLayerUpBorderDstROI(float nRate, out NppiSize pDstSizeROIMin, out NppiSize pDstSizeROIMax)
+		{
+			pDstSizeROIMin = new NppiSize();
+			pDstSizeROIMax = new NppiSize();
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiGetFilterGaussPyramidLayerUpBorderDstROI(_sizeRoi.width, _sizeRoi.height, ref pDstSizeROIMin, ref pDstSizeROIMax, nRate);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGetFilterGaussPyramidLayerUpBorderDstROI", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		/// <summary>
+		/// Single channel 32-bit floating-point Gauss filter with downsampling and border control.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nRate">The downsampling rate to be used.  For integer equivalent rates unnecessary source pixels are just skipped. For non-integer rates the source image is bilinear interpolated. nRate must be > 1.0F and &lt;= 10.0F. </param>
+		/// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
+		/// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void FilterGaussPyramidLayerDownBorder(NPPImage_32fC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerDownBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		/// <summary>
+		/// Single channel 32-bit floating-point Gauss filter with downsampling and border control.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nRate">The downsampling rate to be used.  For integer equivalent rates unnecessary source pixels are just skipped. For non-integer rates the source image is bilinear interpolated. nRate must be > 1.0F and &lt;= 10.0F. </param>
+		/// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
+		/// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void FilterGaussPyramidLayerUpBorder(NPPImage_32fC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerUpBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		#endregion
+
+		#region FilterBilateralGaussBorder
+
+
+		/// <summary>
+		/// Single channel 32-bit floating-point bilateral Gauss filter with border control.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nRadius">The radius of the round filter kernel to be used.  A radius of 1 indicates a filter kernel size of 3 by 3, 2 indicates 5 by 5, etc. Radius values from 1 to 32 are supported.</param>
+		/// <param name="nStepBetweenSrcPixels">The step size between adjacent source image pixels processed by the filter kernel, most commonly 1. </param>
+		/// <param name="nValSquareSigma">The square of the sigma for the relative intensity distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
+		/// <param name="nPosSquareSigma">The square of the sigma for the relative geometric distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void FilterBilateralGaussBorder(NPPImage_32fC1 dest, int nRadius, int nStepBetweenSrcPixels, float nValSquareSigma, float nPosSquareSigma, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.FilterBilateralGaussBorder.nppiFilterBilateralGaussBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRadius, nStepBetweenSrcPixels, nValSquareSigma, nPosSquareSigma, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBilateralGaussBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		#endregion
+
+
+		#region GradientVectorPrewittBorder
+
+		/// <summary>
+		/// 1 channel 32-bit floating-point packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorPrewittBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorPrewittBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
+
+
+		#region GradientVectorScharrBorder
+
+		/// <summary>
+		/// 1 channel 32-bit floating-point packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorScharrBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorScharrBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
+
+
+		#region GradientVectorSobelBorder
+
+		/// <summary>
+		/// 1 channel 32-bit floating-point packed RGB to optional 1 channel 32-bit floating point X (vertical), Y (horizontal), magnitude, 
+		/// and/or 32-bit floating point angle gradient vectors with user selectable fixed mask size and distance method with border control.
+		/// </summary>
+		/// <param name="destX">X vector destination_image_pointer</param>
+		/// <param name="destY">Y vector destination_image_pointer.</param>
+		/// <param name="destMag">magnitude destination_image_pointer.</param>
+		/// <param name="destAngle">angle destination_image_pointer.</param>
+		/// <param name="eMaskSize">fixed filter mask size to use.</param>
+		/// <param name="eNorm">gradient distance method to use.</param>
+		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+		public void GradientVectorSobelBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+		{
+			status = NPPNativeMethods.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
 	}
 }

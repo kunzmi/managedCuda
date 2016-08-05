@@ -91,5 +91,30 @@ namespace ManagedCuda.CudaSparse
 		{
 			get { return _info; }
 		}
+
+		#region Methods
+		/// <summary>
+		/// SetColorAlgs
+		/// </summary>
+		public void SetColorAlgs(cusparseColorAlg alg)
+		{
+			res = CudaSparseNativeMethods.cusparseSetColorAlgs(_info, alg);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetColorAlgs", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// GetColorAlgs
+		/// </summary>
+		public cusparseColorAlg GetColorAlgs()
+		{
+			cusparseColorAlg retVal = new cusparseColorAlg();
+			res = CudaSparseNativeMethods.cusparseGetColorAlgs(_info, ref retVal);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetColorAlgs", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return retVal;
+		}
+		#endregion
 	}
 }

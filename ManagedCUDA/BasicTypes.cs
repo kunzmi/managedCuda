@@ -84,32 +84,16 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		public int Pointer;
-
-		///// <summary>
-		///// 
-		///// </summary>
-		///// <param name="src"></param>
-		///// <param name="value"></param>
-		///// <returns></returns>
-		//public static CUdevice operator +(CUdevice src, SizeT value)
-		//{
-		//    CUdevice ret = new CUdevice();
-		//    ret.Pointer = src.Pointer + value;
-		//    return ret;
-		//}
-
-		///// <summary>
-		///// 
-		///// </summary>
-		///// <param name="src"></param>
-		///// <param name="value"></param>
-		///// <returns></returns>
-		//public static CUdevice operator +(CUdevice src, CUdevice value)
-		//{
-		//    CUdevice ret = new CUdevice();
-		//    ret.Pointer = src.Pointer + new SizeT(value.Pointer);
-		//    return ret;
-		//}
+		
+		static CUdevice CPU
+		{
+			get 
+			{
+				CUdevice cpu = new CUdevice();
+				cpu.Pointer = -1;
+				return cpu; 
+			}
+		}
 	}
 
 	/// <summary>
@@ -2683,7 +2667,38 @@ namespace ManagedCuda.BasicTypes
 			mipmapLevelBias = 0;
 			minMipmapLevelClamp = 0;
 			maxMipmapLevelClamp = 0;
-			_reserved = new int[16];
+			borderColor = new float[4];
+			_reserved = new int[12];
+		}
+
+		/// <summary>
+		/// Creates a new CudaTextureDescriptor
+		/// </summary>
+		/// <param name="aAddressMode">Address modes for all dimensions</param>
+		/// <param name="aFilterMode">Filter mode</param>
+		/// <param name="aFlags">Flags</param>
+		/// <param name="aBorderColor">borderColor (array of size 4)</param>
+		public CudaTextureDescriptor(CUAddressMode aAddressMode, CUFilterMode aFilterMode, CUTexRefSetFlags aFlags, float[] aBorderColor)
+		{
+			addressMode = new CUAddressMode[3];
+			addressMode[0] = aAddressMode;
+			addressMode[1] = aAddressMode;
+			addressMode[2] = aAddressMode;
+
+			filterMode = aFilterMode;
+
+			flags = aFlags;
+			maxAnisotropy = 0;
+			mipmapFilterMode = CUFilterMode.Point;
+			mipmapLevelBias = 0;
+			minMipmapLevelClamp = 0;
+			maxMipmapLevelClamp = 0;
+			borderColor = new float[4];
+			borderColor[0] = aBorderColor[0];
+			borderColor[1] = aBorderColor[1];
+			borderColor[2] = aBorderColor[2];
+			borderColor[3] = aBorderColor[3];
+			_reserved = new int[12];
 		}
 
 		/// <summary>
@@ -2709,7 +2724,40 @@ namespace ManagedCuda.BasicTypes
 			mipmapLevelBias = 0;
 			minMipmapLevelClamp = 0;
 			maxMipmapLevelClamp = 0;
-			_reserved = new int[16];
+			borderColor = new float[4];
+			_reserved = new int[12];
+		}
+
+		/// <summary>
+		/// Creates a new CudaTextureDescriptor
+		/// </summary>
+		/// <param name="aAddressMode0">Address modes for dimension 0</param>
+		/// <param name="aAddressMode1">Address modes for dimension 1</param>
+		/// <param name="aAddressMode2">Address modes for dimension 2</param>
+		/// <param name="aFilterMode">Filter mode</param>
+		/// <param name="aFlags">Flags</param>
+		/// <param name="aBorderColor">borderColor (array of size 4)</param>
+		public CudaTextureDescriptor(CUAddressMode aAddressMode0, CUAddressMode aAddressMode1, CUAddressMode aAddressMode2, CUFilterMode aFilterMode, CUTexRefSetFlags aFlags, float[] aBorderColor)
+		{
+			addressMode = new CUAddressMode[3];
+			addressMode[0] = aAddressMode0;
+			addressMode[1] = aAddressMode1;
+			addressMode[2] = aAddressMode2;
+
+			filterMode = aFilterMode;
+
+			flags = aFlags;
+			maxAnisotropy = 0;
+			mipmapFilterMode = CUFilterMode.Point;
+			mipmapLevelBias = 0;
+			minMipmapLevelClamp = 0;
+			maxMipmapLevelClamp = 0;
+			borderColor = new float[4];
+			borderColor[0] = aBorderColor[0];
+			borderColor[1] = aBorderColor[1];
+			borderColor[2] = aBorderColor[2];
+			borderColor[3] = aBorderColor[3];
+			_reserved = new int[12];
 		}
 
 		/// <summary>
@@ -2741,7 +2789,46 @@ namespace ManagedCuda.BasicTypes
 			mipmapLevelBias = aMipmapLevelBias;
 			minMipmapLevelClamp = aMinMipmapLevelClamp;
 			maxMipmapLevelClamp = aMaxMipmapLevelClamp;
-			_reserved = new int[16];
+			borderColor = new float[4];
+			_reserved = new int[12];
+		}
+
+		/// <summary>
+		/// Creates a new CudaTextureDescriptor
+		/// </summary>
+		/// <param name="aAddressMode">Address modes for all dimensions</param>
+		/// <param name="aFilterMode">Filter mode</param>
+		/// <param name="aFlags">Flags</param>
+		/// <param name="aMaxAnisotropy">Maximum anisotropy ratio. Specifies the maximum anistropy ratio to be used when doing anisotropic
+		/// filtering. This value will be clamped to the range [1,16].</param>
+		/// <param name="aMipmapFilterMode">Mipmap filter mode. Specifies the filter mode when the calculated mipmap level lies between
+		/// two defined mipmap levels.</param>
+		/// <param name="aMipmapLevelBias">Mipmap level bias. Specifies the offset to be applied to the calculated mipmap level.</param>
+		/// <param name="aMinMipmapLevelClamp">Mipmap minimum level clamp. Specifies the lower end of the mipmap level range to clamp access to.</param>
+		/// <param name="aMaxMipmapLevelClamp">Mipmap maximum level clamp. Specifies the upper end of the mipmap level range to clamp access to.</param>
+		/// <param name="aBorderColor">borderColor (array of size 4)</param>
+		public CudaTextureDescriptor(CUAddressMode aAddressMode, CUFilterMode aFilterMode, CUTexRefSetFlags aFlags, uint aMaxAnisotropy, CUFilterMode aMipmapFilterMode,
+			float aMipmapLevelBias, float aMinMipmapLevelClamp, float aMaxMipmapLevelClamp, float[] aBorderColor)
+		{
+			addressMode = new CUAddressMode[3];
+			addressMode[0] = aAddressMode;
+			addressMode[1] = aAddressMode;
+			addressMode[2] = aAddressMode;
+
+			filterMode = aFilterMode;
+
+			flags = aFlags;
+			maxAnisotropy = aMaxAnisotropy;
+			mipmapFilterMode = aMipmapFilterMode;
+			mipmapLevelBias = aMipmapLevelBias;
+			minMipmapLevelClamp = aMinMipmapLevelClamp;
+			maxMipmapLevelClamp = aMaxMipmapLevelClamp;
+			borderColor = new float[4];
+			borderColor[0] = aBorderColor[0];
+			borderColor[1] = aBorderColor[1];
+			borderColor[2] = aBorderColor[2];
+			borderColor[3] = aBorderColor[3];
+			_reserved = new int[12];
 		}
 
 		/// <summary>
@@ -2775,7 +2862,48 @@ namespace ManagedCuda.BasicTypes
 			mipmapLevelBias = aMipmapLevelBias;
 			minMipmapLevelClamp = aMinMipmapLevelClamp;
 			maxMipmapLevelClamp = aMaxMipmapLevelClamp;
-			_reserved = new int[16];
+			borderColor = new float[4];
+			_reserved = new int[12];
+		}
+
+		/// <summary>
+		/// Creates a new CudaTextureDescriptor
+		/// </summary>
+		/// <param name="aAddressMode0">Address modes for dimension 0</param>
+		/// <param name="aAddressMode1">Address modes for dimension 1</param>
+		/// <param name="aAddressMode2">Address modes for dimension 2</param>
+		/// <param name="aFilterMode">Filter mode</param>
+		/// <param name="aFlags">Flags</param>
+		/// <param name="aMaxAnisotropy">Maximum anisotropy ratio. Specifies the maximum anistropy ratio to be used when doing anisotropic
+		/// filtering. This value will be clamped to the range [1,16].</param>
+		/// <param name="aMipmapFilterMode">Mipmap filter mode. Specifies the filter mode when the calculated mipmap level lies between
+		/// two defined mipmap levels.</param>
+		/// <param name="aMipmapLevelBias">Mipmap level bias. Specifies the offset to be applied to the calculated mipmap level.</param>
+		/// <param name="aMinMipmapLevelClamp">Mipmap minimum level clamp. Specifies the lower end of the mipmap level range to clamp access to.</param>
+		/// <param name="aMaxMipmapLevelClamp">Mipmap maximum level clamp. Specifies the upper end of the mipmap level range to clamp access to.</param>
+		/// <param name="aBorderColor">borderColor (array of size 4)</param>
+		public CudaTextureDescriptor(CUAddressMode aAddressMode0, CUAddressMode aAddressMode1, CUAddressMode aAddressMode2, CUFilterMode aFilterMode, CUTexRefSetFlags aFlags, uint aMaxAnisotropy, CUFilterMode aMipmapFilterMode,
+			float aMipmapLevelBias, float aMinMipmapLevelClamp, float aMaxMipmapLevelClamp, float[] aBorderColor)
+		{
+			addressMode = new CUAddressMode[3];
+			addressMode[0] = aAddressMode0;
+			addressMode[1] = aAddressMode1;
+			addressMode[2] = aAddressMode2;
+
+			filterMode = aFilterMode;
+
+			flags = aFlags;
+			maxAnisotropy = aMaxAnisotropy;
+			mipmapFilterMode = aMipmapFilterMode;
+			mipmapLevelBias = aMipmapLevelBias;
+			minMipmapLevelClamp = aMinMipmapLevelClamp;
+			maxMipmapLevelClamp = aMaxMipmapLevelClamp;
+			borderColor = new float[4];
+			borderColor[0] = aBorderColor[0];
+			borderColor[1] = aBorderColor[1];
+			borderColor[2] = aBorderColor[2];
+			borderColor[3] = aBorderColor[3];
+			_reserved = new int[12];
 		}
 
 		/// <summary>
@@ -2814,7 +2942,13 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		public float maxMipmapLevelClamp; 
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.I4)]
+		/// <summary>
+		/// Border Color
+		/// </summary>
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.R4)]
+		public float[] borderColor;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 12, ArraySubType = UnmanagedType.I4)]
 		private int[] _reserved;
 	}
 
@@ -2963,11 +3097,11 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		Default = 0,
 		
-		/// <summary>
-		/// Compute-exclusive mode - Device can have only one CUDA context
-		/// present on it at a time.
-		/// </summary>
-		Exclusive = 1,
+		///// <summary>
+		///// Compute-exclusive mode - Device can have only one CUDA context
+		///// present on it at a time.
+		///// </summary>
+		//Exclusive = 1,
 		
 		/// <summary>
 		/// Compute-prohibited mode - Device is prohibited from creating
@@ -2980,6 +3114,37 @@ namespace ManagedCuda.BasicTypes
 		/// single process can be present on this device at a time)
 		/// </summary>
 		ExclusiveProcess = 2
+	}
+
+	/// <summary>
+	/// Memory advise values
+	/// </summary>
+	public enum CUmemAdvise
+	{
+		/// <summary>
+		/// Data will mostly be read and only occassionally be written to
+		/// </summary>
+		SetReadMostly = 1,
+		/// <summary>
+		/// Undo the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY
+		/// </summary>
+		UnsetReadMostly = 2, 
+		/// <summary>
+		/// Set the preferred location for the data as the specified device
+		/// </summary>
+		SetPreferredLocation = 3, 
+		/// <summary>
+		/// Clear the preferred location for the data
+		/// </summary>
+		UnsetPreferredLocation = 4, 
+		/// <summary>
+		/// Data will be accessed by the specified device, so prevent page faults as much as possible
+		/// </summary>
+		SetAccessedBy = 5, 
+		/// <summary>
+		/// Let the Unified Memory subsystem decide on the page faulting policy for the specified device
+		/// </summary>
+		UnsetAccessedBy = 6
 	}
 
 	/// <summary>
@@ -3382,7 +3547,27 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Unique id for a group of devices on the same multi-GPU board
 		/// </summary>
-		MultiGpuBoardGroupID = 85,    
+		MultiGpuBoardGroupID = 85,
+		/// <summary>
+		/// Link between the device and the host supports native atomic operations (this is a placeholder attribute, and is not supported on any current hardware)
+		/// </summary>
+		HostNativeAtomicSupported = 86,
+		/// <summary>
+		/// Ratio of single precision performance (in floating-point operations per second) to double precision performance
+		/// </summary>
+		SingleToDoublePrecisionPerfRatio = 87,
+		/// <summary>
+		/// Device supports coherently accessing pageable memory without calling cudaHostRegister on it
+		/// </summary>
+		PageableMemoryAccess = 88,
+		/// <summary>
+		/// Device can coherently access managed memory concurrently with the CPU
+		/// </summary>
+		ConcurrentManagedAccess = 89,
+		/// <summary>
+		/// Device supports compute preemption.
+		/// </summary>
+		ComputePreemptionSupported = 90,
 		/// <summary>
 		/// Max elems...
 		/// </summary>
@@ -3704,7 +3889,28 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Compute device class 5.2
 		/// </summary>
-		Compute_52 = 52
+		Compute_52 = 52,
+		
+		/// <summary>
+		/// Compute device class 5.3
+		/// </summary>
+		/// 
+		Compute_53 = 53, 
+
+		/// <summary>
+		/// Compute device class 6.0
+		/// </summary>
+		Compute_60 = 60,
+
+		/// <summary>
+		/// Compute device class 6.1
+		/// </summary>
+		Compute_61 = 61,
+
+		/// <summary>
+		/// Compute device class 6.2.
+		/// </summary>
+		Compute_62 = 62
 	}
 
 	/// <summary>
@@ -4282,6 +4488,25 @@ namespace ManagedCuda.BasicTypes
 	}
 	
 	/// <summary>
+	/// P2P Attributes
+	/// </summary>
+	public enum CUdevice_P2PAttribute
+	{
+		/// <summary>
+		/// A relative value indicating the performance of the link between two devices
+		/// </summary>
+		PerformanceRank = 0x01,
+		/// <summary>
+		/// P2P Access is enable
+		/// </summary>
+		AccessSupported = 0x02, 
+		/// <summary>
+		/// Atomic operation over the link supported
+		/// </summary>
+		NativeAtomicSupported = 0x03 
+	}
+	
+	/// <summary>
 	/// CUTexRefSetArrayFlags
 	/// </summary>
 	public enum CUTexRefSetArrayFlags
@@ -4634,6 +4859,75 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		DisableCachingOverride = 1
 	}
+
+	//These library types do not really fit in here, but all libraries depend on managedCuda...
+	/// <summary>
+	/// cudaDataType
+	/// </summary>
+	public enum cudaDataType
+	{
+		/// <summary>
+		/// 16 bit real 
+		/// </summary>
+		CUDA_R_16F = 2,
+
+		/// <summary>
+		/// 16 bit complex
+		/// </summary>
+		CUDA_C_16F = 6,
+
+		/// <summary>
+		/// 32 bit real
+		/// </summary>
+		CUDA_R_32F = 0,
+
+		/// <summary>
+		/// 32 bit complex
+		/// </summary>
+		CUDA_C_32F = 4,
+
+		/// <summary>
+		/// 64 bit real
+		/// </summary>
+		CUDA_R_64F = 1,
+
+		/// <summary>
+		/// 64 bit complex
+		/// </summary>
+		CUDA_C_64F = 5,
+
+		/// <summary>
+		/// 8 bit real as a signed integer 
+		/// </summary>
+		CUDA_R_8I = 3,
+
+		/// <summary>
+		/// 8 bit complex as a pair of signed integers
+		/// </summary>
+		CUDA_C_8I = 7,
+
+		/// <summary>
+		/// 8 bit real as a signed integer 
+		/// </summary>
+		CUDA_R_8U = 8,
+
+		/// <summary>
+		/// 8 bit complex as a pair of signed integers
+		/// </summary>
+		CUDA_C_8U= 9
+	} 
+
+
+	/// <summary/>
+	public enum libraryPropertyType
+	{
+		/// <summary/>
+		MAJOR_VERSION,
+		/// <summary/>
+		MINOR_VERSION,
+		/// <summary/>
+		PATCH_LEVEL
+	} 
 	#endregion
 
 	#region Enums (Flags)

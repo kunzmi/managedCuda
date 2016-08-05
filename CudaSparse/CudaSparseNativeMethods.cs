@@ -37,9 +37,9 @@ namespace ManagedCuda.CudaSparse
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_75";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_80";
 #else
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_75";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_80";
 #endif
 		#region CUSPARSE initialization and managment routines
 		/// <summary/>
@@ -78,6 +78,10 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseDestroyMatDescr(cusparseMatDescr descrA);
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCopyMatDescr(cusparseMatDescr dest, cusparseMatDescr src);
+		
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
@@ -205,6 +209,12 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseDestroyColorInfo(cusparseColorInfo info);
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSetColorAlgs(cusparseColorInfo info, cusparseColorAlg alg);
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseGetColorAlgs(cusparseColorInfo info, ref cusparseColorAlg alg);
 		#endregion
 
 		#region Csrgemm2Info
@@ -390,6 +400,245 @@ namespace ManagedCuda.CudaSparse
 		#endregion
 
 		#region Sparse Level 2 routines
+		//new in Cuda 8.0
+
+		#region ref host
+		//Returns number of bytes
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrmvEx_bufferSize(cusparseContext handle, 
+                                                        cusparseAlgMode alg,
+                                                        cusparseOperation transA, 
+                                                        int m, 
+                                                        int n, 
+                                                        int nnz,
+                                                        IntPtr alpha,
+                                                        cudaDataType alphatype,
+                                                        cusparseMatDescr descrA,
+                                                        CUdeviceptr csrValA,
+                                                        cudaDataType csrValAtype,
+                                                        CUdeviceptr csrRowPtrA,
+                                                        CUdeviceptr csrColIndA,
+                                                        CUdeviceptr x,
+                                                        cudaDataType xtype,
+                                                        IntPtr beta,
+                                                        cudaDataType betatype,
+                                                        CUdeviceptr y,
+                                                        cudaDataType ytype,
+                                                        cudaDataType executiontype,
+                                                        ref SizeT bufferSizeInBytes);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrmvEx(cusparseContext handle, 
+                                             cusparseAlgMode alg,
+                                             cusparseOperation transA, 
+                                             int m, 
+                                             int n, 
+                                             int nnz,
+                                             IntPtr alpha,
+                                             cudaDataType alphatype,
+                                             cusparseMatDescr descrA,
+                                             CUdeviceptr csrValA,
+                                             cudaDataType csrValAtype,
+                                             CUdeviceptr csrRowPtrA,
+                                             CUdeviceptr csrColIndA,
+                                             CUdeviceptr x,
+                                             cudaDataType xtype,
+                                             IntPtr beta,
+                                             cudaDataType betatype,
+                                             CUdeviceptr y,
+                                             cudaDataType ytype,
+                                             cudaDataType executiontype,
+											 CUdeviceptr buffer);
+
+		/* Description: Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
+		   where A is a sparse matrix in CSR storage format, x and y are dense vectors
+		   using a Merge Path load-balancing implementation. */ 
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseScsrmv_mp(cusparseContext handle,
+                                            cusparseOperation transA, 
+                                            int m, 
+                                            int n, 
+                                            int nnz,
+                                            ref float alpha,
+                                            cusparseMatDescr descrA, 
+                                            CUdeviceptr csrSortedValA, 
+                                            CUdeviceptr csrSortedRowPtrA, 
+                                            CUdeviceptr csrSortedColIndA, 
+                                            CUdeviceptr x, 
+                                            ref float beta, 
+                                            CUdeviceptr y);
+    
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDcsrmv_mp(cusparseContext handle,
+                                            cusparseOperation transA, 
+                                            int m, 
+                                            int n, 
+                                            int nnz,
+                                            ref double alpha,
+                                            cusparseMatDescr descrA, 
+                                            CUdeviceptr csrSortedValA, 
+                                            CUdeviceptr csrSortedRowPtrA, 
+                                            CUdeviceptr csrSortedColIndA, 
+                                            CUdeviceptr x, 
+                                            ref double beta,  
+                                            CUdeviceptr y);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCcsrmv_mp(cusparseContext handle,
+                                            cusparseOperation transA, 
+                                            int m, 
+                                            int n,
+                                            int nnz,
+                                            ref cuFloatComplex alpha,
+                                            cusparseMatDescr descrA,
+											CUdeviceptr csrSortedValA, 
+                                            CUdeviceptr csrSortedRowPtrA, 
+                                            CUdeviceptr csrSortedColIndA,
+											CUdeviceptr x,
+											ref cuFloatComplex beta,
+											CUdeviceptr y);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZcsrmv_mp(cusparseContext handle,
+                                            cusparseOperation transA, 
+                                            int m, 
+                                            int n, 
+                                            int nnz,
+                                            ref cuDoubleComplex alpha,
+                                            cusparseMatDescr descrA, 
+                                            CUdeviceptr csrSortedValA, 
+                                            CUdeviceptr csrSortedRowPtrA, 
+                                            CUdeviceptr csrSortedColIndA, 
+                                            CUdeviceptr x, 
+                                            ref cuDoubleComplex beta, 
+                                            CUdeviceptr y);
+		#endregion
+
+		#region ref device
+		//Returns number of bytes
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrmvEx_bufferSize(cusparseContext handle,
+														cusparseAlgMode alg,
+														cusparseOperation transA,
+														int m,
+														int n,
+														int nnz,
+														CUdeviceptr alpha,
+														cudaDataType alphatype,
+														cusparseMatDescr descrA,
+														CUdeviceptr csrValA,
+														cudaDataType csrValAtype,
+														CUdeviceptr csrRowPtrA,
+														CUdeviceptr csrColIndA,
+														CUdeviceptr x,
+														cudaDataType xtype,
+														CUdeviceptr beta,
+														cudaDataType betatype,
+														CUdeviceptr y,
+														cudaDataType ytype,
+														cudaDataType executiontype,
+														ref SizeT bufferSizeInBytes);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrmvEx(cusparseContext handle,
+											 cusparseAlgMode alg,
+											 cusparseOperation transA,
+											 int m,
+											 int n,
+											 int nnz,
+											 CUdeviceptr alpha,
+											 cudaDataType alphatype,
+											 cusparseMatDescr descrA,
+											 CUdeviceptr csrValA,
+											 cudaDataType csrValAtype,
+											 CUdeviceptr csrRowPtrA,
+											 CUdeviceptr csrColIndA,
+											 CUdeviceptr x,
+											 cudaDataType xtype,
+											 CUdeviceptr beta,
+											 cudaDataType betatype,
+											 CUdeviceptr y,
+											 cudaDataType ytype,
+											 cudaDataType executiontype,
+											 CUdeviceptr buffer);
+
+		/* Description: Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
+		   where A is a sparse matrix in CSR storage format, x and y are dense vectors
+		   using a Merge Path load-balancing implementation. */
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseScsrmv_mp(cusparseContext handle,
+											cusparseOperation transA,
+											int m,
+											int n,
+											int nnz,
+											CUdeviceptr alpha,
+											cusparseMatDescr descrA,
+											CUdeviceptr csrSortedValA,
+											CUdeviceptr csrSortedRowPtrA,
+											CUdeviceptr csrSortedColIndA,
+											CUdeviceptr x,
+											CUdeviceptr beta,
+											CUdeviceptr y);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDcsrmv_mp(cusparseContext handle,
+											cusparseOperation transA,
+											int m,
+											int n,
+											int nnz,
+											CUdeviceptr alpha,
+											cusparseMatDescr descrA,
+											CUdeviceptr csrSortedValA,
+											CUdeviceptr csrSortedRowPtrA,
+											CUdeviceptr csrSortedColIndA,
+											CUdeviceptr x,
+											CUdeviceptr beta,
+											CUdeviceptr y);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCcsrmv_mp(cusparseContext handle,
+											cusparseOperation transA,
+											int m,
+											int n,
+											int nnz,
+											CUdeviceptr alpha,
+											cusparseMatDescr descrA,
+											CUdeviceptr csrSortedValA,
+											CUdeviceptr csrSortedRowPtrA,
+											CUdeviceptr csrSortedColIndA,
+											CUdeviceptr x,
+											CUdeviceptr beta,
+											CUdeviceptr y);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZcsrmv_mp(cusparseContext handle,
+											cusparseOperation transA,
+											int m,
+											int n,
+											int nnz,
+											CUdeviceptr alpha,
+											cusparseMatDescr descrA,
+											CUdeviceptr csrSortedValA,
+											CUdeviceptr csrSortedRowPtrA,
+											CUdeviceptr csrSortedColIndA,
+											CUdeviceptr x,
+											CUdeviceptr beta,
+											CUdeviceptr y);
+		#endregion
+
+
 		//new in Cuda 7.5
 		#region ref host
 		/// <summary/>
@@ -573,6 +822,7 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseZcsrmv(cusparseContext handle, cusparseOperation transA, int m, int n, int nnz, ref cuDoubleComplex alpha, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr x, ref cuDoubleComplex beta, CUdeviceptr y);
+
 		#endregion
 		#region ref device
 		/// <summary/>
@@ -630,7 +880,58 @@ namespace ManagedCuda.CudaSparse
 		#endregion
 
 		/* Description: Solution of triangular linear system op(A) * y = alpha * x, 
-		   where A is a sparse matrix in CSR storage format, x and y are dense vectors. */
+		   where A is a sparse matrix in CSR storage format, x and y are dense vectors. */  
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrsv_analysisEx(cusparseContext handle, 
+                                                     cusparseOperation transA, 
+                                                     int m, 
+                                                     int nnz,
+                                                     cusparseMatDescr descrA, 
+                                                     CUdeviceptr csrSortedValA,
+                                                     cudaDataType csrSortedValAtype,
+                                                     CUdeviceptr csrSortedRowPtrA, 
+                                                     CUdeviceptr csrSortedColIndA, 
+                                                     cusparseSolveAnalysisInfo info,
+                                                     cudaDataType executiontype);
+
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrsv_solveEx(cusparseContext handle, 
+                                                   cusparseOperation transA, 
+                                                   int m,
+                                                   IntPtr alpha, 
+                                                   cudaDataType alphatype,
+                                                   cusparseMatDescr descrA,
+												   CUdeviceptr csrSortedValA, 
+                                                   cudaDataType csrSortedValAtype,
+												   CUdeviceptr csrSortedRowPtrA,
+												   CUdeviceptr csrSortedColIndA, 
+                                                   cusparseSolveAnalysisInfo info,
+												   CUdeviceptr f, 
+                                                   cudaDataType ftype,
+												   CUdeviceptr x,
+                                                   cudaDataType xtype,
+                                                   cudaDataType executiontype);
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrsv_solveEx(cusparseContext handle, 
+                                                   cusparseOperation transA, 
+                                                   int m,
+												   CUdeviceptr alpha, 
+                                                   cudaDataType alphatype,
+                                                   cusparseMatDescr descrA,
+												   CUdeviceptr csrSortedValA, 
+                                                   cudaDataType csrSortedValAtype,
+												   CUdeviceptr csrSortedRowPtrA,
+												   CUdeviceptr csrSortedColIndA, 
+                                                   cusparseSolveAnalysisInfo info,
+												   CUdeviceptr f, 
+                                                   cudaDataType ftype,
+												   CUdeviceptr x,
+                                                   cudaDataType xtype,
+                                                   cudaDataType executiontype);
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseScsrsv_analysis(cusparseContext handle, cusparseOperation transA, int m, int nnz, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, cusparseSolveAnalysisInfo info);
@@ -1429,6 +1730,152 @@ namespace ManagedCuda.CudaSparse
 
 		#region Sparse Level 3 routines
 
+		//new in Cuda 8.0
+
+		/* Description: dense - sparse matrix multiplication C = alpha * A * B  + beta * C, 
+		   where A is column-major dense matrix, B is a sparse matrix in CSC format, 
+		   and C is column-major dense matrix. */
+		#region ref host
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
+                                             int m,
+                                             int n,
+											 int k,
+											 int nnz, 
+                                             ref float alpha, /* host or device pointer */
+                                             CUdeviceptr A,
+                                             int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB, 
+                                             ref float beta, /* host or device pointer */
+											 CUdeviceptr C,
+                                             int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
+                                             int m,
+                                             int n,
+											 int k,
+											 int nnz, 
+                                             ref double alpha, /* host or device pointer */
+											 CUdeviceptr A,
+                                             int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB, 
+                                             ref double beta, /* host or device pointer */
+											 CUdeviceptr C,
+                                             int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
+                                             int m,
+                                             int n,
+											 int k,
+											 int nnz, 
+                                             ref cuFloatComplex alpha, /* host or device pointer */
+											 CUdeviceptr A,
+                                             int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB, 
+                                             ref cuFloatComplex beta, /* host or device pointer */
+											 CUdeviceptr C,
+                                             int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
+                                             int m,
+                                             int n,
+											 int k,
+											 int nnz, 
+                                             ref cuDoubleComplex alpha, /* host or device pointer */
+											 CUdeviceptr A,
+                                             int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB, 
+                                             ref cuDoubleComplex beta, /* host or device pointer */
+											 CUdeviceptr C,
+                                             int ldc);
+
+		#endregion
+		#region ref device
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
+											 int m,
+											 int n,
+											 int k,
+											 int nnz,
+											 CUdeviceptr alpha, /* host or device pointer */
+											 CUdeviceptr A,
+											 int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB,
+											 CUdeviceptr beta, /* host or device pointer */
+											 CUdeviceptr C,
+											 int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
+											 int m,
+											 int n,
+											 int k,
+											 int nnz,
+											 CUdeviceptr alpha, /* host or device pointer */
+											 CUdeviceptr A,
+											 int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB,
+											 CUdeviceptr beta, /* host or device pointer */
+											 CUdeviceptr C,
+											 int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
+											 int m,
+											 int n,
+											 int k,
+											 int nnz,
+											 CUdeviceptr alpha, /* host or device pointer */
+											 CUdeviceptr A,
+											 int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB,
+											 CUdeviceptr beta, /* host or device pointer */
+											 CUdeviceptr C,
+											 int ldc);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
+											 int m,
+											 int n,
+											 int k,
+											 int nnz,
+											 CUdeviceptr alpha, /* host or device pointer */
+											 CUdeviceptr A,
+											 int lda,
+											 CUdeviceptr cscValB,
+											 CUdeviceptr cscColPtrB,
+											 CUdeviceptr cscRowIndB,
+											 CUdeviceptr beta, /* host or device pointer */
+											 CUdeviceptr C,
+											 int ldc);
+
+		#endregion
+
 		/* Description: Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, 
    where A is a sparse matrix, B and C are dense and usually tall matrices. */
 		#region ref host
@@ -2139,7 +2586,21 @@ namespace ManagedCuda.CudaSparse
 		/* Description: Compute the incomplete-LU factorization with 0 fill-in (ILU0)
    based on the information in the opaque structure info that was obtained 
    from the analysis phase (csrsv_analysis). */
-
+		
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrilu0Ex(cusparseContext handle, 
+                                              cusparseOperation trans, 
+                                              int m, 
+                                              cusparseMatDescr descrA, 
+                                              CUdeviceptr csrSortedValA_ValM, 
+                                              cudaDataType csrSortedValA_ValMtype,
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              CUdeviceptr csrSortedRowPtrA, 
+                                              CUdeviceptr csrSortedColIndA,
+                                              cusparseSolveAnalysisInfo info,
+                                              cudaDataType executiontype);
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseScsrilu0(cusparseContext handle, 
@@ -3425,6 +3886,120 @@ namespace ManagedCuda.CudaSparse
 
 
 		/* --- Sparse Format Conversion --- */
+	
+
+		/* Description: This routine finds the total number of non-zero elements and 
+		   the number of non-zero elements per row in a noncompressed csr matrix A. */
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSnnz_compress(cusparseContext handle, 
+                                          int m, 
+                                          cusparseMatDescr descr,
+                                          CUdeviceptr values, 
+                                          CUdeviceptr rowPtr, 
+                                          CUdeviceptr nnzPerRow, 
+                                          CUdeviceptr nnzTotal,
+                                          float tol);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDnnz_compress(cusparseContext handle, 
+                                          int m, 
+                                          cusparseMatDescr descr,
+                                          CUdeviceptr values, 
+                                          CUdeviceptr rowPtr, 
+                                          CUdeviceptr nnzPerRow, 
+                                          CUdeviceptr nnzTotal,
+                                          double tol);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCnnz_compress(cusparseContext handle, 
+                                          int m, 
+                                          cusparseMatDescr descr,
+                                          CUdeviceptr values, 
+                                          CUdeviceptr rowPtr, 
+                                          CUdeviceptr nnzPerRow, 
+                                          CUdeviceptr nnzTotal,
+                                          cuFloatComplex tol);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZnnz_compress(cusparseContext handle, 
+                                          int m, 
+                                          cusparseMatDescr descr,
+                                          CUdeviceptr values, 
+                                          CUdeviceptr rowPtr, 
+                                          CUdeviceptr nnzPerRow, 
+                                          CUdeviceptr nnzTotal,
+                                          cuDoubleComplex tol);
+		/* Description: This routine takes as input a csr form where the values may have 0 elements
+		   and compresses it to return a csr form with no zeros. */
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseScsr2csr_compress(cusparseContext handle,
+                                                      int m, 
+                                                      int n,
+                                                      cusparseMatDescr descra,
+                                                      CUdeviceptr inVal,
+                                                      CUdeviceptr inColInd,
+													  CUdeviceptr inRowPtr, 
+                                                      int inNnz,
+                                                      CUdeviceptr nnzPerRow, 
+                                                      CUdeviceptr outVal,
+                                                      CUdeviceptr outColInd,
+                                                      CUdeviceptr outRowPtr,
+                                                      float tol);        
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDcsr2csr_compress(cusparseContext handle,
+                                                      int m, //number of rows
+                                                      int n,
+                                                      cusparseMatDescr descra,
+                                                      CUdeviceptr inVal, //csr values array-the elements which are below a certain tolerance will be remvoed
+                                                      CUdeviceptr inColInd,
+                                                      CUdeviceptr inRowPtr,  //corresponding input noncompressed row pointer
+                                                      int inNnz,
+                                                      CUdeviceptr nnzPerRow, //output: returns number of nonzeros per row 
+                                                      CUdeviceptr outVal,
+                                                      CUdeviceptr outColInd,
+                                                      CUdeviceptr outRowPtr,
+                                                      double tol);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCcsr2csr_compress(cusparseContext handle,
+                                                        int m, //number of rows
+                                                        int n,
+                                                        cusparseMatDescr descra,
+                                                        CUdeviceptr inVal, //csr values array-the elements which are below a certain tolerance will be remvoed
+                                                        CUdeviceptr inColInd,
+														CUdeviceptr inRowPtr,  //corresponding input noncompressed row pointer
+                                                        int inNnz,
+                                                        CUdeviceptr nnzPerRow, //output: returns number of nonzeros per row 
+														CUdeviceptr outVal,
+                                                        CUdeviceptr outColInd,
+                                                        CUdeviceptr outRowPtr,
+                                                        cuFloatComplex tol);                       
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseZcsr2csr_compress(cusparseContext handle,
+                                                      int m, //number of rows
+                                                      int n,
+                                                      cusparseMatDescr descra,
+                                                      CUdeviceptr inVal, //csr values array-the elements which are below a certain tolerance will be remvoed
+                                                      CUdeviceptr inColInd,
+													  CUdeviceptr inRowPtr,  //corresponding input noncompressed row pointer
+                                                      int inNnz,
+                                                      CUdeviceptr nnzPerRow, //output: returns number of nonzeros per row 
+                                                      CUdeviceptr outVal,
+                                                      CUdeviceptr outColInd,
+                                                      CUdeviceptr outRowPtr,
+                                                      cuDoubleComplex tol);                        
+
 
 		/* Description: This routine finds the total number of non-zero elements and 
 		   the number of non-zero elements per row or column in the dense matrix A. */
@@ -3554,6 +4129,24 @@ namespace ManagedCuda.CudaSparse
 		/* Description: This routine converts a matrix from CSR to CSC sparse 
 		   storage format. The resulting matrix can be re-interpreted as a 
 		   transpose of the original matrix in CSR storage format. */
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsr2cscEx(cusparseContext handle,
+                                              int m, 
+                                              int n, 
+                                              int nnz,
+                                              CUdeviceptr csrSortedVal, 
+                                              cudaDataType csrSortedValtype,
+                                              CUdeviceptr csrSortedRowPtr, 
+                                              CUdeviceptr csrSortedColInd, 
+                                              CUdeviceptr cscSortedVal, 
+                                              cudaDataType cscSortedValtype,
+                                              CUdeviceptr cscSortedRowInd, 
+                                              CUdeviceptr cscSortedColPtr, 
+                                              cusparseAction copyValues, 
+                                              cusparseIndexBase idxBase,
+                                              cudaDataType executiontype);
+    
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseScsr2csc(cusparseContext handle, int m, int n, int nnz, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr cscVal, CUdeviceptr cscRowInd, CUdeviceptr cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase);

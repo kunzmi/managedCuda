@@ -52,7 +52,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(7, 5); }
+            get { return new Version(8, 0); }
         }
 
         #region Initialization
@@ -1242,6 +1242,99 @@ namespace ManagedCuda
 			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuPointerGetAttribute(ref ulong data, CUPointerAttribute attribute, CUdeviceptr ptr);
+
+
+			/// <summary>
+			/// Prefetches memory to the specified destination device<para/>
+			/// Prefetches memory to the specified destination device. devPtr is the 
+			/// base device pointer of the memory to be prefetched and dstDevice is the 
+			/// destination device. count specifies the number of bytes to copy. hStream
+			/// is the stream in which the operation is enqueued.<para/>
+			/// 
+			/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+			/// 
+			/// If no physical memory has been allocated for this region, then this memory region
+			/// will be populated and mapped on the destination device. If there's insufficient
+			/// memory to prefetch the desired region, the Unified Memory driver may evict pages
+			/// belonging to other memory regions to make room. If there's no memory that can be
+			/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+			/// 
+			/// In the normal case, any mappings to the previous location of the migrated pages are
+			/// removed and mappings for the new location are only setup on the dstDevice.
+			/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+			/// </summary>
+			/// <param name="devPtr">Pointer to be prefetched</param>
+			/// <param name="count">Size in bytes</param>
+			/// <param name="dstDevice">Destination device to prefetch to</param>
+			/// <param name="hStream">Stream to enqueue prefetch operation</param>
+			/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemPrefetchAsync" + CUDA_PTSZ)]
+			public static extern CUResult cuMemPrefetchAsync(CUdeviceptr devPtr, SizeT count, CUdevice dstDevice, CUstream hStream);
+
+			/// <summary>
+			/// Advise about the usage of a given memory range<para/>
+			/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+			/// <para/>
+			/// The \p advice parameter can take the following values:<para/>
+			/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+			/// from and only occasionally written to. This allows the driver to create read-only
+			/// copies of the data in a processor's memory when that processor accesses it. Similarly,
+			/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+			/// the data on the destination processor. When a processor writes to this data, all copies
+			/// of the corresponding page are invalidated except for the one where the write occurred.
+			/// The \p device argument is ignored for this advice.<para/>
+			/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+			/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+			/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+			/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+			/// preferred location as CPU memory. Setting the preferred location does not cause data to
+			/// migrate to that location immediately. Instead, it guides the migration policy when a fault
+			/// occurs on that memory region. If the data is already in its preferred location and the
+			/// faulting processor can establish a mapping without requiring the data to be migrated, then
+			/// the migration will be avoided. On the other hand, if the data is not in its preferred location
+			/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+			/// it. It is important to note that setting the preferred location does not prevent data prefetching
+			/// done using ::cuMemPrefetchAsync.<para/>
+			/// Having a preferred location can override the thrash detection and resolution logic in the Unified
+			/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+			/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+			/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+			/// When the Unified Memory driver has to evict pages from a certain location on account of that
+			/// memory being oversubscribed, the preferred location will be used to decide the destination to which
+			/// a page should be evicted to.<para/>
+			/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+			/// location will be ignored for that subset.<para/>
+			/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+			/// and changes the preferred location to none.<para/>
+			/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+			/// This does not cause data migration and has no impact on the location of the data per se. Instead,
+			/// it causes the data to always be mapped in the specified processor's page tables, as long as the
+			/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+			/// the mappings are updated accordingly.<para/>
+			/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+			/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+			/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+			/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+			/// migration may be too high. But preventing faults can still help improve performance, and so having
+			/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+			/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+			/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+			/// page in CPU memory.<para/>
+			/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+			/// mappings may be removed at any time causing accesses to result in page faults.
+			/// <para/>
+			/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+			/// <para/>
+			/// Note that this function is asynchronous with respect to the host and all work
+			/// on other devices.
+			/// </summary>
+			/// <param name="devPtr">Pointer to memory to set the advice for</param>
+			/// <param name="count">Size in bytes of the memory range</param>
+			/// <param name="advice">Advice to be applied for the specified memory range</param>
+			/// <param name="device">Device to apply the advice for</param>
+			/// <returns></returns>
+			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			public static extern CUResult cuMemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device);
 
 
 			
@@ -6556,6 +6649,42 @@ namespace ManagedCuda
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, uint maxAniso);
 
+			
+			/// <summary>
+			/// Sets the border color for a texture reference<para/>
+			/// Specifies the value of the RGBA color via the \p pBorderColor to the texture reference
+			/// \p hTexRef. The color value supports only float type and holds color components in
+			/// the following sequence:<para/>
+			/// pBorderColor[0] holds 'R' component<para/>
+			/// pBorderColor[1] holds 'G' component<para/>
+			/// pBorderColor[2] holds 'B' component<para/>
+			/// pBorderColor[3] holds 'A' component<para/>
+			/// <para/>
+			/// Note that the color values can be set only when the Address mode is set to
+			/// CU_TR_ADDRESS_MODE_BORDER using ::cuTexRefSetAddressMode.<para/>
+			/// Applications using integer border color values have to "reinterpret_cast" their values to float.
+			/// </summary>
+			/// <param name="hTexRef">Texture reference</param>
+			/// <param name="pBorderColor">RGBA color</param>
+			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			public static extern CUResult cuTexRefSetBorderColor(CUtexref hTexRef, float[] pBorderColor);
+
+			/// <summary>
+			/// Gets the border color used by a texture reference<para/>
+			/// Returns in \p pBorderColor, values of the RGBA color used by
+			/// the texture reference \p hTexRef.<para/>
+			/// The color value is of type float and holds color components in
+			/// the following sequence:<para/>
+			/// pBorderColor[0] holds 'R' component
+			/// pBorderColor[1] holds 'G' component
+			/// pBorderColor[2] holds 'B' component
+			/// pBorderColor[3] holds 'A' component
+			/// </summary>
+			/// <param name="pBorderColor">Returned Type and Value of RGBA color</param>
+			/// <param name="hTexRef">Texture reference</param>
+			/// <returns></returns>
+			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			public static extern CUResult cuTexRefGetBorderColor(float[] pBorderColor, CUtexref hTexRef); 
         }
         #endregion
 
@@ -8994,6 +9123,42 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxDisablePeerAccess(CUcontext peerContext);
+			/**
+			 * \brief Queries attributes of the link between two devices.
+			 *
+			 * Returns in \p *value the value of the requested attribute \p attrib of the
+			 * link between \p srcDevice and \p dstDevice. The supported attributes are:
+			 * - ::CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value indicating the
+			 *   performance of the link between two devices.
+			 * - ::CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is enable.
+			 * - ::CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic operations over
+			 *   the link are supported.
+			 *
+			 * Returns ::CUDA_ERROR_INVALID_DEVICE if \p srcDevice or \p dstDevice are not valid
+			 * or if they represent the same device.
+			 *
+			 * Returns ::CUDA_ERROR_INVALID_VALUE if \p attrib is not valid or if \p value is
+			 * a null pointer.
+			
+			 */
+			/// <summary>
+			/// Queries attributes of the link between two devices.<para/>
+			/// Returns in \p *value the value of the requested attribute \p attrib of the
+			/// link between \p srcDevice and \p dstDevice. The supported attributes are:<para/>
+			/// - ::CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value indicating the
+			/// performance of the link between two devices.<para/>
+			/// - ::CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is enable.<para/>
+			/// - ::CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic operations over
+			/// the link are supported.
+			/// </summary>
+			/// <param name="value">Returned value of the requested attribute</param>
+			/// <param name="attrib">The requested attribute of the link between \p srcDevice and \p dstDevice.</param>
+			/// <param name="srcDevice">The source device of the target link.</param>
+			/// <param name="dstDevice">The destination device of the target link.</param>
+			/// <returns></returns>
+			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			public static extern CUResult cuDeviceGetP2PAttribute(ref int value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice);
+
         }
         #endregion
 
