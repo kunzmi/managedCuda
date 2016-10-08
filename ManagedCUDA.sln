@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCuda", "ManagedCUDA\ManagedCuda.csproj", "{F5A866CC-151E-472A-8020-75F62D74D687}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVGraph", "NVGraph\NVGraph.csproj", "{58CA750C-64A6-44D2-827D-253AA6A19E8E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nvml", "Nvml\Nvml.csproj", "{92D51A33-7BF0-47FD-9ECE-D758FFE1691D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaDNN", "CudaDNN\CudaDNN.csproj", "{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -245,6 +247,22 @@ Global
 		{92D51A33-7BF0-47FD-9ECE-D758FFE1691D}.Release|NuGet_x86.ActiveCfg = Release|Any CPU
 		{92D51A33-7BF0-47FD-9ECE-D758FFE1691D}.Release|x64.ActiveCfg = Release|Any CPU
 		{92D51A33-7BF0-47FD-9ECE-D758FFE1691D}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|NuGet_x64.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|NuGet_x86.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|x64.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|x64.Build.0 = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|x86.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|Any CPU.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|Mixed Platforms.Build.0 = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|NuGet_x64.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|NuGet_x86.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|x64.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|x64.Build.0 = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
