@@ -118,6 +118,7 @@ namespace ManagedCuda
 		private bool _pageableMemoryAccess;
 		private bool _concurrentManagedAccess;
 		private bool _computePreemptionSupported;
+		private bool _canUseHostPointerForRegisteredMem;
 
 		// Properties
 		/// <summary>
@@ -908,6 +909,14 @@ namespace ManagedCuda
 		{
 			get { return this._computePreemptionSupported; }
 			internal set { this._computePreemptionSupported = value; }
+		}
+        /// <summary>
+        /// Device can access host registered memory at the same virtual address as the CPU.
+        /// </summary>
+        public bool CanUseHostPointerForRegisteredMem
+        {
+			get { return this._canUseHostPointerForRegisteredMem; }
+			internal set { this._canUseHostPointerForRegisteredMem = value; }
 		}
 	}
 }

@@ -64,8 +64,29 @@ namespace ManagedCuda.NVGraph
 	public enum nvgraphTopologyType
 	{
 		CSR32 = 0,
-		CSC32 = 1,
-	}
+        CSC32 = 1,
+        COO32 = 2
+    }
+
+    public enum nvgraphTag
+    {
+        /// <summary>
+        /// Default is unsorted.
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        Unsorted = 1,
+        /// <summary>
+        /// CSR
+        /// </summary>
+        SortedBySource = 2,
+        /// <summary>
+        /// CSC 
+        /// </summary>
+        SortedByDestination = 3
+    }
 
 	#endregion
 
@@ -93,18 +114,39 @@ namespace ManagedCuda.NVGraph
 		/// </summary>
 		public IntPtr Handle;
 	}
-	#endregion
+    #endregion
 
-	#region structs
-	/// <summary>
-	/// 
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
-	public struct nvgraphCSRTopology32I
+    #region classes
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public abstract class nvgraphTopologyBase
+    {
+
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+	public class nvgraphCSRTopology32I : nvgraphTopologyBase
 	{
+        /// <summary>
+        /// n+1
+        /// </summary>
 		public int nvertices;
+        /// <summary>
+        /// nnz
+        /// </summary>
 		public int nedges;
+        /// <summary>
+        /// rowPtr
+        /// </summary>
 		public IntPtr source_offsets;
+        /// <summary>
+        /// colInd
+        /// </summary>
 		public IntPtr destination_indices;
 	}
 
@@ -112,12 +154,52 @@ namespace ManagedCuda.NVGraph
 	/// 
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct nvgraphCSCTopology32I
-	{
+	public class nvgraphCSCTopology32I : nvgraphTopologyBase
+    {
+        /// <summary>
+        /// n+1
+        /// </summary>
 		public int nvertices;
+        /// <summary>
+        /// nnz
+        /// </summary>
 		public int nedges;
+        /// <summary>
+        /// colPtr
+        /// </summary>
 		public IntPtr destination_offsets;
+        /// <summary>
+        /// rowInd
+        /// </summary>
 		public IntPtr source_indices;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public class nvgraphCOOTopology32I : nvgraphTopologyBase
+    {
+        /// <summary>
+        /// n+1
+        /// </summary>
+		public int nvertices;
+        /// <summary>
+        /// nnz
+        /// </summary>
+		public int nedges;
+        /// <summary>
+        /// rowInd
+        /// </summary>
+		public IntPtr destination_offsets;
+        /// <summary>
+        /// colInd
+        /// </summary>
+		public IntPtr source_indices;
+        /// <summary>
+        /// 
+        /// </summary>
+        public nvgraphTag tag;
 	}
 	#endregion
 

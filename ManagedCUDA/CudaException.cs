@@ -222,6 +222,9 @@ namespace ManagedCuda
 				case CUResult.ErrorInvalidGraphicsContext:
 					message = "This indicates an error with OpenGL or DirectX context.";
 					break;
+				case CUResult.NVLinkUncorrectable:
+					message = "This indicates that an uncorrectable NVLink error was detected during the execution.";
+					break;
 				case CUResult.ErrorInvalidSource:
 					message = "This indicates that the device kernel source is invalid.";
 					break;

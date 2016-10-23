@@ -76,38 +76,48 @@ namespace ManagedCuda.NVGraph
 		public static extern nvgraphStatus nvgraphDestroyGraphDescr(nvgraphContext handle, nvgraphGraphDescr descrG);
 
 
+		///// <summary>
+		///// Set size, topology data in the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr topologyData, nvgraphTopologyType TType);
 		/// <summary>
 		/// Set size, topology data in the graph descriptor
 		/// </summary>
 		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr topologyData, nvgraphTopologyType TType);
-		/// <summary>
-		/// Set size, topology data in the graph descriptor
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSRTopology32I topologyData, nvgraphTopologyType TType);
-		/// <summary>
-		/// Set size, topology data in the graph descriptor
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSCTopology32I topologyData, nvgraphTopologyType TType);
+		public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, nvgraphTopologyBase topologyData, nvgraphTopologyType TType);
+		///// <summary>
+		///// Set size, topology data in the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSCTopology32I topologyData, nvgraphTopologyType TType);
+		///// <summary>
+		///// Set size, topology data in the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphSetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCOOTopology32I topologyData, nvgraphTopologyType TType);
 
 
+		///// <summary>
+		///// Query size and topology information from the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr topologyData, ref nvgraphTopologyType TType);
 		/// <summary>
 		/// Query size and topology information from the graph descriptor
 		/// </summary>
 		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr topologyData, nvgraphTopologyType TType);
-		/// <summary>
-		/// Query size and topology information from the graph descriptor
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSRTopology32I topologyData, nvgraphTopologyType TType);
-		/// <summary>
-		/// Query size and topology information from the graph descriptor
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSCTopology32I topologyData, nvgraphTopologyType TType);
+		public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, nvgraphTopologyBase topologyData, ref nvgraphTopologyType TType);
+		///// <summary>
+		///// Query size and topology information from the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCSCTopology32I topologyData, ref nvgraphTopologyType TType);
+		///// <summary>
+		///// Query size and topology information from the graph descriptor
+		///// </summary>
+		//[DllImport(NVGRAPH_API_DLL_NAME)]
+		//public static extern nvgraphStatus nvgraphGetGraphStructure(nvgraphContext handle, nvgraphGraphDescr descrG, ref nvgraphCOOTopology32I topologyData, ref nvgraphTopologyType TType);
 
 
 		/// <summary>
@@ -131,23 +141,125 @@ namespace ManagedCuda.NVGraph
 		/// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
 		/// </summary>
 		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphSetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr vertexData, SizeT setnum, nvgraphTopologyType TType);
+		public static extern nvgraphStatus nvgraphSetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr vertexData, SizeT setnum);
+        /// <summary>
+        /// Update the vertex set #setnum with the data in *vertexData, sets have 0-based index
+        /// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+        public static extern nvgraphStatus nvgraphSetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, CUdeviceptr vertexData, SizeT setnum);
 
 
-		/// <summary>
-		/// Copy the edge set #setnum in *edgeData, sets have 0-based index
-		/// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphGetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr vertexData, SizeT setnum, nvgraphTopologyType TType);
+        /// <summary>
+        /// Copy the edge set #setnum in *edgeData, sets have 0-based index
+        /// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+		public static extern nvgraphStatus nvgraphGetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr vertexData, SizeT setnum);
+        /// <summary>
+        /// Copy the edge set #setnum in *edgeData, sets have 0-based index
+        /// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+        public static extern nvgraphStatus nvgraphGetVertexData(nvgraphContext handle, nvgraphGraphDescr descrG, CUdeviceptr vertexData, SizeT setnum);
 
 
-		/// <summary>
-		/// Update the edge set #setnum with the data in *edgeData, sets have 0-based index
-		/// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
-		/// </summary>
-		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphSetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr edgeData, SizeT setnum, nvgraphTopologyType TType);
+        /// <summary>
+        /// Convert the edge data to another topology
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+        public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+                                        nvgraphTopologyType srcTType, nvgraphTopologyBase srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+                                        nvgraphTopologyType dstTType, nvgraphTopologyBase dstTopology, CUdeviceptr dstEdgeData);
+
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSRTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSRTopology32I dstTopology, CUdeviceptr dstEdgeData);
+
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSCTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSCTopology32I dstTopology, CUdeviceptr dstEdgeData);
+
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCOOTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCOOTopology32I dstTopology, CUdeviceptr dstEdgeData);
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSRTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSCTopology32I dstTopology, CUdeviceptr dstEdgeData);
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSRTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCOOTopology32I dstTopology, CUdeviceptr dstEdgeData);
+
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSCTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSRTopology32I dstTopology, CUdeviceptr dstEdgeData);
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCSCTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCOOTopology32I dstTopology, CUdeviceptr dstEdgeData);
+
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCOOTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSRTopology32I dstTopology, CUdeviceptr dstEdgeData);
+        ///// <summary>
+        ///// Convert the edge data to another topology
+        ///// </summary>
+        //[DllImport(NVGRAPH_API_DLL_NAME)]
+        //public static extern nvgraphStatus nvgraphConvertTopology(nvgraphContext handle,
+        //                                nvgraphTopologyType srcTType, ref nvgraphCOOTopology32I srcTopology, CUdeviceptr srcEdgeData, ref cudaDataType dataType,
+        //                                nvgraphTopologyType dstTType, ref nvgraphCSCTopology32I dstTopology, CUdeviceptr dstEdgeData);
+
+        /// <summary>
+        /// Convert graph to another structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+        public static extern nvgraphStatus nvgraphConvertGraph(nvgraphContext handle, nvgraphGraphDescr srcDescrG, nvgraphGraphDescr dstDescrG, nvgraphTopologyType dstTType);
+
+
+
+        /// <summary>
+        /// Update the edge set #setnum with the data in *edgeData, sets have 0-based index
+        /// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+		public static extern nvgraphStatus nvgraphSetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr edgeData, SizeT setnum);
+        /// <summary>
+        /// Update the edge set #setnum with the data in *edgeData, sets have 0-based index
+        /// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure
+        /// </summary>
+        [DllImport(NVGRAPH_API_DLL_NAME)]
+		public static extern nvgraphStatus nvgraphSetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, CUdeviceptr edgeData, SizeT setnum);
 
  
 		/// <summary>
@@ -155,7 +267,13 @@ namespace ManagedCuda.NVGraph
 		/// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure */
 		/// </summary>
 		[DllImport(NVGRAPH_API_DLL_NAME)]
-		public static extern nvgraphStatus nvgraphGetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr edgeData, SizeT setnum, nvgraphTopologyType TType);
+		public static extern nvgraphStatus nvgraphGetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, IntPtr edgeData, SizeT setnum);
+		/// <summary>
+		/// Copy the edge set #setnum in *edgeData, sets have 0-based index
+		/// Conversions are not sopported so nvgraphTopologyType_t should match the graph structure */
+		/// </summary>
+		[DllImport(NVGRAPH_API_DLL_NAME)]
+		public static extern nvgraphStatus nvgraphGetEdgeData(nvgraphContext handle, nvgraphGraphDescr descrG, CUdeviceptr edgeData, SizeT setnum);
 
 
 		/// <summary>

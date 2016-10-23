@@ -430,11 +430,23 @@ namespace ManagedCuda.NPP
 		/// Indicates that CUDA 5.3 capable device is machine's default device
 		/// </summary>
 		Cuda5_3 = 530,
-		/// <summary>
-		/// Indicates that CUDA 6.0 or better is machine's default device
-		/// </summary>
-		Cuda6_0 = 600
-	}
+        /// <summary>
+        /// Indicates that CUDA 6.0  capable device is machine's default device
+        /// </summary>
+        Cuda6_0 = 600,
+        /// <summary>
+        /// Indicates that CUDA 6.1  capable device is machine's default device
+        /// </summary>
+        Cuda6_1 = 610,
+        /// <summary>
+        /// Indicates that CUDA 6.2  capable device is machine's default device
+        /// </summary>
+        Cuda6_2 = 620,
+        /// <summary>
+        /// Indicates that CUDA 6.3 or better is machine's default device
+        /// </summary>
+        Cuda6_3 = 630
+    }
 
 	/// <summary>
 	/// Axis

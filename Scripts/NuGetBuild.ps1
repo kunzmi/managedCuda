@@ -20,10 +20,9 @@ $parametersTemplate = "/target:Rebuild /p:TargetFrameworkVersion={0};Configurati
 
 #Echo "ParametersTemplate: " + ($parametersTemplate -f "v4.0", "net40", "NuGet_x86")
 
-Invoke-MsBuild -Path "ManagedCUDA.sln" -MsBuildParameters ($parametersTemplate -f "v4.0", "net40", "NuGet_x86", "x86")
 Invoke-MsBuild -Path "ManagedCUDA.sln" -MsBuildParameters ($parametersTemplate -f "v4.0", "net40", "NuGet_x64", "x64")
-Invoke-MsBuild -Path "ManagedCUDA.sln" -MsBuildParameters ($parametersTemplate -f "v4.5", "net45", "NuGet_x86", "x86")
 Invoke-MsBuild -Path "ManagedCUDA.sln" -MsBuildParameters ($parametersTemplate -f "v4.5", "net45", "NuGet_x64", "x64")
+Invoke-MsBuild -Path "ManagedCUDA.sln" -MsBuildParameters ($parametersTemplate -f "v4.6", "net46", "NuGet_x64", "x64")
 
 
 Pop-Location

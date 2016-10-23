@@ -1337,43 +1337,65 @@ namespace ManagedCuda
 			public static extern CUResult cuMemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device);
 
 
-			
+            /// <summary>
+            /// Query an attribute of a given memory range
+            /// </summary>
+            /// <param name="data">A pointers to a memory location where the result of each attribute query will be written to.</param>
+            /// <param name="dataSize">Array containing the size of data</param>
+            /// <param name="attribute">The attribute to query</param>
+            /// <param name="devPtr">Start of the range to query</param>
+            /// <param name="count">Size of the range to query</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemRangeGetAttribute(IntPtr data, SizeT dataSize, CUmem_range_attribute attribute, CUdeviceptr devPtr, SizeT count);
+
+            /// <summary>
+            /// Query attributes of a given memory range.
+            /// </summary>
+            /// <param name="data">A two-dimensional array containing pointers to memory locations where the result of each attribute query will be written to.</param>
+            /// <param name="dataSizes">Array containing the sizes of each result</param>
+            /// <param name="attributes">An array of attributes to query (numAttributes and the number of attributes in this array should match)</param>
+            /// <param name="numAttributes">Number of attributes to query</param>
+            /// <param name="devPtr">Start of the range to query</param>
+            /// <param name="count">Size of the range to query</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemRangeGetAttributes(IntPtr[] data, SizeT[] dataSizes, CUmem_range_attribute[] attributes, SizeT numAttributes, CUdeviceptr devPtr, SizeT count);
+
             /// <summary>
             /// Allocates memory that will be automatically managed by the Unified Memory system
             /// <para/>
             /// Allocates <c>bytesize</c> bytes of managed memory on the device and returns in
             /// <c>dptr</c> a pointer to the allocated memory. If the device doesn't support
-			/// allocating managed memory, <see cref="CUResult.ErrorNotSupported"/> is returned. Support
+            /// allocating managed memory, <see cref="CUResult.ErrorNotSupported"/> is returned. Support
             /// for managed memory can be queried using the device attribute
-			///  <see cref="CUDeviceAttribute.ManagedMemory"/>. The allocated memory is suitably
-			/// aligned for any kind of variable. The memory is not cleared. If <c>bytesize</c>
+            /// <see cref="CUDeviceAttribute.ManagedMemory"/>. The allocated memory is suitably
+            /// aligned for any kind of variable. The memory is not cleared. If <c>bytesize</c>
             /// is 0, ::cuMemAllocManaged returns ::CUDA_ERROR_INVALID_VALUE. The pointer
             /// is valid on the CPU and on all GPUs in the system that support managed memory.
             /// All accesses to this pointer must obey the Unified Memory programming model.
-			/// <para/>
+            /// <para/>
             /// <c>flags</c> specifies the default stream association for this allocation.
-			/// <c>flags</c> must be one of ::CU_MEM_ATTACH_GLOBAL or ::CU_MEM_ATTACH_HOST. If
+            /// <c>flags</c> must be one of ::CU_MEM_ATTACH_GLOBAL or ::CU_MEM_ATTACH_HOST. If
             /// ::CU_MEM_ATTACH_GLOBAL is specified, then this memory is accessible from
             /// any stream on any device. If ::CU_MEM_ATTACH_HOST is specified, then the
             /// allocation is created with initial visibility restricted to host access only;
             /// an explicit call to ::cuStreamAttachMemAsync will be required to enable access
             /// on the device.
-			/// <para/>
+            /// <para/>
             /// If the association is later changed via ::cuStreamAttachMemAsync to
             /// a single stream, the default association as specifed during ::cuMemAllocManaged
             /// is restored when that stream is destroyed. For __managed__ variables, the
             /// default association is always ::CU_MEM_ATTACH_GLOBAL. Note that destroying a
             /// stream is an asynchronous operation, and as a result, the change to default
             /// association won't happen until all work in the stream has completed.
-			/// <para/>
+            /// <para/>
             /// Memory allocated with ::cuMemAllocManaged should be released with ::cuMemFree.
-			/// <para/>
+            /// <para/>
             /// On a multi-GPU system with peer-to-peer support, where multiple GPUs support
             /// managed memory, the physical storage is created on the GPU which is active
             /// at the time ::cuMemAllocManaged is called. All other GPUs will reference the
             /// data at reduced bandwidth via peer mappings over the PCIe bus. The Unified
             /// Memory management system does not migrate memory between GPUs.
-			/// <para/>
+            /// <para/>
             /// On a multi-GPU system where multiple GPUs support managed memory, but not
             /// all pairs of such GPUs have peer-to-peer support between them, the physical
             /// storage is created in 'zero-copy' or system memory. All GPUs will reference
@@ -1385,11 +1407,11 @@ namespace ManagedCuda
             /// </summary>
             /// <param name="dptr">Returned device pointer</param>
             /// <param name="bytesize">Requested allocation size in bytes</param>
-			/// <param name="flags">Must be one of <see cref="CUmemAttach_flags.Global"/> or <see cref="CUmemAttach_flags.Host"/></param>
+            /// <param name="flags">Must be one of <see cref="CUmemAttach_flags.Global"/> or <see cref="CUmemAttach_flags.Host"/></param>
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorNotSupported"/>, , <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuMemAllocManaged(ref CUdeviceptr dptr, SizeT bytesize, CUmemAttach_flags flags);
 			
 
@@ -8544,6 +8566,70 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuEventElapsedTime( ref float pMilliseconds, CUevent hStart, CUevent hEnd );
+
+            /// <summary>
+            /// Wait on a memory location<para/>
+            /// Enqueues a synchronization of the stream on the given memory location. Work
+            /// ordered after the operation will block until the given condition on the
+            /// memory is satisfied. By default, the condition is to wait for (int32_t)(*addr - value) >= 0, a cyclic greater-or-equal.
+            /// <para/>
+            /// Other condition types can be specified via \p flags.
+            /// <para/>
+            /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+            /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+            /// be used with managed memory(::cuMemAllocManaged).
+            /// <para/>
+            /// On Windows, the device must be using TCC, or the operation is not supported. See::cuDeviceGetAttributes().
+            /// </summary>
+            /// <param name="stream">The stream to synchronize on the memory location.</param>
+            /// <param name="addr">The memory location to wait on.</param>
+            /// <param name="value">The value to compare with the memory location.</param>
+            /// <param name="flags"> See::CUstreamWaitValue_flags.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitValue32" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, uint value, CUstreamWaitValue_flags flags);
+
+            /// <summary>
+            /// Write a value to memory
+            /// <para/>
+            /// Write a value to memory.Unless the ::CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
+            /// flag is passed, the write is preceded by a system-wide memory fence,
+            /// equivalent to a __threadfence_system() but scoped to the stream
+            /// rather than a CUDA thread.
+            /// <para/>
+            /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+            /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+            /// be used with managed memory(::cuMemAllocManaged).
+            /// <para/>
+            /// On Windows, the device must be using TCC, or the operation is not supported. See::cuDeviceGetAttribute().
+            /// </summary>
+            /// <param name="stream">The stream to do the write in.</param>
+            /// <param name="addr">The device address to write to.</param>
+            /// <param name="value">The value to write.</param>
+            /// <param name="flags">See::CUstreamWriteValue_flags.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWriteValue32" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, uint value, CUstreamWriteValue_flags flags);
+
+            /// <summary>
+            /// Batch operations to synchronize the stream via memory operations
+            /// <para/>
+            /// This is a batch version of ::cuStreamWaitValue32() and::cuStreamWriteValue32().
+            /// <para/>
+            /// Batching operations may avoid some performance overhead in both the API call
+            /// and the device execution versus adding them to the stream in separate API
+            /// calls.The operations are enqueued in the order they appear in the array.
+            /// <para/>
+            /// See::CUstreamBatchMemOpType for the full set of supported operations, and
+            /// ::cuStreamWaitValue32() and::cuStreamWriteValue32() for details of specific
+            /// operations.
+            /// <para/>
+            /// On Windows, the device must be using TCC, or this call is not supported. See ::cuDeviceGetAttribute().
+            /// </summary>
+            /// <param name="stream">The stream to enqueue the operations in.</param>
+            /// <param name="count">The number of operations in the array. Must be less than 256.</param>
+            /// <param name="paramArray">The types and parameters of the individual operations.</param>
+            /// <param name="flags"> Reserved for future expansion; must be 0.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamBatchMemOp" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamBatchMemOp(CUstream stream, uint count, CUstreamBatchMemOpParams[] paramArray, uint flags);
         }
         #endregion
 

@@ -112,6 +112,18 @@ namespace ManagedCuda.CudaSparse
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
         }
+        /// <summary>
+		/// Gets the cuda stream to use
+        /// </summary>
+        public CUstream GetStream()
+        {
+            CUstream stream = new CUstream();
+            res = CudaSparseNativeMethods.cusparseGetStream(_handle, ref stream);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetStream", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return stream;
+        }
 
         /// <summary>
 		/// Returns the version of the underlying CUSPARSE library

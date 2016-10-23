@@ -811,9 +811,9 @@ namespace ManagedCuda
 					// occupancy and launch configuration.
 					//
 					{
-						bool gcOff = (gcConfig != cudaOccPartitionedGCConfig.Off);
+						bool gcOff = (gcConfig == cudaOccPartitionedGCConfig.Off);
 						bool zeroOccupancy = (maxBlocks == 0);
-						bool cachingForced = (gcConfig != cudaOccPartitionedGCConfig.OnStrict ||
+						bool cachingForced = (gcConfig == cudaOccPartitionedGCConfig.OnStrict ||
 											 cudaOccPartitionedGCForced(properties));
 
 						if (gcOff || (zeroOccupancy && (!cachingForced))) {

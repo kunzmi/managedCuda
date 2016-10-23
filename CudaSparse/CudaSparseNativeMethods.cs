@@ -51,15 +51,18 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseGetVersion(cusparseContext handle, ref int version);
-		/// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-		public static extern cusparseStatus cusparseSetStream(cusparseContext handle, CUstream streamId);
-		#endregion
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSetStream(cusparseContext handle, CUstream streamId);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseGetStream(cusparseContext handle, ref CUstream streamId);
+        #endregion
 
-		#region CUSPARSE type creation, destruction, set and get routines
+        #region CUSPARSE type creation, destruction, set and get routines
 
-		/// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseGetPointerMode(cusparseContext handle, ref cusparsePointerMode mode);
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]

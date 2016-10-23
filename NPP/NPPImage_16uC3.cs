@@ -5291,7 +5291,7 @@ namespace ManagedCuda.NPP
 		/// <returns>
 		/// the destination image roi_specification.
 		/// </returns>
-		NppiSize GetFilterGaussPyramidLayerDownBorderDstROI(float nRate)
+		public NppiSize GetFilterGaussPyramidLayerDownBorderDstROI(float nRate)
 		{
 			NppiSize retSize = new NppiSize();
 			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiGetFilterGaussPyramidLayerDownBorderDstROI(_sizeRoi.width, _sizeRoi.height, ref retSize, nRate);
@@ -5307,7 +5307,7 @@ namespace ManagedCuda.NPP
 		/// <param name="nRate">The downsampling rate to be used.  For integer equivalent rates unnecessary source pixels are just skipped. For non-integer rates the source image is bilinear interpolated. nRate must be > 1.0F and &lt;=  10.0F. </param>
 		/// <param name="pDstSizeROIMin">Minimum recommended destination image roi_specification.</param>
 		/// <param name="pDstSizeROIMax">Maximum recommended destination image roi_specification.</param>
-		void GetFilterGaussPyramidLayerUpBorderDstROI(float nRate, out NppiSize pDstSizeROIMin, out NppiSize pDstSizeROIMax)
+		public void GetFilterGaussPyramidLayerUpBorderDstROI(float nRate, out NppiSize pDstSizeROIMin, out NppiSize pDstSizeROIMax)
 		{
 			pDstSizeROIMin = new NppiSize();
 			pDstSizeROIMax = new NppiSize();
@@ -5341,7 +5341,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussPyramidLayerUpBorder(NPPImage_16uC3 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_16u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_16u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerUpBorder_16u_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}

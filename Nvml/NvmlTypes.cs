@@ -674,8 +674,12 @@ namespace ManagedCuda.Nvml
 		/// <summary>
 		/// GPU Texture Memory
 		/// </summary>
-		TextureMemory = 4
-	} 
+		TextureMemory = 4,
+        /// <summary>
+        /// Shared memory
+        /// </summary>
+        TextureSHM = 5
+    } 
 
 	/// <summary>
 	/// Causes for page retirement

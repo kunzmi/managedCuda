@@ -184,10 +184,11 @@ namespace ManagedCuda.CudaBlas
 		/// </summary>
 		Allowed=1
 	}
-	
-	/// <summary>
-	/// </summary>
-	public enum GemmAlgo
+
+    /// <summary>
+    /// For different GEMM algorithm
+    /// </summary>
+    public enum GemmAlgo
 	{
 		/// <summary>
 		/// </summary>
@@ -204,10 +205,19 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		Algo3 = 3,
-		/// <summary>
-		/// </summary>
-		Algo4 = 4
-	}
+        /// <summary>
+        /// </summary>
+        Algo4 = 4,
+        /// <summary>
+        /// </summary>
+        Algo5 = 5,
+        /// <summary>
+        /// </summary>
+        Algo6 = 6,
+        /// <summary>
+        /// </summary>
+        Algo7 = 7
+    }
 
 	/// <summary>
 	/// The cublasDataType_t type is an enumerant to specify the data precision. It is used

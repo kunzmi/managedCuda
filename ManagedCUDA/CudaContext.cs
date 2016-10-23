@@ -5958,6 +5958,12 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			props.ComputePreemptionSupported = computePreemptionSupported > 0;
 
+			int canUseHostPointerForRegisteredMem = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUseHostPointerForRegisteredMem, CUDeviceAttribute.CanUseHostPointerForRegisteredMem, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.CanUseHostPointerForRegisteredMem = canUseHostPointerForRegisteredMem > 0;
+
 			return props;
 		}
 

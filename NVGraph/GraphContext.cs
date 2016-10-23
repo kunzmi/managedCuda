@@ -87,5 +87,10 @@ namespace ManagedCuda.NVGraph
 			GraphDescriptor descr = new GraphDescriptor(_context);
 			return descr;
 		}
+
+        public nvgraphContext Context
+        {
+            get { return _context; }
+        }
 	}
 }

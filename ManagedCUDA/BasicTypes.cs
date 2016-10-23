@@ -84,14 +84,30 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		public int Pointer;
-		
-		static CUdevice CPU
+
+        /// <summary>
+        /// Device that represents the CPU
+        /// </summary>
+        static CUdevice CPU
 		{
 			get 
 			{
 				CUdevice cpu = new CUdevice();
 				cpu.Pointer = -1;
 				return cpu; 
+			}
+		}
+
+        /// <summary>
+        /// Device that represents an invalid device
+        /// </summary>
+        static CUdevice Invalid
+		{
+			get 
+			{
+				CUdevice invalid = new CUdevice();
+                invalid.Pointer = -2;
+				return invalid; 
 			}
 		}
 	}
@@ -3009,7 +3025,90 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		uint vaSpaceToken;
-	}        
+	}
+
+
+    /// <summary>
+    /// Per-operation parameters for ::cuStreamBatchMemOp
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct cuuint3264_union
+    {
+        /// <summary/>
+        [FieldOffset(0)]
+        public uint value;
+        /// <summary/>
+        [FieldOffset(0)]
+        public ulong pad;
+    }
+
+    /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamMemOpWaitValueParams
+    {
+        /// <summary/>
+        public CUstreamBatchMemOpType operation;
+        /// <summary/>
+        public CUdeviceptr address;
+        /// <summary/>
+        public cuuint3264_union value;
+        /// <summary/>
+        public uint flags;
+        /// <summary>
+        /// For driver internal use. Initial value is unimportant.
+        /// </summary>
+        public CUdeviceptr alias; 
+    }
+
+    /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamMemOpWriteValueParams
+    {
+        /// <summary/>
+        public CUstreamBatchMemOpType operation;
+        /// <summary/>
+        public CUdeviceptr address;
+        /// <summary/>
+        public cuuint3264_union value;
+        /// <summary/>
+        public uint flags;
+        /// <summary>
+        /// For driver internal use. Initial value is unimportant.
+        /// </summary>
+        public CUdeviceptr alias; 
+    }
+
+    /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamMemOpFlushRemoteWritesParams
+    {
+        /// <summary/>
+        public CUstreamBatchMemOpType operation;
+        /// <summary/>
+        public uint flags;
+    }
+
+    /// <summary/>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUstreamBatchMemOpParams
+    {
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamBatchMemOpType operation;
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamMemOpWaitValueParams waitValue;
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamMemOpWriteValueParams writeValue;
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamMemOpFlushRemoteWritesParams flushRemoteWrites;
+        //In cuda header, an ulong[6] fixes the union size to 48 bytes, we
+        //achieve the same in C# if we set at offset 40 an simple ulong
+        [FieldOffset(5*8)]
+        ulong pad;
+    }     
 
 	#endregion
 
@@ -3568,6 +3667,10 @@ namespace ManagedCuda.BasicTypes
 		/// Device supports compute preemption.
 		/// </summary>
 		ComputePreemptionSupported = 90,
+        /// <summary>
+        /// Device can access host registered memory at the same virtual address as the CPU.
+        /// </summary>
+        CanUseHostPointerForRegisteredMem = 91,
 		/// <summary>
 		/// Max elems...
 		/// </summary>
@@ -3824,7 +3927,17 @@ namespace ManagedCuda.BasicTypes
 		/// <para>Applies to: compiler only</para>
 		/// </summary>
 		JITCacheMode,
-	}
+
+        /// <summary>
+        /// The below jit options are used for internal purposes only, in this version of CUDA
+        /// </summary>
+        NewSM3XOpt,
+
+        /// <summary>
+        /// The below jit options are used for internal purposes only, in this version of CUDA
+        /// </summary>
+        FastCompile,
+    }
 
 	/// <summary>
 	/// Online compilation targets
@@ -4278,11 +4391,16 @@ namespace ManagedCuda.BasicTypes
 		/// This indicates an error with OpenGL or DirectX context.
 		/// </summary>
 		ErrorInvalidGraphicsContext = 219,
-
+                
 		/// <summary>
-		/// Invalid source
+		/// This indicates that an uncorrectable NVLink error was detected during the execution.
 		/// </summary>
-		ErrorInvalidSource = 300,
+        NVLinkUncorrectable = 220,
+
+        /// <summary>
+        /// Invalid source
+        /// </summary>
+        ErrorInvalidSource = 300,
 		
 		/// <summary>
 		/// File not found
@@ -4927,7 +5045,50 @@ namespace ManagedCuda.BasicTypes
 		MINOR_VERSION,
 		/// <summary/>
 		PATCH_LEVEL
-	} 
+	}
+
+    /// <summary>
+    /// Operations for ::cuStreamBatchMemOp
+    /// </summary>
+    public enum CUstreamBatchMemOpType
+    {
+        /// <summary>
+        /// Represents a ::cuStreamWaitValue32 operation
+        /// </summary>
+        WaitValue32 = 1,
+        /// <summary>
+        /// Represents a ::cuStreamWriteValue32 operation
+        /// </summary>
+        WriteValue32 = 2, 
+        /// <summary>
+        /// This has the same effect as ::CU_STREAM_WAIT_VALUE_FLUSH, but as a standalone operation.
+        /// </summary>
+        FlushRemoteWrites = 3 
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUmem_range_attribute
+    {
+        /// <summary>
+        /// Whether the range will mostly be read and only occassionally be written to
+        /// </summary>
+        ReadMostly = 1,
+        /// <summary>
+        /// The preferred location of the range
+        /// </summary>
+        PreferredLocation = 2,
+        /// <summary>
+        /// Memory range has ::CU_MEM_ADVISE_SET_ACCESSED_BY set for specified device
+        /// </summary>
+        AccessedBy = 3,
+        /// <summary>
+        /// The last location to which the range was prefetched
+        /// </summary>
+        LastPrefetchLocation = 4 
+    }
+    
 	#endregion
 
 	#region Enums (Flags)
@@ -5286,6 +5447,53 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		InterProcess = 4
 	}
+
+    /// <summary>
+    /// Flags for ::cuStreamWaitValue32
+    /// </summary>
+    public enum CUstreamWaitValue_flags
+    {
+        /// <summary>
+        /// Wait until (int32_t)(*addr - value) >= 0. Note this is a cyclic comparison which ignores wraparound. (Default behavior.) 
+        /// </summary>
+        GEQ = 0x0,
+        /// <summary>
+        /// Wait until *addr == value.
+        /// </summary>
+        EQ = 0x1,
+        /// <summary>
+        /// Wait until (*addr &amp; value) != 0.
+        /// </summary>
+        And = 0x2,
+        /// <summary>
+        /// Follow the wait operation with a flush of outstanding remote writes. This
+        /// means that, if a remote write operation is guaranteed to have reached the
+        /// device before the wait can be satisfied, that write is guaranteed to be
+        /// visible to downstream device work. The device is permitted to reorder
+        /// remote writes internally. For example, this flag would be required if
+        /// two remote writes arrive in a defined order, the wait is satisfied by the
+        /// second write, and downstream work needs to observe the first write.
+        /// </summary>
+        Flush = 1 << 30
+    }
+
+    /// <summary>
+    /// Flags for ::cuStreamWriteValue32
+    /// </summary>
+    public enum CUstreamWriteValue_flags
+    {
+        /// <summary>
+        /// Default behavior
+        /// </summary>
+        Default = 0x0,
+        /// <summary>
+        /// Permits the write to be reordered with writes which were issued
+        /// before it, as a performance optimization. Normally, ::cuStreamWriteValue32 will provide a memory fence before the
+        /// write, which has similar semantics to __threadfence_system() but is scoped to the stream rather than a CUDA thread.
+        /// </summary>
+        NoMemoryBarrier = 0x1
+    }
+
 	#endregion
 
 

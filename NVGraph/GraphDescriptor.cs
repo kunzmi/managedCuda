@@ -89,30 +89,64 @@ namespace ManagedCuda.NVGraph
 			get { return _descr; }
 		}
 
-		public void SetGraphStructure(nvgraphCSRTopology32I topologyData)
-		{
-			res = NVGraphNativeMathods.nvgraphSetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSR32);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetGraphStructure", res));
-			if (res != nvgraphStatus.Success) throw new NVGraphException(res);
-		}
+		//public void SetGraphStructure(nvgraphCSRTopology32I topologyData)
+		//{
+		//	res = NVGraphNativeMathods.nvgraphSetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSR32);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetGraphStructure", res));
+		//	if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+		//}
 
-		public void SetGraphStructure(nvgraphCSCTopology32I topologyData)
-		{
-			res = NVGraphNativeMathods.nvgraphSetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSC32);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetGraphStructure", res));
-			if (res != nvgraphStatus.Success) throw new NVGraphException(res);
-		}
+		//public void SetGraphStructure(nvgraphCSCTopology32I topologyData)
+		//{
+		//	res = NVGraphNativeMathods.nvgraphSetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSC32);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetGraphStructure", res));
+		//	if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+  //      }
 
-		public void GetGraphStructure(ref nvgraphCSRTopology32I topologyData)
-		{
-			res = NVGraphNativeMathods.nvgraphGetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSR32);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetGraphStructure", res));
-			if (res != nvgraphStatus.Success) throw new NVGraphException(res);
-		}
+        public void SetGraphStructure(nvgraphTopologyBase topologyData)
+        {
+            nvgraphTopologyType type;
+            if (topologyData is nvgraphCSRTopology32I)
+            {
+                type = nvgraphTopologyType.CSR32;
+            }
+            else
+            {
+                if (topologyData is nvgraphCSCTopology32I)
+                {
+                    type = nvgraphTopologyType.CSC32;
+                }
+                else
+                {
+                    type = nvgraphTopologyType.COO32;
+                }
+            }
 
-		public void GetGraphStructure(ref nvgraphCSCTopology32I topologyData)
-		{
-			res = NVGraphNativeMathods.nvgraphGetGraphStructure(_context, _descr, ref topologyData, nvgraphTopologyType.CSC32);
+
+            res = NVGraphNativeMathods.nvgraphSetGraphStructure(_context, _descr, topologyData, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetGraphStructure", res));
+            if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+        }
+
+  //      public void GetGraphStructure(ref nvgraphCSRTopology32I topologyData)
+		//{
+  //          nvgraphTopologyType type = nvgraphTopologyType.CSR32;
+  //          res = NVGraphNativeMathods.nvgraphGetGraphStructure(_context, _descr, ref topologyData, ref type);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetGraphStructure", res));
+		//	if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+		//}
+
+		//public void GetGraphStructure(ref nvgraphCSCTopology32I topologyData)
+  //      {
+  //          nvgraphTopologyType type = nvgraphTopologyType.CSC32;
+  //          res = NVGraphNativeMathods.nvgraphGetGraphStructure(_context, _descr, ref topologyData, ref type);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetGraphStructure", res));
+		//	if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+		//}
+
+		public void GetGraphStructure(nvgraphTopologyBase topologyData, ref nvgraphTopologyType type)
+        {
+            res = NVGraphNativeMathods.nvgraphGetGraphStructure(_context, _descr, topologyData, ref type);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetGraphStructure", res));
 			if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 		}
@@ -133,12 +167,12 @@ namespace ManagedCuda.NVGraph
 			if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 		}
 
-		public void SetVertexData(Array vertexData, SizeT setnum, nvgraphTopologyType TType)
+		public void SetVertexData(Array vertexData, SizeT setnum)
 		{
 			GCHandle handle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			try
 			{
-				res = NVGraphNativeMathods.nvgraphSetVertexData(_context, _descr, handle.AddrOfPinnedObject(), setnum, TType);
+				res = NVGraphNativeMathods.nvgraphSetVertexData(_context, _descr, handle.AddrOfPinnedObject(), setnum);
 				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetVertexData", res));
 				if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 			}
@@ -146,14 +180,21 @@ namespace ManagedCuda.NVGraph
 			{
 				handle.Free();
 			}
-		}
+        }
 
-		public void GetVertexData(Array vertexData, SizeT setnum, nvgraphTopologyType TType)
+        public void SetVertexData<Type>(CudaDeviceVariable<Type> vertexData, SizeT setnum) where Type : struct
+        {
+            res = NVGraphNativeMathods.nvgraphSetVertexData(_context, _descr, vertexData.DevicePointer, setnum);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetVertexData", res));
+            if (res != nvgraphStatus.Success) throw new NVGraphException(res);            
+        }
+
+        public void GetVertexData(Array vertexData, SizeT setnum)
 		{
 			GCHandle handle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			try
 			{
-				res = NVGraphNativeMathods.nvgraphGetVertexData(_context, _descr, handle.AddrOfPinnedObject(), setnum, TType);
+				res = NVGraphNativeMathods.nvgraphGetVertexData(_context, _descr, handle.AddrOfPinnedObject(), setnum);
 				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetVertexData", res));
 				if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 			}
@@ -161,14 +202,21 @@ namespace ManagedCuda.NVGraph
 			{
 				handle.Free();
 			}
-		}
+        }
 
-		public void SetEdgeData(Array edgeData, SizeT setnum, nvgraphTopologyType TType)
+        public void GetVertexData<Type>(CudaDeviceVariable<Type> vertexData, SizeT setnum) where Type : struct
+        {
+            res = NVGraphNativeMathods.nvgraphGetVertexData(_context, _descr, vertexData.DevicePointer, setnum);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetVertexData", res));
+            if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+        }
+
+        public void SetEdgeData(Array edgeData, SizeT setnum)
 		{
 			GCHandle handle = GCHandle.Alloc(edgeData, GCHandleType.Pinned);
 			try
 			{
-				res = NVGraphNativeMathods.nvgraphSetEdgeData(_context, _descr, handle.AddrOfPinnedObject(), setnum, TType);
+				res = NVGraphNativeMathods.nvgraphSetEdgeData(_context, _descr, handle.AddrOfPinnedObject(), setnum);
 				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetEdgeData", res));
 				if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 			}
@@ -176,14 +224,21 @@ namespace ManagedCuda.NVGraph
 			{
 				handle.Free();
 			}
-		}
+        }
 
-		public void GetEdgeData(Array edgeData, SizeT setnum, nvgraphTopologyType TType)
+        public void SetEdgeData<Type>(CudaDeviceVariable<Type> edgeData, SizeT setnum) where Type : struct
+        {
+            res = NVGraphNativeMathods.nvgraphSetEdgeData(_context, _descr, edgeData.DevicePointer, setnum);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphSetEdgeData", res));
+            if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+        }
+
+        public void GetEdgeData(Array edgeData, SizeT setnum)
 		{
 			GCHandle handle = GCHandle.Alloc(edgeData, GCHandleType.Pinned);
 			try
 			{
-				res = NVGraphNativeMathods.nvgraphGetEdgeData(_context, _descr, handle.AddrOfPinnedObject(), setnum, TType);
+				res = NVGraphNativeMathods.nvgraphGetEdgeData(_context, _descr, handle.AddrOfPinnedObject(), setnum);
 				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetEdgeData", res));
 				if (res != nvgraphStatus.Success) throw new NVGraphException(res);
 			}
@@ -191,9 +246,16 @@ namespace ManagedCuda.NVGraph
 			{
 				handle.Free();
 			}
-		}
+        }
 
-		public GraphDescriptor ExtractSubgraphByVertex(int[] subvertices)
+        public void GetEdgeData<Type>(CudaDeviceVariable<Type> edgeData, SizeT setnum) where Type : struct
+        {
+            res = NVGraphNativeMathods.nvgraphGetEdgeData(_context, _descr, edgeData.DevicePointer, setnum);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvgraphGetEdgeData", res));
+            if (res != nvgraphStatus.Success) throw new NVGraphException(res);
+        }
+
+        public GraphDescriptor ExtractSubgraphByVertex(int[] subvertices)
 		{
 			GraphDescriptor subdescr = new GraphDescriptor(_context);
 
