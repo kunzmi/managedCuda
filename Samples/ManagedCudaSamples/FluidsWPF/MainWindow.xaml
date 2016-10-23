@@ -1,0 +1,35 @@
+﻿<Window x:Class="FluidsWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+        xmlns:i="clr-namespace:System.Windows.Interop;assembly=PresentationCore" 
+        Title="MainWindow" Name="myWindow" Loaded="myWindow_Loaded" KeyDown="myWindow_KeyDown" Closing="myWindow_Closing" SizeToContent="WidthAndHeight">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom">
+            <RichTextBox Height="70" Name="infoLog" FontSize="11" Width="512" VerticalScrollBarVisibility="Auto">
+                
+            </RichTextBox>
+            <StatusBar>
+                <StatusBarItem Width="150">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="realFPS">Real FPS: </TextBlock>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="deviceName">Device name: </TextBlock>
+                    </StackPanel>
+                </StatusBarItem>
+            </StatusBar>
+        </StackPanel>
+        <Grid Name="grid" Width="512" Height="512">
+            <!--Grid dimsensions will be unset in myWindow_Loaded-->
+            <Image x:Name="output" MouseMove="output_MouseMove">
+                <Image.Source>
+                    <i:D3DImage x:Name="d3dimage">
+                    </i:D3DImage>
+                </Image.Source>
+            </Image>
+        </Grid>
+    </DockPanel>
+</Window>
