@@ -1315,7 +1315,7 @@ namespace ManagedCuda.CudaDNN
         /// additional details.</param>
         /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
         /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-        public void ActivationForward(cudnnActivationDescriptor activationDesc,
+        public void ActivationForward(ActivationDescriptor activationDesc,
                                         double alpha,
                                         TensorDescriptor srcDesc,
                                         CudaDeviceVariable<double> srcData,
@@ -1324,7 +1324,7 @@ namespace ManagedCuda.CudaDNN
                                         CudaDeviceVariable<double> destData
                                     )
         {
-            res = CudaDNNNativeMethods.cudnnActivationForward(_handle, activationDesc, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+            res = CudaDNNNativeMethods.cudnnActivationForward(_handle, activationDesc.Desc, ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnActivationForward", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
