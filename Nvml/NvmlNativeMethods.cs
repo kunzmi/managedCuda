@@ -24,8 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 
 namespace ManagedCuda.Nvml
@@ -98,9 +96,12 @@ namespace ManagedCuda.Nvml
 			IntPtr ptr = nvmlErrorStringInternal(result);
 			string error;
 			error = Marshal.PtrToStringAnsi(ptr);
-			return error;
+			return error.Replace("\0", "");
 		}
 
+
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlSystemGetDriverVersion")]
+        public static extern nvmlReturn nvmlSystemGetDriverVersionInternal(byte[] version, uint length);
 
 		/// <summary>
 		/// Retrieves the version of the system's graphics driver.
@@ -110,7 +111,6 @@ namespace ManagedCuda.Nvml
 		/// (including the NULL terminator).  See \ref nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
 		/// </summary>
 		/// <param name="version">Reference in which to return the version identifier</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a version</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a version has been set
@@ -118,10 +118,21 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a version is NULL
 		///         - \ref NVML_ERROR_INSUFFICIENT_SIZE if \a length is too small 
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlSystemGetDriverVersion([MarshalAs(UnmanagedType.LPStr)] string version, uint length);
+        public static nvmlReturn nvmlSystemGetDriverVersion(out string name)
+        {
+            byte[] temp = new byte[NVMLConstants.SystemDriverVersionBufferSize];
+            nvmlReturn ret = nvmlSystemGetDriverVersionInternal(temp, NVMLConstants.SystemDriverVersionBufferSize);
+            name = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                name = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
+        [DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlSystemGetNVMLVersion")]
+        internal static extern nvmlReturn nvmlSystemGetNVMLVersionInternal(byte[] version, uint length);
 		/// <summary>
 		/// Retrieves the version of the NVML library.
 		/// 
@@ -130,16 +141,27 @@ namespace ManagedCuda.Nvml
 		/// (including the NULL terminator).  See \ref nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 		/// </summary>
 		/// <param name="version">Reference in which to return the version identifier</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a version</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a version has been set
 		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a version is NULL
 		///         - \ref NVML_ERROR_INSUFFICIENT_SIZE if \a length is too small 
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlSystemGetNVMLVersion([MarshalAs(UnmanagedType.LPStr)] string version, uint length);
+        public static nvmlReturn nvmlSystemGetNVMLVersion(out string name)
+        {
+            byte[] temp = new byte[NVMLConstants.SystemNVMLVersionBufferSize];
+            nvmlReturn ret = nvmlSystemGetNVMLVersionInternal(temp, NVMLConstants.SystemNVMLVersionBufferSize);
+            name = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                name = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
+
+        [DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlSystemGetProcessName")]
+        internal static extern nvmlReturn nvmlSystemGetProcessNameInternal(uint pid, byte[] name, uint length);
 
 		/// <summary>
 		/// Gets name of the process with provided process id
@@ -149,7 +171,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="pid">The identifier of the process</param>
 		/// <param name="name">Reference in which to return the process name</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a name</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a name has been set
@@ -159,23 +180,32 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_NO_PERMISSION     if the user doesn't have permission to perform this operation
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlSystemGetProcessName(uint pid, [MarshalAs(UnmanagedType.LPStr)] string name, uint length);
+        public static nvmlReturn nvmlSystemGetProcessName(uint pid, out string name)
+        {
+            byte[] temp = new byte[2048];
+            nvmlReturn ret = nvmlSystemGetProcessNameInternal(pid, temp, 2048);
+            name = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                name = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
-		/// <summary>
-		/// Retrieves the number of units in the system.
-		/// For S-class products.
-		/// </summary>
-		/// <param name="unitCount">Reference in which to return the number of units</param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if \a unitCount has been set
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a unitCount is NULL
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Retrieves the number of units in the system.
+        /// For S-class products.
+        /// </summary>
+        /// <param name="unitCount">Reference in which to return the number of units</param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if \a unitCount has been set
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a unitCount is NULL
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlUnitGetCount(ref uint unitCount);
 
 
@@ -454,6 +484,9 @@ namespace ManagedCuda.Nvml
 		public static extern nvmlReturn nvmlDeviceGetHandleByPciBusId([MarshalAs(UnmanagedType.LPStr)] string pciBusId, ref nvmlDevice device);
 
 
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetName")]
+        internal static extern nvmlReturn nvmlDeviceGetNameInternal(nvmlDevice device, byte[] name, uint length);
+
 		/// <summary>
 		/// Retrieves the name of this device. 
 		/// 
@@ -464,7 +497,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="name">Reference in which to return the product name</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a name</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a name has been set
@@ -474,26 +506,35 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetName(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string name, uint length);
+        public static nvmlReturn nvmlDeviceGetName(nvmlDevice device, out string name)
+        {
+            byte[] temp = new byte[NVMLConstants.DeviceNameBufferSize];
+            nvmlReturn ret = nvmlDeviceGetNameInternal(device, temp, NVMLConstants.DeviceNameBufferSize);
+            name = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                name = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
-		/// <summary>
-		/// Retrieves the brand of this device.
-		/// For all products.
-		/// The type is a member of \ref nvmlBrandType defined above.
-		/// </summary>
-		/// <param name="device">The identifier of the target device</param>
-		/// <param name="type">Reference in which to return the product brand type</param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if \a name has been set
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, or \a type is NULL
-		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Retrieves the brand of this device.
+        /// For all products.
+        /// The type is a member of \ref nvmlBrandType defined above.
+        /// </summary>
+        /// <param name="device">The identifier of the target device</param>
+        /// <param name="type">Reference in which to return the product brand type</param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if \a name has been set
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, or \a type is NULL
+        ///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlDeviceGetBrand(nvmlDevice device, ref nvmlBrandType type);
 
 
@@ -525,6 +566,9 @@ namespace ManagedCuda.Nvml
 		public static extern nvmlReturn nvmlDeviceGetIndex(nvmlDevice device, ref uint index);
 
 
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetSerial")]
+		internal static extern nvmlReturn nvmlDeviceGetSerialInternal(nvmlDevice device, byte[] serial, uint length);
+
 		/// <summary>
 		/// Retrieves the globally unique board serial number associated with this device's board.
 		/// For all products with an inforom.
@@ -534,7 +578,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="serial">Reference in which to return the board/module serial number</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a serial</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a serial has been set
@@ -545,30 +588,39 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetSerial(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string serial, uint length);
+        public static nvmlReturn nvmlDeviceGetSerial(nvmlDevice device, out string serial)
+        {
+            byte[] temp = new byte[NVMLConstants.DeviceSerialBufferSize];
+            nvmlReturn ret = nvmlDeviceGetSerialInternal(device, temp, NVMLConstants.DeviceSerialBufferSize);
+            serial = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                serial = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
-		/// <summary>
-		/// Retrieves an array of uints (sized to cpuSetSize) of bitmasks with the ideal CPU affinity for the device
-		/// For example, if processors 0, 1, 32, and 33 are ideal for the device and cpuSetSize == 2,
-		///     result[0] = 0x3, result[1] = 0x3
-		/// For Kepler or newer fully supported devices.
-		/// Supported on Linux only.
-		/// </summary>
-		/// <param name="device">The identifier of the target device</param>
-		/// <param name="cpuSetSize">The size of the cpuSet array that is safe to access</param>
-		/// <param name="cpuSet">Array reference in which to return a bitmask of CPUs, 64 CPUs per </param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if \a cpuAffinity has been filled
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, cpuSetSize == 0, or cpuSet is NULL
-		///         - \ref NVML_ERROR_NOT_SUPPORTED     if the device does not support this feature
-		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Retrieves an array of uints (sized to cpuSetSize) of bitmasks with the ideal CPU affinity for the device
+        /// For example, if processors 0, 1, 32, and 33 are ideal for the device and cpuSetSize == 2,
+        ///     result[0] = 0x3, result[1] = 0x3
+        /// For Kepler or newer fully supported devices.
+        /// Supported on Linux only.
+        /// </summary>
+        /// <param name="device">The identifier of the target device</param>
+        /// <param name="cpuSetSize">The size of the cpuSet array that is safe to access</param>
+        /// <param name="cpuSet">Array reference in which to return a bitmask of CPUs, 64 CPUs per </param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if \a cpuAffinity has been filled
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, cpuSetSize == 0, or cpuSet is NULL
+        ///         - \ref NVML_ERROR_NOT_SUPPORTED     if the device does not support this feature
+        ///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlDeviceGetCpuAffinity(nvmlDevice device, uint cpuSetSize, ulong[] cpuSet);
 
 
@@ -670,6 +722,9 @@ namespace ManagedCuda.Nvml
 		public static extern nvmlReturn nvmlSystemGetTopologyGpuSet(uint cpuNumber, ref uint count, nvmlDevice[] deviceArray);
 
 
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetUUID")]
+		internal static extern nvmlReturn nvmlDeviceGetUUIDInternal(nvmlDevice device, byte[] uuid, uint length);
+
 		/// <summary>
 		/// Retrieves the globally unique immutable UUID associated with this device, as a 5 part hexadecimal string,
 		/// that augments the immutable, board serial identifier.
@@ -680,7 +735,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="uuid">Reference in which to return the GPU UUID</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a uuid</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a uuid has been set
@@ -691,30 +745,42 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetUUID(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string uuid, uint length);
+        public static nvmlReturn nvmlDeviceGetUUID(nvmlDevice device, out string uuid)
+        {
+            byte[] temp = new byte[NVMLConstants.DevicePartNumberBufferSize];
+            nvmlReturn ret = nvmlDeviceGetUUIDInternal(device, temp, NVMLConstants.DevicePartNumberBufferSize);
+            uuid = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                uuid = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
-		/// <summary>
-		/// Retrieves minor number for the device. The minor number for the device is such that the Nvidia device node file for 
-		/// each GPU will have the form /dev/nvidia[minor number].
-		/// For all products.
-		/// Supported only for Linux
-		/// </summary>
-		/// <param name="device">The identifier of the target device</param>
-		/// <param name="minorNumber">Reference in which to return the minor number for the device</param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if the minor number is successfully retrieved
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid or \a minorNumber is NULL
-		///         - \ref NVML_ERROR_NOT_SUPPORTED     if this query is not supported by the device
-		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Retrieves minor number for the device. The minor number for the device is such that the Nvidia device node file for 
+        /// each GPU will have the form /dev/nvidia[minor number].
+        /// For all products.
+        /// Supported only for Linux
+        /// </summary>
+        /// <param name="device">The identifier of the target device</param>
+        /// <param name="minorNumber">Reference in which to return the minor number for the device</param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if the minor number is successfully retrieved
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid or \a minorNumber is NULL
+        ///         - \ref NVML_ERROR_NOT_SUPPORTED     if this query is not supported by the device
+        ///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlDeviceGetMinorNumber(nvmlDevice device, ref uint minorNumber);
 
+
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetBoardPartNumber")]
+		internal static extern nvmlReturn nvmlDeviceGetBoardPartNumberInternal(nvmlDevice device, byte[] partNumber, uint length);
 
 		/// <summary>
 		/// Retrieves the the device board part number which is programmed into the board's InfoROM
@@ -722,7 +788,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">Identifier of the target device</param>
 		/// <param name="partNumber">Reference to the buffer to return</param>
-		/// <param name="length">Length of the buffer reference</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                  if \a partNumber has been set
@@ -732,9 +797,21 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_GPU_IS_LOST        if the target GPU has fallen off the bus or is otherwise inaccessible
 		///         - \ref NVML_ERROR_UNKNOWN            on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetBoardPartNumber(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string partNumber, uint length);
+        public static nvmlReturn nvmlDeviceGetBoardPartNumber(nvmlDevice device, out string partNumber)
+        {
+            byte[] temp = new byte[NVMLConstants.DevicePartNumberBufferSize];
+            nvmlReturn ret = nvmlDeviceGetBoardPartNumberInternal(device, temp, NVMLConstants.DevicePartNumberBufferSize);
+            partNumber = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                partNumber = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
+
+        [DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetInforomVersion")]
+        internal static extern nvmlReturn nvmlDeviceGetInforomVersionInternal(nvmlDevice device, nvmlInforomObject IRobject, byte[] version, uint length);
 
 		/// <summary>
 		/// Retrieves the version information for the device's infoROM object.
@@ -748,7 +825,6 @@ namespace ManagedCuda.Nvml
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="IRobject">The target infoROM object</param>
 		/// <param name="version">Reference in which to return the infoROM version</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a version</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a version has been set
@@ -760,9 +836,21 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
 		/// @see nvmlDeviceGetInforomImageVersion
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetInforomVersion(nvmlDevice device, nvmlInforomObject IRobject, [MarshalAs(UnmanagedType.LPStr)] string version, uint length);
+        public static nvmlReturn nvmlDeviceGetInforomVersion(nvmlDevice device, nvmlInforomObject IRobject, out string version)
+        {
+            byte[] temp = new byte[NVMLConstants.DeviceInformVersionBufferSize];
+            nvmlReturn ret = nvmlDeviceGetInforomVersionInternal(device, IRobject, temp, NVMLConstants.DeviceInformVersionBufferSize);
+            version = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                version = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
+
+        [DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetInforomImageVersion")]
+		internal static extern nvmlReturn nvmlDeviceGetInforomImageVersionInternal(nvmlDevice device, byte[] version, uint length);
 
 		/// <summary>
 		/// Retrieves the global infoROM image version
@@ -774,7 +862,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="version">Reference in which to return the infoROM image version</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a version</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a version has been set
@@ -786,30 +873,38 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
 		/// @see nvmlDeviceGetInforomVersion
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetInforomImageVersion(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string version, uint length);
+        public static nvmlReturn nvmlDeviceGetInforomImageVersion(nvmlDevice device, out string version)
+        {
+            byte[] temp = new byte[NVMLConstants.DeviceInformVersionBufferSize];
+            nvmlReturn ret = nvmlDeviceGetInforomImageVersionInternal(device, temp, NVMLConstants.DeviceInformVersionBufferSize);
+            version = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                version = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
-
-		/// <summary>
-		/// Retrieves the checksum of the configuration stored in the device's infoROM.
-		/// For all products with an inforom.
-		/// Can be used to make sure that two GPUs have the exact same configuration.
-		/// Current checksum takes into account configuration stored in PWR and ECC infoROM objects.
-		/// Checksum can change between driver releases or when user changes configuration (e.g. disable/enable ECC)
-		/// </summary>
-		/// <param name="device">The identifier of the target device</param>
-		/// <param name="checksum">Reference in which to return the infoROM configuration checksum</param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if \a checksum has been set
-		///         - \ref NVML_ERROR_CORRUPTED_INFOROM if the device's checksum couldn't be retrieved due to infoROM corruption
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a checksum is NULL
-		///         - \ref NVML_ERROR_NOT_SUPPORTED     if the device does not support this feature
-		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error 
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Retrieves the checksum of the configuration stored in the device's infoROM.
+        /// For all products with an inforom.
+        /// Can be used to make sure that two GPUs have the exact same configuration.
+        /// Current checksum takes into account configuration stored in PWR and ECC infoROM objects.
+        /// Checksum can change between driver releases or when user changes configuration (e.g. disable/enable ECC)
+        /// </summary>
+        /// <param name="device">The identifier of the target device</param>
+        /// <param name="checksum">Reference in which to return the infoROM configuration checksum</param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if \a checksum has been set
+        ///         - \ref NVML_ERROR_CORRUPTED_INFOROM if the device's checksum couldn't be retrieved due to infoROM corruption
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a checksum is NULL
+        ///         - \ref NVML_ERROR_NOT_SUPPORTED     if the device does not support this feature
+        ///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error 
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice device, ref uint checksum);
 
 
@@ -1843,6 +1938,9 @@ namespace ManagedCuda.Nvml
 		public static extern nvmlReturn nvmlDeviceGetDriverModel(nvmlDevice device, ref nvmlDriverModel current, ref nvmlDriverModel pending);
 
 
+		[DllImport(NVML_API_DLL_NAME, EntryPoint = "nvmlDeviceGetVbiosVersion")]
+		internal static extern nvmlReturn nvmlDeviceGetVbiosVersionInternal(nvmlDevice device, byte[] version, uint length);
+
 		/// <summary>
 		/// Get VBIOS version of the device.
 		/// For all products.
@@ -1851,7 +1949,6 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		/// <param name="device">The identifier of the target device</param>
 		/// <param name="version">Reference to which to return the VBIOS version</param>
-		/// <param name="length">The maximum allowed length of the string returned in \a version</param>
 		/// <returns>
 		/// 
 		///         - \ref NVML_SUCCESS                 if \a version has been set
@@ -1861,29 +1958,38 @@ namespace ManagedCuda.Nvml
 		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
 		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
  		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
-		public static extern nvmlReturn nvmlDeviceGetVbiosVersion(nvmlDevice device, [MarshalAs(UnmanagedType.LPStr)] string version, uint length);
+        public static nvmlReturn nvmlDeviceGetVbiosVersion(nvmlDevice device, out string version)
+        {
+            byte[] temp = new byte[NVMLConstants.DeviceVBIOSVersionBufferSize];
+            nvmlReturn ret = nvmlDeviceGetVbiosVersionInternal(device, temp, NVMLConstants.DeviceVBIOSVersionBufferSize);
+            version = string.Empty;
+            if (ret == nvmlReturn.Success)
+            {
+                version = ASCIIEncoding.ASCII.GetString(temp).Replace("\0", "");
+            }
+            return ret;
+        }
 
 
-		/// <summary>
-		/// Get Bridge Chip Information for all the bridge chips on the board.
-		/// 
-		/// For all fully supported products.
-		/// Only applicable to multi-GPU products.
-		/// </summary>
-		/// <param name="device">The identifier of the target device</param>
-		/// <param name="bridgeHierarchy">Reference to the returned bridge chip Hierarchy</param>
-		/// <returns>
-		/// 
-		///         - \ref NVML_SUCCESS                 if bridge chip exists
-		///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
-		///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, or \a bridgeInfo is NULL
-		///         - \ref NVML_ERROR_NOT_SUPPORTED     if bridge chip not supported on the device
-		///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
-		///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
-		/// 
- 		/// </returns>
-		[DllImport(NVML_API_DLL_NAME)]
+        /// <summary>
+        /// Get Bridge Chip Information for all the bridge chips on the board.
+        /// 
+        /// For all fully supported products.
+        /// Only applicable to multi-GPU products.
+        /// </summary>
+        /// <param name="device">The identifier of the target device</param>
+        /// <param name="bridgeHierarchy">Reference to the returned bridge chip Hierarchy</param>
+        /// <returns>
+        /// 
+        ///         - \ref NVML_SUCCESS                 if bridge chip exists
+        ///         - \ref NVML_ERROR_UNINITIALIZED     if the library has not been successfully initialized
+        ///         - \ref NVML_ERROR_INVALID_ARGUMENT  if \a device is invalid, or \a bridgeInfo is NULL
+        ///         - \ref NVML_ERROR_NOT_SUPPORTED     if bridge chip not supported on the device
+        ///         - \ref NVML_ERROR_GPU_IS_LOST       if the target GPU has fallen off the bus or is otherwise inaccessible
+        ///         - \ref NVML_ERROR_UNKNOWN           on any unexpected error
+        /// 
+        /// </returns>
+        [DllImport(NVML_API_DLL_NAME)]
 		public static extern nvmlReturn nvmlDeviceGetBridgeChipInfo(nvmlDevice device, ref nvmlBridgeChipHierarchy bridgeHierarchy);
 
 

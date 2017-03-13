@@ -1161,7 +1161,7 @@ namespace ManagedCuda.CudaBlas
 		#region Imin
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1174,7 +1174,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1188,7 +1188,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1202,7 +1202,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1215,7 +1215,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1229,7 +1229,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1243,7 +1243,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1256,7 +1256,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1270,7 +1270,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1284,7 +1284,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1297,7 +1297,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1311,7 +1311,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1326,7 +1326,7 @@ namespace ManagedCuda.CudaBlas
 		#region Imax
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1339,7 +1339,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1353,7 +1353,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1367,7 +1367,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1380,7 +1380,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1394,7 +1394,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1408,7 +1408,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1421,7 +1421,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1435,7 +1435,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1449,7 +1449,7 @@ namespace ManagedCuda.CudaBlas
 
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1462,7 +1462,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
@@ -1476,7 +1476,7 @@ namespace ManagedCuda.CudaBlas
 		}
 		/// <summary>
 		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
-		/// First index starts at 0 (C notation, not Fortran)
+		/// First index starts at 1 (Fortran notation)
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
