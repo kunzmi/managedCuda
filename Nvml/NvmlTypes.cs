@@ -24,8 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda.Nvml
 {
@@ -1102,17 +1100,17 @@ namespace ManagedCuda.Nvml
 		/// Product identifier
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 96)]
-		public char id;                        
+		public string id;                        
 		/// <summary>
 		/// Product serial number
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 96)]
-		public char serial;                    
+		public string serial;                    
 		/// <summary>
 		/// Firmware version
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 96)]
-		public char firmwareVersion;           
+		public string firmwareVersion;           
 	} 
 
 	
@@ -1139,7 +1137,7 @@ namespace ManagedCuda.Nvml
 		/// The power supply state
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-		public char state;                 
+		public string state;                 
 		/// <summary>
 		/// PSU current (A)
 		/// </summary>
@@ -1290,9 +1288,58 @@ namespace ManagedCuda.Nvml
 		/// </summary>
 		public IntPtr Pointer;
 	}
-	#endregion
+    #endregion
 
-	
+    /// <summary>
+    /// Constants used in NVML API (defines in original header file)
+    /// </summary>
+    public static class NVMLConstants
+    {
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for pci bus id
+        /// </summary>
+        public const uint DevicePCIBusIDBufferSize = 16;
+        /// <summary>
+        /// Maximum number of NvLink links supported 
+        /// </summary>
+        public const uint NVLinkMaxLinks = 4;
+        /// <summary>
+        /// Maximum limit on Physical Bridges per Board
+        /// </summary>
+        public const uint MaxPhysicalBridge = 128;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetInforomVersion and \ref nvmlDeviceGetInforomImageVersion
+        /// </summary>
+        public const uint DeviceInformVersionBufferSize = 16;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetUUID
+        /// </summary>
+        public const uint DeviceUUIDBufferSize = 80;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetBoardPartNumber
+        /// </summary>
+        public const uint DevicePartNumberBufferSize = 80;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlSystemGetDriverVersion
+        /// </summary>
+        public const uint SystemDriverVersionBufferSize = 80;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlSystemGetNVMLVersion
+        /// </summary>
+        public const uint SystemNVMLVersionBufferSize = 80;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetName
+        /// </summary>
+        public const uint DeviceNameBufferSize = 64;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetSerial
+        /// </summary>
+        public const uint DeviceSerialBufferSize = 30;
+        /// <summary>
+        /// Buffer size guaranteed to be large enough for \ref nvmlDeviceGetVbiosVersion
+        /// </summary>
+        public const uint DeviceVBIOSVersionBufferSize = 32;
+    }
 /// <summary>
 /// NVML API versioning support
 /// </summary>

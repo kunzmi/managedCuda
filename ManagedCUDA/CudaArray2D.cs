@@ -48,7 +48,7 @@ namespace ManagedCuda
     }
       
     /// <summary>
-    /// A two dimansional CUDA array
+    /// A two dimensional CUDA array
     /// </summary>
     public class CudaArray2D : IDisposable
     {

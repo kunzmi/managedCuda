@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ManagedCuda.Nvml</RootNamespace>
-    <AssemblyName>Nvml</AssemblyName>
+    <AssemblyName>ManagedNvml</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,12 +45,6 @@
     <Compile Include="NvmlNativeMethods.cs" />
     <Compile Include="NvmlTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ManagedCUDA\ManagedCuda.csproj">
-      <Project>{f5a866cc-151e-472a-8020-75f62d74d687}</Project>
-      <Name>ManagedCuda</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

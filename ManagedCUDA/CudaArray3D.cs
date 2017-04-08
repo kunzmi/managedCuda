@@ -48,7 +48,7 @@ namespace ManagedCuda
     }
 
     /// <summary>
-    /// A three dimansional CUDA array
+    /// A three dimensional CUDA array
     /// </summary>
     public class CudaArray3D : IDisposable
     {
