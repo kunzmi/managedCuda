@@ -382,12 +382,22 @@ namespace ManagedCuda
 
 
 			_contextOwner = true;
-		}
+        }
 
-		/// <summary>
-		/// For dispose
-		/// </summary>
-		~CudaContext()
+        /// <summary>
+        /// Create a new instace of managed Cuda, performing no CUDA API calls. Needed for inheritance.
+        /// </summary>
+        /// <param name="inheritedContext">Additional constructor parameter to differentiate direct constructor call or inherited call, i.e. called by primaryContext class.</param>
+        /// <param name="deviceId">DeviceID.</param>
+        internal CudaContext(bool inheritedContext, int deviceId)
+        {
+
+        }
+
+        /// <summary>
+        /// For dispose
+        /// </summary>
+        ~CudaContext()
 		{
 			Dispose(false);
 		}

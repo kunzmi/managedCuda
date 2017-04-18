@@ -51,6 +51,7 @@ namespace ManagedCuda
 		/// </summary>
 		/// <param name="deviceId">DeviceID</param>
 		public PrimaryContext(int deviceId)
+            : base(true, deviceId)
 		{
 			CUResult res;
 			int deviceCount = 0;
