@@ -640,9 +640,9 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetFilterNdDescriptor(cudnnFilterDescriptor filterDesc,
                                                                int nbDimsRequested,
-                                                               ref cudnnDataType dataType, // image data type
-                                                               ref cudnnTensorFormat format, // layout format
-                                                               ref int nbDims,
+                                                               out cudnnDataType dataType, // image data type
+                                                               out cudnnTensorFormat format, // layout format
+                                                               out int nbDims,
                                                                int[] filterDimA
                                                             );
 
@@ -3182,8 +3182,7 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="rnnDesc">A previously created RNN descriptor.</param>
         /// <param name="hiddenSize">Size of the internal hidden state for each layer.</param>
-        /// <param name="seqLength">Number of iterations to unroll over.</param>
-        /// <param name="numLayers">Number of layers.</param>
+        /// <param name="numLayers">Number of stacked layers.</param>
         /// <param name="dropoutDesc">Handle to a previously created and initialized dropout descriptor.</param>
         /// <param name="inputMode">Specifies the behavior at the input to the first layer.</param>
         /// <param name="direction">Specifies the recurrence pattern. (eg. bidirectional)</param>
@@ -3192,7 +3191,6 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnSetRNNDescriptor(cudnnRNNDescriptor rnnDesc,
                                                         int hiddenSize,
-                                                        int seqLength,
                                                         int numLayers,
                                                         cudnnDropoutDescriptor dropoutDesc, // Between layers, not between recurrent steps.
                                                         cudnnRNNInputMode inputMode,
@@ -3209,11 +3207,13 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as workspace to be able to execute an RNN with the specified descriptor and input tensors.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNWorkspaceSize(cudnnHandle handle,
                                                     cudnnRNNDescriptor rnnDesc,
+                                                    int seqLength,
                                                     cudnnTensorDescriptor[] xDesc,
                                                     ref SizeT                     sizeInBytes
                                                     );
@@ -3225,11 +3225,13 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as reserve space to be able to train an RNN with the specified descriptor and input tensors.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNTrainingReserveSize(cudnnHandle handle,
                                                           cudnnRNNDescriptor rnnDesc,
+                                                          int seqLength,
                                                           cudnnTensorDescriptor[] xDesc,
                                                           ref SizeT                     sizeInBytes
                                                     );
@@ -3240,14 +3242,15 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration</param>
+        /// <param name="xDesc">A tensor descriptor describing the input of one recurrent iteration</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as parameter space to be able to execute an RNN with the specified descriptor and input tensors.</param>
+        /// <param name="dataType">Math precision.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNParamsSize(cudnnHandle handle,
                                                  cudnnRNNDescriptor rnnDesc,
-                                                 cudnnTensorDescriptor[] xDesc,
-                                                 ref SizeT                     sizeInBytes
-                                                    );
+                                                 cudnnTensorDescriptor xDesc,
+                                                 ref SizeT sizeInBytes,
+                                                 cudnnDataType dataType);
 
         /// <summary>
         /// This function is used to obtain a pointer and descriptor for the matrix parameters in layer within 
@@ -3281,12 +3284,12 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnGetRNNLinLayerMatrixParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             cudnnTensorDescriptor[] xDesc,
+                             cudnnTensorDescriptor xDesc,
                              cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
-                             cudnnFilterDescriptor linLayerMatDesc, 
-                             CUdeviceptr linLayerMat // void **
+                             cudnnFilterDescriptor linLayerMatDesc,
+                             out  CUdeviceptr linLayerMat // void **
                              );
 
         /// <summary>
@@ -3321,12 +3324,12 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnGetRNNLinLayerBiasParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             cudnnTensorDescriptor[] xDesc,
+                             cudnnTensorDescriptor xDesc,
                              cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
                              cudnnFilterDescriptor linLayerBiasDesc,
-                             CUdeviceptr linLayerBias // void **
+                             out CUdeviceptr linLayerBias // void **
                              );
 
         /// <summary>
@@ -3336,6 +3339,7 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration. 
         /// Each tensor descriptor must have the same first dimension. The second dimension of the tensors may 
         /// decrease from element n to element n+1 but may not increase. The tensor must be fully packed.</param>
@@ -3391,6 +3395,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNForwardInference(cudnnHandle handle,
                                                     cudnnRNNDescriptor rnnDesc,
+                                                    int seqLength,
                                                     cudnnTensorDescriptor[] xDesc,
                                                     CUdeviceptr x,
                                                     cudnnTensorDescriptor hxDesc,
@@ -3417,6 +3422,7 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration. Each 
         /// tensor descriptor must have the same first dimension. The second dimension of the tensors may decrease 
         /// from element n to element n+1 but may not increase. The tensor must be fully packed.</param>
@@ -3469,6 +3475,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNForwardTraining(cudnnHandle handle,
                                                    cudnnRNNDescriptor rnnDesc,
+                                                   int seqLength,
                                                    cudnnTensorDescriptor[] xDesc,
                                                    CUdeviceptr x,
                                                    cudnnTensorDescriptor hxDesc,
@@ -3497,6 +3504,7 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="yDesc">An array of tensor descriptors describing the output from each 
         /// recurrent iteration. The first dimension of the tensor depends on the direction 
         /// argument passed to the cudnnSetRNNDescriptor call used to initialize rnnDesc:
@@ -3574,6 +3582,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNBackwardData(cudnnHandle handle,
                                                 cudnnRNNDescriptor rnnDesc,
+                                                int seqLength,
                                                 cudnnTensorDescriptor[] yDesc,
                                                 CUdeviceptr y,
                                                 cudnnTensorDescriptor[] dyDesc,
@@ -3608,6 +3617,7 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration. 
         /// Each tensor descriptor must have the same first dimension. The second dimension of the tensors may 
         /// decrease from element n to element n+1 but may not increase. The tensor must be fully packed.</param>
@@ -3638,6 +3648,7 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnRNNBackwardWeights(cudnnHandle handle,
                                                    cudnnRNNDescriptor rnnDesc,
+                                                   int seqLength,
                                                    cudnnTensorDescriptor[] xDesc,
                                                    CUdeviceptr x,
                                                    cudnnTensorDescriptor hxDesc,
