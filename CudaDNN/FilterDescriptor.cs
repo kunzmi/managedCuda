@@ -171,13 +171,13 @@ namespace ManagedCuda.CudaDNN
         /// <param name="filterDimA">Array of dimension of at least nbDimsRequested that will be filled with
         /// the filter parameters from the provided filter descriptor.</param>
         public void GetFilterNdDescriptor(int nbDimsRequested,
-											ref cudnnDataType dataType, // image data type
-                                            ref cudnnTensorFormat format,
-											ref int nbDims,
+											out cudnnDataType dataType, // image data type
+											out cudnnTensorFormat format,
+											out int nbDims,
 											int[] filterDimA
 										)
 		{
-			res = CudaDNNNativeMethods.cudnnGetFilterNdDescriptor(_desc, nbDimsRequested, ref dataType, ref format, ref nbDims, filterDimA);
+			res = CudaDNNNativeMethods.cudnnGetFilterNdDescriptor(_desc, nbDimsRequested, out dataType, out format, out nbDims, filterDimA);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFilterNdDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
