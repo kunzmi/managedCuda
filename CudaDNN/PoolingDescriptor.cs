@@ -216,17 +216,17 @@ namespace ManagedCuda.CudaDNN
 		/// This function provides the output dimensions of a tensor after 2d pooling has been applied
 		/// </summary>
 		/// <param name="inputTensorDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="outN">Number of images in the output</param>
-		/// <param name="outC">Number of channels in the output</param>
-		/// <param name="outH">Height of images in the output</param>
-		/// <param name="outW">Width of images in the output</param>
+		/// <param name="n">Number of images in the output</param>
+		/// <param name="c">Number of channels in the output</param>
+		/// <param name="h">Height of images in the output</param>
+		/// <param name="w">Width of images in the output</param>
 		public void GetPooling2dForwardOutputDim(TensorDescriptor inputTensorDesc,
-																	 ref int outN,
-																	 ref int outC,
-																	 ref int outH,
-																	 ref int outW)
+																	 ref int n,
+																	 ref int c,
+																	 ref int h,
+																	 ref int w)
 		{
-			res = CudaDNNNativeMethods.cudnnGetPooling2dForwardOutputDim(_desc, inputTensorDesc.Desc, ref outN, ref outC, ref outH, ref outW);
+			res = CudaDNNNativeMethods.cudnnGetPooling2dForwardOutputDim(_desc, inputTensorDesc.Desc, ref n, ref c, ref h, ref w);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetPooling2dForwardOutputDim", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}

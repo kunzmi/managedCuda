@@ -197,6 +197,39 @@ namespace ManagedCuda.CudaDNN
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
 
+        /// <summary>
+        /// This function initializes a previously created generic Tensor descriptor object.
+        /// </summary>
+        /// <param name="tensorDesc">Handle to a previously created tensor descriptor.</param>
+        /// <param name="format"></param>
+        /// <param name="dataType">Data type.</param>
+        /// <param name="nbDims">Dimension of the tensor.</param>
+        /// <param name="dimA">Array of dimension nbDims that contain the size of the tensor for every dimension.</param>
+        public void SetTensorNdDescriptorEx(
+                                cudnnTensorDescriptor tensorDesc,
+                                cudnnTensorFormat format,
+                                cudnnDataType dataType,
+                                int nbDims,
+                                int[] dimA)
+        {
+            res = CudaDNNNativeMethods.cudnnSetTensorNdDescriptorEx(_desc, format, dataType, nbDims, dimA);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetTensorNdDescriptorEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// This function returns the size of the tensor in memory in respect to the given descriptor.
+        /// This function can be used to know the amount of GPU memory to be allocated to hold that tensor.
+        /// </summary>
+        /// <returns>Size in bytes needed to hold the tensor in GPU memory.</returns>
+        public SizeT GetTensorSizeInBytes()
+        {
+            SizeT retVal = 0;
+            res = CudaDNNNativeMethods.cudnnGetTensorSizeInBytes(_desc, ref retVal);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetTensorSizeInBytes", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return retVal;
+        }
 
         /// <summary>
         /// This function retrieves values stored in a previously initialized Tensor descriptor object.

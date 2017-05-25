@@ -57,8 +57,10 @@
     <Compile Include="FilterDescriptor.cs" />
     <Compile Include="LRNDescriptor.cs" />
     <Compile Include="OpTensorDescriptor.cs" />
+    <Compile Include="PersistentRNNPlan.cs" />
     <Compile Include="PoolingDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReduceTensorDescriptor.cs" />
     <Compile Include="RNNDescriptor.cs" />
     <Compile Include="SpatialTransformerDescriptor.cs" />
     <Compile Include="TensorDescriptor.cs" />
