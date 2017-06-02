@@ -97,12 +97,14 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="mode">Enumerant to specify the activation mode.</param>
         /// <param name="reluNanOpt">Nan propagation option for the relu.</param>
-        /// <param name="reluCeiling">The ceiling for the clipped relu.</param>
+        /// <param name="coef">floating point number to specify the clipping threashold when the activation
+        /// mode is set to CUDNN_ACTIVATION_CLIPPED_RELU or to specify the alpha
+        /// coefficient when the activation mode is set to CUDNN_ACTIVATION_ELU.</param>
 		public void SetActivationDescriptor(cudnnActivationMode mode, 
                                     cudnnNanPropagation reluNanOpt, 
-                                    double reluCeiling)
+                                    double coef)
         {
-            res = CudaDNNNativeMethods.cudnnSetActivationDescriptor(_desc, mode, reluNanOpt, reluCeiling);
+            res = CudaDNNNativeMethods.cudnnSetActivationDescriptor(_desc, mode, reluNanOpt, coef);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetActivationDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -112,12 +114,14 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="mode">Enumerant to specify the activation mode.</param>
         /// <param name="reluNanOpt">Nan propagation option for the relu.</param>
-        /// <param name="reluCeiling">The ceiling for the clipped relu.</param>
+        /// <param name="coef">floating point number to specify the clipping threashold when the activation
+        /// mode is set to CUDNN_ACTIVATION_CLIPPED_RELU or to specify the alpha
+        /// coefficient when the activation mode is set to CUDNN_ACTIVATION_ELU.</param>
         public void GetActivationDescriptor( ref cudnnActivationMode mode,
                                 ref cudnnNanPropagation reluNanOpt,
-                                ref double reluCeiling)
+                                ref double coef)
         {
-            res = CudaDNNNativeMethods.cudnnGetActivationDescriptor(_desc, ref mode, ref reluNanOpt, ref reluCeiling);
+            res = CudaDNNNativeMethods.cudnnGetActivationDescriptor(_desc, ref mode, ref reluNanOpt, ref coef);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetActivationDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }

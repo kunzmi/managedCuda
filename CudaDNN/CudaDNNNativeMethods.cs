@@ -32,13 +32,13 @@ namespace ManagedCuda.CudaDNN
 	/// <summary/>
 	public static class CudaDNNNativeMethods
 	{
-		internal const string CUDNN_API_DLL_NAME = "cudnn64_5.dll";
+		internal const string CUDNN_API_DLL_NAME = "cudnn64_6.dll";
 		/// <summary>
 		/// Gives the version of the wrapped api
 		/// </summary>
 		public static Version Version
 		{
-			get { return new Version(5, 0, 4); }
+			get { return new Version(6, 0, 21); }
 		}
 
 		[DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetVersion")]
@@ -53,15 +53,22 @@ namespace ManagedCuda.CudaDNN
 		public static Version cudnnGetVersion()
 		{
 			SizeT ver = cudnnGetVersionInternal();
-			SizeT maj = ver / 100;
-			SizeT min = ver % 100;
-			return new Version(maj, min);
+			SizeT maj = ver / 1000;
+			SizeT min = (ver % 1000) / 100;
+            SizeT build = ver % 100;
+			return new Version(maj, min, build);
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern void cudnnGetProperty(libraryPropertyType type, ref int value);
 
-
-		// human-readable error messages
-		[DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetErrorString")]
+        // human-readable error messages
+        [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetErrorString")]
 		internal static extern IntPtr cudnnGetErrorStringInternal(cudnnStatus status);
 		/// <summary>
 		/// This function returns a human-readable character string describing the cudnnStatus enumerate passed as input parameter.
@@ -220,22 +227,39 @@ namespace ManagedCuda.CudaDNN
 															   int[] dimA,
 															   int[] strideA
 															 );
-		
-		/// <summary>
-		/// This function retrieves values stored in a previously initialized Tensor descriptor object.
-		/// </summary>
-		/// <param name="tensorDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="nbDimsRequested">Number of dimensions to extract from a given tensor descriptor. It is
-		/// also the minimum size of the arrays dimA and strideA. If this number is
-		/// greater than the resulting nbDims[0], only nbDims[0] dimensions will be
-		/// returned.</param>
-		/// <param name="dataType">Data type.</param>
-		/// <param name="nbDims">Actual number of dimensions of the tensor will be returned in nbDims[0].</param>
-		/// <param name="dimA">Array of dimension of at least nbDimsRequested that will be filled with
-		/// the dimensions from the provided tensor descriptor.</param>
-		/// <param name="strideA">Array of dimension of at least nbDimsRequested that will be filled with
-		/// the strides from the provided tensor descriptor.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+
+        /// <summary>
+        /// This function initializes a previously created generic Tensor descriptor object.
+        /// </summary>
+        /// <param name="tensorDesc">Handle to a previously created tensor descriptor.</param>
+        /// <param name="format"></param>
+        /// <param name="dataType">Data type.</param>
+        /// <param name="nbDims">Dimension of the tensor.</param>
+        /// <param name="dimA">Array of dimension nbDims that contain the size of the tensor for every dimension.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetTensorNdDescriptorEx(
+                                cudnnTensorDescriptor tensorDesc,
+                                cudnnTensorFormat format,
+                                cudnnDataType dataType,
+                                int nbDims,
+                                int[] dimA );
+
+
+        /// <summary>
+        /// This function retrieves values stored in a previously initialized Tensor descriptor object.
+        /// </summary>
+        /// <param name="tensorDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="nbDimsRequested">Number of dimensions to extract from a given tensor descriptor. It is
+        /// also the minimum size of the arrays dimA and strideA. If this number is
+        /// greater than the resulting nbDims[0], only nbDims[0] dimensions will be
+        /// returned.</param>
+        /// <param name="dataType">Data type.</param>
+        /// <param name="nbDims">Actual number of dimensions of the tensor will be returned in nbDims[0].</param>
+        /// <param name="dimA">Array of dimension of at least nbDimsRequested that will be filled with
+        /// the dimensions from the provided tensor descriptor.</param>
+        /// <param name="strideA">Array of dimension of at least nbDimsRequested that will be filled with
+        /// the strides from the provided tensor descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetTensorNdDescriptor(  cudnnTensorDescriptor tensorDesc,
 															   int nbDimsRequested,
 															   ref cudnnDataType dataType,
@@ -244,6 +268,16 @@ namespace ManagedCuda.CudaDNN
 															   int[] strideA
 															 );
 
+        /// <summary>
+        /// This function returns the size of the tensor in memory in respect to the given descriptor.
+        /// This function can be used to know the amount of GPU memory to be allocated to hold that tensor.
+        /// </summary>
+        /// <param name="tensorDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="size">Size in bytes needed to hold the tensor in GPU memory.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetTensorSizeInBytes(
+                                cudnnTensorDescriptor tensorDesc,
+                                ref SizeT size);
 
 
 		/// <summary>
@@ -265,22 +299,22 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Pointer to data of the tensor described by the srcDesc descriptor.</param>
+		/// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="x">Pointer to data of the tensor described by the srcDesc descriptor.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Pointer to data of the tensor described by the destDesc descriptor.</param>
+		/// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="y">Pointer to data of the tensor described by the destDesc descriptor.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnTransformTensor(   cudnnHandle                    handle,
 														  ref float alpha,
-														  cudnnTensorDescriptor    srcDesc,
-														  CUdeviceptr srcData,
+														  cudnnTensorDescriptor    xDesc,
+														  CUdeviceptr x,
 														  ref float beta,
-														  cudnnTensorDescriptor    destDesc,
-														  CUdeviceptr destData
+														  cudnnTensorDescriptor    yDesc,
+														  CUdeviceptr y
 														);
 
 		/// <summary>
@@ -295,22 +329,22 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Pointer to data of the tensor described by the srcDesc descriptor.</param>
+		/// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="x">Pointer to data of the tensor described by the srcDesc descriptor.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Pointer to data of the tensor described by the destDesc descriptor.</param>
+		/// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="y">Pointer to data of the tensor described by the destDesc descriptor.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnTransformTensor(   cudnnHandle                    handle,
 														  ref double alpha,
-														  cudnnTensorDescriptor    srcDesc,
-														  CUdeviceptr srcData,
+														  cudnnTensorDescriptor    xDesc,
+														  CUdeviceptr x,
 														  ref double beta,
-														  cudnnTensorDescriptor    destDesc,
-														  CUdeviceptr destData
+														  cudnnTensorDescriptor    yDesc,
+														  CUdeviceptr y
 														);
 
 
@@ -325,22 +359,22 @@ namespace ManagedCuda.CudaDNN
         /// value with prior value in the destination tensor as follows: dstValue =
         /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="biasDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="biasData">Pointer to data of the tensor described by the biasDesc descriptor.</param>
+        /// <param name="aDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="a">Pointer to data of the tensor described by the biasDesc descriptor.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
         /// value with prior value in the destination tensor as follows: dstValue =
         /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="cDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="c">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnAddTensor(cudnnHandle                    handle,
                                             ref float alpha,
-                                            cudnnTensorDescriptor biasDesc,
-                                            CUdeviceptr biasData,
+                                            cudnnTensorDescriptor aDesc,
+                                            CUdeviceptr a,
 											ref float beta,
-                                            cudnnTensorDescriptor srcDestDesc,
-											CUdeviceptr srcDestData
+                                            cudnnTensorDescriptor cDesc,
+											CUdeviceptr c
                                           );
 
         /// <summary>
@@ -354,22 +388,22 @@ namespace ManagedCuda.CudaDNN
         /// value with prior value in the destination tensor as follows: dstValue =
         /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="biasDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="biasData">Pointer to data of the tensor described by the biasDesc descriptor.</param>
+        /// <param name="aDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="a">Pointer to data of the tensor described by the biasDesc descriptor.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the source
         /// value with prior value in the destination tensor as follows: dstValue =
         /// alpha[0]*srcValue + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="cDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="cData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnAddTensor(cudnnHandle handle,
                                             ref double alpha,
-                                            cudnnTensorDescriptor biasDesc,
-                                            CUdeviceptr biasData,
+                                            cudnnTensorDescriptor aDesc,
+                                            CUdeviceptr a,
                                             ref double beta,
-                                            cudnnTensorDescriptor srcDestDesc,
-                                            CUdeviceptr srcDestData
+                                            cudnnTensorDescriptor cDesc,
+                                            CUdeviceptr cData
                                           );
 
 		/// <summary>
@@ -498,19 +532,179 @@ namespace ManagedCuda.CudaDNN
                                 cudnnTensorDescriptor cDesc,
                                 CUdeviceptr C);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reduceTensorDesc"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateReduceTensorDescriptor(
+                                ref cudnnReduceTensorDescriptor reduceTensorDesc);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reduceTensorDesc"></param>
+        /// <param name="reduceTensorOp"></param>
+        /// <param name="reduceTensorCompType"></param>
+        /// <param name="reduceTensorNanOpt"></param>
+        /// <param name="reduceTensorIndices"></param>
+        /// <param name="reduceTensorIndicesType"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetReduceTensorDescriptor(
+                                        cudnnReduceTensorDescriptor reduceTensorDesc,
+                                        cudnnReduceTensorOp reduceTensorOp,
+                                        cudnnDataType reduceTensorCompType,
+                                        cudnnNanPropagation reduceTensorNanOpt,
+                                        cudnnReduceTensorIndices reduceTensorIndices,
+                                        cudnnIndicesType reduceTensorIndicesType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reduceTensorDesc"></param>
+        /// <param name="reduceTensorOp"></param>
+        /// <param name="reduceTensorCompType"></param>
+        /// <param name="reduceTensorNanOpt"></param>
+        /// <param name="reduceTensorIndices"></param>
+        /// <param name="reduceTensorIndicesType"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetReduceTensorDescriptor(
+                                cudnnReduceTensorDescriptor reduceTensorDesc,
+                                ref cudnnReduceTensorOp                  reduceTensorOp,
+                                ref cudnnDataType reduceTensorCompType,
+                                ref cudnnNanPropagation              reduceTensorNanOpt,
+                                ref cudnnReduceTensorIndices reduceTensorIndices,
+                                ref cudnnIndicesType                 reduceTensorIndicesType );
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reduceTensorDesc"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyReduceTensorDescriptor(
+                                cudnnReduceTensorDescriptor reduceTensorDesc);
+
+        /* Helper function to return the minimum size of the index space to be passed to the reduction given the input and output tensors */
+        /// <summary>
+        /// Helper function to return the minimum size of the index space to be passed to the reduction given the input and output tensors
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="reduceTensorDesc"></param>
+        /// <param name="aDesc"></param>
+        /// <param name="cDesc"></param>
+        /// <param name="sizeInBytes"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetReductionIndicesSize(
+                                        cudnnHandle handle,
+                                cudnnReduceTensorDescriptor reduceTensorDesc,
+                                cudnnTensorDescriptor aDesc,
+                                cudnnTensorDescriptor cDesc,
+                                ref SizeT sizeInBytes );
+
+        /// <summary>
+        /// Helper function to return the minimum size of the workspace to be passed to the reduction given the input and output tensors
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="reduceTensorDesc"></param>
+        /// <param name="aDesc"></param>
+        /// <param name="cDesc"></param>
+        /// <param name="sizeInBytes"></param>
+        /// <returns></returns>
+        /* Helper function to return the minimum size of the workspace to be passed to the reduction given the input and output tensors */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetReductionWorkspaceSize(
+                                cudnnHandle handle,
+                                cudnnReduceTensorDescriptor reduceTensorDesc,
+                                cudnnTensorDescriptor aDesc,
+                                cudnnTensorDescriptor cDesc,
+                                ref SizeT sizeInBytes );
+        
+        /* Tensor operation : C = reduce op( alpha * A ) + beta * C */
+        /* The NaN propagation enum applies to only the min and max reduce ops; the other reduce ops propagate NaN as usual. */
+        /* The indices space is ignored for reduce ops other than min or max. */
+        /// <summary>
+        /// This function reduces tensor A by implementing the equation C = alpha * reduce op ( A )
+        /// + beta* C, given tensors A and C and scaling factors alpha and beta.The reduction op
+        /// to use is indicated by the descriptor reduceTensorDesc.Currently-supported ops are
+        /// listed by the cudnnReduceTensorOp_t enum.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="reduceTensorDesc">Handle to a previously initialized reduce tensor descriptor.</param>
+        /// <param name="indices">Handle to a previously allocated space for writing indices.</param>
+        /// <param name="indicesSizeInBytes">Size of the above previously allocated space.</param>
+        /// <param name="workspace">Handle to a previously allocated space for the reduction implementation.</param>
+        /// <param name="workspaceSizeInBytes">Size of the above previously allocated space.</param>
+        /// <param name="alpha">Pointer to scaling factor (in host memory) used to blend the source value
+        /// with prior value in the destination tensor as indicated by the above op equation.</param>
+        /// <param name="aDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="A">Pointer to data of the tensor described by the aDesc descriptor.</param>
+        /// <param name="beta">Pointer to scaling factor (in host memory) used to blend the source value
+        /// with prior value in the destination tensor as indicated by the above op equation.</param>
+        /// <param name="cDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="C">Pointer to data of the tensor described by the cDesc descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnReduceTensor(
+                                cudnnHandle handle,
+                                cudnnReduceTensorDescriptor reduceTensorDesc,
+                                CUdeviceptr indices,
+                                SizeT                              indicesSizeInBytes,
+                                CUdeviceptr workspace,
+                                SizeT                              workspaceSizeInBytes,
+                                ref float alpha,
+                                cudnnTensorDescriptor aDesc,
+                                CUdeviceptr A,
+                                ref float beta,
+                                cudnnTensorDescriptor cDesc,
+                                CUdeviceptr C );
+
+        /// <summary>
+        /// This function reduces tensor A by implementing the equation C = alpha * reduce op ( A )
+        /// + beta* C, given tensors A and C and scaling factors alpha and beta.The reduction op
+        /// to use is indicated by the descriptor reduceTensorDesc.Currently-supported ops are
+        /// listed by the cudnnReduceTensorOp_t enum.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="reduceTensorDesc">Handle to a previously initialized reduce tensor descriptor.</param>
+        /// <param name="indices">Handle to a previously allocated space for writing indices.</param>
+        /// <param name="indicesSizeInBytes">Size of the above previously allocated space.</param>
+        /// <param name="workspace">Handle to a previously allocated space for the reduction implementation.</param>
+        /// <param name="workspaceSizeInBytes">Size of the above previously allocated space.</param>
+        /// <param name="alpha">Pointer to scaling factor (in host memory) used to blend the source value
+        /// with prior value in the destination tensor as indicated by the above op equation.</param>
+        /// <param name="aDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="A">Pointer to data of the tensor described by the aDesc descriptor.</param>
+        /// <param name="beta">Pointer to scaling factor (in host memory) used to blend the source value
+        /// with prior value in the destination tensor as indicated by the above op equation.</param>
+        /// <param name="cDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="C">Pointer to data of the tensor described by the cDesc descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnReduceTensor(
+                                cudnnHandle handle,
+                                cudnnReduceTensorDescriptor reduceTensorDesc,
+                                CUdeviceptr indices,
+                                SizeT indicesSizeInBytes,
+                                CUdeviceptr workspace,
+                                SizeT workspaceSizeInBytes,
+                                ref double alpha,
+                                cudnnTensorDescriptor aDesc,
+                                CUdeviceptr A,
+                                ref double beta,
+                                cudnnTensorDescriptor cDesc,
+                                CUdeviceptr C);
+
 
 
         /// <summary>
         /// This function sets all the elements of a tensor to a given value
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
-        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="y">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
         /// <param name="value">Pointer in Host memory to a value that all elements of the tensor will be set to.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSetTensor( cudnnHandle                   handle,
-												  cudnnTensorDescriptor   srcDestDesc,
-												  CUdeviceptr srcDestData,
+												  cudnnTensorDescriptor   yDesc,
+												  CUdeviceptr y,
 												  ref float value
 												 );
 
@@ -518,13 +712,13 @@ namespace ManagedCuda.CudaDNN
         /// This function sets all the elements of a tensor to a given value
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
-        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="y">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
         /// <param name="value">Pointer in Host memory to a value that all elements of the tensor will be set to.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnSetTensor(cudnnHandle handle,
-                                                  cudnnTensorDescriptor srcDestDesc,
-                                                  CUdeviceptr srcDestData,
+                                                  cudnnTensorDescriptor yDesc,
+                                                  CUdeviceptr y,
                                                   ref double value
                                                  );
 
@@ -532,13 +726,13 @@ namespace ManagedCuda.CudaDNN
         /// This function scale all the elements of a tensor by a give factor.
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
-        /// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+        /// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="y">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
         /// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnScaleTensor(   cudnnHandle                    handle,
-													  cudnnTensorDescriptor    srcDestDesc,
-													  CUdeviceptr srcDestData,
+													  cudnnTensorDescriptor    yDesc,
+													  CUdeviceptr y,
 													  ref float alpha
 												  );
 
@@ -546,13 +740,13 @@ namespace ManagedCuda.CudaDNN
 		/// This function scale all the elements of a tensor by a give factor.
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDestDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcDestData">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
+		/// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="y">Pointer to data of the tensor described by the srcDestDesc descriptor.</param>
 		/// <param name="alpha">Pointer in Host memory to a value that all elements of the tensor will be scaled with.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnScaleTensor(   cudnnHandle                    handle,
-													  cudnnTensorDescriptor    srcDestDesc,
-													  CUdeviceptr srcDestData,
+													  cudnnTensorDescriptor    yDesc,
+													  CUdeviceptr y,
 													  ref double alpha
 												  );
 
@@ -674,19 +868,19 @@ namespace ManagedCuda.CudaDNN
         /// onto the left and onto the right of input images.</param>
         /// <param name="u">Vertical filter stride.</param>
         /// <param name="v">Horizontal filter stride.</param>
-        /// <param name="upscalex">Upscale the input in x-direction.</param>
-        /// <param name="upscaley">Upscale the input in y-direction.</param>
+        /// <param name="dilation_h">Filter height dilation.</param>
+        /// <param name="dilation_w">Filter width dilation.</param>
         /// <param name="mode">Selects between CUDNN_CONVOLUTION and CUDNN_CROSS_CORRELATION.</param>
         /// <param name="dataType">Selects the datatype in which the computation will be done.</param>
-        [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnSetConvolution2dDescriptor_v5")]
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSetConvolution2dDescriptor(  cudnnConvolutionDescriptor convDesc,
 																	int pad_h,    // zero-padding height
 																	int pad_w,    // zero-padding width
 																	int u,        // vertical filter stride
 																	int v,        // horizontal filter stride
-																	int upscalex, // upscale the input in x-direction
-																	int upscaley, // upscale the input in y-direction
-																	cudnnConvolutionMode mode,
+																	int dilation_h, // filter dilation in the vertical dimension
+                                                                    int dilation_w, // filter dilation in the horizontal dimension
+                                                                    cudnnConvolutionMode mode,
                                                                     cudnnDataType dataType
                                                                  );
 
@@ -700,19 +894,19 @@ namespace ManagedCuda.CudaDNN
         /// onto the left and onto the right of input images.</param>
         /// <param name="u">Vertical filter stride.</param>
         /// <param name="v">Horizontal filter stride.</param>
-        /// <param name="upscalex">Upscale the input in x-direction.</param>
-        /// <param name="upscaley">Upscale the input in y-direction.</param>
+        /// <param name="dilation_h">Filter height dilation.</param>
+        /// <param name="dilation_w">Filter width dilation.</param>
 		/// <param name="mode">Selects between CUDNN_CONVOLUTION and CUDNN_CROSS_CORRELATION.</param>
 		/// <param name="dataType">Data type.</param>
-        [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetConvolution2dDescriptor_v5")]
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolution2dDescriptor(   cudnnConvolutionDescriptor convDesc,
 																	 ref int pad_h,    // zero-padding height
 																	 ref int pad_w,    // zero-padding width
 																	 ref int u,        // vertical filter stride
 																	 ref int v,        // horizontal filter stride
-																	 ref int upscalex, // upscale the input in x-direction
-																	 ref int upscaley, // upscale the input in y-direction
-																	 ref cudnnConvolutionMode mode,
+																	 ref int dilation_h, // filter dilation in the vertical dimension
+                                                                     ref int dilation_w, // filter dilation in the horizontal dimension
+                                                                     ref cudnnConvolutionMode mode,
                                                                      ref cudnnDataType dataType
                                                                   );
 
@@ -741,61 +935,61 @@ namespace ManagedCuda.CudaDNN
 																		 ref int w
 																		);
 
-		/// <summary>
-		/// This function initializes a previously created generic convolution descriptor object into
-		/// a n-D correlation. That same convolution descriptor can be reused in the backward path
-		/// provided it corresponds to the same layer. The convolution computation will done in the
-		/// specified dataType, which can be potentially different from the input/output tensors.
-		/// </summary>
-		/// <param name="convDesc">Handle to a previously created convolution descriptor.</param>
-		/// <param name="arrayLength">Dimension of the convolution.</param>
-		/// <param name="padA">Array of dimension arrayLength containing the zero-padding size
-		/// for each dimension. For every dimension, the padding represents the
-		/// number of extra zeros implicitly concatenated at the start and at the
-		/// end of every element of that dimension.</param>
-		/// <param name="filterStrideA">Array of dimension arrayLength containing the filter stride for each
-		/// dimension. For every dimension, the fitler stride represents the number
-		/// of elements to slide to reach the next start of the filtering window of
-		/// the next point.</param>
-		/// <param name="upscaleA">Array of dimension arrayLength containing the upscale factor for each dimension.</param>
-		/// <param name="mode">Selects between CUDNN_CONVOLUTION and CUDNN_CROSS_CORRELATION.</param>
-		/// <param name="dataType">Selects the datatype in which the computation will be done.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]  
+        /// <summary>
+        /// This function initializes a previously created generic convolution descriptor object into
+        /// a n-D correlation. That same convolution descriptor can be reused in the backward path
+        /// provided it corresponds to the same layer. The convolution computation will done in the
+        /// specified dataType, which can be potentially different from the input/output tensors.
+        /// </summary>
+        /// <param name="convDesc">Handle to a previously created convolution descriptor.</param>
+        /// <param name="arrayLength">Dimension of the convolution.</param>
+        /// <param name="padA">Array of dimension arrayLength containing the zero-padding size
+        /// for each dimension. For every dimension, the padding represents the
+        /// number of extra zeros implicitly concatenated at the start and at the
+        /// end of every element of that dimension.</param>
+        /// <param name="filterStrideA">Array of dimension arrayLength containing the filter stride for each
+        /// dimension. For every dimension, the fitler stride represents the number
+        /// of elements to slide to reach the next start of the filtering window of
+        /// the next point.</param>
+        /// <param name="dilationA">Array of dimension arrayLength containing the dilation factor for each dimension.</param>
+        /// <param name="mode">Selects between CUDNN_CONVOLUTION and CUDNN_CROSS_CORRELATION.</param>
+        /// <param name="computeType">Selects the datatype in which the computation will be done.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]  
 		public static extern cudnnStatus cudnnSetConvolutionNdDescriptor(cudnnConvolutionDescriptor convDesc,
                                                               int arrayLength,             /* nbDims-2 size */  
                                                               int[] padA,                                          
                                                               int[] filterStrideA,         
-                                                              int[] upscaleA,              
+                                                              int[] dilationA,              
                                                               cudnnConvolutionMode mode,
-                                                              cudnnDataType dataType   // convolution data type
+                                                              cudnnDataType computeType   // convolution data type
                                                          );
-                                           
+
         /// <summary>
-		/// This function queries a previously initialized convolution descriptor object.
+        /// This function queries a previously initialized convolution descriptor object.
         /// </summary>
-		/// <param name="convDesc">Handle to a previously created convolution descriptor.</param>
+        /// <param name="convDesc">Handle to a previously created convolution descriptor.</param>
         /// <param name="arrayLengthRequested">Dimension of the expected convolution descriptor. It is also the
-		/// minimum size of the arrays padA, filterStrideA and upsacleA in
-		/// order to be able to hold the results</param>
-		/// <param name="arrayLength">actual dimension of the convolution descriptor.</param>
+        /// minimum size of the arrays padA, filterStrideA and upsacleA in
+        /// order to be able to hold the results</param>
+        /// <param name="arrayLength">actual dimension of the convolution descriptor.</param>
         /// <param name="padA">Array of dimension of at least arrayLengthRequested that will be
-		/// filled with the padding parameters from the provided convolution
-		/// descriptor.</param>
+        /// filled with the padding parameters from the provided convolution
+        /// descriptor.</param>
         /// <param name="strideA">Array of dimension of at least arrayLengthRequested that will be
-		/// filled with the filter stride from the provided convolution descriptor.</param>
-        /// <param name="upscaleA">Array of dimension at least arrayLengthRequested that will be filled
-		/// with the upscaling parameters from the provided convolution descriptor.</param>
-		/// <param name="mode">convolution mode of the provided descriptor.</param>
-		/// <param name="dataType">datatype of the provided descriptor.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]  
+        /// filled with the filter stride from the provided convolution descriptor.</param>
+        /// <param name="dilationA">Array of dimension at least arrayLengthRequested that will be filled
+        /// with the dilation parameters from the provided convolution descriptor.</param>
+        /// <param name="mode">convolution mode of the provided descriptor.</param>
+        /// <param name="computeType">datatype of the provided descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]  
 		public static extern cudnnStatus cudnnGetConvolutionNdDescriptor(cudnnConvolutionDescriptor convDesc,
                                                               int arrayLengthRequested,
                                                               ref int arrayLength,
                                                               int[] padA,                                        
                                                               int[] strideA,
-                                                              int[] upscaleA,
+                                                              int[] dilationA,
                                                               ref cudnnConvolutionMode mode,
-                                                              ref cudnnDataType dataType     // convolution data type
+                                                              ref cudnnDataType computeType     // convolution data type
                                                          );
 
 
@@ -902,10 +1096,10 @@ namespace ManagedCuda.CudaDNN
 		/// use cudnnFindConvolutionForwardAlgorithm.
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
 		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
 		/// <param name="preference">Enumerant to express the preference criteria in terms of memory
 		/// requirement and speed.</param>
 		/// <param name="memoryLimitInbytes">It is used when enumerant preference is set to
@@ -915,10 +1109,10 @@ namespace ManagedCuda.CudaDNN
 		/// compute the results according to the specified preference</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionForwardAlgorithm( cudnnHandle                      handle,
-																	   cudnnTensorDescriptor      srcDesc,
+																	   cudnnTensorDescriptor      xDesc,
 																	   cudnnFilterDescriptor      filterDesc,
 																	   cudnnConvolutionDescriptor convDesc, 
-																	   cudnnTensorDescriptor      destDesc,
+																	   cudnnTensorDescriptor      yDesc,
 																	   cudnnConvolutionFwdPreference    preference, 
 																	   SizeT                             memoryLimitInbytes,
 																	   ref cudnnConvolutionFwdAlgo         algo                                                  
@@ -934,19 +1128,19 @@ namespace ManagedCuda.CudaDNN
 		/// and/or every configuration of the convolution descriptor.
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
 		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
 		/// <param name="algo">Enumerant that specifies the chosen convolution algorithm</param>
 		/// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a
 		/// forward convolution with the specified algo</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionForwardWorkspaceSize( cudnnHandle                      handle, 
-																		   cudnnTensorDescriptor      srcDesc,
+																		   cudnnTensorDescriptor      xDesc,
 																		   cudnnFilterDescriptor      filterDesc,
 																		   cudnnConvolutionDescriptor convDesc,  
-																		   cudnnTensorDescriptor      destDesc,
+																		   cudnnTensorDescriptor      yDesc,
 																		   cudnnConvolutionFwdAlgo          algo,
 																		   ref SizeT                            sizeInBytes
 																		);        
@@ -962,10 +1156,10 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
+		/// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+		/// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="w">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
 		/// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
 		/// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
@@ -976,23 +1170,23 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the tensor descriptor
+		/// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="y">Data pointer to GPU memory associated with the tensor descriptor
 		/// destDesc that carries the result of the convolution.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionForward( cudnnHandle handle,
 																  ref float alpha,
-																  cudnnTensorDescriptor srcDesc,
-																  CUdeviceptr srcData,
-																  cudnnFilterDescriptor filterDesc,
-																  CUdeviceptr filterData,
+																  cudnnTensorDescriptor xDesc,
+																  CUdeviceptr x,
+																  cudnnFilterDescriptor wDesc,
+																  CUdeviceptr w,
 																  cudnnConvolutionDescriptor convDesc,
 																  cudnnConvolutionFwdAlgo algo,
 																  CUdeviceptr workSpace,
 																  SizeT workSpaceSizeInBytes,            
 																  ref float beta,
-																  cudnnTensorDescriptor destDesc,
-																  CUdeviceptr destData
+																  cudnnTensorDescriptor yDesc,
+																  CUdeviceptr y
 														 );
 
 		/// <summary>
@@ -1005,10 +1199,10 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
+		/// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+		/// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="w">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
 		/// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
 		/// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
@@ -1019,80 +1213,185 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the tensor descriptor
+		/// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="y">Data pointer to GPU memory associated with the tensor descriptor
 		/// destDesc that carries the result of the convolution.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionForward( cudnnHandle handle,
 																  ref double alpha,
-																  cudnnTensorDescriptor srcDesc,
-																  CUdeviceptr srcData,
-																  cudnnFilterDescriptor filterDesc,
-																  CUdeviceptr filterData,
+																  cudnnTensorDescriptor xDesc,
+																  CUdeviceptr x,
+																  cudnnFilterDescriptor wDesc,
+																  CUdeviceptr w,
 																  cudnnConvolutionDescriptor convDesc,
 																  cudnnConvolutionFwdAlgo algo,
 																  CUdeviceptr workSpace,
 																  SizeT workSpaceSizeInBytes,
 																  ref double beta,
-																  cudnnTensorDescriptor destDesc,
-																  CUdeviceptr destData
+																  cudnnTensorDescriptor yDesc,
+																  CUdeviceptr y
 														 );
 
-		/// <summary>
-		/// This function computes the convolution gradient with respect to the bias, which is the
-		/// sum of every element belonging to the same feature map across all of the images of the
-		/// input tensor. Therefore, the number of elements produced is equal to the number of
-		/// features maps of the input tensor.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /* Fused conv/bias/activation operation : y = Act( alpha1 * conv(x) + alpha2 * z + bias ) */
+        /// <summary>
+        /// This function applies a bias and then an activation to the convolutions or crosscorrelations
+        /// of cudnnConvolutionForward(), returning results in y.The full computation
+        /// follows the equation y = act(alpha1* conv(x) + alpha2* z + bias ).<para/>
+        /// The routine cudnnGetConvolution2dForwardOutputDim or
+        /// cudnnGetConvolutionNdForwardOutputDim can be used to determine the proper
+        /// dimensions of the output tensor descriptor yDesc with respect to xDesc, convDesc and wDesc.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="alpha1">Pointers to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as described by the above equation.</param>
+        /// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor xDesc.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
+        /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
+        /// the specified algorithm.If no workspace is needed for a particular
+        /// algorithm, that pointer can be nil</param>
+        /// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
+        /// <param name="alpha2">Pointers to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as described by the above equation.</param>
+        /// <param name="zDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="z">Data pointer to GPU memory associated with the tensor descriptor zDesc.</param>
+        /// <param name="biasDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="bias">Data pointer to GPU memory associated with the tensor descriptor biasDesc.</param>
+        /// <param name="activationDesc">Handle to a previously initialized activation descriptor.</param>
+        /// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor yDesc
+        /// that carries the result of the convolution.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnConvolutionBiasActivationForward(
+                                        cudnnHandle handle,
+                                ref float alpha1,
+                                cudnnTensorDescriptor xDesc,
+                                CUdeviceptr x,
+                                cudnnFilterDescriptor wDesc,
+                                CUdeviceptr w,
+                                cudnnConvolutionDescriptor convDesc,
+                                cudnnConvolutionFwdAlgo           algo,
+                                CUdeviceptr workSpace,
+                                SizeT                              workSpaceSizeInBytes,
+                                ref float alpha2,
+                                cudnnTensorDescriptor zDesc,
+                                CUdeviceptr z,
+                                cudnnTensorDescriptor biasDesc,
+                                CUdeviceptr bias,
+                                cudnnActivationDescriptor activationDesc,
+                                cudnnTensorDescriptor yDesc,
+                                CUdeviceptr y );
+
+        /// <summary>
+        /// This function applies a bias and then an activation to the convolutions or crosscorrelations
+        /// of cudnnConvolutionForward(), returning results in y.The full computation
+        /// follows the equation y = act(alpha1* conv(x) + alpha2* z + bias ).<para/>
+        /// The routine cudnnGetConvolution2dForwardOutputDim or
+        /// cudnnGetConvolutionNdForwardOutputDim can be used to determine the proper
+        /// dimensions of the output tensor descriptor yDesc with respect to xDesc, convDesc and wDesc.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="alpha1">Pointers to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as described by the above equation.</param>
+        /// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor xDesc.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
+        /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
+        /// the specified algorithm.If no workspace is needed for a particular
+        /// algorithm, that pointer can be nil</param>
+        /// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
+        /// <param name="alpha2">Pointers to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as described by the above equation.</param>
+        /// <param name="zDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="z">Data pointer to GPU memory associated with the tensor descriptor zDesc.</param>
+        /// <param name="biasDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="bias">Data pointer to GPU memory associated with the tensor descriptor biasDesc.</param>
+        /// <param name="activationDesc">Handle to a previously initialized activation descriptor.</param>
+        /// <param name="yDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor yDesc
+        /// that carries the result of the convolution.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnConvolutionBiasActivationForward(
+                                        cudnnHandle handle,
+                                ref double alpha1,
+                                cudnnTensorDescriptor xDesc,
+                                CUdeviceptr x,
+                                cudnnFilterDescriptor wDesc,
+                                CUdeviceptr w,
+                                cudnnConvolutionDescriptor convDesc,
+                                cudnnConvolutionFwdAlgo algo,
+                                CUdeviceptr workSpace,
+                                SizeT workSpaceSizeInBytes,
+                                ref double alpha2,
+                                cudnnTensorDescriptor zDesc,
+                                CUdeviceptr z,
+                                cudnnTensorDescriptor biasDesc,
+                                CUdeviceptr bias,
+                                cudnnActivationDescriptor activationDesc,
+                                cudnnTensorDescriptor yDesc,
+                                CUdeviceptr y);
+
+        /// <summary>
+        /// This function computes the convolution gradient with respect to the bias, which is the
+        /// sum of every element belonging to the same feature map across all of the images of the
+        /// input tensor. Therefore, the number of elements produced is equal to the number of
+        /// features maps of the input tensor.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dbDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="db">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardBias(cudnnHandle handle,
 																	  ref float alpha,
-																	  cudnnTensorDescriptor srcDesc,
-																	  CUdeviceptr srcData,
+																	  cudnnTensorDescriptor dyDesc,
+																	  CUdeviceptr dy,
 																	  ref float beta,
-																	  cudnnTensorDescriptor destDesc,
-																	  CUdeviceptr destData
+																	  cudnnTensorDescriptor dbDesc,
+																	  CUdeviceptr db
 															  );
-		/// <summary>
-		/// This function computes the convolution gradient with respect to the bias, which is the
-		/// sum of every element belonging to the same feature map across all of the images of the
-		/// input tensor. Therefore, the number of elements produced is equal to the number of
-		/// features maps of the input tensor.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function computes the convolution gradient with respect to the bias, which is the
+        /// sum of every element belonging to the same feature map across all of the images of the
+        /// input tensor. Therefore, the number of elements produced is equal to the number of
+        /// features maps of the input tensor.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dbDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="db">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardBias(cudnnHandle handle,
 																	  ref double alpha,
-																	  cudnnTensorDescriptor srcDesc,
-																	  CUdeviceptr srcData,
+																	  cudnnTensorDescriptor dyDesc,
+																	  CUdeviceptr dy,
 																	  ref double beta,
-																	  cudnnTensorDescriptor destDesc,
-																	  CUdeviceptr destData
+																	  cudnnTensorDescriptor dbDesc,
+																	  CUdeviceptr db
 															  );
 
 
@@ -1102,19 +1401,19 @@ namespace ManagedCuda.CudaDNN
 		/// written in sorted fashion where the first element has the lowest compute time. 
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
 		/// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
 		/// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
 		/// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnFindConvolutionBackwardFilterAlgorithm( cudnnHandle     handle,
-                                                                       cudnnTensorDescriptor          srcDesc,
-                                                                       cudnnTensorDescriptor          diffDesc,
+                                                                       cudnnTensorDescriptor          xDesc,
+                                                                       cudnnTensorDescriptor          dyDesc,
                                                                        cudnnConvolutionDescriptor     convDesc, 
-                                                                       cudnnFilterDescriptor          gradDesc,
+                                                                       cudnnFilterDescriptor          dwDesc,
                                                                        int                              requestedAlgoCount,
                                                                        ref int                          returnedAlgoCount,
                                                                        cudnnConvolutionBwdFilterAlgoPerf[] perfResults   
@@ -1156,30 +1455,30 @@ namespace ManagedCuda.CudaDNN
                                         ref cudnnConvolutionBwdFilterAlgoPerf perfResults,
                                         CUdeviceptr workSpace,
                                         SizeT                               workSpaceSizeInBytes );
-                                          
+
         /// <summary>
         /// This function serves as a heuristic for obtaining the best suited algorithm for
-		/// cudnnConvolutionBackwardFilter for the given layer specifications. Based
-		/// on the input preference, this function will either return the fastest algorithm or the
-		/// fastest algorithm within a given memory limit. For an exhaustive search for the fastest
-		/// algorithm, please use cudnnFindConvolutionBackwardFilterAlgorithm.
+        /// cudnnConvolutionBackwardFilter for the given layer specifications. Based
+        /// on the input preference, this function will either return the fastest algorithm or the
+        /// fastest algorithm within a given memory limit. For an exhaustive search for the fastest
+        /// algorithm, please use cudnnFindConvolutionBackwardFilterAlgorithm.
         /// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
         /// <param name="preference">Enumerant to express the preference criteria in terms of memory requirement and speed.</param>
         /// <param name="memoryLimitInbytes">It is to specify the maximum amount of GPU memory the user is willing to 
-		/// use as a workspace. This is currently a placeholder and is not used.</param>
+        /// use as a workspace. This is currently a placeholder and is not used.</param>
         /// <param name="algo">Enumerant that specifies which convolution algorithm should be used to
-		/// compute the results according to the specified preference</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// compute the results according to the specified preference</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionBackwardFilterAlgorithm( cudnnHandle             handle,
-                                                                      cudnnTensorDescriptor          srcDesc,
-                                                                      cudnnTensorDescriptor          diffDesc,
+                                                                      cudnnTensorDescriptor          xDesc,
+                                                                      cudnnTensorDescriptor          dyDesc,
                                                                       cudnnConvolutionDescriptor     convDesc, 
-                                                                      cudnnFilterDescriptor          gradDesc,
+                                                                      cudnnFilterDescriptor          dwDesc,
                                                                       cudnnConvolutionBwdFilterPreference  preference,
                                                                       SizeT                                memoryLimitInbytes,
                                                                       ref cudnnConvolutionBwdFilterAlgo algo
@@ -1187,28 +1486,28 @@ namespace ManagedCuda.CudaDNN
 
 
 
-		/// <summary>
-		/// This function returns the amount of GPU memory workspace the user needs
-		/// to allocate to be able to call cudnnConvolutionBackwardFilter_v3 with the
-		/// specified algorithm. The workspace allocated will then be passed to the routine
-		/// cudnnConvolutionBackwardFilter. The specified algorithm can be the result
-		/// of the call to cudnnGetConvolutionBackwardFilterAlgorithm or can be chosen
-		/// arbitrarily by the user. Note that not every algorithm is available for every configuration
-		/// of the input tensor and/or every configuration of the convolution descriptor.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="algo">Enumerant that specifies the chosen convolution algorithm
-		/// sizeInBytes output Amount of GPU memory needed as workspace to be able to execute</param>
-		/// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a
-		/// forward convolution with the specified algo</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function returns the amount of GPU memory workspace the user needs
+        /// to allocate to be able to call cudnnConvolutionBackwardFilter_v3 with the
+        /// specified algorithm. The workspace allocated will then be passed to the routine
+        /// cudnnConvolutionBackwardFilter. The specified algorithm can be the result
+        /// of the call to cudnnGetConvolutionBackwardFilterAlgorithm or can be chosen
+        /// arbitrarily by the user. Note that not every algorithm is available for every configuration
+        /// of the input tensor and/or every configuration of the convolution descriptor.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="algo">Enumerant that specifies the chosen convolution algorithm
+        /// sizeInBytes output Amount of GPU memory needed as workspace to be able to execute</param>
+        /// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a
+        /// forward convolution with the specified algo</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionBackwardFilterWorkspaceSize( cudnnHandle          handle, 
-																				  cudnnTensorDescriptor       srcDesc,
-																				  cudnnTensorDescriptor       diffDesc,
+																				  cudnnTensorDescriptor       xDesc,
+																				  cudnnTensorDescriptor       dyDesc,
 																				  cudnnConvolutionDescriptor  convDesc,  
 																				  cudnnFilterDescriptor       gradDesc,
 																				  cudnnConvolutionBwdFilterAlgo     algo,
@@ -1225,10 +1524,10 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="diffData">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
+		/// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+		/// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+		/// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+		/// <param name="dy">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
 		/// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
 		/// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
@@ -1239,23 +1538,23 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="gradData">Data pointer to GPU memory associated with the filter descriptor
+		/// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="dw">Data pointer to GPU memory associated with the filter descriptor
 		/// gradDesc that carries the result.</param>    
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardFilter( cudnnHandle                 handle,
 																	 ref float alpha,
-																	 cudnnTensorDescriptor       srcDesc,
-																	 CUdeviceptr srcData,
-																	 cudnnTensorDescriptor       diffDesc,
-																	 CUdeviceptr diffData,
+																	 cudnnTensorDescriptor       xDesc,
+																	 CUdeviceptr x,
+																	 cudnnTensorDescriptor       dyDesc,
+																	 CUdeviceptr dy,
 																	 cudnnConvolutionDescriptor  convDesc,
 																	 cudnnConvolutionBwdFilterAlgo     algo,
 																	 CUdeviceptr workSpace,
 																	 SizeT                              workSpaceSizeInBytes,
 																	 ref float beta,
-																	 cudnnFilterDescriptor       gradDesc,
-																	 CUdeviceptr gradData
+																	 cudnnFilterDescriptor       dwDesc,
+																	 CUdeviceptr dw
 																   );
 
         /// <summary>
@@ -1268,10 +1567,10 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDesc">Handle to a previously initialized tensor descriptor.</param>
-        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-        /// <param name="diffData">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
+        /// <param name="xDesc">Handle to a previously initialized tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
         /// <param name="convDesc">Previously initialized convolution descriptor.</param>
         /// <param name="algo">Enumerant that specifies which convolution algorithm shoud be used to compute the results</param>
         /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
@@ -1282,23 +1581,23 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="gradDesc">Handle to a previously initialized filter descriptor.</param>
-        /// <param name="gradData">Data pointer to GPU memory associated with the filter descriptor
+        /// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="dw">Data pointer to GPU memory associated with the filter descriptor
         /// gradDesc that carries the result.</param>    
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnConvolutionBackwardFilter(cudnnHandle handle,
                                                                      ref double alpha,
-                                                                     cudnnTensorDescriptor srcDesc,
-                                                                     CUdeviceptr srcData,
-                                                                     cudnnTensorDescriptor diffDesc,
-                                                                     CUdeviceptr diffData,
+                                                                     cudnnTensorDescriptor xDesc,
+                                                                     CUdeviceptr x,
+                                                                     cudnnTensorDescriptor dyDesc,
+                                                                     CUdeviceptr dy,
                                                                      cudnnConvolutionDescriptor convDesc,
                                                                      cudnnConvolutionBwdFilterAlgo algo,
                                                                      CUdeviceptr workSpace,
                                                                      SizeT workSpaceSizeInBytes,
                                                                      ref double beta,
-                                                                     cudnnFilterDescriptor gradDesc,
-                                                                     CUdeviceptr gradData
+                                                                     cudnnFilterDescriptor dwDesc,
+                                                                     CUdeviceptr dw
                                                                    );
 
 
@@ -1309,19 +1608,19 @@ namespace ManagedCuda.CudaDNN
         /// in sorted fashion where the first element has the lowest compute time.
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN context.</param>
-        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-        /// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
         /// <param name="convDesc">Previously initialized convolution descriptor.</param>
-        /// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
         /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
         /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
         /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnFindConvolutionBackwardDataAlgorithm( cudnnHandle handle,
-                                                                     cudnnFilterDescriptor       filterDesc,
-                                                                     cudnnTensorDescriptor       diffDesc,
+                                                                     cudnnFilterDescriptor       wDesc,
+                                                                     cudnnTensorDescriptor       dyDesc,
                                                                      cudnnConvolutionDescriptor  convDesc, 
-                                                                     cudnnTensorDescriptor       gradDesc,
+                                                                     cudnnTensorDescriptor       dxDesc,
                                                                      int                           requestedAlgoCount,
                                                                      ref int                               returnedAlgoCount,
                                                                      cudnnConvolutionBwdDataAlgoPerf[] perfResults  
@@ -1335,10 +1634,10 @@ namespace ManagedCuda.CudaDNN
 		/// algorithm, please use cudnnFindConvolutionBackwardDataAlgorithm.
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+		/// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
 		/// <param name="preference">Enumerant to express the preference criteria in terms of memory
 		/// requirement and speed.</param>
 		/// <param name="memoryLimitInbytes">It is to specify the maximum amount of GPU memory the user is willing to
@@ -1347,10 +1646,10 @@ namespace ManagedCuda.CudaDNN
 		/// compute the results according to the specified preference</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionBackwardDataAlgorithm( cudnnHandle handle,
-																	   cudnnFilterDescriptor       filterDesc,
-																	   cudnnTensorDescriptor       diffDesc,
+																	   cudnnFilterDescriptor       wDesc,
+																	   cudnnTensorDescriptor       dyDesc,
 																	   cudnnConvolutionDescriptor  convDesc, 
-																	   cudnnTensorDescriptor       gradDesc,
+																	   cudnnTensorDescriptor       dxDesc,
 																	   cudnnConvolutionBwdDataPreference preference, 
 																	   SizeT                              memoryLimitInbytes,
 																	   ref cudnnConvolutionBwdDataAlgo algo
@@ -1366,106 +1665,106 @@ namespace ManagedCuda.CudaDNN
 		/// input tensor and/or every configuration of the convolution descriptor.
 		/// </summary>
 		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+		/// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+		/// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
 		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
 		/// <param name="algo">Enumerant that specifies the chosen convolution algorithm</param>
 		/// <param name="sizeInBytes">Amount of GPU memory needed as workspace to be able to execute a forward convolution with the specified algo</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetConvolutionBackwardDataWorkspaceSize( cudnnHandle handle,
-																		   cudnnFilterDescriptor      filterDesc,
-																		   cudnnTensorDescriptor       diffDesc,
+																		   cudnnFilterDescriptor      wDesc,
+																		   cudnnTensorDescriptor       dyDesc,
 																		   cudnnConvolutionDescriptor convDesc,  
-																		   cudnnTensorDescriptor       gradDesc,
+																		   cudnnTensorDescriptor       dxDesc,
 																		   cudnnConvolutionBwdDataAlgo          algo,
 																		   ref SizeT                            sizeInBytes
-																		);        
+																		);
 
         /// <summary>
         /// This function computes the convolution gradient with respect to the output tensor using
-		/// the specified algo, returning results in gradDesc. Scaling factors alpha and beta can
-		/// be used to scale the input tensor and the output tensor respectively.
+        /// the specified algo, returning results in gradDesc. Scaling factors alpha and beta can
+        /// be used to scale the input tensor and the output tensor respectively.
         /// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
         /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-        /// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-        /// <param name="diffData">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
         /// <param name="algo">Enumerant that specifies which backward data convolution algorithm shoud be used to compute the results</param>
         /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
-		/// the specified algorithm. If no workspace is needed for a particular
-		/// algorithm, that pointer can be nil</param>
-		/// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
-        /// <param name="gradData">Data pointer to GPU memory associated with the output tensor descriptor
-		/// gradDesc that carries the result.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// the specified algorithm. If no workspace is needed for a particular
+        /// algorithm, that pointer can be nil</param>
+        /// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor
+        /// gradDesc that carries the result.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardData( cudnnHandle handle,
 																 ref float alpha,
-																 cudnnFilterDescriptor       filterDesc,
-																 CUdeviceptr filterData,
-																 cudnnTensorDescriptor       diffDesc,
-																 CUdeviceptr diffData,
+																 cudnnFilterDescriptor       wDesc,
+																 CUdeviceptr w,
+																 cudnnTensorDescriptor       dyDesc,
+																 CUdeviceptr dy,
 																 cudnnConvolutionDescriptor  convDesc,
 																 cudnnConvolutionBwdDataAlgo           algo,
 																 CUdeviceptr workSpace,
 																 SizeT                              workSpaceSizeInBytes,
 																 ref float beta,
-																 cudnnTensorDescriptor       gradDesc,
-																 CUdeviceptr gradData
+																 cudnnTensorDescriptor       dxDesc,
+																 CUdeviceptr dx
 															   );
 
-		/// <summary>
-		/// This function computes the convolution gradient with respect to the output tensor using
-		/// the specified algo, returning results in gradDesc. Scaling factors alpha and beta can
-		/// be used to scale the input tensor and the output tensor respectively.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="filterData">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
-		/// <param name="diffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="diffData">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="algo">Enumerant that specifies which backward data convolution algorithm shoud be used to compute the results</param>
-		/// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
-		/// the specified algorithm. If no workspace is needed for a particular
-		/// algorithm, that pointer can be nil</param>
-		/// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="gradDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="gradData">Data pointer to GPU memory associated with the output tensor descriptor
-		/// gradDesc that carries the result.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function computes the convolution gradient with respect to the output tensor using
+        /// the specified algo, returning results in gradDesc. Scaling factors alpha and beta can
+        /// be used to scale the input tensor and the output tensor respectively.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor filterDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the input differential tensor descriptor diffDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="algo">Enumerant that specifies which backward data convolution algorithm shoud be used to compute the results</param>
+        /// <param name="workSpace">Data pointer to GPU memory to a workspace needed to able to execute
+        /// the specified algorithm. If no workspace is needed for a particular
+        /// algorithm, that pointer can be nil</param>
+        /// <param name="workSpaceSizeInBytes">Specifies the size in bytes of the provided workSpace</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor
+        /// gradDesc that carries the result.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnConvolutionBackwardData( cudnnHandle handle,
 																 ref double alpha,
-																 cudnnFilterDescriptor       filterDesc,
-																 CUdeviceptr filterData,
-																 cudnnTensorDescriptor       diffDesc,
-																 CUdeviceptr diffData,
+																 cudnnFilterDescriptor       wDesc,
+																 CUdeviceptr w,
+																 cudnnTensorDescriptor       dyDesc,
+																 CUdeviceptr dy,
 																 cudnnConvolutionDescriptor  convDesc,
 																 cudnnConvolutionBwdDataAlgo           algo,
 																 CUdeviceptr workSpace,
 																 SizeT                              workSpaceSizeInBytes,
 																 ref double beta,
-																 cudnnTensorDescriptor       gradDesc,
-																 CUdeviceptr gradData
+																 cudnnTensorDescriptor       dxDesc,
+																 CUdeviceptr dx
 															   );
 
 
@@ -1474,9 +1773,9 @@ namespace ManagedCuda.CudaDNN
 		/// </summary>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnIm2Col(  cudnnHandle handle,
-												cudnnTensorDescriptor srcDesc,
-												CUdeviceptr srcData,
-												cudnnFilterDescriptor filterDesc,                                        
+												cudnnTensorDescriptor xDesc,
+												CUdeviceptr x,
+												cudnnFilterDescriptor wDesc,                                        
 												cudnnConvolutionDescriptor convDesc,
 												CUdeviceptr colBuffer
 											 );
@@ -1484,36 +1783,36 @@ namespace ManagedCuda.CudaDNN
 
 
 
-		/* Softmax functions: All of the form "output = alpha * Op(inputs) + beta * output" */
+        /* Softmax functions: All of the form "output = alpha * Op(inputs) + beta * output" */
 
-		/// <summary>
-		/// This routine computes the softmax function.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
-		/// <param name="mode">Enumerant to specify the softmax mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This routine computes the softmax function.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
+        /// <param name="mode">Enumerant to specify the softmax mode.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSoftmaxForward(  cudnnHandle handle,
 														cudnnSoftmaxAlgorithm algorithm,
 														cudnnSoftmaxMode mode,
 														ref float alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref float beta,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y
 													 );
 		/// <summary>
 		/// This routine computes the softmax function.
@@ -1525,92 +1824,92 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+		/// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSoftmaxForward(  cudnnHandle handle,
 														cudnnSoftmaxAlgorithm algorithm,
 														cudnnSoftmaxMode mode,
 														ref double alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref double beta,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y
 													 );
 
-		/// <summary>
-		/// This routine computes the gradient of the softmax function.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
-		/// <param name="mode">Enumerant to specify the softmax mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This routine computes the gradient of the softmax function.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
+        /// <param name="mode">Enumerant to specify the softmax mode.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSoftmaxBackward( cudnnHandle handle,
 														cudnnSoftmaxAlgorithm algorithm,
 														cudnnSoftmaxMode mode,
 														ref float alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
-														cudnnTensorDescriptor srcDiffDesc,
-														CUdeviceptr srcDiffData,
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y,
+														cudnnTensorDescriptor dyDesc,
+														CUdeviceptr dy,
 														ref float beta,
-														cudnnTensorDescriptor destDiffDesc,
-														CUdeviceptr destDiffData
+														cudnnTensorDescriptor dxDesc,
+														CUdeviceptr dx
 													  );
 
-		/// <summary>
-		/// This routine computes the gradient of the softmax function.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
-		/// <param name="mode">Enumerant to specify the softmax mode.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This routine computes the gradient of the softmax function.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="algorithm">Enumerant to specify the softmax algorithm.</param>
+        /// <param name="mode">Enumerant to specify the softmax mode.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnSoftmaxBackward( cudnnHandle handle,
 														cudnnSoftmaxAlgorithm algorithm,
 														cudnnSoftmaxMode mode,
 														ref double alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
-														cudnnTensorDescriptor srcDiffDesc,
-														CUdeviceptr srcDiffData,
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y,
+														cudnnTensorDescriptor dyDesc,
+														CUdeviceptr dy,
 														ref double beta,
-														cudnnTensorDescriptor destDiffDesc,
-														CUdeviceptr destDiffData
+														cudnnTensorDescriptor dxDesc,
+														CUdeviceptr dx
 													  );
 
 		/// <summary>
@@ -1731,17 +2030,17 @@ namespace ManagedCuda.CudaDNN
 		/// </summary>
 		/// <param name="poolingDesc">Handle to a previously inititalized pooling descriptor.</param>
 		/// <param name="inputTensorDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="outN">Number of images in the output</param>
-		/// <param name="outC">Number of channels in the output</param>
-		/// <param name="outH">Height of images in the output</param>
-		/// <param name="outW">Width of images in the output</param>
+		/// <param name="n">Number of images in the output</param>
+		/// <param name="c">Number of channels in the output</param>
+		/// <param name="h">Height of images in the output</param>
+		/// <param name="w">Width of images in the output</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnGetPooling2dForwardOutputDim( cudnnPoolingDescriptor poolingDesc,
 																	 cudnnTensorDescriptor inputTensorDesc,
-																	 ref int outN,
-																	 ref int outC,
-																	 ref int outH,
-																	 ref int outW);
+																	 ref int n,
+																	 ref int c,
+																	 ref int h,
+																	 ref int w);
 
 
 		/// <summary>
@@ -1750,35 +2049,35 @@ namespace ManagedCuda.CudaDNN
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDestroyPoolingDescriptor( cudnnPoolingDescriptor poolingDesc );
 
-		/* Pooling functions: All of the form "output = alpha * Op(inputs) + beta * output" */
+        /* Pooling functions: All of the form "output = alpha * Op(inputs) + beta * output" */
 
-		/// <summary>
-		/// This function computes pooling of input values (i.e., the maximum or average of several
-		/// adjacent values) to produce an output with smaller height and/or width.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="poolingDesc">Handle to a previously initialized pooling descriptor.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function computes pooling of input values (i.e., the maximum or average of several
+        /// adjacent values) to produce an output with smaller height and/or width.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="poolingDesc">Handle to a previously initialized pooling descriptor.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnPoolingForward(  cudnnHandle handle,
 														cudnnPoolingDescriptor poolingDesc,
 														ref float alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref float beta,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y
 													 );
 
 		/// <summary>
@@ -1791,94 +2090,94 @@ namespace ManagedCuda.CudaDNN
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+		/// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
 		/// result with prior value in the output layer as follows: dstValue =
 		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
 		/// additional details.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+		/// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+		/// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnPoolingForward(  cudnnHandle handle,
 														cudnnPoolingDescriptor poolingDesc,
 														ref double alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref double beta,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y
 													 );
 
-		/// <summary>
-		/// This function computes the gradient of a pooling operation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="poolingDesc">Handle to the previously initialized pooling descriptor.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function computes the gradient of a pooling operation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="poolingDesc">Handle to the previously initialized pooling descriptor.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="xDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnPoolingBackward( cudnnHandle handle,
 														cudnnPoolingDescriptor poolingDesc,
 														ref float alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
-														cudnnTensorDescriptor srcDiffDesc,
-														CUdeviceptr srcDiffData,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData,
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y,
+														cudnnTensorDescriptor dyDesc,
+														CUdeviceptr dy,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref float beta,
-														cudnnTensorDescriptor destDiffDesc,
-														CUdeviceptr destDiffData
+														cudnnTensorDescriptor dxDesc,
+														CUdeviceptr dx
 													  );
-		/// <summary>
-		/// This function computes the gradient of a pooling operation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="poolingDesc">Handle to the previously initialized pooling descriptor.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-		/// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
-		/// result with prior value in the output layer as follows: dstValue =
-		/// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
-		/// additional details.</param>
-		/// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-		/// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function computes the gradient of a pooling operation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="poolingDesc">Handle to the previously initialized pooling descriptor.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="xDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
+        /// result with prior value in the output layer as follows: dstValue =
+        /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
+        /// additional details.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnPoolingBackward( cudnnHandle handle,
 														cudnnPoolingDescriptor poolingDesc,
 														ref double alpha,
-														cudnnTensorDescriptor srcDesc,
-														CUdeviceptr srcData,
-														cudnnTensorDescriptor srcDiffDesc,
-														CUdeviceptr srcDiffData,
-														cudnnTensorDescriptor destDesc,
-														CUdeviceptr destData,
+														cudnnTensorDescriptor yDesc,
+														CUdeviceptr y,
+														cudnnTensorDescriptor dyDesc,
+														CUdeviceptr dy,
+														cudnnTensorDescriptor xDesc,
+														CUdeviceptr x,
 														ref double beta,
-														cudnnTensorDescriptor destDiffDesc,
-														CUdeviceptr destDiffData
+														cudnnTensorDescriptor dxDesc,
+														CUdeviceptr dx
 													  );
 
 
@@ -1896,13 +2195,15 @@ namespace ManagedCuda.CudaDNN
         /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
         /// <param name="mode">Enumerant to specify the activation mode.</param>
         /// <param name="reluNanOpt">Nan propagation option for the relu.</param>
-        /// <param name="reluCeiling">The ceiling for the clipped relu.</param>
+        /// <param name="coef">floating point number to specify the clipping threashold when the activation
+        /// mode is set to CUDNN_ACTIVATION_CLIPPED_RELU or to specify the alpha
+        /// coefficient when the activation mode is set to CUDNN_ACTIVATION_ELU.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnSetActivationDescriptor(
                                         cudnnActivationDescriptor activationDesc,
                                         cudnnActivationMode mode,
                                         cudnnNanPropagation reluNanOpt,
-                                        double reluCeiling);
+                                        double coef); /* ceiling for clipped RELU, alpha for ELU */
 
         /// <summary>
         /// This function queries the parameters of the previouly initialized activation descriptor object.
@@ -1910,13 +2211,15 @@ namespace ManagedCuda.CudaDNN
         /// <param name="activationDesc">Handle to the previously created activation descriptor object.</param>
         /// <param name="mode">Enumerant to specify the activation mode.</param>
         /// <param name="reluNanOpt">Nan propagation option for the relu.</param>
-        /// <param name="reluCeiling">The ceiling for the clipped relu.</param>
+        /// <param name="coef">floating point number to specify the clipping threashold when the activation
+        /// mode is set to CUDNN_ACTIVATION_CLIPPED_RELU or to specify the alpha
+        /// coefficient when the activation mode is set to CUDNN_ACTIVATION_ELU.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetActivationDescriptor(
                                 cudnnActivationDescriptor activationDesc,
                                 ref cudnnActivationMode              mode,
                                 ref cudnnNanPropagation reluNanOpt,
-                                ref double reluCeiling );
+                                ref double coef); /* ceiling for clipped RELU, alpha for ELU */
 
         /// <summary>
         /// This function destroys a previously created activation descriptor object.
@@ -1934,23 +2237,23 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnActivationForward( cudnnHandle handle,
 														  cudnnActivationDescriptor activationDesc,
 														  ref float alpha,
-														  cudnnTensorDescriptor srcDesc,
-														  CUdeviceptr srcData,
+														  cudnnTensorDescriptor xDesc,
+														  CUdeviceptr x,
 														  ref float beta,
-														  cudnnTensorDescriptor destDesc,
-														  CUdeviceptr destData
+														  cudnnTensorDescriptor yDesc,
+														  CUdeviceptr y
 														);
         /// <summary>
         /// This routine applies a specified neuron activation function element-wise over each input value.
@@ -1961,23 +2264,23 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnActivationForward( cudnnHandle handle,
                                                           cudnnActivationDescriptor activationDesc,
                                                           ref double alpha,
-														  cudnnTensorDescriptor srcDesc,
-														  CUdeviceptr srcData,
+														  cudnnTensorDescriptor xDesc,
+														  CUdeviceptr x,
 														  ref double beta,
-														  cudnnTensorDescriptor destDesc,
-														  CUdeviceptr destData
+														  cudnnTensorDescriptor yDesc,
+														  CUdeviceptr y
 														);
 
         /// <summary>
@@ -1989,31 +2292,31 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-        /// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-        /// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="xDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-        /// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnActivationBackward( cudnnHandle handle,
                                                            cudnnActivationDescriptor activationDesc,
                                                            ref float alpha,
-														   cudnnTensorDescriptor srcDesc,
-														   CUdeviceptr srcData,
-														   cudnnTensorDescriptor srcDiffDesc,
-														   CUdeviceptr srcDiffData,
-														   cudnnTensorDescriptor destDesc,
-														   CUdeviceptr destData,
+														   cudnnTensorDescriptor yDesc,
+														   CUdeviceptr y,
+														   cudnnTensorDescriptor dyDesc,
+														   CUdeviceptr dy,
+														   cudnnTensorDescriptor xDesc,
+														   CUdeviceptr x,
 														   ref float beta,
-														   cudnnTensorDescriptor destDiffDesc,
-														   CUdeviceptr destDiffData
+														   cudnnTensorDescriptor dxDesc,
+														   CUdeviceptr dx
 														 );
 
         /// <summary>
@@ -2025,31 +2328,31 @@ namespace ManagedCuda.CudaDNN
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-        /// <param name="srcData">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
-        /// <param name="srcDiffDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-        /// <param name="srcDiffData">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
-        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-        /// <param name="destData">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
+        /// <param name="yDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor srcDiffData.</param>
+        /// <param name="xDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>
         /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the computation
         /// result with prior value in the output layer as follows: dstValue =
         /// alpha[0]*result + beta[0]*priorDstValue. Please refer to this section for
         /// additional details.</param>
-        /// <param name="destDiffDesc">Handle to the previously initialized output differential tensor descriptor.</param>
-        /// <param name="destDiffData">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output differential tensor descriptor.</param>
+        /// <param name="dx">Data pointer to GPU memory associated with the output tensor descriptor destDiffDesc.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnActivationBackward( cudnnHandle handle,
                                                            cudnnActivationDescriptor activationDesc,
                                                            ref double alpha,
-														   cudnnTensorDescriptor srcDesc,
-														   CUdeviceptr srcData,
-														   cudnnTensorDescriptor srcDiffDesc,
-														   CUdeviceptr srcDiffData,
-														   cudnnTensorDescriptor destDesc,
-														   CUdeviceptr destData,
+														   cudnnTensorDescriptor yDesc,
+														   CUdeviceptr y,
+														   cudnnTensorDescriptor dyDesc,
+														   CUdeviceptr dy,
+														   cudnnTensorDescriptor xDesc,
+														   CUdeviceptr x,
 														   ref double beta,
-														   cudnnTensorDescriptor destDiffDesc,
-														   CUdeviceptr destDiffData
+														   cudnnTensorDescriptor dxDesc,
+														   CUdeviceptr dx
 														 );
 
 
@@ -2135,25 +2438,25 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor objects for the input and output tensors.</param>
-		/// <param name="srcData">Input tensor data pointer in device memory.</param>
+		/// <param name="xDesc">Tensor descriptor objects for the input and output tensors.</param>
+		/// <param name="x">Input tensor data pointer in device memory.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="destDesc">Tensor descriptor objects for the input and output tensors.</param>
-		/// <param name="destData">Output tensor data pointer in device memory.</param>
+		/// <param name="yDesc">Tensor descriptor objects for the input and output tensors.</param>
+		/// <param name="y">Output tensor data pointer in device memory.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelForward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref float alpha,
-									  cudnnTensorDescriptor    srcDesc,
-									  CUdeviceptr srcData,
+									  cudnnTensorDescriptor    xDesc,
+									  CUdeviceptr x,
 									  ref float beta,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData);
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y);
 		/// <summary>
 		/// This function performs the forward LRN layer computation.
 		/// </summary>
@@ -2166,140 +2469,140 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor objects for the input and output tensors.</param>
-		/// <param name="srcData">Input tensor data pointer in device memory.</param>
+		/// <param name="xDesc">Tensor descriptor objects for the input and output tensors.</param>
+		/// <param name="x">Input tensor data pointer in device memory.</param>
 		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="destDesc">Tensor descriptor objects for the input and output tensors.</param>
-		/// <param name="destData">Output tensor data pointer in device memory.</param>
+		/// <param name="yDesc">Tensor descriptor objects for the input and output tensors.</param>
+		/// <param name="y">Output tensor data pointer in device memory.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelForward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref double alpha,
-									  cudnnTensorDescriptor    srcDesc,
-									  CUdeviceptr srcData,
+									  cudnnTensorDescriptor    xDesc,
+									  CUdeviceptr x,
 									  ref double beta,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData);
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y);
 
-		/// <summary>
-		/// This function performs the backward LRN layer computation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
-		/// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor.</param>
-		/// <param name="lrnMode">LRN layer mode of operation. Currently only
-		/// CUDNN_LRN_CROSS_CHANNEL_DIM1 is implemented. Normalization is
-		/// performed along the tensor's dimA[1].</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph during
-		/// inference).</param>
-		/// <param name="srcData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph during
-		/// inference).</param>
-		/// <param name="srcDiffDesc">Tensor descriptor and pointer in device memory for the top layer's
-		/// cumulative loss differential data (error backpropagation). (Top layer is the
-		/// later layer in the computation graph during inference).</param>
-		/// <param name="srcDiffData">Tensor descriptor and pointer in device memory for the top layer's
-		/// cumulative loss differential data (error backpropagation). (Top layer is the
-		/// later layer in the computation graph during inference).</param>
-		/// <param name="destDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph
-		/// during inference). Note that these values are not modified during
-		/// backpropagation.</param>
-		/// <param name="destData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph
-		/// during inference). Note that these values are not modified during
-		/// backpropagation.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="destDiffDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// cumulative loss differential data (error backpropagation). (Bottom layer is
-		/// the earlier layer in the computation graph during inference).</param>
-		/// <param name="destDiffData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// cumulative loss differential data (error backpropagation). (Bottom layer is
-		/// the earlier layer in the computation graph during inference).</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function performs the backward LRN layer computation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor.</param>
+        /// <param name="lrnMode">LRN layer mode of operation. Currently only
+        /// CUDNN_LRN_CROSS_CHANNEL_DIM1 is implemented. Normalization is
+        /// performed along the tensor's dimA[1].</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="yDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph during
+        /// inference).</param>
+        /// <param name="y">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph during
+        /// inference).</param>
+        /// <param name="dyDesc">Tensor descriptor and pointer in device memory for the top layer's
+        /// cumulative loss differential data (error backpropagation). (Top layer is the
+        /// later layer in the computation graph during inference).</param>
+        /// <param name="dy">Tensor descriptor and pointer in device memory for the top layer's
+        /// cumulative loss differential data (error backpropagation). (Top layer is the
+        /// later layer in the computation graph during inference).</param>
+        /// <param name="xDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph
+        /// during inference). Note that these values are not modified during
+        /// backpropagation.</param>
+        /// <param name="x">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph
+        /// during inference). Note that these values are not modified during
+        /// backpropagation.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="dxDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// cumulative loss differential data (error backpropagation). (Bottom layer is
+        /// the earlier layer in the computation graph during inference).</param>
+        /// <param name="dx">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// cumulative loss differential data (error backpropagation). (Bottom layer is
+        /// the earlier layer in the computation graph during inference).</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref float alpha,
-									  cudnnTensorDescriptor    srcDesc,
-									  CUdeviceptr srcData,
-									  cudnnTensorDescriptor    srcDiffDesc,
-									  CUdeviceptr srcDiffData,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData,
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y,
+									  cudnnTensorDescriptor    dyDesc,
+									  CUdeviceptr dy,
+									  cudnnTensorDescriptor    xDesc,
+									  CUdeviceptr x,
 									  ref float beta,
-									  cudnnTensorDescriptor    destDiffDesc,
-									  CUdeviceptr destDiffData);
-		/// <summary>
-		/// This function performs the backward LRN layer computation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
-		/// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor.</param>
-		/// <param name="lrnMode">LRN layer mode of operation. Currently only
-		/// CUDNN_LRN_CROSS_CHANNEL_DIM1 is implemented. Normalization is
-		/// performed along the tensor's dimA[1].</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph during
-		/// inference).</param>
-		/// <param name="srcData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph during
-		/// inference).</param>
-		/// <param name="srcDiffDesc">Tensor descriptor and pointer in device memory for the top layer's
-		/// cumulative loss differential data (error backpropagation). (Top layer is the
-		/// later layer in the computation graph during inference).</param>
-		/// <param name="srcDiffData">Tensor descriptor and pointer in device memory for the top layer's
-		/// cumulative loss differential data (error backpropagation). (Top layer is the
-		/// later layer in the computation graph during inference).</param>
-		/// <param name="destDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph
-		/// during inference). Note that these values are not modified during
-		/// backpropagation.</param>
-		/// <param name="destData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// data. (Bottom layer is the earlier layer in the computation graph
-		/// during inference). Note that these values are not modified during
-		/// backpropagation.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="destDiffDesc">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// cumulative loss differential data (error backpropagation). (Bottom layer is
-		/// the earlier layer in the computation graph during inference).</param>
-		/// <param name="destDiffData">Tensor descriptor and pointer in device memory for the bottom layer's
-		/// cumulative loss differential data (error backpropagation). (Bottom layer is
-		/// the earlier layer in the computation graph during inference).</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+									  cudnnTensorDescriptor    dxDesc,
+									  CUdeviceptr dx);
+        /// <summary>
+        /// This function performs the backward LRN layer computation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor.</param>
+        /// <param name="lrnMode">LRN layer mode of operation. Currently only
+        /// CUDNN_LRN_CROSS_CHANNEL_DIM1 is implemented. Normalization is
+        /// performed along the tensor's dimA[1].</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="yDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph during
+        /// inference).</param>
+        /// <param name="y">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph during
+        /// inference).</param>
+        /// <param name="dyDesc">Tensor descriptor and pointer in device memory for the top layer's
+        /// cumulative loss differential data (error backpropagation). (Top layer is the
+        /// later layer in the computation graph during inference).</param>
+        /// <param name="dy">Tensor descriptor and pointer in device memory for the top layer's
+        /// cumulative loss differential data (error backpropagation). (Top layer is the
+        /// later layer in the computation graph during inference).</param>
+        /// <param name="xDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph
+        /// during inference). Note that these values are not modified during
+        /// backpropagation.</param>
+        /// <param name="x">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// data. (Bottom layer is the earlier layer in the computation graph
+        /// during inference). Note that these values are not modified during
+        /// backpropagation.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="dxDesc">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// cumulative loss differential data (error backpropagation). (Bottom layer is
+        /// the earlier layer in the computation graph during inference).</param>
+        /// <param name="dx">Tensor descriptor and pointer in device memory for the bottom layer's
+        /// cumulative loss differential data (error backpropagation). (Bottom layer is
+        /// the earlier layer in the computation graph during inference).</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnLRNCrossChannelBackward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnLRNMode                   lrnMode,
 									  ref double alpha,
-									  cudnnTensorDescriptor    srcDesc,
-									  CUdeviceptr srcData,
-									  cudnnTensorDescriptor    srcDiffDesc,
-									  CUdeviceptr srcDiffData,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData,
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y,
+									  cudnnTensorDescriptor    dyDesc,
+									  CUdeviceptr dy,
+									  cudnnTensorDescriptor    xDesc,
+									  CUdeviceptr x,
 									  ref double beta,
-									  cudnnTensorDescriptor    destDiffDesc,
-									  CUdeviceptr destDiffData);
+									  cudnnTensorDescriptor    dxDesc,
+									  CUdeviceptr dx);
 
 		
 
@@ -2317,20 +2620,20 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor objects for the input and output tensors. Note that
+		/// <param name="xDesc">Tensor descriptor objects for the input and output tensors. Note that
 		/// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
 		/// tensors.</param>
-		/// <param name="srcData">Input tensor data pointer in device memory.</param>
-		/// <param name="srcMeansData">Input means tensor data pointer in device memory. Note that this tensor
+		/// <param name="x">Input tensor data pointer in device memory.</param>
+		/// <param name="means">Input means tensor data pointer in device memory. Note that this tensor
 		/// can be NULL (in that case it's values are assumed to be zero during the
 		/// computation). This tensor also doesn't have to contain means, these can
 		/// be any values, a frequently used variation is a result of convolution with a
 		/// normalized positive kernel (such as Gaussian).</param>
-		/// <param name="tempData">Temporary tensors in device memory. These are used for computing
+		/// <param name="temp">Temporary tensors in device memory. These are used for computing
 		/// intermediate values during the forward pass. These tensors do not have
 		/// to be preserved as inputs from forward to the backward pass. Both use
 		/// srcDesc as a descriptor.</param>
-		/// <param name="tempData2">Temporary tensors in device memory. These are used for computing
+		/// <param name="temp2">Temporary tensors in device memory. These are used for computing
 		/// intermediate values during the forward pass. These tensors do not have
 		/// to be preserved as inputs from forward to the backward pass. Both use
 		/// srcDesc as a descriptor.</param>
@@ -2338,220 +2641,220 @@ namespace ManagedCuda.CudaDNN
 		/// value with prior value in the destination tensor as follows: dstValue =
 		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
 		/// for additional details.</param>
-		/// <param name="destDesc">Tensor descriptor objects for the input and output tensors. Note that
+		/// <param name="yDesc">Tensor descriptor objects for the input and output tensors. Note that
 		/// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
 		/// tensors.</param>
-		/// <param name="destData">Pointer in device memory to a tensor for the result of the forward DivisiveNormalization pass.</param>
+		/// <param name="y">Pointer in device memory to a tensor for the result of the forward DivisiveNormalization pass.</param>
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref float alpha,
-									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
-									  CUdeviceptr srcData,
-									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
-									  CUdeviceptr tempData,
-									  CUdeviceptr tempData2,
+									  cudnnTensorDescriptor    xDesc, // same desc for means, temp, temp2
+									  CUdeviceptr x,
+									  CUdeviceptr means, // if NULL, means are assumed to be zero
+									  CUdeviceptr temp,
+									  CUdeviceptr temp2,
 									  ref float beta,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y
 									  );
 
-		/// <summary>
-		/// This function performs the forward DivisiveNormalization layer computation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
-		/// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor. This descriptor
-		/// is used for both LRN and DivisiveNormalization layers.</param>
-		/// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
-		/// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
-		/// is performed using the means input tensor that is expected to be
-		/// precomputed by the user.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor objects for the input and output tensors. Note that
-		/// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
-		/// tensors.</param>
-		/// <param name="srcData">Input tensor data pointer in device memory.</param>
-		/// <param name="srcMeansData">Input means tensor data pointer in device memory. Note that this tensor
-		/// can be NULL (in that case it's values are assumed to be zero during the
-		/// computation). This tensor also doesn't have to contain means, these can
-		/// be any values, a frequently used variation is a result of convolution with a
-		/// normalized positive kernel (such as Gaussian).</param>
-		/// <param name="tempData">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the forward pass. These tensors do not have
-		/// to be preserved as inputs from forward to the backward pass. Both use
-		/// srcDesc as a descriptor.</param>
-		/// <param name="tempData2">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the forward pass. These tensors do not have
-		/// to be preserved as inputs from forward to the backward pass. Both use
-		/// srcDesc as a descriptor.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="destDesc">Tensor descriptor objects for the input and output tensors. Note that
-		/// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
-		/// tensors.</param>
-		/// <param name="destData">Pointer in device memory to a tensor for the result of the forward DivisiveNormalization pass.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function performs the forward DivisiveNormalization layer computation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor. This descriptor
+        /// is used for both LRN and DivisiveNormalization layers.</param>
+        /// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
+        /// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
+        /// is performed using the means input tensor that is expected to be
+        /// precomputed by the user.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="xDesc">Tensor descriptor objects for the input and output tensors. Note that
+        /// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
+        /// tensors.</param>
+        /// <param name="x">Input tensor data pointer in device memory.</param>
+        /// <param name="means">Input means tensor data pointer in device memory. Note that this tensor
+        /// can be NULL (in that case it's values are assumed to be zero during the
+        /// computation). This tensor also doesn't have to contain means, these can
+        /// be any values, a frequently used variation is a result of convolution with a
+        /// normalized positive kernel (such as Gaussian).</param>
+        /// <param name="temp">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the forward pass. These tensors do not have
+        /// to be preserved as inputs from forward to the backward pass. Both use
+        /// srcDesc as a descriptor.</param>
+        /// <param name="temp2">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the forward pass. These tensors do not have
+        /// to be preserved as inputs from forward to the backward pass. Both use
+        /// srcDesc as a descriptor.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="yDesc">Tensor descriptor objects for the input and output tensors. Note that
+        /// srcDesc is shared between srcData, srcMeansData, tempData, tempData2
+        /// tensors.</param>
+        /// <param name="y">Pointer in device memory to a tensor for the result of the forward DivisiveNormalization pass.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationForward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref double alpha,
-									  cudnnTensorDescriptor    srcDesc, // same desc for means, temp, temp2
-									  CUdeviceptr srcData,
-									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
-									  CUdeviceptr tempData,
-									  CUdeviceptr tempData2,
+									  cudnnTensorDescriptor    xDesc, // same desc for means, temp, temp2
+									  CUdeviceptr x,
+									  CUdeviceptr means, // if NULL, means are assumed to be zero
+									  CUdeviceptr temp,
+									  CUdeviceptr temp2,
 									  ref double beta,
-									  cudnnTensorDescriptor    destDesc,
-									  CUdeviceptr destData
+									  cudnnTensorDescriptor    yDesc,
+									  CUdeviceptr y
 									  );
 
-		/// <summary>
-		/// This function performs the backward DivisiveNormalization layer computation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
-		/// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor (this descriptor
-		/// is used for both LRN and DivisiveNormalization layers).</param>
-		/// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
-		/// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
-		/// is performed using the means input tensor that is expected to be
-		/// precomputed by the user.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcData">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcMeansData">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcDiffData">Tensor pointer in device memory for the top layer's cumulative loss
-		/// differential data (error backpropagation). (Top layer is the later layer in
-		/// the computation graph during inference).</param>
-		/// <param name="tempData">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the backward pass. These tensors do not have
-		/// to be preserved from forward to backward pass. Both use srcDesc as a
-		/// descriptor.</param>
-		/// <param name="tempData2">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the backward pass. These tensors do not have
-		/// to be preserved from forward to backward pass. Both use srcDesc as a
-		/// descriptor.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="destDataDesc">Tensor descriptor for destDataDiff and destMeansDiff.</param>
-		/// <param name="destDataDiff">Tensor pointers (in device memory) for the bottom layer's resulting
-		/// differentials (data and means). Both share the same descriptor.</param>
-		/// <param name="destMeansDiff">Tensor pointers (in device memory) for the bottom layer's resulting
-		/// differentials (data and means). Both share the same descriptor.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function performs the backward DivisiveNormalization layer computation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor (this descriptor
+        /// is used for both LRN and DivisiveNormalization layers).</param>
+        /// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
+        /// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
+        /// is performed using the means input tensor that is expected to be
+        /// precomputed by the user.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="xDesc">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="x">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="means">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="dy">Tensor pointer in device memory for the top layer's cumulative loss
+        /// differential data (error backpropagation). (Top layer is the later layer in
+        /// the computation graph during inference).</param>
+        /// <param name="temp">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the backward pass. These tensors do not have
+        /// to be preserved from forward to backward pass. Both use srcDesc as a
+        /// descriptor.</param>
+        /// <param name="temp2">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the backward pass. These tensors do not have
+        /// to be preserved from forward to backward pass. Both use srcDesc as a
+        /// descriptor.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="dXdMeansDesc">Tensor descriptor for destDataDiff and destMeansDiff.</param>
+        /// <param name="dx">Tensor pointers (in device memory) for the bottom layer's resulting
+        /// differentials (data and means). Both share the same descriptor.</param>
+        /// <param name="dMeans">Tensor pointers (in device memory) for the bottom layer's resulting
+        /// differentials (data and means). Both share the same descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref float alpha,
-									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
-									  CUdeviceptr srcData,
-									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
-									  CUdeviceptr srcDiffData,
-									  CUdeviceptr tempData,
-									  CUdeviceptr tempData2,
+									  cudnnTensorDescriptor    xDesc, // same desc for diff, means, temp, temp2
+									  CUdeviceptr x,
+									  CUdeviceptr means, // if NULL, means are assumed to be zero
+									  CUdeviceptr dy,
+									  CUdeviceptr temp,
+									  CUdeviceptr temp2,
 									  ref float beta,
-									  cudnnTensorDescriptor    destDataDesc, // same desc for dest, means, meansDiff
-									  CUdeviceptr destDataDiff, // output data differential
-									  CUdeviceptr destMeansDiff // output means differential, can be NULL
+									  cudnnTensorDescriptor    dXdMeansDesc, // same desc for dest, means, meansDiff
+									  CUdeviceptr dx, // output data differential
+									  CUdeviceptr dMeans // output means differential, can be NULL
 									  );
 
 
-		/// <summary>
-		/// This function performs the backward DivisiveNormalization layer computation.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
-		/// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor (this descriptor
-		/// is used for both LRN and DivisiveNormalization layers).</param>
-		/// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
-		/// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
-		/// is performed using the means input tensor that is expected to be
-		/// precomputed by the user.</param>
-		/// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="srcDesc">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcData">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcMeansData">Tensor descriptor and pointers in device memory for the bottom layer's
-		/// data and means. (Bottom layer is the earlier layer in the computation
-		/// graph during inference). Note: the means tensor is expected to be
-		/// precomputed by the user. It can also contain any valid values (not required
-		/// to be actual means, and can be for instance a result of a convolution with
-		/// a Gaussian kernel).</param>
-		/// <param name="srcDiffData">Tensor pointer in device memory for the top layer's cumulative loss
-		/// differential data (error backpropagation). (Top layer is the later layer in
-		/// the computation graph during inference).</param>
-		/// <param name="tempData">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the backward pass. These tensors do not have
-		/// to be preserved from forward to backward pass. Both use srcDesc as a
-		/// descriptor.</param>
-		/// <param name="tempData2">Temporary tensors in device memory. These are used for computing
-		/// intermediate values during the backward pass. These tensors do not have
-		/// to be preserved from forward to backward pass. Both use srcDesc as a
-		/// descriptor.</param>
-		/// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
-		/// value with prior value in the destination tensor as follows: dstValue =
-		/// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
-		/// for additional details.</param>
-		/// <param name="destDataDesc">Tensor descriptor for destDataDiff and destMeansDiff.</param>
-		/// <param name="destDataDiff">Tensor pointers (in device memory) for the bottom layer's resulting
-		/// differentials (data and means). Both share the same descriptor.</param>
-		/// <param name="destMeansDiff">Tensor pointers (in device memory) for the bottom layer's resulting
-		/// differentials (data and means). Both share the same descriptor.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// This function performs the backward DivisiveNormalization layer computation.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="normDesc">Handle to a previously intialized LRN parameter descriptor (this descriptor
+        /// is used for both LRN and DivisiveNormalization layers).</param>
+        /// <param name="mode">DivisiveNormalization layer mode of operation. Currently only
+        /// CUDNN_DIVNORM_PRECOMPUTED_MEANS is implemented. Normalization
+        /// is performed using the means input tensor that is expected to be
+        /// precomputed by the user.</param>
+        /// <param name="alpha">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="xDesc">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="x">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="means">Tensor descriptor and pointers in device memory for the bottom layer's
+        /// data and means. (Bottom layer is the earlier layer in the computation
+        /// graph during inference). Note: the means tensor is expected to be
+        /// precomputed by the user. It can also contain any valid values (not required
+        /// to be actual means, and can be for instance a result of a convolution with
+        /// a Gaussian kernel).</param>
+        /// <param name="dy">Tensor pointer in device memory for the top layer's cumulative loss
+        /// differential data (error backpropagation). (Top layer is the later layer in
+        /// the computation graph during inference).</param>
+        /// <param name="temp">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the backward pass. These tensors do not have
+        /// to be preserved from forward to backward pass. Both use srcDesc as a
+        /// descriptor.</param>
+        /// <param name="temp2">Temporary tensors in device memory. These are used for computing
+        /// intermediate values during the backward pass. These tensors do not have
+        /// to be preserved from forward to backward pass. Both use srcDesc as a
+        /// descriptor.</param>
+        /// <param name="beta">Pointer to scaling factors (in host memory) used to blend the layer output
+        /// value with prior value in the destination tensor as follows: dstValue =
+        /// alpha[0]*resultValue + beta[0]*priorDstValue. Please refer to this section
+        /// for additional details.</param>
+        /// <param name="dXdMeansDesc">Tensor descriptor for destDataDiff and destMeansDiff.</param>
+        /// <param name="dx">Tensor pointers (in device memory) for the bottom layer's resulting
+        /// differentials (data and means). Both share the same descriptor.</param>
+        /// <param name="dMeans">Tensor pointers (in device memory) for the bottom layer's resulting
+        /// differentials (data and means). Both share the same descriptor.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnDivisiveNormalizationBackward(
 									  cudnnHandle                    handle,
 									  cudnnLRNDescriptor             normDesc,
 									  cudnnDivNormMode               mode,
 									  ref double alpha,
-									  cudnnTensorDescriptor    srcDesc, // same desc for diff, means, temp, temp2
-									  CUdeviceptr srcData,
-									  CUdeviceptr srcMeansData, // if NULL, means are assumed to be zero
-									  CUdeviceptr srcDiffData,
-									  CUdeviceptr tempData,
-									  CUdeviceptr tempData2,
+									  cudnnTensorDescriptor    xDesc, // same desc for diff, means, temp, temp2
+									  CUdeviceptr x,
+									  CUdeviceptr means, // if NULL, means are assumed to be zero
+									  CUdeviceptr dy,
+									  CUdeviceptr temp,
+									  CUdeviceptr temp2,
 									  ref double beta,
-									  cudnnTensorDescriptor    destDataDesc, // same desc for dest, means, meansDiff
-									  CUdeviceptr destDataDiff, // output data differential
-									  CUdeviceptr destMeansDiff // output means differential, can be NULL
+									  cudnnTensorDescriptor    dXdMeansDesc, // same desc for dest, means, meansDiff
+									  CUdeviceptr dx, // output data differential
+									  CUdeviceptr dMeans // output means differential, can be NULL
 									  );
 
 
@@ -2586,10 +2889,10 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="bnBias"></param>
 		/// <param name="exponentialAverageFactor"></param>
 		/// <param name="resultRunningMean"></param>
-		/// <param name="resultRunningInvVariance"></param>
+		/// <param name="resultRunningVariance"></param>
 		/// <param name="epsilon"></param>
 		/// <param name="resultSaveMean"></param>
-		/// <param name="resultSaveInvVariance"></param>
+		/// <param name="resultSaveVariance"></param>
 		/// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnBatchNormalizationForwardTraining(
@@ -2632,7 +2935,7 @@ namespace ManagedCuda.CudaDNN
                                 CUdeviceptr resultRunningMean,
                                 /* Output in training mode, input in inference. Is the moving average
                                    of 1 / sqrt( epsilon + variance[x] ) */
-                                CUdeviceptr resultRunningInvVariance,
+                                CUdeviceptr resultRunningVariance,
 
                                 /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and backward functions. */
                                 double epsilon,
@@ -2640,7 +2943,7 @@ namespace ManagedCuda.CudaDNN
                                 /* Optionally save intermediate results from the forward pass here
                                    - can be reused to speed up backward pass. NULL if unused */
                                 CUdeviceptr resultSaveMean,
-                                CUdeviceptr resultSaveInvVariance );
+                                CUdeviceptr resultSaveVariance );
 
 		/// <summary>
 		/// 
@@ -2658,10 +2961,10 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="bnBias"></param>
 		/// <param name="exponentialAverageFactor"></param>
 		/// <param name="resultRunningMean"></param>
-		/// <param name="resultRunningInvVariance"></param>
+		/// <param name="resultRunningVariance"></param>
 		/// <param name="epsilon"></param>
 		/// <param name="resultSaveMean"></param>
-		/// <param name="resultSaveInvVariance"></param>
+		/// <param name="resultSaveVariance"></param>
 		/// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnBatchNormalizationForwardTraining(
@@ -2704,7 +3007,7 @@ namespace ManagedCuda.CudaDNN
                         CUdeviceptr resultRunningMean,
                         /* Output in training mode, input in inference. Is the moving average
                            of 1 / sqrt( epsilon + variance[x] ) */
-                        CUdeviceptr resultRunningInvVariance,
+                        CUdeviceptr resultRunningVariance,
 
                         /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and backward functions. */
                         double epsilon,
@@ -2712,7 +3015,7 @@ namespace ManagedCuda.CudaDNN
                         /* Optionally save intermediate results from the forward pass here
                            - can be reused to speed up backward pass. NULL if unused */
                         CUdeviceptr resultSaveMean,
-                        CUdeviceptr resultSaveInvVariance);
+                        CUdeviceptr resultSaveVariance);
 
 
         /// <summary>
@@ -2734,7 +3037,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="bnScale"></param>
         /// <param name="bnBias"></param>
         /// <param name="estimatedMean"></param>
-        /// <param name="estimatedInvVariance"></param>
+        /// <param name="estimatedVariance"></param>
         /// <param name="epsilon"></param>
         /// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
@@ -2751,7 +3054,7 @@ namespace ManagedCuda.CudaDNN
                                         CUdeviceptr bnScale,
                                         CUdeviceptr bnBias,
                                         CUdeviceptr estimatedMean,
-                                        CUdeviceptr estimatedInvVariance,
+                                        CUdeviceptr estimatedVariance,
                                         double epsilon);
 
 		/// <summary>
@@ -2769,7 +3072,7 @@ namespace ManagedCuda.CudaDNN
 		/// <param name="bnScale"></param>
 		/// <param name="bnBias"></param>
 		/// <param name="estimatedMean"></param>
-		/// <param name="estimatedInvVariance"></param>
+		/// <param name="estimatedVariance"></param>
 		/// <param name="epsilon"></param>
 		/// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
@@ -2786,7 +3089,7 @@ namespace ManagedCuda.CudaDNN
                                         CUdeviceptr bnScale,
                                         CUdeviceptr bnBias,
                                         CUdeviceptr estimatedMean,
-                                        CUdeviceptr estimatedInvVariance,
+                                        CUdeviceptr estimatedVariance,
                                         double epsilon );
 
         /// <summary>
@@ -3177,6 +3480,70 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnDestroyRNNDescriptor(cudnnRNNDescriptor rnnDesc);
 
+        // Expensive. Creates the plan for the specific settings.
+        /// <summary>
+        /// This function creates a plan to execute persistent RNNs when using the
+        /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC algo.This plan is tailored to the current GPU
+        /// and problem hyperparemeters. This function call is expected to be expensive in terms of
+        /// runtime, and should be used infrequently.
+        /// </summary>
+        /// <param name="rnnDesc"></param>
+        /// <param name="minibatch"></param>
+        /// <param name="dataType"></param>
+        /// <param name="plan"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreatePersistentRNNPlan(cudnnRNNDescriptor rnnDesc,
+                                             int minibatch,
+                                             cudnnDataType dataType,
+                                             ref cudnnPersistentRNNPlan plan);
+
+        /// <summary>
+        /// This function sets the persistent RNN plan to be executed when using rnnDesc and
+        /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC algo.
+        /// </summary>
+        /// <param name="rnnDesc"></param>
+        /// <param name="plan"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetPersistentRNNPlan(cudnnRNNDescriptor rnnDesc,
+                                          cudnnPersistentRNNPlan plan);
+
+        /// <summary>
+        /// This function destroys a previously created persistent RNN plan object.
+        /// </summary>
+        /// <param name="plan"></param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyPersistentRNNPlan(cudnnPersistentRNNPlan plan);
+
+
+        /// <summary>
+        /// This function initializes a previously created RNN descriptor object.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
+        /// <param name="rnnDesc">A previously created RNN descriptor.</param>
+        /// <param name="hiddenSize">Size of the internal hidden state for each layer.</param>
+        /// <param name="numLayers">Number of stacked layers.</param>
+        /// <param name="dropoutDesc">Handle to a previously created and initialized dropout descriptor.
+        /// Dropout will be applied between layers(eg.a single layer network will have no dropout applied).</param>
+        /// <param name="inputMode">Specifies the behavior at the input to the first layer</param>
+        /// <param name="direction">Specifies the recurrence pattern. (eg. bidirectional)</param>
+        /// <param name="mode">Specifies the type of RNN to compute.</param>
+        /// <param name="algo">Specifies which RNN algorithm should be used to compute the results.</param>
+        /// <param name="dataType">Compute precision.</param>
+        [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnSetRNNDescriptor_v6")]
+        public static extern cudnnStatus cudnnSetRNNDescriptor(cudnnHandle handle,
+                                                        cudnnRNNDescriptor rnnDesc,
+                                                int hiddenSize,
+                                                int numLayers,
+                                                cudnnDropoutDescriptor dropoutDesc, // Between layers, not between recurrent steps.
+                                                cudnnRNNInputMode inputMode,
+                                                cudnnDirectionMode direction, 
+                                                cudnnRNNMode mode,
+                                                cudnnRNNAlgo algo, 
+                                                cudnnDataType dataType);
+
+
+
+
         /// <summary>
         /// This function initializes a previously created RNN descriptor object.
         /// </summary>
@@ -3209,11 +3576,13 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as workspace to be able to execute an RNN with the specified descriptor and input tensors.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNWorkspaceSize(cudnnHandle handle,
                                                     cudnnRNNDescriptor rnnDesc,
+                                                    int seqLength,
                                                     cudnnTensorDescriptor[] xDesc,
                                                     ref SizeT                     sizeInBytes
                                                     );
@@ -3225,11 +3594,13 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as reserve space to be able to train an RNN with the specified descriptor and input tensors.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNTrainingReserveSize(cudnnHandle handle,
                                                           cudnnRNNDescriptor rnnDesc,
+                                                          int seqLength,
                                                           cudnnTensorDescriptor[] xDesc,
                                                           ref SizeT                     sizeInBytes
                                                     );
@@ -3240,14 +3611,15 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as parameter space to be able to execute an RNN with the specified descriptor and input tensors.</param>
+        /// <param name="dataType">The data type of the parameters.</param>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetRNNParamsSize(cudnnHandle handle,
                                                  cudnnRNNDescriptor rnnDesc,
-                                                 cudnnTensorDescriptor[] xDesc,
-                                                 ref SizeT                     sizeInBytes
-                                                    );
+                                                 cudnnTensorDescriptor xDesc,
+                                                 ref SizeT                     sizeInBytes,
+                                                 cudnnDataType dataType);
 
         /// <summary>
         /// This function is used to obtain a pointer and descriptor for the matrix parameters in layer within 
@@ -3256,7 +3628,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -3281,7 +3653,7 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnGetRNNLinLayerMatrixParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             cudnnTensorDescriptor[] xDesc,
+                             cudnnTensorDescriptor xDesc,
                              cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
@@ -3296,7 +3668,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="handle">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="rnnDesc">A previously initialized RNN descriptor.</param>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -3321,7 +3693,7 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnGetRNNLinLayerBiasParams(cudnnHandle handle,
                              cudnnRNNDescriptor rnnDesc,
                              int layer,
-                             cudnnTensorDescriptor[] xDesc,
+                             cudnnTensorDescriptor xDesc,
                              cudnnFilterDescriptor wDesc,
                              CUdeviceptr w,
                              int linLayerID,
@@ -3350,24 +3722,38 @@ namespace ManagedCuda.CudaDNN
         /// fully packed.</param>
         /// <param name="hx">Data pointer to GPU memory associated with the tensor descriptor hxDesc. If a NULL pointer 
         /// is passed, the initial hidden state of the network will be initialized to zero.</param>
-        /// <param name="cxDesc">Handle to a previously initialized tensor descriptor describing the initial cell 
-        /// state for LSTM networks. The first dimension of the tensor must match the hiddenSize argument passed to 
-        /// the cudnnSetRNNDescriptor call used to initialize rnnDesc. The second dimension must match the second 
-        /// dimension of the first tensor described in xDesc. The third dimension must match the numLayers argument 
-        /// passed to the cudnnSetRNNDescriptor call used to initialize rnnDesc. The tensor must be fully packed.</param>
-        /// <param name="cx">Data pointer to GPU memory associated with the tensor descriptor cxDesc. If a NULL 
-        /// pointer is passed, the initial cell state of the network will be initialized to zero.</param>
+        /// <param name="cxDesc">A fully packed tensor descriptor describing the initial cell state for
+        /// LSTM networks.The first dimension of the tensor depends on the
+        /// direction argument passed to the cudnnSetRNNDescriptor call
+        /// used to initialize rnnDesc:
+        /// ‣ If direction is CUDNN_UNIDIRECTIONAL the first
+        ///   dimension should match the numLayers argument passed to
+        ///   cudnnSetRNNDescriptor.
+        /// ‣ If direction is CUDNN_BIDIRECTIONAL the first dimension
+        ///   should match double the numLayers argument passed to
+        ///   cudnnSetRNNDescriptor.
+        /// The second dimension must match the first dimension of the
+        /// tensors described in xDesc.The third dimension must match the
+        /// hiddenSize argument passed to the cudnnSetRNNDescriptor call
+        /// used to initialize rnnDesc. The tensor must be fully packed.</param>
+        /// <param name="cx">Data pointer to GPU memory associated with the tensor descriptor
+        /// cxDesc.If a NULL pointer is passed, the initial cell state of the network will be initialized to zero.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
-        /// <param name="yDesc">An array of tensor descriptors describing the output from each recurrent iteration. 
-        /// The first dimension of the tensor depends on the direction argument passed to the cudnnSetRNNDescriptor 
-        /// call used to initialize rnnDesc:
-        /// * If direction is CUDNN_UNIDIRECTIONAL the first dimension should match the hiddenSize 
-        /// argument passed to cudnnSetRNNDescriptor.
-        /// * If direction is CUDNN_BIDIRECTIONAL the first dimension should match double the hiddenSize 
-        /// argument passed to cudnnSetRNNDescriptor.
-        /// The second dimension of the tensor n must match the second dimension of the tensor n in xDesc. 
-        /// The tensor must be fully packed.</param>
+        /// <param name="yDesc">A fully packed tensor descriptor describing the final cell state for
+        /// LSTM networks.The first dimension of the tensor depends on the
+        /// direction argument passed to the cudnnSetRNNDescriptor call
+        /// used to initialize rnnDesc:
+        /// ‣ If direction is CUDNN_UNIDIRECTIONAL the first
+        ///   dimension should match the numLayers argument passed to
+        ///   cudnnSetRNNDescriptor.
+        /// ‣ If direction is CUDNN_BIDIRECTIONAL the first dimension
+        ///   should match double the numLayers argument passed to
+        ///   cudnnSetRNNDescriptor.
+        /// The second dimension must match the first dimension of the
+        /// tensors described in xDesc.The third dimension must match the
+        /// hiddenSize argument passed to the cudnnSetRNNDescriptor call
+        /// used to initialize rnnDesc.The tensor must be fully packed.</param>
         /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor yDesc. The data 
         /// are expected to be packed contiguously with the first element of iteration n+1 following directly 
         /// from the last element of iteration n.</param>

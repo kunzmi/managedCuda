@@ -91,7 +91,17 @@ namespace ManagedCuda.CudaDNN
 		/// The workspace size (in bytes).
 		/// </summary>
 		public SizeT memory;
-	}
+
+        /// <summary>
+        /// The determinism of the algorithm.
+        /// </summary>
+        public cudnnDeterminism determinism;
+
+        int reserved0;
+        int reserved1;
+        int reserved2;
+        int reserved3;
+    }
 
 	/// <summary>
 	/// cudnnConvolutionBwdFilterAlgoPerf is a structure containing performance
@@ -121,7 +131,17 @@ namespace ManagedCuda.CudaDNN
 		/// The workspace size (in bytes).
 		/// </summary>
 		public SizeT memory;
-	}
+
+        /// <summary>
+        /// The determinism of the algorithm.
+        /// </summary>
+        public cudnnDeterminism determinism;
+
+        int reserved0;
+        int reserved1;
+        int reserved2;
+        int reserved3;
+    }
 
 	/// <summary>
 	/// cudnnConvolutionBwdDataAlgoPerf is a structure containing performance results
@@ -151,7 +171,17 @@ namespace ManagedCuda.CudaDNN
 		/// The workspace size (in bytes).
 		/// </summary>
 		public SizeT memory;
-	}
+
+        /// <summary>
+        /// The determinism of the algorithm.
+        /// </summary>
+        public cudnnDeterminism determinism;
+
+        int reserved0;
+        int reserved1;
+        int reserved2;
+        int reserved3;
+    }
 	#endregion
 
 	#region struct as types
@@ -279,6 +309,28 @@ namespace ManagedCuda.CudaDNN
         private IntPtr Pointer;
     }
 
+    /// <summary>
+    /// cudnnReduceTensorDescriptor_t is a pointer to an opaque structure
+    /// holding the description of a tensor reduction operation, used as a parameter to
+    /// cudnnReduceTensor(). cudnnCreateReduceTensorDescriptor() is used to create
+    /// one instance, and cudnnSetReduceTensorDescriptor() must be used to initialize this instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnReduceTensorDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// cudnnPersistentRNNPlan_t is a pointer to an opaque structure holding a plan to
+    /// execute a dynamic persistent RNN.cudnnCreatePersistentRNNPlan() is used to
+    /// create and initialize one instance.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnPersistentRNNPlan
+    {
+        private IntPtr Pointer;
+    }
     #endregion
 
     #region enums
@@ -367,7 +419,11 @@ namespace ManagedCuda.CudaDNN
 		/// environment variable NVIDIA_LICENSE_FILE is not
 		/// set properly.
 		/// </summary>
-		LicenseError = 10
+		LicenseError = 10,
+        /// <summary>
+        /// 
+        /// </summary>
+        RuntimePrerequisiteMissing = 11
 	}
 
 	/// <summary>
@@ -387,7 +443,20 @@ namespace ManagedCuda.CudaDNN
 		/// <summary>
 		/// The data is 16-bit floating point.
 		/// </summary>
-		Half = 2
+		Half = 2,
+        /// <summary>
+        /// The data is 8-bit signed integer.
+        /// </summary>
+        Int8 = 3,
+        /// <summary>
+        /// The data is 32-bit signed integer.
+        /// </summary>
+        Int32 = 4,
+        /// <summary>
+        /// The data is 32-bit element composed of 4 8-bit signed integer. This data type
+        /// is only supported with tensor format CUDNN_TENSOR_NCHW_VECT_C.
+        /// </summary>
+        Int8x4 = 5
 	}
 
     /// <summary>
@@ -424,14 +493,24 @@ namespace ManagedCuda.CudaDNN
 		/// with no padding between images, rows, columns, and features maps; the feature maps are the
 		/// inner dimension and the images are the outermost dimension.
 		/// </summary>
-		NHWC = 1    /* feature maps interleaved ( cStride = 1 )*/
-	}
+		NHWC = 1,    /* feature maps interleaved ( cStride = 1 )*/
+        /// <summary>
+        /// This tensor format specifies that the data is laid out in the following order: batch size, feature
+        /// maps, rows, columns. However, each element of the tensor is a vector of multiple feature
+        /// maps. The length of the vector is carried by the data type of the tensor. The strides are
+        /// implicitly defined in such a way that the data are contiguous in memory with no padding
+        /// between images, feature maps, rows, and columns; the columns are the inner dimension
+        /// and the images are the outermost dimension. This format is only supported with tensor data type
+        /// CUDNN_DATA_INT8x4.
+        /// </summary>
+        NCHW_VECT_C = 2    /* each image point is vector of element of C : the length of the vector is carried by the data type*/
+    }
 
-	/// <summary>
-	/// cudnnAddMode is an enumerated type used by cudnnAddTensor() to specify how a
-	/// bias tensor is added to an input/output tensor.
-	/// </summary>
-	public enum cudnnAddMode
+    /// <summary>
+    /// cudnnAddMode is an enumerated type used by cudnnAddTensor() to specify how a
+    /// bias tensor is added to an input/output tensor.
+    /// </summary>
+    public enum cudnnAddMode
 	{
 		/// <summary>
 		/// In this mode, the bias tensor is defined as one
@@ -659,7 +738,11 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// Selects the clipped rectified linear function.
         /// </summary>
-        ClippedRelu = 3
+        ClippedRelu = 3,
+        /// <summary>
+        /// Selects the exponential linear function
+        /// </summary>
+        Elu = 4
     }
 
 	/// <summary>
@@ -713,9 +796,28 @@ namespace ManagedCuda.CudaDNN
 		/// This algorithm is similar to CUDNN_CONVOLUTION_BWD_FILTER_ALGO_0 but
 		/// uses some small workspace to precomputes some indices. The results are also non-deterministic.
 		/// </summary>
-		Algo3 = 3   // non-deterministic, algo0 with workspace
+		Algo3 = 3,   // non-deterministic, algo0 with workspace
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        AlgoWinograd = 4,  // not implemented
+        /// <summary>
+        /// This algorithm uses the Winograd Transform
+        /// approach to compute the convolution. Significant
+        /// workspace may be needed to store intermediate
+        /// results. The results are deterministic.
+        /// </summary>
+        AlgoWinogradNonFused = 5,
+        /// <summary>
+        /// This algorithm uses the Fast-Fourier Transform
+        /// approach to compute the convolution but splits
+        /// the input tensor into tiles. Significant workspace
+        /// may be needed to store intermediate results. The
+        /// results are deterministic.
+        /// </summary>
+        AlgoFFTTiling = 6
 
-	}
+    }
 
 	/// <summary>
 	/// cudnnConvolutionBwdDataPreference is an enumerated type used by
@@ -854,7 +956,11 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// The operation to be performed is a maximum comparison.
         /// </summary>
-        OpTensorMax = 3
+        OpTensorMax = 3,
+        /// <summary>
+        /// 
+        /// </summary>
+        OpTensorSqrt = 4,
     }
 
     /// <summary>
@@ -958,5 +1064,168 @@ namespace ManagedCuda.CudaDNN
         SkipInput = 1
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum libraryPropertyType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        MajorVersion,
+        /// <summary>
+        /// 
+        /// </summary>
+        MinorVersion,
+        /// <summary>
+        /// 
+        /// </summary>
+        PatchLevel
+    }
+
+    /// <summary>
+    /// cudnnDeterminism_t is an enumerated type used to indicate if the computed results
+    /// are deterministic(reproducible). See section 2.5 (Reproducibility) for more details on
+    /// determinism.
+    /// </summary>
+    public enum cudnnDeterminism
+    {
+        /// <summary>
+        /// Results are not guaranteed to be reproducible
+        /// </summary>
+        NonDeterministic = 0,
+        /// <summary>
+        /// Results are guaranteed to be reproducible
+        /// </summary>
+        Deterministic = 1,
+    }
+
+    /// <summary>
+    /// cudnnReduceTensorOp is an enumerated type used to indicate the tensor operation
+    /// to be used by the cudnnReduceTensor() routine.This enumerated type is used as a
+    /// field for the cudnnReduceTensorDescriptor_t descriptor.
+    /// </summary>
+    public enum cudnnReduceTensorOp
+    {
+        /// <summary>
+        /// The operation to be performed is addition
+        /// </summary>
+        Add = 0,
+        /// <summary>
+        /// The operation to be performed is multiplication
+        /// </summary>
+        Mul = 1,
+        /// <summary>
+        /// The operation to be performed is a minimum comparison
+        /// </summary>
+        Min = 2,
+        /// <summary>
+        /// The operation to be performed is a maximum comparison
+        /// </summary>
+        Max = 3,
+        /// <summary>
+        /// The operation to be performed is a maximum comparison of absolute values
+        /// </summary>
+        AMax = 4,
+        /// <summary>
+        /// The operation to be performed is averaging
+        /// </summary>
+        Avg = 5,
+        /// <summary>
+        /// The operation to be performed is addition of absolute values
+        /// </summary>
+        Norm1 = 6,
+        /// <summary>
+        /// The operation to be performed is a square root of sum of squares
+        /// </summary>
+        Norm2 = 7,
+    }
+
+    /// <summary>
+    /// cudnnReduceTensorIndices_t is an enumerated type used to indicate whether
+    /// indices are to be computed by the cudnnReduceTensor() routine.This enumerated
+    /// type is used as a field for the cudnnReduceTensorDescriptor_t descriptor.
+    /// </summary>
+    public enum cudnnReduceTensorIndices
+    {
+        /// <summary>
+        /// Do not compute indices
+        /// </summary>
+        NoIndices = 0,
+        /// <summary>
+        /// Compute indices. The resulting indices are relative, and flattened.
+        /// </summary>
+        FlattenedIndices = 1,
+    }
+
+    /// <summary>
+    /// cudnnIndicesType_t is an enumerated type used to indicate the data type for the
+    /// indices to be computed by the cudnnReduceTensor() routine. This enumerated type is
+    /// used as a field for the cudnnReduceTensorDescriptor_t descriptor.
+    /// </summary>
+    public enum cudnnIndicesType
+    {
+        /// <summary>
+        /// Compute unsigned int indices
+        /// </summary>
+        Indices32Bit = 0,
+        /// <summary>
+        /// Compute unsigned long long indices
+        /// </summary>
+        Indices64Bit = 1,
+        /// <summary>
+        /// Compute unsigned short indices
+        /// </summary>
+        Indices16Bit = 2,
+        /// <summary>
+        /// Compute unsigned char indices
+        /// </summary>
+        Indices8Bit = 3,
+    }
+
+    /// <summary>
+    /// cudnnRNNAlgo_t is an enumerated type used to specify the algorithm used
+    /// in the cudnnRNNForwardInference(), cudnnRNNForwardTraining(),
+    /// cudnnRNNBackwardData() and cudnnRNNBackwardWeights() routines.
+    /// </summary>
+    public enum cudnnRNNAlgo
+    {
+        /// <summary>
+        /// Each RNN layer is executed as a sequence of operations. This
+        /// algorithm is expected to have robust performance across a wide
+        /// range of network parameters.
+        /// </summary>
+        Standard = 0,
+        /// <summary>
+        /// The recurrent parts of the network are executed using a persistent
+        /// kernel approach. This method is expected to be fast when the first
+        /// dimension of the input tensor is small (ie. a small minibatch).
+        /// CUDNN_RNN_ALGO_PERSIST_STATIC is only supported on devices
+        /// with compute capability >= 6.0.
+        /// </summary>
+        PersistStatic = 1,
+        /// <summary>
+        /// The recurrent parts of the network are executed using a persistent
+        /// kernel approach. This method is expected to be fast when the first
+        /// dimension of the input tensor is small (ie. a small minibatch). When
+        /// using CUDNN_RNN_ALGO_PERSIST_DYNAMIC persistent kernels are
+        /// prepared at runtime and are able to optimized using the specific
+        /// parameters of the network and active GPU.As such, when using
+        /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC a one-time plan preparation
+        /// stage must be executed.These plans can then be reused in repeated
+        /// calls with the same model parameters.<para/>
+        /// The limits on the maximum number of hidden units
+        /// supported when using CUDNN_RNN_ALGO_PERSIST_DYNAMIC
+        /// are significantly higher than the limits when using
+        /// CUDNN_RNN_ALGO_PERSIST_STATIC, however throughput is likely
+        /// to significantly reduce when exceeding the maximums supported by
+        /// CUDNN_RNN_ALGO_PERSIST_STATIC.In this regime this method will
+        /// still outperform CUDNN_RNN_ALGO_STANDARD for some cases.<para/>
+        /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC is only supported on devices
+        /// with compute capability >= 6.0 on Linux machines.
+        /// </summary>
+        PersistDynamic = 2
+    }
+    ;  
     #endregion
 }

@@ -126,12 +126,13 @@ namespace ManagedCuda.CudaDNN
         /// This function is used to query the amount of work space required to execute the RNN 
         /// described by rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as workspace to be able to execute an RNN with the specified descriptor and input tensors.</param>
-        public void GetRNNWorkspaceSize(TensorDescriptor[] xDesc, ref SizeT sizeInBytes)
+        public void GetRNNWorkspaceSize(int seqLength, TensorDescriptor[] xDesc, ref SizeT sizeInBytes)
         {
             var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNWorkspaceSize(_handle, _desc, a1, ref sizeInBytes);
+            res = CudaDNNNativeMethods.cudnnGetRNNWorkspaceSize(_handle, _desc, seqLength, a1, ref sizeInBytes);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNWorkspaceSize", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -141,15 +142,16 @@ namespace ManagedCuda.CudaDNN
         /// RNN described by rnnDesc with inputs dimensions defined by xDesc. The same reserve 
         /// space must be passed to cudnnRNNForwardTraining, cudnnRNNBackwardData and cudnnRNNBackwardWeights.
         /// </summary>
+        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as reserve space to be able to train an RNN with the specified descriptor and input tensors.</param>
-        public void GetRNNTrainingReserveSize(
+        public void GetRNNTrainingReserveSize(int seqLength,
                                                           TensorDescriptor[] xDesc,
                                                           ref SizeT sizeInBytes
                                                     )
         {
             var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNTrainingReserveSize(_handle, _desc, a1, ref sizeInBytes);
+            res = CudaDNNNativeMethods.cudnnGetRNNTrainingReserveSize(_handle, _desc, seqLength, a1, ref sizeInBytes);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNTrainingReserveSize", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -158,15 +160,15 @@ namespace ManagedCuda.CudaDNN
         /// This function is used to query the amount of parameter space required to execute the RNN described by 
         /// rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as parameter space to be able to execute an RNN with the specified descriptor and input tensors.</param>
+        /// <param name="dataType">The data type of the parameters.</param>
         public void cudnnGetRNNParamsSize(
-                                                 TensorDescriptor[] xDesc,
-                                                 ref SizeT sizeInBytes
-                                                    )
+                                                 TensorDescriptor xDesc,
+                                                 ref SizeT sizeInBytes,
+                                                 cudnnDataType dataType   )
         {
-            var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNParamsSize(_handle, _desc, a1, ref sizeInBytes);
+            res = CudaDNNNativeMethods.cudnnGetRNNParamsSize(_handle, _desc, xDesc.Desc, ref sizeInBytes, dataType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNParamsSize", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -176,7 +178,7 @@ namespace ManagedCuda.CudaDNN
         /// the RNN described by rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -199,7 +201,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="linLayerMat">Data pointer to GPU memory associated with the filter descriptor linLayerMatDesc.</param>
         public void GetRNNLinLayerMatrixParams(
                              int layer,
-                             TensorDescriptor[] xDesc,
+                             TensorDescriptor xDesc,
                              FilterDescriptor wDesc,
                              CudaDeviceVariable<float> w,
                              int linLayerID,
@@ -207,8 +209,7 @@ namespace ManagedCuda.CudaDNN
                              CudaDeviceVariable<SizeT> linLayerMat // void **
                              )
         {
-            var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerMatrixParams(_handle, _desc, layer, a1, wDesc.Desc, w.DevicePointer, linLayerID, linLayerMatDesc.Desc, linLayerMat.DevicePointer);
+            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerMatrixParams(_handle, _desc, layer, xDesc.Desc, wDesc.Desc, w.DevicePointer, linLayerID, linLayerMatDesc.Desc, linLayerMat.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNLinLayerMatrixParams", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -218,7 +219,7 @@ namespace ManagedCuda.CudaDNN
         /// the RNN described by rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -241,7 +242,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="linLayerMat">Data pointer to GPU memory associated with the filter descriptor linLayerMatDesc.</param>
         public void GetRNNLinLayerMatrixParams(
                              int layer,
-                             TensorDescriptor[] xDesc,
+                             TensorDescriptor xDesc,
                              FilterDescriptor wDesc,
                              CudaDeviceVariable<double> w,
                              int linLayerID,
@@ -249,8 +250,7 @@ namespace ManagedCuda.CudaDNN
                              CudaDeviceVariable<SizeT> linLayerMat // void **
                              )
         {
-            var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerMatrixParams(_handle, _desc, layer, a1, wDesc.Desc, w.DevicePointer, linLayerID, linLayerMatDesc.Desc, linLayerMat.DevicePointer);
+            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerMatrixParams(_handle, _desc, layer, xDesc.Desc, wDesc.Desc, w.DevicePointer, linLayerID, linLayerMatDesc.Desc, linLayerMat.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNLinLayerMatrixParams", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -260,7 +260,7 @@ namespace ManagedCuda.CudaDNN
         /// in layer within the RNN described by rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -283,7 +283,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="linLayerBias">Data pointer to GPU memory associated with the filter descriptor linLayerMatDesc.</param>
         public void GetRNNLinLayerBiasParams(
                              int layer,
-                             TensorDescriptor[] xDesc,
+                             TensorDescriptor xDesc,
                              FilterDescriptor wDesc,
                              CudaDeviceVariable<float> w,
                              int linLayerID,
@@ -291,8 +291,7 @@ namespace ManagedCuda.CudaDNN
                              CudaDeviceVariable<SizeT> linLayerBias // void **
                              )
         {
-            var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerBiasParams(_handle, _desc, layer, a1, wDesc.Desc, w.DevicePointer, linLayerID, linLayerBiasDesc.Desc, linLayerBias.DevicePointer);
+            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerBiasParams(_handle, _desc, layer, xDesc.Desc, wDesc.Desc, w.DevicePointer, linLayerID, linLayerBiasDesc.Desc, linLayerBias.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNLinLayerBiasParams", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -302,7 +301,7 @@ namespace ManagedCuda.CudaDNN
         /// in layer within the RNN described by rnnDesc with inputs dimensions defined by xDesc. 
         /// </summary>
         /// <param name="layer">The layer to query.</param>
-        /// <param name="xDesc">An array of tensor descriptors describing the input to each recurrent iteration.</param>
+        /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="wDesc">Handle to a previously initialized filter descriptor describing the weights for the RNN.</param>
         /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
         /// <param name="linLayerID">
@@ -325,7 +324,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="linLayerBias">Data pointer to GPU memory associated with the filter descriptor linLayerMatDesc.</param>
         public void GetRNNLinLayerBiasParams(
                              int layer,
-                             TensorDescriptor[] xDesc,
+                             TensorDescriptor xDesc,
                              FilterDescriptor wDesc,
                              CudaDeviceVariable<double> w,
                              int linLayerID,
@@ -333,8 +332,7 @@ namespace ManagedCuda.CudaDNN
                              CudaDeviceVariable<SizeT> linLayerBias // void **
                              )
         {
-            var a1 = xDesc.Select(x => x.Desc).ToArray();
-            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerBiasParams(_handle, _desc, layer, a1, wDesc.Desc, w.DevicePointer, linLayerID, linLayerBiasDesc.Desc, linLayerBias.DevicePointer);
+            res = CudaDNNNativeMethods.cudnnGetRNNLinLayerBiasParams(_handle, _desc, layer, xDesc.Desc, wDesc.Desc, w.DevicePointer, linLayerID, linLayerBiasDesc.Desc, linLayerBias.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNLinLayerBiasParams", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -1026,5 +1024,16 @@ namespace ManagedCuda.CudaDNN
         }
 
 
+        /// <summary>
+        /// This function sets the persistent RNN plan to be executed when using rnnDesc and
+        /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC algo.
+        /// </summary>
+        /// <param name="plan"></param>
+        public void SetPersistentRNNPlan(PersistentRNNPlan plan)
+        {
+            res = CudaDNNNativeMethods.cudnnSetPersistentRNNPlan(_desc, plan.Plan);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetPersistentRNNPlan", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
     }
 }
