@@ -45,7 +45,29 @@ namespace ManagedCuda.VectorTypes
 		}
 	}
 
-	/// <summary>
+    /// <summary>
+    /// Define alignment metadata according to CUDA C++ structures
+    /// This can be used in automatic code generation to create correctly sized structures
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Struct)]
+    public class Align : Attribute
+    {
+        /// <summary>
+        /// Create an alignment with specified size
+        /// </summary>
+        /// <param name="size">Size of the structure alignment in bytes</param>
+        public Align(int size)
+        {
+            Size = size;
+        }
+
+        /// <summary>
+        /// The alignment size of the structure in bytes.
+        /// </summary>
+        int Size;
+    }
+
+    /// <summary>
 	/// Define a common interface for all CUDA vector types supported by CudaArrays
 	/// </summary>
 	public interface ICudaVectorTypeForArray
@@ -3328,6 +3350,7 @@ namespace ManagedCuda.VectorTypes
 	/// <summary>
 	/// char2
 	/// </summary>
+    [Align(2)]
 	[StructLayout(LayoutKind.Sequential)]
 	public struct char2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
@@ -4228,10 +4251,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// char4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// char4
+    /// </summary>
+    [Align(4)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct char4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -5183,10 +5207,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// uchar2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// uchar2
+    /// </summary>
+    [Align(2)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct uchar2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -6086,10 +6111,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// uchar4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// uchar4
+    /// </summary>
+    [Align(4)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct uchar4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -7043,10 +7069,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// short2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// short2
+    /// </summary>
+    [Align(4)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct short2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -7952,10 +7979,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// short4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// short4
+    /// </summary>
+    [Align(8)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct short4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -8912,10 +8940,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// ushort2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// ushort2
+    /// </summary>
+    [Align(4)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct ushort2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -9821,10 +9850,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// 
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// 
+    /// </summary>
+    [Align(8)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct ushort4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -10781,10 +10811,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// int2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// int2
+    /// </summary>
+    [Align(8)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct int2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -11690,10 +11721,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// int4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// int4
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct int4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -12650,10 +12682,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// uint2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// uint2
+    /// </summary>
+    [Align(8)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct uint2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -13559,10 +13592,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// uint4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// uint4
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct uint4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -14501,10 +14535,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// long2. long stands here for the long .NET type, i.e. long long or a 64bit long in C++/CUDA
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// long2. long stands here for the long .NET type, i.e. long long or a 64bit long in C++/CUDA
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct long2 : ICudaVectorType
 	{
 		/// <summary>
@@ -15392,10 +15427,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// long4. long stands here for the long .NET type, i.e. long long or a 64bit long in C++/CUDA
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// long4. long stands here for the long .NET type, i.e. long long or a 64bit long in C++/CUDA
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct long4 : ICudaVectorType
 	{
 		/// <summary>
@@ -16316,10 +16352,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// ulong2. ulong stands here for the ulong .NET type, i.e. unsigned long long or a 64bit unsigned long in C++/CUDA
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// ulong2. ulong stands here for the ulong .NET type, i.e. unsigned long long or a 64bit unsigned long in C++/CUDA
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct ulong2 : ICudaVectorType
 	{
 		/// <summary>
@@ -17207,10 +17244,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// ulong4. ulong stands here for the ulong .NET type, i.e. unsigned long long or a 64bit unsigned long in C++/CUDA
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// ulong4. ulong stands here for the ulong .NET type, i.e. unsigned long long or a 64bit unsigned long in C++/CUDA
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct ulong4 : ICudaVectorType
 	{
 		/// <summary>
@@ -18149,10 +18187,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// float2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// float2
+    /// </summary>
+    [Align(8)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct float2 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -19177,10 +19216,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// float4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// float4
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct float4 : ICudaVectorType, ICudaVectorTypeForArray
 	{
 		/// <summary>
@@ -20119,10 +20159,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// double2
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// double2
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct double2 : ICudaVectorType
 	{
 		/// <summary>
@@ -21130,10 +21171,11 @@ namespace ManagedCuda.VectorTypes
 		#endregion
 	}
 
-	/// <summary>
-	/// double4
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// double4
+    /// </summary>
+    [Align(16)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct double4 : ICudaVectorType
 	{
 		/// <summary>
