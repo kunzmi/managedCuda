@@ -19,6 +19,7 @@
         <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl.html</PackageLicenseUrl>
         <PackageProjectUrl>http://kunzmi.github.io/managedCuda/</PackageProjectUrl>
         <PackageTags>gpu cuda</PackageTags>
+        <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>
     </PropertyGroup>
 
   <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">

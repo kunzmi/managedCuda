@@ -51,6 +51,7 @@ Temporary Items
 
 */bin
 */obj
+/Packages
 
 # Files containing private data
 NuGetPackage.ps1
