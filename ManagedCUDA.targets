@@ -22,7 +22,7 @@
     </PropertyGroup>
 
   <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">
-    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true" ContinueOnError="WarnAndContinue">
+    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true" ContinueOnError="WarnAndContinue" StandardOutputImportance="Low">
       <Output TaskParameter="ConsoleOutput" PropertyName="Rev" />
     </Exec>    
     <PropertyGroup Condition="'$(MSBuildLastTaskResult)' == 'False'">

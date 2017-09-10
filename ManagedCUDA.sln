@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCuda", "ManagedCUDA\ManagedCuda.csproj", "{F5A866CC-151E-472A-8020-75F62D74D687}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCuda", "ManagedCUDA\ManagedCUDA.csproj", "{F5A866CC-151E-472A-8020-75F62D74D687}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPP", "NPP\NPP.csproj", "{BC77F366-EEC7-43FD-83DE-F487F0B1C5A3}"
 EndProject

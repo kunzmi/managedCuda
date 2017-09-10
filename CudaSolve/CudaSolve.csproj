@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../ManagedCUDA/ManagedCUDA.csproj" />
+    <ProjectReference Include="../CudaBlas/CudaBlas.csproj" />
+    <ProjectReference Include="../CudaSparse/CudaSparse.csproj" />
   </ItemGroup>
 
   <ItemGroup>

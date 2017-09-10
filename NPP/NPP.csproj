@@ -1,24 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <Import Project="../ManagedCUDA.targets" />
-
   <PropertyGroup>
     <PackageId>ManagedCuda-NPP</PackageId>
     <title>ManagedCuda $(BaseVersion) NPP</title>
-    <description>managedCuda-wrapper for NPP, only for x64-platform</description>   
-
+    <description>managedCuda-wrapper for NPP, only for x64-platform</description>
     <RootNamespace>ManagedCuda.NPP</RootNamespace>
     <AssemblyName>NPP</AssemblyName>
     <ProjectGuid>{BC77F366-EEC7-43FD-83DE-F487F0B1C5A3}</ProjectGuid>
     <Platform>x64</Platform>
-    <SignAssembly>false</SignAssembly>  
-    <PublicSign>false</PublicSign>    
+    <SignAssembly>false</SignAssembly>
+    <PublicSign>false</PublicSign>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../ManagedCUDA/ManagedCUDA.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
+  </ItemGroup>  
   <ItemGroup>
     <Compile Include="JPEGCompression.cs" />
     <Compile Include="NPPExtensionMethods.cs" />
@@ -66,6 +64,6 @@
     <Compile Include="NPPsExtensionMethods.cs" />
     <Compile Include="NPPTypes.cs" />
     <Compile Include="NPPWarningHandler.cs" />
-  </ItemGroup> 
+  </ItemGroup>
 
 </Project>
