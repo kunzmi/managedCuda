@@ -36,9 +36,9 @@ namespace ManagedCuda.CudaSolve
 	public static class CudaSolveNativeMethods
 	{
 #if _x64
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_80.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_80";
 #else
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_80.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_80";
 #endif
 		/// <summary>
 		/// The cuSolverDN library was designed to solve dense linear systems of the form Ax=B

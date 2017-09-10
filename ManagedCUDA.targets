@@ -22,6 +22,14 @@
         <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>
     </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>TRACE;DEBUG;_x64</DefineConstants>
+  </PropertyGroup>    
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>_x64</DefineConstants>
+  </PropertyGroup>    
+
   <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">
     <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true" ContinueOnError="WarnAndContinue" StandardOutputImportance="Low">
       <Output TaskParameter="ConsoleOutput" PropertyName="Rev" />

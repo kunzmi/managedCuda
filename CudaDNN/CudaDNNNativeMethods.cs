@@ -32,7 +32,7 @@ namespace ManagedCuda.CudaDNN
 	/// <summary/>
 	public static class CudaDNNNativeMethods
 	{
-		internal const string CUDNN_API_DLL_NAME = "cudnn64_6.dll";
+		internal const string CUDNN_API_DLL_NAME = "cudnn64_6";
 		/// <summary>
 		/// Gives the version of the wrapped api
 		/// </summary>
