@@ -10,6 +10,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IncludeSymbols>true</IncludeSymbols>
 
+        <BaseVersion>8.0</BaseVersion>
         <Company>Michael Kunz</Company>
         <authors>Michael Kunz</authors>
         <owners>Michael Kunz</owners>
@@ -21,16 +22,16 @@
     </PropertyGroup>
 
   <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">
-    <ReadLinesFromFile File="..\Version.txt">
-        <Output TaskParameter="Lines" PropertyName="Version" />
-    </ReadLinesFromFile> 
-    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true">
+    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true" ContinueOnError="WarnAndContinue">
       <Output TaskParameter="ConsoleOutput" PropertyName="Rev" />
     </Exec>    
+    <PropertyGroup Condition="'$(MSBuildLastTaskResult)' == 'False'">
+      <Rev>0</Rev>
+    </PropertyGroup>
     <PropertyGroup>
-      <PackageVersion>$(Version).$(Rev)</PackageVersion>
-      <AssemblyVersion>$(Version).$(Rev)</AssemblyVersion>
-      <FileVersion>$(Version).$(Rev)</FileVersion>
+      <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
+      <AssemblyVersion>$(BaseVersion).$(Rev)</AssemblyVersion>
+      <FileVersion>$(BaseVersion).$(Rev)</FileVersion>
     </PropertyGroup>
   </Target>
 
