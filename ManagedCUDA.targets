@@ -1,0 +1,37 @@
+<Project>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <EnableDefaultCompileItems>False</EnableDefaultCompileItems>    
+        <SignAssembly>true</SignAssembly>    
+        <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>    
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IncludeSymbols>true</IncludeSymbols>
+
+        <Company>Michael Kunz</Company>
+        <authors>Michael Kunz</authors>
+        <owners>Michael Kunz</owners>
+        <Copyright>Copyright � Michael Kunz 2016</Copyright>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl.html</PackageLicenseUrl>
+        <PackageProjectUrl>http://kunzmi.github.io/managedCuda/</PackageProjectUrl>
+        <PackageTags>gpu cuda</PackageTags>
+    </PropertyGroup>
+
+  <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">
+    <ReadLinesFromFile File="..\Version.txt">
+        <Output TaskParameter="Lines" PropertyName="Version" />
+    </ReadLinesFromFile> 
+    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="Rev" />
+    </Exec>    
+    <PropertyGroup>
+      <PackageVersion>$(Version).$(Rev)</PackageVersion>
+      <AssemblyVersion>$(Version).$(Rev)</AssemblyVersion>
+      <FileVersion>$(Version).$(Rev)</FileVersion>
+    </PropertyGroup>
+  </Target>
+
+</Project>

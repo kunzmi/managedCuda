@@ -49,6 +49,9 @@ Temporary Items
 # Program debug database
 *.pdb
 
+*/bin
+*/obj
+
 # Files containing private data
 NuGetPackage.ps1
 NuGetPush.ps1
