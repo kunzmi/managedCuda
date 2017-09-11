@@ -5,10 +5,11 @@ cd "$(dirname "$0")"
 
 genstub () 
 {
-    rm -f empty.c
-    touch empty.c
     DLLNAME=$1
     TARGET=$2
+
+    rm -f empty.c
+    touch empty.c
     gcc -shared -o ${TARGET} empty.c    
     gcc -Wl,--no-as-needed -shared -o lib${DLLNAME}.so -fPIC -L. -l:${TARGET}
     rm -f ${TARGET}
