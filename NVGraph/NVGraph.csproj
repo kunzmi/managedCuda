@@ -33,6 +33,12 @@
       <Link>libnvgraph64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libnvgraph64_80.so" PackagePath="build">
+      <Link>libnvgraph64_80.so</Link>
+    </Content>    
+    <Content Include="ManagedCuda-NVGraph.targets" PackagePath="build">
+      <Link>ManagedCuda-NVGraph.targets</Link>
+    </Content>           
   </ItemGroup>     
 
 </Project>

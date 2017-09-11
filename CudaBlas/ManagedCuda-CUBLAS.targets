@@ -1,0 +1,11 @@
+<Project>
+  <!-- Copies native library stubs into output directory. -->
+
+  <ItemGroup>
+   <None Include="$(MSBuildThisFileDirectory)libcublas64_80.so">
+      <Link>libcublas64_80.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -43,6 +43,12 @@
       <Link>libcudnn64_6.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libcudnn64_6.so" PackagePath="build">
+      <Link>libcudnn64_6.so</Link>
+    </Content>    
+    <Content Include="ManagedCuda-CudaDNN.targets" PackagePath="build">
+      <Link>ManagedCuda-CudaDNN.targets</Link>
+    </Content>        
   </ItemGroup>   
 
 </Project>

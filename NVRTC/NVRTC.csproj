@@ -31,6 +31,12 @@
       <Link>libnvrtc64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libnvrtc64_80.so" PackagePath="build">
+      <Link>libnvrtc64_80.so</Link>
+    </Content>    
+    <Content Include="ManagedCuda-NVRTC.targets" PackagePath="build">
+      <Link>ManagedCuda-NVRTC.targets</Link>
+    </Content>        
   </ItemGroup>       
 
 </Project>

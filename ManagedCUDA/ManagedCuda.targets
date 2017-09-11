@@ -1,0 +1,11 @@
+<Project>
+  <!-- Copies native library stubs into output directory. -->
+
+  <ItemGroup>
+   <None Include="$(MSBuildThisFileDirectory)libnvcuda.so">
+      <Link>libnvcuda.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

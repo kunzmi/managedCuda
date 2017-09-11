@@ -71,14 +71,26 @@
       <Link>libnppc64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libnppc64_80.so" PackagePath="build">
+      <Link>libnppc64_80.so</Link>
+    </Content>        
     <Content Include="../StubsForLinux/libnppi64_80.so" PackagePath="lib/netstandard2.0">
       <Link>libnppi64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libnppi64_80.so" PackagePath="build">
+      <Link>libnppi64_80.so</Link>
+    </Content>       
     <Content Include="../StubsForLinux/libnpps64_80.so" PackagePath="lib/netstandard2.0">
       <Link>libnpps64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>        
+    </Content>         
+    <Content Include="../StubsForLinux/libnpps64_80.so" PackagePath="build">
+      <Link>libnpps64_80.so</Link>
+    </Content>         
+    <Content Include="ManagedCuda-NPP.targets" PackagePath="build">
+      <Link>ManagedCuda-NPP.targets</Link>
+    </Content>            
   </ItemGroup>   
 
 </Project>

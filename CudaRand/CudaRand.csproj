@@ -32,6 +32,12 @@
       <Link>librand64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libcurand64_80.so" PackagePath="build">
+      <Link>libcurand64_80.so</Link>
+    </Content>    
+    <Content Include="ManagedCuda-CURAND.targets" PackagePath="build">
+      <Link>ManagedCuda-CURAND.targets</Link>
+    </Content>            
   </ItemGroup>   
 
 </Project>

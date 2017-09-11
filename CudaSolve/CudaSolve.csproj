@@ -36,6 +36,12 @@
       <Link>libcusolver64_80.so</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
+    <Content Include="../StubsForLinux/libcusolver64_80.so" PackagePath="build">
+      <Link>libcusolver64_80.so</Link>
+    </Content>    
+    <Content Include="ManagedCuda-CUSOLVE.targets" PackagePath="build">
+      <Link>ManagedCuda-CUSOLVE.targets</Link>
+    </Content>            
   </ItemGroup>     
 
 </Project>
