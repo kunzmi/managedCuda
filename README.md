@@ -76,5 +76,4 @@ To obtain NuGet packages for a Release build, run from the root directory:
 
 The built packages are located in the ```Packages/Release``` directory.
 
-The revision number is automatically obtained from git.
 See ```ManagedCUDA.targets``` for common build settings.

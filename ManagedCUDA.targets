@@ -1,26 +1,32 @@
 <Project>
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <EnableDefaultCompileItems>False</EnableDefaultCompileItems>    
-        <SignAssembly>true</SignAssembly>    
-        <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>    
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
-        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <IncludeSymbols>true</IncludeSymbols>
+  <Import Project="Revision.targets" />
 
-        <BaseVersion>8.0</BaseVersion>
-        <Company>Michael Kunz</Company>
-        <authors>Michael Kunz</authors>
-        <owners>Michael Kunz</owners>
-        <Copyright>Copyright � Michael Kunz 2016</Copyright>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl.html</PackageLicenseUrl>
-        <PackageProjectUrl>http://kunzmi.github.io/managedCuda/</PackageProjectUrl>
-        <PackageTags>gpu cuda</PackageTags>
-        <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>
-    </PropertyGroup>
+  <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <EnableDefaultCompileItems>False</EnableDefaultCompileItems>    
+      <SignAssembly>true</SignAssembly>    
+      <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>    
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
+      <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <IncludeSymbols>true</IncludeSymbols>
+
+      <BaseVersion>8.0</BaseVersion>
+      <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
+      <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
+      <FileVersion>$(PackageVersion)</FileVersion>  
+
+      <Company>Michael Kunz</Company>
+      <authors>Michael Kunz</authors>
+      <owners>Michael Kunz</owners>
+      <Copyright>Copyright (C) Michael Kunz 2016</Copyright>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl.html</PackageLicenseUrl>
+      <PackageProjectUrl>http://kunzmi.github.io/managedCuda/</PackageProjectUrl>
+      <PackageTags>gpu cuda</PackageTags>
+      <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>TRACE;DEBUG;_x64</DefineConstants>
@@ -29,19 +35,5 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DefineConstants>_x64</DefineConstants>
   </PropertyGroup>    
-
-  <Target Name="ReadVersion" BeforeTargets="GetAssemblyVersion">
-    <Exec Command="git rev-list HEAD --count" ConsoleToMSBuild="true" ContinueOnError="WarnAndContinue" StandardOutputImportance="Low">
-      <Output TaskParameter="ConsoleOutput" PropertyName="Rev" />
-    </Exec>    
-    <PropertyGroup Condition="'$(MSBuildLastTaskResult)' == 'False'">
-      <Rev>0</Rev>
-    </PropertyGroup>
-    <PropertyGroup>
-      <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
-      <AssemblyVersion>$(BaseVersion).$(Rev)</AssemblyVersion>
-      <FileVersion>$(BaseVersion).$(Rev)</FileVersion>
-    </PropertyGroup>
-  </Target>
 
 </Project>
