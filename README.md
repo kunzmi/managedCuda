@@ -1,5 +1,5 @@
 # managedCuda
-ManagedCUDA aims an easy integration of NVidia's CUDA in .net applications written in C#, Visual Basic or any other .net language.
+ManagedCUDA aims an easy integration of NVidia's CUDA in .net applications written in C#, F#, Visual Basic or any other .net language.
 
 For this it includes:
 - A complete wrapper for the  CUDA Driver API, version 8.0 (a 1:1 representation of cuda.h in C#) 
@@ -63,5 +63,5 @@ buffer.Dispose();
 b.Dispose();
 a.Dispose();
 ```
-- Compiles for .net 2.0 and .net 4.0 (default), runs also on mono and Linux. 
+- Compiles for .NET Standard 2.0, runs on Windows and Linux. 
 - The new feature 'per thread default stream' is available as a compiler directive of the managedCuda main library: Compile the library with the option "_PerThreadDefaultStream" to enable it.
