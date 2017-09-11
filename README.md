@@ -65,3 +65,16 @@ a.Dispose();
 ```
 - Compiles for .NET Standard 2.0, runs on Windows and Linux. 
 - The new feature 'per thread default stream' is available as a compiler directive of the managedCuda main library: Compile the library with the option "_PerThreadDefaultStream" to enable it.
+
+
+## Building
+Requirements: .NET Core SDK 2.0
+
+To obtain NuGet packages for a Release build, run from the root directory:
+
+```dotnet pack -c Release```
+
+The built packages are located in the ```Packages/Release``` directory.
+
+The revision number is automatically obtained from git.
+See ```ManagedCUDA.targets``` for common build settings.
