@@ -38,6 +38,13 @@
     <Compile Include="TensorDescriptor.cs" />
   </ItemGroup>
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libcudnn64_6.so" PackagePath="lib/netstandard2.0">
+      <Link>libcudnn64_6.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>   
+
 </Project>
 
 

@@ -31,5 +31,12 @@
     <Compile Include="Refactorization.cs" />
   </ItemGroup> 
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libcusolver64_80.so" PackagePath="lib/netstandard2.0">
+      <Link>libcusolver64_80.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>     
+
 </Project>
 

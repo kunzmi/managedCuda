@@ -25,4 +25,11 @@
     <Compile Include="CudaBlasTypes.cs" />
   </ItemGroup> 
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libcublas64_80.so" PackagePath="lib/netstandard2.0">
+      <Link>libcublas64_80.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>      
+
 </Project>

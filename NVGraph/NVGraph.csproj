@@ -28,4 +28,11 @@
     <Compile Include="NVGraphTypes.cs" />
   </ItemGroup> 
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libnvgraph64_80.so" PackagePath="lib/netstandard2.0">
+      <Link>libnvgraph64_80.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>     
+
 </Project>

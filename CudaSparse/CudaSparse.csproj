@@ -38,5 +38,12 @@
     <Compile Include="CudaSparseBsric02Info.cs" />
   </ItemGroup> 
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libcusparse64_80.so" PackagePath="lib/netstandard2.0">
+      <Link>libcusparse64_80.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>   
+
 </Project>
 

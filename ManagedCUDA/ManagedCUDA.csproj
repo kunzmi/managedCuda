@@ -107,4 +107,11 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libnvcuda.so" PackagePath="lib/netstandard2.0">
+      <Link>libnvcuda.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+  </ItemGroup>      
+
 </Project>
