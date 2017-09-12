@@ -11,6 +11,7 @@
       <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <IncludeSymbols>true</IncludeSymbols>
+      <IncludeSource>true</IncludeSource>
 
       <BaseVersion>8.0</BaseVersion>
       <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
