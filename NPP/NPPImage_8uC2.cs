@@ -1035,6 +1035,27 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilter32f_8u_C2R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		#endregion
-	}
+        #endregion
+
+        #region ColorConversion new in Cuda 9
+
+        /// <summary>
+        /// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned planar YUV420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void NV12ToYUV420(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.NV12ToYUV420.nppiNV12ToYUV420_8u_P2P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToYUV420_8u_P2P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+    }
 }

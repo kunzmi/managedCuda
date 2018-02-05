@@ -477,6 +477,142 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, null);
 		}
 
-		#endregion
-	}
+        #endregion
+
+        #region New in Cuda 9.0
+        /// <summary>
+        /// Forward DCT, quantization and level shift part of the JPEG encoding, 16-bit short integer.
+        /// Input is expected in 8x8 macro blocks and output is expected to be in 64x1
+        /// macro blocks. The new version of the primitive takes the ROI in image pixel size and
+        /// works with DCT coefficients that are in zig-zag order.
+        /// </summary>
+        /// <param name="src">Source image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="pQuantizationTable">Quantization Table in zig-zag order.</param>
+        /// <param name="oSizeRoi">Roi size (in pixels).</param>
+        public void DCTQuant16Fwd8x8LS(NPPImage_8uC1 src, NPPImage_16sC1 dst, NppiSize oSizeRoi, CudaDeviceVariable<ushort> pQuantizationTable)
+        {
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiDCTQuant16Fwd8x8LS_JPEG_8u16s_C1R_NEW(src.DevicePointer, src.Pitch, dst.DevicePointer, dst.Pitch, pQuantizationTable.DevicePointer, oSizeRoi, _state);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDCTQuant16Fwd8x8LS_JPEG_8u16s_C1R_NEW", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// Inverse DCT, de-quantization and level shift part of the JPEG decoding, 16-bit short integer.
+        /// Input is expected in 64x1 macro blocks and output is expected to be in 8x8
+        /// macro blocks. The new version of the primitive takes the ROI in image pixel size and
+        /// works with DCT coefficients that are in zig-zag order.
+        /// </summary>
+        /// <param name="src">Source image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="pQuantizationTable">Quantization Table in zig-zag order.</param>
+        /// <param name="oSizeRoi">Roi size (in pixels).</param>
+        public void DCTQuant16Inv8x8LS(NPPImage_16sC1 src, NPPImage_8uC1 dst, NppiSize oSizeRoi, CudaDeviceVariable<ushort> pQuantizationTable)
+        {
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiDCTQuant16Inv8x8LS_JPEG_16s8u_C1R_NEW(src.DevicePointer, src.Pitch, dst.DevicePointer, dst.Pitch, pQuantizationTable.DevicePointer, oSizeRoi, _state);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDCTQuant16Inv8x8LS_JPEG_16s8u_C1R_NEW", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// Initializes a job that has to be called at the beginning of decoding.
+        /// </summary>
+        public NppiJpegDecodeJob JobCreateMemzero()
+        {
+            NppiJpegDecodeJob ret = new NppiJpegDecodeJob();
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeJobCreateMemzero(ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiJpegDecodeJobCreateMemzero", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// Calculates sizes of additional buffers used by the job.
+        /// </summary>
+        /// <param name="pJob">has to point to properly initialized job</param>
+        public SizeT JobMemorySize(NppiJpegDecodeJob pJob)
+        {
+            SizeT ret = new SizeT();
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeJobMemorySize(ref pJob, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiJpegDecodeJobMemorySize", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// Executes a job -- part of decoding.
+        /// </summary>
+        /// <param name="pJob">has to be initialized by \ref nppiJpegDecodeJobCreateMemzero</param>
+        /// <param name="pMemory">has to point to valid structure, except for MEMZERO and FINALIZE</param>
+        public void JpegDecodeJob(ref NppiJpegDecodeJob pJob, ref NppiJpegDecodeJobMemory pMemory)
+        {
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeJob(ref pJob, ref pMemory);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiJpegDecodeJob", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// Initializes a job that has to be called at the end of decoding,
+        /// in order to convert temporary representation of DCT coefficients
+        /// to the final one.
+        /// </summary>
+        /// <param name="pJob">pJob.pFrame should point to valid frame description.
+        /// pJob.pScan will be overwritten.</param>
+        public void DecodeJobCreateFinalize(ref NppiJpegDecodeJob pJob)
+        {
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeJobCreateFinalize(ref pJob);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiJpegDecodeJobCreateFinalize", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// This function returns how much additional memory has to be available
+        /// after the end of compressed scan data.
+        /// The following buffers: `pCpuScan` and `pGpuScan` in \ref NppiJpegDecodeJobMemory
+        /// should have size at least `pScan->length + nppiJpegDecodeGetScanDeadzoneSize()`.
+        /// The additional memory is needed because the decoder may perform
+        /// some speculative reads after the end of compressed scan data.
+        /// </summary>
+        public SizeT GetScanDeadzoneSize()
+        {
+            return NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeGetScanDeadzoneSize();
+        }
+
+        /// <summary>
+        /// Returns how much memory has to be allocated for DCT coefficient buffers
+        /// declared in \ref NppiJpegDecodeJobMemory. The returned value may be bigger than
+        /// simply `number of blocks		/// 64		/// sizeof (short)`, because decoder
+        /// may use slightly bigger temporary representation of data.
+        /// </summary>
+        /// <param name="oBlocks">Size of the interleaved component in blocks.</param>
+        public SizeT GetDCTBufferSize(NppiSize oBlocks)
+        {
+            return NPPNativeMethods.NPPi.CompressionDCT.nppiJpegDecodeGetDCTBufferSize(oBlocks);
+        }
+
+        /// <summary>
+        /// Inverse DCT in WebP decoding. Input is the bitstream that contains the coefficients of 16x16 blocks.
+        /// These coefficients are based on a 4x4 sub-block unit, e.g., 
+        /// Coeffs in 0th 4x4 block, 1st 4x4 block 2nd 4x4 block, etc.
+        /// Output is the coefficients after inverse DCT transform.
+        /// The output is put in an image format (i.e. raster scan order), different from the input order.
+        /// </summary>
+        /// <param name="src">Source image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="oSizeRoi">Roi size (in pixels).</param>
+        public void DCTQuant16Fwd8x8LS(NPPImage_16sC1 src, NPPImage_16sC1 dst, NppiSize oSizeRoi)
+        {
+            status = NPPNativeMethods.NPPi.CompressionDCT.nppiDCTInv4x4_WebP_16s_C1R(src.DevicePointer, src.Pitch, dst.DevicePointer, dst.Pitch, oSizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDCTInv4x4_WebP_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        #endregion
+    }
 }

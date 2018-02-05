@@ -35,9 +35,9 @@ namespace ManagedCuda.CudaBlas
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUBLAS_API_DLL_NAME = "cublas64_80";
+		internal const string CUBLAS_API_DLL_NAME = "cublas64_91";
 #else
-		internal const string CUBLAS_API_DLL_NAME = "cublas32_80";
+		internal const string CUBLAS_API_DLL_NAME = "cublas32_91";
 #endif
 
 		#region Basics
@@ -78,29 +78,38 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
-		public static extern CublasStatus cublasSetAtomicsMode(CudaBlasHandle handle, AtomicsMode mode);         
+		public static extern CublasStatus cublasSetAtomicsMode(CudaBlasHandle handle, AtomicsMode mode);
 
-		#endregion
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGetMathMode(CudaBlasHandle handle, ref Math mode);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasSetMathMode(CudaBlasHandle handle, Math mode);
 
-		#region Set and Get
-		
-		/// <summary>
-		/// copies n elements from a vector x in CPU memory space to a vector y 
-		/// in GPU memory space. Elements in both vectors are assumed to have a 
-		/// size of elemSize bytes. Storage spacing between consecutive elements
-		/// is incx for the source vector x and incy for the destination vector
-		/// y. In general, y points to an object, or part of an object, allocated
-		/// via cublasAlloc(). Column major format for two-dimensional matrices
-		/// is assumed throughout CUBLAS. Therefore, if the increment for a vector 
-		/// is equal to 1, this access a column vector while using an increment 
-		/// equal to the leading dimension of the respective matrix accesses a 
-		/// row vector.
-		/// </summary>
-		/// <returns>
-		/// CudaBlas Error Codes: <see cref="CublasStatus.Success"/>, <see cref="CublasStatus.InvalidValue"/>,
-		/// <see cref="CublasStatus.MappingError"/>, <see cref="CublasStatus.NotInitialized"/>.
-		/// </returns>
-		[DllImport(CUBLAS_API_DLL_NAME)]
+        #endregion
+
+        #region Set and Get
+
+        /// <summary>
+        /// copies n elements from a vector x in CPU memory space to a vector y 
+        /// in GPU memory space. Elements in both vectors are assumed to have a 
+        /// size of elemSize bytes. Storage spacing between consecutive elements
+        /// is incx for the source vector x and incy for the destination vector
+        /// y. In general, y points to an object, or part of an object, allocated
+        /// via cublasAlloc(). Column major format for two-dimensional matrices
+        /// is assumed throughout CUBLAS. Therefore, if the increment for a vector 
+        /// is equal to 1, this access a column vector while using an increment 
+        /// equal to the leading dimension of the respective matrix accesses a 
+        /// row vector.
+        /// </summary>
+        /// <returns>
+        /// CudaBlas Error Codes: <see cref="CublasStatus.Success"/>, <see cref="CublasStatus.InvalidValue"/>,
+        /// <see cref="CublasStatus.MappingError"/>, <see cref="CublasStatus.NotInitialized"/>.
+        /// </returns>
+        [DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSetVector(int n, int elemSize, [In] IntPtr x, int incx, CUdeviceptr devicePtr, int incy);
 
 		/// <summary>
@@ -3103,12 +3112,48 @@ namespace ManagedCuda.CudaBlas
                                                       int ldb, 
                                                       CUdeviceptr beta, /* host or device pointer */  
                                                       CUdeviceptr C,
-                                                      int ldc);  
-           
-		/* IO in FP16/FP32, computation in float */                                                      
-		/// <summary>
-		/// </summary>
-		[DllImport(CUBLAS_API_DLL_NAME)]
+                                                      int ldc);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasHgemmBatched(CudaBlasHandle handle,
+                                                      Operation transa,
+                                                      Operation transb,
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      ref half alpha, /* host or device pointer */
+                                                      CUdeviceptr A,
+                                                      int lda,
+                                                      CUdeviceptr B,
+                                                      int ldb,
+                                                      ref half beta, /* host or device pointer */
+                                                      CUdeviceptr C,
+                                                      int ldc,
+                                                      int batchCount);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasHgemmBatched(CudaBlasHandle handle,
+                                                      Operation transa,
+                                                      Operation transb,
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      CUdeviceptr alpha, /* host or device pointer */
+                                                      CUdeviceptr A,
+                                                      int lda,
+                                                      CUdeviceptr B,
+                                                      int ldb,
+                                                      CUdeviceptr beta, /* host or device pointer */
+                                                      CUdeviceptr C,
+                                                      int ldc,
+                                                      int batchCount);
+
+        /* IO in FP16/FP32, computation in float */
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSgemmEx  (CudaBlasHandle handle, 
                                                       Operation transa,
                                                       Operation transb, 
@@ -4918,14 +4963,64 @@ namespace ManagedCuda.CudaBlas
                                    CUdeviceptr beta, /* host or device pointer */ 
                                    CUdeviceptr Carray,
                                    int ldc,
-                                   int batchCount);      
-        
-                                         
-        
-        
-		/// <summary>
+                                   int batchCount);
+
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
+                                                              Operation transa,
+                                                              Operation transb,
+                                                              int m,
+                                                              int n,
+                                                              int k,
+                                                      CUdeviceptr alpha, /* host or device pointer */
+                                                      CUdeviceptr Aarray,
+                                                      cudaDataType Atype,
+                                                      int lda,
+                                                      CUdeviceptr Barray,
+                                                      cudaDataType Btype,
+                                                      int ldb,
+                                                      CUdeviceptr beta, /* host or device pointer */
+                                                      CUdeviceptr Carray,
+                                                      cudaDataType Ctype,
+                                                      int ldc,
+                                                      int batchCount,
+                                                      cudaDataType computeType,
+                                                      GemmAlgo algo);
+
+        /// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
+                                                                         Operation transa,
+                                                                         Operation transb,
+                                                                         int m,
+                                                                         int n,
+                                                                         int k,
+                                                                 CUdeviceptr alpha,  /* host or device pointer */
+                                                                 CUdeviceptr A,
+                                                                 cudaDataType Atype,
+                                                                 int lda,
+                                                                 long strideA,   /* purposely signed */
+                                                                 CUdeviceptr B,
+                                                                 cudaDataType Btype,
+                                                                 int ldb,
+                                                                 long strideB,
+                                                                 CUdeviceptr beta,   /* host or device pointer */
+                                                                 CUdeviceptr C,
+                                                                 cudaDataType Ctype,
+                                                                 int ldc,
+                                                                 long strideC,
+                                                                 int batchCount,
+                                                                 cudaDataType computeType,
+                                                                 GemmAlgo algo);
+
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSgemmStridedBatched (CudaBlasHandle handle,
                                                                  Operation transa,
                                                                  Operation transb, 
@@ -5115,10 +5210,60 @@ namespace ManagedCuda.CudaBlas
                                    int ldc,
                                    int batchCount);
 
-
-		/// <summary>
+        /// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmBatchedEx(CudaBlasHandle handle,
+                                                              Operation transa,
+                                                              Operation transb,
+                                                              int m,
+                                                              int n,
+                                                              int k,
+                                                      IntPtr alpha, /* host or device pointer */
+                                                      CUdeviceptr Aarray,
+                                                      cudaDataType Atype,
+                                                      int lda,
+                                                      CUdeviceptr Barray,
+                                                      cudaDataType Btype,
+                                                      int ldb,
+                                                      IntPtr beta, /* host or device pointer */
+                                                      CUdeviceptr Carray,
+                                                      cudaDataType Ctype,
+                                                      int ldc,
+                                                      int batchCount,
+                                                      cudaDataType computeType,
+                                                      GemmAlgo algo);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmStridedBatchedEx(CudaBlasHandle handle,
+                                                                         Operation transa,
+                                                                         Operation transb,
+                                                                         int m,
+                                                                         int n,
+                                                                         int k,
+                                                                 IntPtr alpha,  /* host or device pointer */
+                                                                 CUdeviceptr A,
+                                                                 cudaDataType Atype,
+                                                                 int lda,
+                                                                 long strideA,   /* purposely signed */
+                                                                 CUdeviceptr B,
+                                                                 cudaDataType Btype,
+                                                                 int ldb,
+                                                                 long strideB,
+                                                                 IntPtr beta,   /* host or device pointer */
+                                                                 CUdeviceptr C,
+                                                                 cudaDataType Ctype,
+                                                                 int ldc,
+                                                                 long strideC,
+                                                                 int batchCount,
+                                                                 cudaDataType computeType,
+                                                                 GemmAlgo algo);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSgemmStridedBatched(CudaBlasHandle handle,
 																 Operation transa,
 																 Operation transb,

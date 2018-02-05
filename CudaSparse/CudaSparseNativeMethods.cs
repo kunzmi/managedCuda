@@ -37,9 +37,9 @@ namespace ManagedCuda.CudaSparse
 	{
 		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
 #if _x64
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_80";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_91";
 #else
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_80";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_91";
 #endif
 		#region CUSPARSE initialization and managment routines
 		/// <summary/>
@@ -218,11 +218,21 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseGetColorAlgs(cusparseColorInfo info, ref cusparseColorAlg alg);
-		#endregion
+        #endregion
 
-		#region Csrgemm2Info
-		/// <summary/>
+        #region prune information
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreatePruneInfo(ref pruneInfo info);
+
+        /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDestroyPruneInfo(pruneInfo info);
+        #endregion
+
+        #region Csrgemm2Info
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseCreateCsrgemm2Info(ref csrgemm2Info info);
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
@@ -3841,14 +3851,45 @@ namespace ManagedCuda.CudaSparse
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseZgtsv(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb);
 
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
 
-		/* Description: Solution of tridiagonal linear system A * B = B, 
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2_bufferSizeExt( cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer);
+        
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer);
+
+        /* Description: Solution of tridiagonal linear system A * B = B, 
    with multiple right-hand-sides. The coefficient matrix A is 
    composed of lower (dl), main (d) and upper (du) diagonals, and 
    the right-hand-sides B are overwritten with the solution. 
-   These routines do not use pivoting, using a combination of PCR and CR algorithm */                               
-		/// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
+   These routines do not use pivoting, using a combination of PCR and CR algorithm */
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseSgtsv_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb);
                                  
 		/// <summary/>
@@ -3861,17 +3902,47 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
-		public static extern cusparseStatus cusparseZgtsv_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb);                               
-                                  
+		public static extern cusparseStatus cusparseZgtsv_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb);
 
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2_nopivot_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
 
-		/* Description: Solution of a set of tridiagonal linear systems 
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2_nopivot_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2_nopivot_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2_nopivot_bufferSizeExt(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, ref SizeT bufferSizeInBytes); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2_nopivot(cusparseContext handle, int m, int n, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr B, int ldb, CUdeviceptr pBuffer); 
+
+        /* Description: Solution of a set of tridiagonal linear systems 
 		   A * x = x, each with a single right-hand-side. The coefficient 
 		   matrices A are composed of lower (dl), main (d) and upper (du) 
 		   diagonals and stored separated by a batchStride, while the 
 		   right-hand-sides x are also separated by a batchStride. */
-		/// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseSgtsvStridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride);
 
 
@@ -3888,13 +3959,47 @@ namespace ManagedCuda.CudaSparse
 		public static extern cusparseStatus cusparseZgtsvStridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride);
 
 
-		/* --- Sparse Format Conversion --- */
-	
 
-		/* Description: This routine finds the total number of non-zero elements and 
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2StridedBatch_bufferSizeExt(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2StridedBatch_bufferSizeExt(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, ref SizeT bufferSizeInBytes); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2StridedBatch_bufferSizeExt(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2StridedBatch_bufferSizeExt(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, ref SizeT bufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsv2StridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, CUdeviceptr pBuffer); 
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsv2StridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsv2StridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsv2StridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, CUdeviceptr pBuffer);
+
+
+        /* --- Sparse Format Conversion --- */
+
+
+        /* Description: This routine finds the total number of non-zero elements and 
 		   the number of non-zero elements per row in a noncompressed csr matrix A. */
-		/// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseSnnz_compress(cusparseContext handle, 
                                           int m, 
                                           cusparseMatDescr descr,
@@ -7182,6 +7287,978 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		#endregion
-	}
+        #endregion
+
+        #region prune dense matrix to a sparse matrix with CSR format
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csr_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csr_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrNnz(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrNnz(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csr(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csr(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /* Description: prune sparse matrix with CSR format to another sparse matrix with CSR format */
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csr_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csr_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csr_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrNnz(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrNnz(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrNnz(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csr(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref half threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csr(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref float threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    ref double threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csr(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    CUdeviceptr threshold,
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    CUdeviceptr pBuffer);
+
+        /* Description: prune dense matrix to a sparse matrix with CSR format by percentage */
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrByPercentage_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrByPercentage_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrByPercentage_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrNnzByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrNnzByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneDense2csrByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneDense2csrByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneDense2csrByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+    CUdeviceptr A,
+    int lda,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+
+        /* Description: prune sparse matrix to a sparse matrix with CSR format by percentage*/
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrByPercentage_bufferSizeExt(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrByPercentage_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrByPercentage_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrNnzByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrNnzByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    ref int nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrNnzByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr nnzTotalDevHostPtr, /* can be on host or device */
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseHpruneCsr2csrByPercentage(
+    cusparseContext handle,
+    int m,
+    int n,
+    int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpruneCsr2csrByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDpruneCsr2csrByPercentage(
+            cusparseContext handle,
+            int m,
+            int n,
+            int nnzA,
+    cusparseMatDescr descrA,
+    CUdeviceptr csrValA,
+    CUdeviceptr csrRowPtrA,
+    CUdeviceptr csrColIndA,
+    float percentage, /* between 0 to 100 */
+    cusparseMatDescr descrC,
+    CUdeviceptr csrValC,
+    CUdeviceptr csrRowPtrC,
+    CUdeviceptr csrColIndC,
+    pruneInfo info,
+    CUdeviceptr pBuffer);
+        #endregion
+    }
 }

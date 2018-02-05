@@ -192,7 +192,7 @@ namespace ManagedCuda.CudaBlas
 	{
 		/// <summary>
 		/// </summary>
-		Default = 1,
+		Default = -1,
 		/// <summary>
 		/// </summary>
 		Algo0 = 0,
@@ -216,15 +216,76 @@ namespace ManagedCuda.CudaBlas
         Algo6 = 6,
         /// <summary>
         /// </summary>
-        Algo7 = 7
+        Algo7 = 7,
+        /// <summary>
+        /// </summary>
+        Algo8 = 8,
+        /// <summary>
+        /// </summary>
+        Algo9 = 9,
+        /// <summary>
+        /// </summary>
+        Algo10 = 10,
+        /// <summary>
+        /// </summary>
+        Algo11 = 11,
+        /// <summary>
+        /// </summary>
+        Algo12 = 12,
+        /// <summary>
+        /// </summary>
+        Algo13 = 13,
+        /// <summary>
+        /// </summary>
+        Algo14 = 14,
+        /// <summary>
+        /// </summary>
+        Algo15 = 15,
+        /// <summary>
+        /// </summary>
+        Algo16 = 16,
+        /// <summary>
+        /// </summary>
+        Algo17 = 17,
+        /// <summary>
+        /// </summary>
+        DefaultTensorOp = 99,
+        /// <summary>
+        /// </summary>
+        Algo0TensorOp = 100,
+        /// <summary>
+        /// </summary>
+        Algo1TensorOp = 101,
+        /// <summary>
+        /// </summary>
+        Algo2TensorOp = 102,
+        /// <summary>
+        /// </summary>
+        Algo3TensorOp = 103,
+        /// <summary>
+        /// </summary>
+        Algo4TensorOp = 104
     }
 
-	/// <summary>
-	/// The cublasDataType_t type is an enumerant to specify the data precision. It is used
-	/// when the data reference does not carry the type itself (e.g void *).
-	/// To mimic the typedef in cublas_api.h, we redefine the enum identically to cudaDataType
-	/// </summary>
-	public enum DataType
+    /// <summary>
+    /// Enum for default math mode/tensor operation
+    /// </summary>
+    public enum Math
+    {
+        /// <summary>
+        /// </summary>
+        DefaultMath = 0,
+        /// <summary>
+        /// </summary>
+        TensorOpMath = 1
+    }
+
+    /// <summary>
+    /// The cublasDataType_t type is an enumerant to specify the data precision. It is used
+    /// when the data reference does not carry the type itself (e.g void *).
+    /// To mimic the typedef in cublas_api.h, we redefine the enum identically to cudaDataType
+    /// </summary>
+    public enum DataType
 	{
 		///// <summary>
 		///// the data type is 32-bit floating-point

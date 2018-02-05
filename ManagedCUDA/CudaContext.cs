@@ -5197,6 +5197,11 @@ namespace ManagedCuda
 				new sSMtoCores( 0x37, 192), // Kepler Generation (SM 3.7) GK21x class
 				new sSMtoCores( 0x50, 128), // Maxwell Generation (SM 5.0) GM10x class
 				new sSMtoCores( 0x52, 128), // Maxwell Generation (SM 5.2) GM20x class
+                new sSMtoCores( 0x53, 128), // Maxwell Generation (SM 5.3) GM20x class
+                new sSMtoCores( 0x60, 64 ), // Pascal Generation (SM 6.0) GP100 class
+                new sSMtoCores( 0x61, 128), // Pascal Generation (SM 6.1) GP10x class
+                new sSMtoCores( 0x62, 128), // Pascal Generation (SM 6.2) GP10x class
+                new sSMtoCores( 0x70, 64 ), // Volta Generation (SM 7.0) GV100 class
 				new sSMtoCores(   -1, -1 ) 
 			};
 
@@ -5212,7 +5217,7 @@ namespace ManagedCuda
 			}
 			//throw new CudaException("MapSMtoCores undefined SMversion " + major.ToString() + "." + minor.ToString() + "!");
 			//return a very large core count instead of throwing an exception = take the newest card, even if managedCuda doesn't know it.
-			return 10000000;
+			return int.MaxValue;
 		}
 
 		/// <summary>
@@ -5974,7 +5979,38 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			props.CanUseHostPointerForRegisteredMem = canUseHostPointerForRegisteredMem > 0;
 
-			return props;
+
+            int canUseStreamMemOps = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUseStreamMemOps, CUDeviceAttribute.CanUseStreamMemOps, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.CanUseStreamMemOps = canUseStreamMemOps > 0;
+
+            int canUse64BitStreamMemOps = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUse64BitStreamMemOps, CUDeviceAttribute.CanUse64BitStreamMemOps, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.CanUse64BitStreamMemOps = canUse64BitStreamMemOps > 0;
+
+            int cooperativeLaunch = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeLaunch, CUDeviceAttribute.CooperativeLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.CooperativeLaunch = cooperativeLaunch > 0;
+
+            int cooperativeMultiDeviceLaunch = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.CooperativeMultiDeviceLaunch = cooperativeMultiDeviceLaunch > 0;
+
+            int maxSharedMemoryPerBlockOptin = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maxSharedMemoryPerBlockOptin, CUDeviceAttribute.MaxSharedMemoryPerBlockOptin, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MaxSharedMemoryPerBlockOptin = maxSharedMemoryPerBlockOptin;
+
+            return props;
 		}
 
 		/// <summary>

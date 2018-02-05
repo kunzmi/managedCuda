@@ -6705,19 +6705,195 @@ namespace ManagedCuda.CudaSparse
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
-		}
+        }
 
 
 
 
 
-		/* Description: Solution of tridiagonal linear system A * B = B, 
+
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        public SizeT Gtsv2GetBufferSize(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSgtsv2_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        public SizeT Gtsv2GetBufferSize(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDgtsv2_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        public SizeT Gtsv2GetBufferSize(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseCgtsv2_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        public SizeT Gtsv2GetBufferSize(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseZgtsv2_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv2_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSgtsv2(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDgtsv2(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseCgtsv2(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
+        /// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="n">number of right-hand-sides, columns of matrix B.</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
+        /// linear system. The first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
+        /// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
+        /// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseZgtsv2(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv2", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+
+
+        /* Description: Solution of tridiagonal linear system A * B = B, 
 	   with multiple right-hand-sides. The coefficient matrix A is 
 	   composed of lower (dl), main (d) and upper (du) diagonals, and 
 	   the right-hand-sides B are overwritten with the solution. 
 	   These routines do not use pivoting, using a combination of PCR and CR algorithm */
-		/// <summary/>
-		public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
+        /// <summary/>
+        public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
 		{
 			res = CudaSparseNativeMethods.cusparseSgtsv_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv_nopivot", res));
@@ -6753,32 +6929,126 @@ namespace ManagedCuda.CudaSparse
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv_nopivot", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
-		}                               
-                               
+        }
+
+
+
+
+
+        /// <summary/>
+        public SizeT Gtsv2_nopivotGetBufferSize(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSgtsv2_nopivot_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2_nopivot_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary/>
+        public SizeT Gtsv2_nopivotGetBufferSize(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDgtsv2_nopivot_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2_nopivot_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary/>
+        public SizeT Gtsv2_nopivotGetBufferSize(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseCgtsv2_nopivot_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2_nopivot_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary/>
+        public SizeT Gtsv2_nopivotGetBufferSize(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseZgtsv2_nopivot_bufferSizeExt(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv2_nopivot_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+        /// <summary/>
+        public void Gtsv2_nopivot(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSgtsv2_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2_nopivot", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary/>
+        public void Gtsv2_nopivot(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDgtsv2_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2_nopivot", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary/>
+        public void Gtsv2_nopivot(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseCgtsv2_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2_nopivot", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary/>
+        public void Gtsv2_nopivot(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseZgtsv2_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv2_nopivot", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
 
 
 
 
 
 
-		/// <summary>
-		/// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
-		/// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
-		/// right-hand-sides x are also separated by a batchStride.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
-		/// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
-		/// Also, the first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
-		/// linear system starts at location d + batchStride * i in memory.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
-		/// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
-		/// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
-		/// to the ith linear system starts at location x + batchStride * i in memory.</param>
-		/// <param name="batchCount">Number of systems to solve.</param>
-		/// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
-		public void GtsvStridedBatch(int m, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> x, int batchCount, int batchStride)
+
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        public void GtsvStridedBatch(int m, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> x, int batchCount, int batchStride)
 		{
 			res = CudaSparseNativeMethods.cusparseSgtsvStridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsvStridedBatch", res));
@@ -6856,18 +7126,237 @@ namespace ManagedCuda.CudaSparse
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsvStridedBatch", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
-		}
+        }
 
 
 
 
-		/* --- Sparse Format Conversion --- */
 
-		/// <summary>
-		/// This routine finds the total number of non-zero elements and 
-		/// the number of non-zero elements per row in a noncompressed csr matrix A.
-		/// </summary>
-		public void Nnz_compress(int m, CudaSparseMatrixDescriptor descr, CudaDeviceVariable<float> values, CudaDeviceVariable<int> rowPtr, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<int> nnzTotal, float tol)
+
+
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        public SizeT Gtsv2StridedBatchGetBufferSize(int m, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> x, int batchCount, int batchStride)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSgtsv2StridedBatch_bufferSizeExt(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2StridedBatch_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        public SizeT Gtsv2StridedBatchGetBufferSize(int m, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> x, int batchCount, int batchStride)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDgtsv2StridedBatch_bufferSizeExt(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2StridedBatch_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        public SizeT Gtsv2StridedBatchGetBufferSize(int m, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> x, int batchCount, int batchStride)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseCgtsv2StridedBatch_bufferSizeExt(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2StridedBatch_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        public SizeT Gtsv2StridedBatchGetBufferSize(int m, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> x, int batchCount, int batchStride)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseZgtsv2StridedBatch_bufferSizeExt(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv2StridedBatch_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2StridedBatch(int m, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> x, int batchCount, int batchStride, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSgtsv2StridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv2StridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2StridedBatch(int m, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> x, int batchCount, int batchStride, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDgtsv2StridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv2StridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2StridedBatch(int m, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> x, int batchCount, int batchStride, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseCgtsv2StridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv2StridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
+        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
+        /// right-hand-sides x are also separated by a batchStride.
+        /// </summary>
+        /// <param name="m">the size of the linear system (must be >= 3).</param>
+        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
+        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
+        /// Also, the first element of each lower diagonal must be zero.</param>
+        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
+        /// linear system starts at location d + batchStride * i in memory.</param>
+        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
+        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
+        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
+        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
+        /// <param name="batchCount">Number of systems to solve.</param>
+        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
+        /// <param name="buffer">Buffer</param>
+        public void Gtsv2StridedBatch(int m, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> x, int batchCount, int batchStride, CudaDeviceVariable<byte> buffer)
+        {
+            res = CudaSparseNativeMethods.cusparseZgtsv2StridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparse2ZgtsvStridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+
+        /* --- Sparse Format Conversion --- */
+
+        /// <summary>
+        /// This routine finds the total number of non-zero elements and 
+        /// the number of non-zero elements per row in a noncompressed csr matrix A.
+        /// </summary>
+        public void Nnz_compress(int m, CudaSparseMatrixDescriptor descr, CudaDeviceVariable<float> values, CudaDeviceVariable<int> rowPtr, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<int> nnzTotal, float tol)
 		{
 			res = CudaSparseNativeMethods.cusparseSnnz_compress(_handle, m, descr.Descriptor, values.DevicePointer, rowPtr.DevicePointer, nnzPerRow.DevicePointer, nnzTotal.DevicePointer, tol);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSnnz_compress", res));
@@ -11780,12 +12269,1535 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Returns the wrapped cusparseContext handle
-		/// </summary>
-		public cusparseContext Handle
+        #region Prune
+        #region No host/device pointer ambiguity
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrByPercentageBufferSizeExt(int m, int n, CudaDeviceVariable<half> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrByPercentage_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrByPercentageBufferSizeExt(int m, int n, CudaDeviceVariable<float> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrByPercentage_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrByPercentageBufferSizeExtt(int m, int n, CudaDeviceVariable<double> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrByPercentage_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csrByPercentage(int m, int n, CudaDeviceVariable<half> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csrByPercentage(int m, int n, CudaDeviceVariable<float> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csrByPercentage(int m, int n, CudaDeviceVariable<double> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary>
+        /// Description: prune sparse matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrByPercentageBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, 
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrByPercentage_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, 
+                percentage, descrC.Descriptor, csrValC.DevicePointer,csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrByPercentageBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrByPercentage_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix to a sparse matrix with CSR format by percentage
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrByPercentageBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrByPercentage_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csrByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, float percentage, 
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csrByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, float percentage,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csrByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, float percentage, 
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        #endregion
+        #region Host pointers
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<half> A, int lda, half threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<float> A, int lda, float threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<double> A, int lda, double threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnz(int m, int n, CudaDeviceVariable<half> A, int lda, half threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnz(int m, int n, CudaDeviceVariable<float> A, int lda, float threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnz(int m, int n, CudaDeviceVariable<double> A, int lda, double threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<half> A, int lda, half threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csr(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<float> A, int lda, float threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csr(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<double> A, int lda, double threshold, CudaSparseMatrixDescriptor descrC, 
+            CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csr(_handle, m, n, A.DevicePointer, lda, ref threshold, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            half threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold, 
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            double threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            half threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            double threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            half threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            double threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref threshold,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<half> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<float> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<double> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <returns></returns>
+        public int PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer)
+        {
+            int ret = 0;
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, ref ret, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        #endregion
+        #region Device pointers
+
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<half> A, int lda, CudaDeviceVariable<half> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+        /// <summary>
+        /// Description: prune dense matrix to a sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneDense2csrBufferSize(int m, int n, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csr_bufferSizeExt(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csr_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnz(int m, int n, CudaDeviceVariable<half> A, int lda, CudaDeviceVariable<half> threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnz(int m, int n, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnz(int m, int n, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> threshold,
+            CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrNnz(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<half> A, int lda, CudaDeviceVariable<half> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csr(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csr(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneDense2csr(int m, int n, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> threshold, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csr(_handle, m, n, A.DevicePointer, lda, threshold.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<half> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<float> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// Description: prune sparse matrix with CSR format to another sparse matrix with CSR format
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <returns></returns>
+        public SizeT PruneCsr2csrBufferSizeExt(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<double> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
+        {
+            SizeT ret = new SizeT();
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csr_bufferSizeExt(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrByPercentage_bufferSizeExt", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return ret;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<half> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<float> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnz(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<double> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrNnz(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrNnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<half> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<half> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<float> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="threshold"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrValC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="csrColIndC"></param>
+        /// <param name="pBuffer"></param>
+        public void PruneCsr2csr(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            CudaDeviceVariable<double> threshold, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC, CudaDeviceVariable<byte> pBuffer)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csr(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, threshold.DevicePointer,
+                descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<half> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<float> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="A"></param>
+        /// <param name="lda"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneDense2csrNnzByPercentage(int m, int n, CudaDeviceVariable<double> A, int lda, float percentage, CudaSparseMatrixDescriptor descrC,
+            CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneDense2csrNnzByPercentage(_handle, m, n, A.DevicePointer, lda, percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneDense2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<half> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseHpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseHpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseSpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="n"></param>
+        /// <param name="nnzA"></param>
+        /// <param name="descrA"></param>
+        /// <param name="csrValA"></param>
+        /// <param name="csrRowPtrA"></param>
+        /// <param name="csrColIndA"></param>
+        /// <param name="percentage"></param>
+        /// <param name="descrC"></param>
+        /// <param name="csrRowPtrC"></param>
+        /// <param name="info"></param>
+        /// <param name="pBuffer"></param>
+        /// <param name="nnzTotalDevHostPtr"></param>
+        public void PruneCsr2csrNnzByPercentage(int m, int n, int nnzA, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA,
+            float percentage, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaSparsePruneInfo info, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<int> nnzTotalDevHostPtr)
+        {
+            res = CudaSparseNativeMethods.cusparseDpruneCsr2csrNnzByPercentage(_handle, m, n, nnzA, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer,
+                percentage, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer, info.pruneInfo, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDpruneCsr2csrNnzByPercentage", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        #endregion
+
+
+
+        #endregion
+
+        /// <summary>
+        /// Returns the wrapped cusparseContext handle
+        /// </summary>
+        public cusparseContext Handle
 		{
 			get { return _handle; }
 		}

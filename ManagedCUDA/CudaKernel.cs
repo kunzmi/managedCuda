@@ -2299,13 +2299,13 @@ namespace ManagedCuda
 			//Launch the kernel
 			res = DriverAPINativeMethods.Launch.cuLaunchKernel(_function, _gridDim.x, _gridDim.y, _gridDim.z, _blockDim.x, _blockDim.y, _blockDim.z, _sharedMemSize, new CUstream(), paramsList, null);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuLaunchKernel", res, _kernelName));
-			if (res != CUResult.Success) throw new CudaException(res);
 
 			//Free pinned managed parameters during kernel launch (before sync)
 			for (int i = 0; i < paramCount; i++)
 			{
 				GCHandleList[i].Free();
 			}
+			if (res != CUResult.Success) throw new CudaException(res);
 
 			end.Record();
 			float ms;
@@ -2342,14 +2342,157 @@ namespace ManagedCuda
 			//Launch the kernel
 			res = DriverAPINativeMethods.Launch.cuLaunchKernel(_function, _gridDim.x, _gridDim.y, _gridDim.z, _blockDim.x, _blockDim.y, _blockDim.z, _sharedMemSize, stream, paramsList, null);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuLaunchKernel", res, _kernelName));
-			if (res != CUResult.Success) throw new CudaException(res);
 
 			//Free pinned managed parameters
 			for (int i = 0; i < paramCount; i++)
 			{
 				GCHandleList[i].Free();
 			}
+
+            //First free resources then throw potential exception!
+			if (res != CUResult.Success) throw new CudaException(res);
 		}
+
+        /// <summary>
+        /// Launches a CUDA function where thread blocks can cooperate and synchronize as they execute
+        /// <para/>
+        /// Invokes the kernel \p f on a \p gridDimX x \p gridDimY x \p gridDimZ
+        /// grid of blocks.Each block contains \p blockDimX x \p blockDimY x
+        /// \p blockDimZ threads.
+        /// <para/>
+        /// \p sharedMemBytes sets the amount of dynamic shared memory that will be
+        /// available to each thread block.
+        /// <para/>
+        /// The device on which this kernel is invoked must have a non-zero value for
+        /// the device attribute::CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH.
+        /// <para/>
+        /// The total number of blocks launched cannot exceed the maximum number of blocks per
+        /// multiprocessor as returned by ::cuOccupancyMaxActiveBlocksPerMultiprocessor (or
+        /// ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags) times the number of multiprocessors
+        /// as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.
+        /// <para/>
+        /// The kernel cannot make use of CUDA dynamic parallelism.
+        /// <para/>
+        /// Kernel parameters must be specified via \p kernelParams.  If \p f
+        /// has N parameters, then \p kernelParams needs to be an array of N
+        /// pointers.  Each of \p kernelParams [0]
+        /// through \p kernelParams [N-1]
+        /// must point to a region of memory from which the actual kernel
+        /// parameter will be copied.  The number of kernel parameters and their
+        /// offsets and sizes do not need to be specified as that information is
+        /// retrieved directly from the kernel's image.
+        /// <para/>
+        /// Calling ::cuLaunchCooperativeKernel() sets persistent function state that is
+        /// the same as function state set through ::cuLaunchKernel API
+        /// <para/>
+        /// When the kernel \p f is launched via ::cuLaunchCooperativeKernel(), the previous
+        /// block shape, shared size and parameter info associated with \p f
+        /// is overwritten.
+        /// <para/>
+        /// Note that to use ::cuLaunchCooperativeKernel(), the kernel \p f must either have
+        /// been compiled with toolchain version 3.2 or later so that it will
+        /// contain kernel parameter information, or have no kernel parameters.
+        /// If either of these conditions is not met, then ::cuLaunchCooperativeKernel() will
+        /// return ::CUDA_ERROR_INVALID_IMAGE.
+        /// </summary>
+        public virtual void RunCooperative(CUstream stream, params object[] parameters)
+        {
+            int paramCount = parameters.Length;
+            IntPtr[] paramsList = new IntPtr[paramCount];
+            GCHandle[] GCHandleList = new GCHandle[paramCount];
+
+            //Get pointers to kernel parameters
+            for (int i = 0; i < paramCount; i++)
+            {
+                GCHandleList[i] = GCHandle.Alloc(parameters[i], GCHandleType.Pinned);
+                paramsList[i] = GCHandleList[i].AddrOfPinnedObject();
+            }
+
+            //Launch the kernel
+            res = DriverAPINativeMethods.Launch.cuLaunchCooperativeKernel(_function, _gridDim.x, _gridDim.y, _gridDim.z, _blockDim.x, _blockDim.y, _blockDim.z, _sharedMemSize, stream, paramsList);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuLaunchCooperativeKernel", res, _kernelName));
+
+            //Free pinned managed parameters
+            for (int i = 0; i < paramCount; i++)
+            {
+                GCHandleList[i].Free();
+            }
+
+            //First free resources then throw potential exception!
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute
+        /// <para/>
+        /// Invokes kernels as specified in the \p launchParamsList array where each element
+        /// of the array specifies all the parameters required to perform a single kernel launch.
+        /// These kernels can cooperate and synchronize as they execute. The size of the array is
+        /// specified by \p numDevices.
+        /// <para/>
+        /// No two kernels can be launched on the same device. All the devices targeted by this
+        /// multi-device launch must be identical. All devices must have a non-zero value for the
+        /// device attribute ::CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH.
+        /// <para/>
+        /// All kernels launched must be identical with respect to the compiled code. Note that
+        /// any __device__, __constant__ or __managed__ variables present in the module that owns
+        /// the kernel launched on each device, are independently instantiated on every device.
+        /// It is the application's responsiblity to ensure these variables are initialized and
+        /// used appropriately.
+        /// <para/>
+        /// The size of the grids as specified in blocks, the size of the blocks themselves
+        /// and the amount of shared memory used by each thread block must also match across
+        /// all launched kernels.
+        /// <para/>
+        /// The streams used to launch these kernels must have been created via either ::cuStreamCreate
+        /// or ::cuStreamCreateWithPriority. The NULL stream or ::CU_STREAM_LEGACY or ::CU_STREAM_PER_THREAD
+        /// cannot be used.
+        /// <para/>
+        /// The total number of blocks launched per kernel cannot exceed the maximum number of blocks
+        /// per multiprocessor as returned by ::cuOccupancyMaxActiveBlocksPerMultiprocessor (or
+        /// ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags) times the number of multiprocessors
+        /// as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT. Since the
+        /// total number of blocks launched per device has to match across all devices, the maximum
+        /// number of blocks that can be launched per device will be limited by the device with the
+        /// least number of multiprocessors.
+        /// <para/>
+        /// The kernels cannot make use of CUDA dynamic parallelism.
+        /// <para/>
+        /// By default, the kernel won't begin execution on any GPU until all prior work in all the specified
+        /// streams has completed. This behavior can be overridden by specifying the flag
+        /// ::CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC. When this flag is specified, each kernel
+        /// will only wait for prior work in the stream corresponding to that GPU to complete before it begins
+        /// execution.
+        /// <para/>
+        /// Similarly, by default, any subsequent work pushed in any of the specified streams will not begin
+        /// execution until the kernels on all GPUs have completed. This behavior can be overridden by specifying
+        /// the flag ::CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC. When this flag is specified,
+        /// any subsequent work pushed in any of the specified streams will only wait for the kernel launched
+        /// on the GPU corresponding to that stream to complete before it begins execution.
+        /// <para/>
+        /// Calling ::cuLaunchCooperativeKernelMultiDevice() sets persistent function state that is
+        /// the same as function state set through ::cuLaunchKernel API when called individually for each
+        /// element in \p launchParamsList.
+        /// <para/>
+        /// When kernels are launched via ::cuLaunchCooperativeKernelMultiDevice(), the previous
+        /// block shape, shared size and parameter info associated with each ::CUDA_LAUNCH_PARAMS::function
+        /// in \p launchParamsList is overwritten.
+        /// <para/>
+        /// Note that to use ::cuLaunchCooperativeKernelMultiDevice(), the kernels must either have
+        /// been compiled with toolchain version 3.2 or later so that it will
+        /// contain kernel parameter information, or have no kernel parameters.
+        /// If either of these conditions is not met, then ::cuLaunchCooperativeKernelMultiDevice() will
+        /// return ::CUDA_ERROR_INVALID_IMAGE.
+        /// </summary>
+        /// <param name="launchParameterList">List of launch parameters, one per device</param>
+        /// <param name="flags">Flags to control launch behavior</param>
+        public static void RunCooperativeKernelMultiDevie(CudaLaunchParams[] launchParameterList, CudaCooperativeLaunchMultiDeviceFlags flags)
+        {
+            uint countDevices = (uint)launchParameterList.Length;
+            CUResult res = DriverAPINativeMethods.Launch.cuLaunchCooperativeKernelMultiDevice(launchParameterList, countDevices, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuLaunchCooperativeKernelMultiDevice", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
 		#endregion
 
 		#region Properties
@@ -2484,37 +2627,88 @@ namespace ManagedCuda
 			get { return _cacheModeCA; }
 		}
 
-		#endregion
+        /// <summary>
+        /// This maximum size in bytes of
+        /// dynamically-allocated shared memory.The value should contain the requested
+        /// maximum size of dynamically-allocated shared memory.The sum of this value and
+        /// the function attribute::CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES cannot exceed the
+        /// device attribute ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN.
+        /// The maximal size of requestable dynamic shared memory may differ by GPU
+        /// architecture.
+        /// </summary>
+        public int MaxDynamicSharedSizeBytes
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.MaxDynamicSharedSizeBytes, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.MaxDynamicSharedSizeBytes, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
 
-		#region Settings
-		/// <summary>
-		/// Sets the shared memory configuration for a device function.<para/>
-		/// On devices with configurable shared memory banks, this function will 
-		/// force all subsequent launches of the specified device function to have
-		/// the given shared memory bank size configuration. On any given launch of the
-		/// function, the shared memory configuration of the device will be temporarily
-		/// changed if needed to suit the function's preferred configuration. Changes in
-		/// shared memory configuration between subsequent launches of functions, 
-		/// may introduce a device side synchronization point.<para/>
-		/// Any per-function setting of shared memory bank size set via
-		/// <see cref="DriverAPINativeMethods.FunctionManagement.cuFuncSetSharedMemConfig"/>  will override the context wide setting set with
-		/// <see cref="DriverAPINativeMethods.ContextManagement.cuCtxSetSharedMemConfig"/>.<para/>
-		/// Changing the shared memory bank size will not increase shared memory usage
-		/// or affect occupancy of kernels, but may have major effects on performance. 
-		/// Larger bank sizes will allow for greater potential bandwidth to shared memory,
-		/// but will change what kinds of accesses to shared memory will result in bank 
-		/// conflicts.<para/>
-		/// This function will do nothing on devices with fixed shared memory bank size.<para/>
-		/// The supported bank configurations are<para/> 
-		/// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
-		///   setting (currently, four bytes).
-		/// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
-		///   be natively four bytes.
-		/// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
-		///   be natively eight bytes.
-		/// </summary>
-		/// <param name="config">requested shared memory configuration</param>
-		public void SetSharedMemConfig(CUsharedconfig config)
+        /// <summary>
+        /// On devices where the L1
+        /// cache and shared memory use the same hardware resources, this sets the shared memory
+        /// carveout preference, in percent of the total resources.This is only a hint, and the
+        /// driver can choose a different ratio if required to execute the function.
+        /// </summary>
+        public CUshared_carveout PreferredSharedMemoryCarveout
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.PreferredSharedMemoryCarveout, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return (CUshared_carveout)temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.PreferredSharedMemoryCarveout, (int)value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        #endregion
+
+        #region Settings
+        /// <summary>
+        /// Sets the shared memory configuration for a device function.<para/>
+        /// On devices with configurable shared memory banks, this function will 
+        /// force all subsequent launches of the specified device function to have
+        /// the given shared memory bank size configuration. On any given launch of the
+        /// function, the shared memory configuration of the device will be temporarily
+        /// changed if needed to suit the function's preferred configuration. Changes in
+        /// shared memory configuration between subsequent launches of functions, 
+        /// may introduce a device side synchronization point.<para/>
+        /// Any per-function setting of shared memory bank size set via
+        /// <see cref="DriverAPINativeMethods.FunctionManagement.cuFuncSetSharedMemConfig"/>  will override the context wide setting set with
+        /// <see cref="DriverAPINativeMethods.ContextManagement.cuCtxSetSharedMemConfig"/>.<para/>
+        /// Changing the shared memory bank size will not increase shared memory usage
+        /// or affect occupancy of kernels, but may have major effects on performance. 
+        /// Larger bank sizes will allow for greater potential bandwidth to shared memory,
+        /// but will change what kinds of accesses to shared memory will result in bank 
+        /// conflicts.<para/>
+        /// This function will do nothing on devices with fixed shared memory bank size.<para/>
+        /// The supported bank configurations are<para/> 
+        /// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
+        ///   setting (currently, four bytes).
+        /// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
+        ///   be natively four bytes.
+        /// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
+        ///   be natively eight bytes.
+        /// </summary>
+        /// <param name="config">requested shared memory configuration</param>
+        public void SetSharedMemConfig(CUsharedconfig config)
 		{
 			CUResult res;
 			res = DriverAPINativeMethods.FunctionManagement.cuFuncSetSharedMemConfig(_function, config);

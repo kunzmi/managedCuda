@@ -6600,58 +6600,88 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiScale_8u32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		/// <summary>
-		/// Resizes images.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void Resize(NPPImage_8uC3 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C3R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C3R", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+        ///// <summary>
+        ///// Resizes images.
+        ///// </summary>
+        ///// <param name="dest">Destination image</param>
+        ///// <param name="xFactor">X scaling factor</param>
+        ///// <param name="yFactor">Y scaling factor</param>
+        ///// <param name="eInterpolation">Interpolation mode</param>
+        //public void Resize(NPPImage_8uC3 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
+        //{
+        //	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C3R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
+        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C3R", status));
+        //	NPPException.CheckNppStatus(status, this);
+        //}
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_8uC3 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C3R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
 
-		/// <summary>
-		/// resizes planar images.
-		/// </summary>
-		/// <param name="src0">Source image (Channel 0)</param>
-		/// <param name="src1">Source image (Channel 1)</param>
-		/// <param name="src2">Source image (Channel 2)</param>
-		/// <param name="dest0">Destination image (Channel 0)</param>
-		/// <param name="dest1">Destination image (Channel 1)</param>
-		/// <param name="dest2">Destination image (Channel 2)</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public static void Resize(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
-			CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
-			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_P3R(src, src0.Size, src0.Pitch, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_P3R", status));
-			NPPException.CheckNppStatus(status, null);
-		}
+        ///// <summary>
+        ///// resizes planar images.
+        ///// </summary>
+        ///// <param name="src0">Source image (Channel 0)</param>
+        ///// <param name="src1">Source image (Channel 1)</param>
+        ///// <param name="src2">Source image (Channel 2)</param>
+        ///// <param name="dest0">Destination image (Channel 0)</param>
+        ///// <param name="dest1">Destination image (Channel 1)</param>
+        ///// <param name="dest2">Destination image (Channel 2)</param>
+        ///// <param name="xFactor">X scaling factor</param>
+        ///// <param name="yFactor">Y scaling factor</param>
+        ///// <param name="eInterpolation">Interpolation mode</param>
+        //public static void Resize(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, double xFactor, double yFactor, InterpolationMode eInterpolation)
+        //{
+        //	CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+        //	CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+        //	NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_P3R(src, src0.Size, src0.Pitch, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.SizeRoi, xFactor, yFactor, eInterpolation);
+        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_P3R", status));
+        //	NPPException.CheckNppStatus(status, null);
+        //}
+
+        /// <summary>
+        /// resizes planar images.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public static void Resize(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, InterpolationMode eInterpolation)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer };
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_P3R(src, src0.Pitch, src0.Size, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.Size, new NppiRect(dest0.PointRoi, dest0.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
 
 
 
-		/// <summary>
-		/// planar image resize.
-		/// </summary>
-		/// <param name="src0">Source image (Channel 0)</param>
-		/// <param name="src1">Source image (Channel 1)</param>
-		/// <param name="src2">Source image (Channel 2)</param>
-		/// <param name="dest0">Destination image (Channel 0)</param>
-		/// <param name="dest1">Destination image (Channel 1)</param>
-		/// <param name="dest2">Destination image (Channel 2)</param>
-		/// <param name="nXFactor">Factor by which x dimension is changed. </param>
-		/// <param name="nYFactor">Factor by which y dimension is changed. </param>
-		/// <param name="nXShift">Source pixel shift in x-direction.</param>
-		/// <param name="nYShift">Source pixel shift in y-direction.</param>
-		/// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
-		public static void ResizeSqrPixel(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, double nXFactor, double nYFactor, double nXShift, double nYShift, InterpolationMode eInterpolation)
+        /// <summary>
+        /// planar image resize.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        /// <param name="nXFactor">Factor by which x dimension is changed. </param>
+        /// <param name="nYFactor">Factor by which y dimension is changed. </param>
+        /// <param name="nXShift">Source pixel shift in x-direction.</param>
+        /// <param name="nYShift">Source pixel shift in y-direction.</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
+        public static void ResizeSqrPixel(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, double nXFactor, double nYFactor, double nXShift, double nYShift, InterpolationMode eInterpolation)
 		{
 			CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
 			CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer };
@@ -7710,6 +7740,712 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_8u16s_C3C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		#endregion
-	}
+        #endregion
+
+        //New in Cuda 9.0
+        #region New Cuda9
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void RGBToYCbCr420_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr420_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr420_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void RGBToYCbCr422_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr422_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr422_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void RGBToYCbCr411_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr411_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr411_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void RGBToYCbCr444_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr444_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr444_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed RGB to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void RGBToYCbCr420_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr420_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr420_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void RGBToYCbCr422_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr422_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr422_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void RGBToYCbCr411_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr411_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr411_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void RGBToYCbCr444_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr444_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYCbCr444_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void BGRToYCbCr420_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr420_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr420_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void BGRToYCbCr422_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr422_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr422_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void BGRToYCbCr411_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr411_JPEG_8u_P3R(src, src0.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr411_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void BGRToYCbCr444_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr444_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr444_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed BGR to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void BGRToYCbCr420_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr420_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr420_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void BGRToYCbCr422_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr422_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr422_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void BGRToYCbCr411_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] dstPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr411_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dstPitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr411_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned packed BGR to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public void BGRToYCbCr444_JPEG(NPPImage_8uC3 src, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr444_JPEG_8u_C3P3R(src.DevicePointerRoi, src.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr444_JPEG_8u_C3P3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr420ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr420ToRGB_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToRGB_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr422ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr422ToRGB_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToRGB_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr411ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr411ToRGB_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr411ToRGB_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr444ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr444ToRGB_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr444ToRGB_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned packed YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr420ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr420ToRGB_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToRGB_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr422ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr422ToRGB_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToRGB_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr411ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr411ToRGB_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr411ToRGB_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr444ToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr444ToRGB_JPEG_8u_P3C3R(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr444ToRGB_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr420ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr420ToBGR_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToBGR_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr422ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr422ToBGR_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToBGR_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr411ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr411ToBGR_JPEG_8u_P3R(src, srcPitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr411ToBGR_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar RGB to 3 channel 8-bit unsigned planar YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        public static void YCbCr444ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr444ToBGR_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr444ToBGR_JPEG_8u_P3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned packed YCbCr420 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr420ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr420ToBGR_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToBGR_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr422ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr422ToBGR_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToBGR_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr411ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            int[] srcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr411ToBGR_JPEG_8u_P3C3R(src, srcPitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr411ToBGR_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        /// <summary>
+        /// 3 channel 8-bit unsigned planar BGR to 3 channel 8-bit unsigned packed YCbCr422 color conversion.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="dest">Destination image</param>
+        public static void YCbCr444ToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiYCbCr444ToBGR_JPEG_8u_P3C3R(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr444ToBGR_JPEG_8u_P3C3R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+
+        /// <summary>
+        /// Wiener filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorder(NPPImage_8uC3 dest, NppiSize oMaskSize, NppiPoint oAnchor, float[] aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned color per source image descriptor window location with source image border control 
+        /// to per descriptor window destination floating point histogram of gradients. Requires first calling nppiHistogramOfGradientsBorderGetBufferSize function
+        /// call to get required scratch (host) working buffer size and nppiHistogramOfGradientsBorderGetDescriptorsSize() function call to get
+        /// total size for nLocations of output histogram block descriptor windows.
+        /// </summary>
+        /// <param name="hpLocations">Host pointer to array of NppiPoint source pixel starting locations of requested descriptor windows. Important: hpLocations is a </param>
+        /// <param name="pDstWindowDescriptorBuffer">Output device memory buffer pointer of size hpDescriptorsSize bytes to first of nLoc descriptor windows (see nppiHistogramOfGradientsBorderGetDescriptorsSize() above).</param>
+        /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
+        /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_8u32f_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_8u32f_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region new in Cuda 9.1
+
+
+
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 3 channel 8-bit unsigned integer MorphCloseBorder, MorphOpenBorder, MorphTopHatBorder, 
+        /// MorphBlackHatBorder, or MorphGradientBorder function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int MorphGetBufferSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGetBufferSize_8u_C3R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGetBufferSize_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned integer morphological close with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphCloseBorder(NPPImage_8uC3 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned integer morphological open with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphOpenBorder(NPPImage_8uC3 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned integer morphological top hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphTopHatBorder(NPPImage_8uC3 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned integer morphological black hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphBlackHatBorder(NPPImage_8uC3 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned integer morphological gradient with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphGradientBorder(NPPImage_8uC3 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_8u_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_8u_C3R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+    }
 }

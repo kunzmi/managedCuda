@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
+using System.Diagnostics;
 
 namespace ManagedCuda.NPP
 {
@@ -445,7 +446,11 @@ namespace ManagedCuda.NPP
         /// <summary>
         /// Indicates that CUDA 6.3 or better is machine's default device
         /// </summary>
-        Cuda6_3 = 630
+        Cuda6_3 = 630,
+        /// <summary>
+        /// Indicates that CUDA 7.0 or better is machine's default device
+        /// </summary>
+        Cuda7_0 = 700
     }
 
 	/// <summary>
@@ -1427,15 +1432,394 @@ namespace ManagedCuda.NPP
 		{
 			return string.Format(CultureInfo.CurrentCulture, "({0}; {1})", this.x, this.y);
 		}
-		#endregion
-	}
+        #endregion
+    }
 
-	/// <summary>
-	/// 2D Size <para/>
-	/// This struct typically represents the size of a a rectangular region in
-	/// two space.
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// 2D Polar Point.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppPointPolar
+    {
+        /// <summary>
+        /// rho-coordinate.
+        /// </summary>
+        public float rho;
+        /// <summary>
+        /// theta-coordinate.
+        /// </summary>
+        public float theta;
+
+        /// <summary>
+        /// Non-default constructor
+        /// </summary>
+        /// <param name="aRho"></param>
+        /// <param name="aTheta"></param>
+        public NppPointPolar(float aRho, float aTheta)
+        {
+            rho = aRho;
+            theta = aTheta;
+        }
+
+        #region Operator Methods
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Add(NppPointPolar src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho + value.rho, src.theta + value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Add(NppPointPolar src, float value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho + value, src.theta + value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Add(float src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src + value.rho, src + value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Subtract(NppPointPolar src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho - value.rho, src.theta - value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Subtract(NppPointPolar src, float value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho - value, src.theta - value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Subtract(float src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src - value.rho, src - value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Multiply(NppPointPolar src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho * value.rho, src.theta * value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Multiply(NppPointPolar src, float value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho * value, src.theta * value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Multiply(float src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src * value.rho, src * value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Divide(NppPointPolar src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho / value.rho, src.theta / value.theta);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Divide(NppPointPolar src, float value)
+        {
+            NppPointPolar ret = new NppPointPolar(src.rho / value, src.theta / value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar Divide(float src, NppPointPolar value)
+        {
+            NppPointPolar ret = new NppPointPolar(src / value.rho, src / value.theta);
+            return ret;
+        }
+        #endregion
+
+        #region operators
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator +(NppPointPolar src, NppPointPolar value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator +(NppPointPolar src, float value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator +(float src, NppPointPolar value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator -(NppPointPolar src, NppPointPolar value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator -(NppPointPolar src, float value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator -(float src, NppPointPolar value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator *(NppPointPolar src, NppPointPolar value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator *(NppPointPolar src, float value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator *(float src, NppPointPolar value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator /(NppPointPolar src, NppPointPolar value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator /(NppPointPolar src, float value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppPointPolar operator /(float src, NppPointPolar value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator ==(NppPointPolar src, NppPointPolar value)
+        {
+            if (object.ReferenceEquals(src, value)) return true;
+            return src.Equals(value);
+        }
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator !=(NppPointPolar src, NppPointPolar value)
+        {
+            return !(src == value);
+        }
+        #endregion
+
+        #region Override Methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is NppPointPolar)) return false;
+
+            NppPointPolar value = (NppPointPolar)obj;
+
+            bool ret = true;
+            ret &= this.rho == value.rho;
+            ret &= this.theta == value.theta;
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Equals(NppPointPolar value)
+        {
+            bool ret = true;
+            ret &= this.rho == value.rho;
+            ret &= this.theta == value.theta;
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return rho.GetHashCode() ^ theta.GetHashCode();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "({0}; {1})", this.rho, this.theta);
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// 2D Size <para/>
+    /// This struct typically represents the size of a a rectangular region in
+    /// two space.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct NppiSize
 	{
 		/// <summary>
@@ -2890,9 +3274,30 @@ namespace ManagedCuda.NPP
 				return false;
 			}
 			return true;
-		}
-		#endregion
-	}
+        }
+        #endregion
+
+        #region New in Cuda 9.0
+        /// <summary>
+        /// Helper function that can be used when tiling a destination image with a source image using multiple Resize calls.
+        /// oSrcRectROI and oDstRectROI widths and heights should remain unmodified even if they will overlap source and destination
+        /// image sizes.oDstRectROI offsets should be set to the destination offset of the new tile.
+        /// Resize function processing will stop when source or destination image sizes are reached, any unavailable source image pixels
+        /// beyond source image size will be border replicated.There is no particular association assumed between source and destination image locations.
+        /// The values of oSrcRectROI.x and oSrcRectROI.y are ignored during this function call.
+        /// </summary>
+        /// <param name="oDstRectROI">Region of interest in the destination image (may overlap destination image size width and height)</param>
+        /// <returns>NppiPoint object that will contain the new source image ROI offset to be used in the nppiResize call to generate that tile.</returns>
+        public NppiPoint GetResizeTiledSourceOffset(NppiRect oDstRectROI)
+        {
+            NppiPoint pNewSrcRectOffset = new NppiPoint();
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiGetResizeTiledSourceOffset(this, oDstRectROI, ref pNewSrcRectOffset);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGetResizeTiledSourceOffset", status));
+            NPPException.CheckNppStatus(status, this);
+            return pNewSrcRectOffset;
+        }
+        #endregion
+    }
 
 	/// <summary>
 	/// HaarClassifier
@@ -2976,5 +3381,394 @@ namespace ManagedCuda.NPP
 	{
 		private IntPtr Value;
 	}
-	#endregion    
+
+
+    /// <summary>
+    /// The NppiHOGConfig structure defines the configuration parameters for the HOG descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiHOGConfig
+    {
+        /// <summary>
+        /// square cell size (pixels).
+        /// </summary>
+        public int cellSize;
+        /// <summary>
+        /// square histogram block size (pixels).
+        /// </summary>
+        public int histogramBlockSize; 
+        /// <summary>
+        /// required number of histogram bins.
+        /// </summary>
+        public int nHistogramBins; 
+        /// <summary>
+        /// detection window size (pixels).
+        /// </summary>
+        public NppiSize detectionWindowSize;
+
+        /// <summary>
+        /// Validates requested HOG configuration and calculates scratch buffer size needed for the HistogramOfGradientsBorder function 
+        /// based on requested HOG configuration, source image ROI, and number and locations of descriptor window locations.
+        /// </summary>
+        /// <param name="hpLocations">Host pointer to array of NppiPoint source pixel starting locations of requested descriptor windows. Important: hpLocations is a </param>
+        /// <param name="oSizeROI">Region-of-Interest (ROI) of source image.</param>
+        public int HistogramOfGradientsBorderGetBufferSize(NppiPoint[] hpLocations, NppiSize oSizeROI)
+        {
+            int hpBufferSize = 0;
+            NppStatus status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorderGetBufferSize(this, hpLocations, hpLocations.Length, oSizeROI, ref hpBufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorderGetBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return hpBufferSize;
+        }
+
+        /// <summary>
+        /// Validates requested HOG configuration and calculates output window descriptors buffer size needed for the HistogramOfGradientsBorder function 
+        /// based on requested HOG configuration, and number of descriptor window locations, one descriptor window is output for each location.
+        /// Descriptor windows are located sequentially and contiguously in the descriptors buffer.
+        /// The number of horizontal overlapping block histogram bins per descriptor window width is determined by
+        /// (((oHOGConfig.detectionWindowSize.width / oHOGConfig.histogramBlockSize)		/// 2) - 1)		/// oHOGConfig.nHistogramBins. 
+        /// The number of vertical overlapping block histograms per descriptor window height is determined by 
+        /// (((oHOGConfig.detectionWindowSize.height / oHOGConfig.histogramBlockSize)		/// 2) - 1)
+        /// The offset of each descriptor window in the descriptors output buffer is therefore 
+        /// horizontal histogram bins per descriptor window width		/// vertical histograms per descriptor window height floating point values 
+        /// relative to the previous descriptor window output.
+        /// </summary>
+        /// <param name="nLocations">Number of NppiPoint in pLocations array. </param>
+        public int HistogramOfGradientsBorderGetDescriptorsSize(int nLocations)
+        {
+            int hpDescriptorsSize = 0;
+            NppStatus status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorderGetDescriptorsSize(this, nLocations, ref hpDescriptorsSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorderGetDescriptorsSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return hpDescriptorsSize;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiColorTwistBatchCXR
+    {
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pSrc;
+        /// <summary/>
+        public int nSrcStep;
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pDst;
+        /// <summary/>
+        public int nDstStep;
+        /// <summary>
+        /// device memory pointer to the color twist matrix with floating-point coefficient values to be used for this image
+        /// </summary>
+        public CUdeviceptr pTwist;
+
+        /// <summary>
+        /// Non-default pointer
+        /// </summary>
+        /// <param name="src">Source image</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="twist">twist matrix</param>
+        public NppiColorTwistBatchCXR(NPPImageBase src, NPPImageBase dst, CudaDeviceVariable<float> twist)
+        {
+            pSrc = src.DevicePointerRoi;
+            nSrcStep = src.Pitch;
+
+            pDst = dst.DevicePointerRoi;
+            nDstStep = dst.Pitch;
+
+            pTwist = twist.DevicePointer;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiResizeBatchCXR
+    {
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pSrc;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nSrcStep;
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pDst;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nDstStep;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiMirrorBatchCXR
+{
+        /// <summary>
+        /// device memory pointer, ignored for in place versions
+        /// </summary>
+        public CUdeviceptr pSrc;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nSrcStep;
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pDst;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nDstStep;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiWarpAffineBatchCXR
+    {
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pSrc;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nSrcStep;
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pDst;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nDstStep;
+        /// <summary>
+        /// device memory pointer to the tranformation matrix with double precision floating-point coefficient values to be used for this image
+        /// </summary>
+        public CUdeviceptr pCoeffs;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2*3)]
+        private double[] aTransformedCoeffs; /* FOR INTERNAL USE, DO NOT INITIALIZE  */
+
+        /// <summary>
+        /// Initializes the aTransformdedCoeffs array in pBatchList for each image in the list. 
+        /// MUST be called before calling the corresponding warp affine batch function whenever any of the transformation matrices in the list have changed.
+        /// </summary>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+        public static void WarpAffineBatchInit(CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatchInit(pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatchInit", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+    }
+
+    /// <summary>
+    /// JPEG frame descriptor. Can hold from 1 to 4 components.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiJpegFrameDescr
+    {
+        /// <summary>
+        /// Number of components in frame
+        /// </summary>
+        public byte nComponents;
+        /// <summary>
+        /// Size of component with 1x1 subsampling (usually luma) in DCT blocks.
+        /// </summary>
+        public NppiSize oSizeInBlocks;
+        /// <summary>
+        /// Subsampling factors of component, as described in frame header
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public NppiSize[] aComponentSubsampling;
+        /// <summary>
+        /// Buffer containing DCT coefficients. Use \ref nppiJpegDecodeGetDCTBufferSize to
+        /// determine size of this buffer.After decoding, coefficients will be stored in
+        /// zig-zag order, block by block.So the c-th coeffient of block `(x, y)` will
+        /// be stored at `buffer [64 * (y * interleavedComponentWidthInBlocks + x) + c]`.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public CUdeviceptr[] apComponentBuffer;
+    }
+
+    /// <summary>
+    /// JPEG scan descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiJpegScanDescr
+    {
+        /// <summary>
+        /// Number of components present in scan
+        /// </summary>
+        public byte nComponents;
+        /// <summary>
+        /// Frame-indexes of components. These values will be used to index arrays in \ref NppiJpegFrameDescr
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public byte[] aComponentIdx;
+        /// <summary>
+        /// DC Huffman table selector per component
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public byte[] aComponentDcHtSel;
+        /// <summary>
+        /// AC Huffman table selector per component
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public byte[] aComponentAcHtSel;
+        /// <summary>
+        /// Pointers to DC Huffman table description in the raw format (the same format as used in JPEG header).
+        /// This array will be indexed by \ref aComponentDcHtSel. Pointers for
+        /// tables unused in scan may be set to NULL.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public IntPtr[] apRawDcHtTable;
+        /// <summary>
+        /// See \ref apRawDcHtTable
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public IntPtr[] apRawAcHtTable;
+        /// <summary>
+        /// Start of spectral selection (index of first coefficient), 0-63
+        /// </summary>
+        public byte nSs;
+        /// <summary>
+        /// End of spectral selection (index of first coefficient), 0-63
+        /// </summary>
+        public byte nSe;
+        /// <summary>
+        /// Successive approximation bit position high
+        /// </summary>
+        public byte nAh;
+        /// <summary>
+        /// Successive approximation bit position low
+        /// </summary>
+        public byte nAl;
+        /// <summary>
+        /// Restart interval in MCUs. Use 0 or -1 when none
+        /// </summary>
+        public int restartInterval;
+        /// <summary>
+        /// Length of compressed (encoded) scan data
+        /// </summary>
+        public int length;
+    }
+
+    /// <summary>
+    /// Type of job to execute. Usually you will need just SIMPLE
+    /// for each scan, one MEMZERO at the beginning and FINALIZE at the end.
+    /// See the example in \ref nppiJpegDecodeJob
+    /// SIMPLE can be split into multiple jobs: PRE, CPU &amp; GPU.
+    /// Please note that if you don't use SIMPLE,
+    /// you man need to add some memcopies and synchronizes as
+    /// described in \ref nppiJpegDecodeJob.
+    /// </summary>
+    public enum NppiJpegDecodeJobKind
+    {
+        /// <summary>
+        /// Decode whole scan using a single job
+        /// </summary>
+        NPPI_JPEG_DECODE_SIMPLE,
+        /// <summary>
+        /// Preprocessing scan on GPU
+        /// </summary>
+        NPPI_JPEG_DECODE_PRE,
+        /// <summary>
+        /// Part of decoding run on CPU
+        /// </summary>
+        NPPI_JPEG_DECODE_CPU,
+        /// <summary>
+        /// Part of decoding run on GPU
+        /// </summary>
+        NPPI_JPEG_DECODE_GPU,
+        /// <summary>
+        /// Zeroing memory before decoding
+        /// </summary>
+        NPPI_JPEG_DECODE_MEMZERO, 
+        /// <summary>
+        /// Change memory representation of DCT coefficients to final
+        /// </summary>
+        NPPI_JPEG_DECODE_FINALIZE
+    }
+
+    /// <summary>
+    /// JPEG decode job used by \ref nppiJpegDecodeJob (see that for more documentation)
+    /// The job describes piece of computation to be done.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiJpegDecodeJob
+    {
+        /// <summary>
+        /// This field and its contents are never written
+        /// </summary>
+        public IntPtr pFrame; //NppiJpegFrameDescr
+        /// <summary>
+        /// This field is never written. `*pScan` is written only by ...Create... functions
+        /// </summary>
+        public IntPtr pScan; //NppiJpegScanDescr
+        /// <summary>
+        /// 
+        /// </summary>
+        public NppiJpegDecodeJobKind eKind;
+    }
+
+    /**
+     * Memory buffers used by one decode job.
+     *
+     * \sa nppiJpegDecodeJobMemorySize
+     * \sa nppiJpegDecodeJob
+     */
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiJpegDecodeJobMemory
+    {
+        /// <summary>
+        /// Number of additional buffers that may be used by JPEG decode jobs.
+        /// This number may change in the future, but it remain small.
+        /// </summary>
+        public const int NPPI_JPEG_DECODE_N_BUFFERS = 3;
+        /// <summary>
+        /// Pointer to host memory containing compressed scan data.
+        /// Should be allocated with additional \ref nppiJpegDecodeGetScanDeadzoneSize
+        /// bytes of usable memory after the end of compressed scan data.
+        /// Should be filled by caller.
+        /// </summary>
+        IntPtr pCpuScan;
+        /// <summary>
+        /// Pointer to device memory used for compressed scan data.
+        /// Should be allocated with additional \ref nppiJpegDecodeGetScanDeadzoneSize
+        /// bytes of usable memory after the end of compressed scan data.
+        /// Should be filled by caller.
+        /// This buffer may be overwritten by the decoder.
+        /// Could be NULL for \ref NPPI_JPEG_DECODE_CPU.
+        /// </summary>
+        CUdeviceptr pGpuScan;
+        /// <summary>
+        /// Pointers to additional host buffers used by job. Call \ref nppiJpegDecodeJobMemorySize
+        /// to query sizes of these buffers. `apCpuBuffer[i]` should point to
+        /// at least `aSize[i]` bytes.If `aSize[i] == 0`, the pointer should be set to NULL.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = NPPI_JPEG_DECODE_N_BUFFERS)]
+        IntPtr[] apCpuBuffer;
+        /// <summary>
+        /// Pointers to additional device buffers used by job. Minimal sizes of buffers should be the same as the sizes of \ref apCpuBuffer.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = NPPI_JPEG_DECODE_N_BUFFERS)]
+        CUdeviceptr[] apGpuBuffer;
+    } 
+
+    #endregion
 }

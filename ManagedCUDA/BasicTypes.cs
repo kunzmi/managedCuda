@@ -3039,7 +3039,7 @@ namespace ManagedCuda.BasicTypes
         public uint value;
         /// <summary/>
         [FieldOffset(0)]
-        public ulong pad;
+        public ulong value64;
     }
 
     /// <summary/>
@@ -3108,15 +3108,63 @@ namespace ManagedCuda.BasicTypes
         //achieve the same in C# if we set at offset 40 an simple ulong
         [FieldOffset(5*8)]
         ulong pad;
-    }     
+    }
 
-	#endregion
+    /// <summary>
+    /// Kernel launch parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaLaunchParams
+    {
+        /// <summary>
+        /// Kernel to launch
+        /// </summary>
+        CUfunction function;
+        /// <summary>
+        /// Width of grid in blocks
+        /// </summary>
+        uint gridDimX; 
+        /// <summary>
+        /// Height of grid in blocks
+        /// </summary>
+        uint gridDimY;
+        /// <summary>
+        /// Depth of grid in blocks
+        /// </summary>
+        uint gridDimZ; 
+        /// <summary>
+        /// X dimension of each thread block
+        /// </summary>
+        uint blockDimX;
+        /// <summary>
+        /// Y dimension of each thread block
+        /// </summary>
+        uint blockDimY;
+        /// <summary>
+        /// Z dimension of each thread block
+        /// </summary>
+        uint blockDimZ;
+        /// <summary>
+        /// Dynamic shared-memory size per thread block in bytes
+        /// </summary>
+        uint sharedMemBytes;
+        /// <summary>
+        /// Stream identifier
+        /// </summary>
+        CUstream hStream; 
+        /// <summary>
+        /// Array of pointers to kernel parameters
+        /// </summary>
+        IntPtr kernelParams; 
+    }
 
-	#region Enums
-	/// <summary>
-	/// Texture reference addressing modes
-	/// </summary>
-	public enum CUAddressMode
+    #endregion
+
+    #region Enums
+    /// <summary>
+    /// Texture reference addressing modes
+    /// </summary>
+    public enum CUAddressMode
 	{
 		/// <summary>
 		/// Wrapping address mode
@@ -3671,10 +3719,34 @@ namespace ManagedCuda.BasicTypes
         /// Device can access host registered memory at the same virtual address as the CPU.
         /// </summary>
         CanUseHostPointerForRegisteredMem = 91,
-		/// <summary>
-		/// Max elems...
-		/// </summary>
-		MAX
+        /// <summary>
+        /// ::cuStreamBatchMemOp and related APIs are supported.
+        /// </summary>
+        CanUseStreamMemOps = 92,
+        /// <summary>
+        /// 64-bit operations are supported in ::cuStreamBatchMemOp and related APIs.
+        /// </summary>
+        CanUse64BitStreamMemOps = 93,
+        /// <summary>
+        /// ::CU_STREAM_WAIT_VALUE_NOR is supported.
+        /// </summary>
+        CanUseStreamWaitValueNOr = 94,
+        /// <summary>
+        /// Device supports launching cooperative kernels via ::cuLaunchCooperativeKernel
+        /// </summary>
+        CooperativeLaunch = 95,
+        /// <summary>
+        /// Device can participate in cooperative kernels launched via ::cuLaunchCooperativeKernelMultiDevice
+        /// </summary>
+        CooperativeMultiDeviceLaunch = 96,
+        /// <summary>
+        /// Maximum optin shared memory per block
+        /// </summary>
+        MaxSharedMemoryPerBlockOptin = 97,
+        /// <summary>
+        /// Max elems...
+        /// </summary>
+        MAX
 	}
 
 	/// <summary>
@@ -3750,12 +3822,26 @@ namespace ManagedCuda.BasicTypes
 		/// user specified option "-Xptxas --dlcm=ca" set.
 		/// </summary>
 		CacheModeCA = 7,
+        
+        /// <summary>
+        /// The maximum size in bytes of dynamically-allocated shared memory that can be used by
+        /// this function. If the user-specified dynamic shared memory size is larger than this
+        /// value, the launch will fail.
+        /// </summary>
+        MaxDynamicSharedSizeBytes = 8,
 
-		/// <summary>
-		/// No descritption found...
-		/// </summary>
-		Max
-	}
+        /// <summary>
+        /// On devices where the L1 cache and shared memory use the same hardware resources, 
+        /// this sets the shared memory carveout preference, in percent of the total resources. 
+        /// This is only a hint, and the driver can choose a different ratio if required to execute the function.
+        /// </summary>
+        PreferredSharedMemoryCarveout = 9,
+
+        /// <summary>
+        /// No descritption found...
+        /// </summary>
+        Max
+    }
 
 	/// <summary>
 	/// Function cache configurations
@@ -3943,27 +4029,7 @@ namespace ManagedCuda.BasicTypes
 	/// Online compilation targets
 	/// </summary>
 	public enum CUJITTarget
-	{
-		/// <summary>
-		/// Compute device class 1.0
-		/// </summary>
-		Compute_10 = 10,
-		
-		/// <summary>
-		/// Compute device class 1.1
-		/// </summary>
-		Compute_11 = 11,
-		
-		/// <summary>
-		/// Compute device class 1.2
-		/// </summary>
-		Compute_12 = 12,
-		
-		/// <summary>
-		/// Compute device class 1.3
-		/// </summary>
-		Compute_13 = 13,
-		
+	{	
 		/// <summary>
 		/// Compute device class 2.0
 		/// </summary>
@@ -4023,8 +4089,23 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Compute device class 6.2.
 		/// </summary>
-		Compute_62 = 62
-	}
+		Compute_62 = 62,
+
+        /// <summary>
+        /// Compute device class 7.0.
+        /// </summary>
+        Compute_70 = 70,
+
+        /// <summary>
+        /// Compute device class 7.3.
+        /// </summary>
+        Compute_73 = 73,
+
+        /// <summary>
+        /// Compute device class 7.5.
+        /// </summary>
+        Compute_75 = 75
+    }
 
 	/// <summary>
 	/// Online compilation optimization levels
@@ -4398,6 +4479,11 @@ namespace ManagedCuda.BasicTypes
         NVLinkUncorrectable = 220,
 
         /// <summary>
+        /// This indicates that the PTX JIT compiler library was not found.
+        /// </summary>
+        JITCompilerNotFound = 221,
+
+        /// <summary>
         /// Invalid source
         /// </summary>
         ErrorInvalidSource = 300,
@@ -4442,12 +4528,12 @@ namespace ManagedCuda.BasicTypes
 		
 		/// <summary>
 		/// While executing a kernel, the device encountered a
-		/// load or store instruction on an invalid memory address.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorIllegalAddress = 700,
+        /// load or store instruction on an invalid memory address.
+        /// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorIllegalAddress = 700,
 		
 		/// <summary>
 		/// Launch exceeded resources
@@ -4455,9 +4541,14 @@ namespace ManagedCuda.BasicTypes
 		ErrorLaunchOutOfResources = 701,
 		
 		/// <summary>
-		/// Launch exceeded timeout
-		/// </summary>
-		ErrorLaunchTimeout = 702,
+		/// This indicates that the device kernel took too long to execute. This can
+        /// only occur if timeouts are enabled - see the device attribute
+        /// ::CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT for more information.
+        /// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorLaunchTimeout = 702,
 
 		/// <summary>
 		/// Launch with incompatible texturing
@@ -4521,77 +4612,84 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// While executing a kernel, the device encountered a stack error.
 		/// This can be due to stack corruption or exceeding the stack size limit.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorHardwareStackError = 714,
+		/// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorHardwareStackError = 714,
 
 		/// <summary>
 		/// While executing a kernel, the device encountered an illegal instruction.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorIllegalInstruction = 715,
+		/// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorIllegalInstruction = 715,
 
 		/// <summary>
 		/// While executing a kernel, the device encountered a load or store instruction
 		/// on a memory address which is not aligned.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorMisalignedAddress = 716,
+		/// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorMisalignedAddress = 716,
 
-		/// <summary>
-		/// While executing a kernel, the device encountered an instruction
-		/// which can only operate on memory locations in certain address spaces
-		/// (global, shared, or local), but was supplied a memory address not
-		/// belonging to an allowed address space.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorInvalidAddressSpace = 717,
+        /// <summary>
+        /// While executing a kernel, the device encountered an instruction
+        /// which can only operate on memory locations in certain address spaces
+        /// (global, shared, or local), but was supplied a memory address not
+        /// belonging to an allowed address space.
+        /// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorInvalidAddressSpace = 717,
 
-		/// <summary>
-		/// While executing a kernel, the device program counter wrapped its address space.
-		/// The context cannot be used, so it must be destroyed (and a new one should be created).
-		/// All existing device memory allocations from this context are invalid
-		/// and must be reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorInvalidPC = 718,
+        /// <summary>
+        /// While executing a kernel, the device program counter wrapped its address space.
+        /// This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorInvalidPC = 718,
 
-		/// <summary>
-		/// An exception occurred on the device while executing a kernel. Common
-		/// causes include dereferencing an invalid device pointer and accessing
-		/// out of bounds shared memory. The context cannot be used, so it must
-		/// be destroyed (and a new one should be created). All existing device
-		/// memory allocations from this context are invalid and must be
-		/// reconstructed if the program is to continue using CUDA.
-		/// </summary>
-		ErrorLaunchFailed = 719,
+        /// <summary>
+        /// An exception occurred on the device while executing a kernel. Common
+        /// causes include dereferencing an invalid device pointer and accessing
+        /// out of bounds shared memory. This leaves the process in an inconsistent state and any further CUDA work
+        /// will return the same error. To continue using CUDA, the process must be terminated
+        /// and relaunched.
+        /// </summary>
+        ErrorLaunchFailed = 719,
+        
+        /// <summary>
+        /// This error indicates that the number of blocks launched per grid for a kernel that was
+        /// launched via either ::cuLaunchCooperativeKernel or ::cuLaunchCooperativeKernelMultiDevice
+        /// exceeds the maximum number of blocks as allowed by ::cuOccupancyMaxActiveBlocksPerMultiprocessor
+        /// or ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags times the number of multiprocessors
+        /// as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.
+        /// </summary>
+        ErrorCooperativeLaunchTooLarge = 720,
 
 
 
 
-		
-		//Removed in update CUDA version 3.1 -> 3.2
-		///// <summary>
-		///// Attempted to retrieve 64-bit pointer via 32-bit API function
-		///// </summary>
-		//ErrorPointerIs64Bit = 800,
+        //Removed in update CUDA version 3.1 -> 3.2
+        ///// <summary>
+        ///// Attempted to retrieve 64-bit pointer via 32-bit API function
+        ///// </summary>
+        //ErrorPointerIs64Bit = 800,
 
-		///// <summary>
-		///// Attempted to retrieve 64-bit size via 32-bit API function
-		///// </summary>
-		//ErrorSizeIs64Bit = 801, 
+        ///// <summary>
+        ///// Attempted to retrieve 64-bit size via 32-bit API function
+        ///// </summary>
+        //ErrorSizeIs64Bit = 801, 
 
-		/// <summary>
-		/// This error indicates that the attempted operation is not permitted.
-		/// </summary>
-		ErrorNotPermitted = 800,
+        /// <summary>
+        /// This error indicates that the attempted operation is not permitted.
+        /// </summary>
+        ErrorNotPermitted = 800,
 
 		/// <summary>
 		/// This error indicates that the attempted operation is not supported
@@ -5059,7 +5157,15 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Represents a ::cuStreamWriteValue32 operation
         /// </summary>
-        WriteValue32 = 2, 
+        WriteValue32 = 2,
+        /// <summary>
+        /// Represents a ::cuStreamWaitValue64 operation
+        /// </summary>
+        WaitValue64 = 4,
+        /// <summary>
+        /// Represents a ::cuStreamWriteValue64 operation
+        /// </summary>
+        WriteValue64 = 5,
         /// <summary>
         /// This has the same effect as ::CU_STREAM_WAIT_VALUE_FLUSH, but as a standalone operation.
         /// </summary>
@@ -5086,17 +5192,36 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// The last location to which the range was prefetched
         /// </summary>
-        LastPrefetchLocation = 4 
+        LastPrefetchLocation = 4
     }
-    
-	#endregion
 
-	#region Enums (Flags)
+    /// <summary>
+    /// Shared memory carveout configurations
+    /// </summary>
+    public enum CUshared_carveout
+    {
+        /// <summary>
+        /// no preference for shared memory or L1 (default)
+        /// </summary>
+        Default = -1,
+        /// <summary>
+        /// prefer maximum available shared memory, minimum L1 cache
+        /// </summary>
+        MaxShared = 100,
+        /// <summary>
+        /// prefer maximum available L1 cache, minimum shared memory
+        /// </summary>
+        MaxL1 = 0
+    }
 
-	/// <summary>
-	/// Flags to register a graphics resource
-	/// </summary>
-	[Flags]
+    #endregion
+
+    #region Enums (Flags)
+
+    /// <summary>
+    /// Flags to register a graphics resource
+    /// </summary>
+    [Flags]
 	public enum CUGraphicsRegisterFlags
 	{
 		/// <summary>
@@ -5219,12 +5344,38 @@ namespace ManagedCuda.BasicTypes
 		/// Stream does not synchronize with stream 0 (the NULL stream)
 		/// </summary>
 		NonBlocking = 0x1,
-	}
-	
-	/// <summary>
-	/// CUDAArray3DFlags
-	/// </summary>
-	[Flags]
+    }
+
+    /// <summary>
+    /// CudaCooperativeLaunchMultiDeviceFlags
+    /// </summary>
+    [Flags]
+    public enum CudaCooperativeLaunchMultiDeviceFlags
+    {
+        /// <summary>
+        /// No flags
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// If set, each kernel launched as part of ::cuLaunchCooperativeKernelMultiDevice only
+        /// waits for prior work in the stream corresponding to that GPU to complete before the
+        /// kernel begins execution.
+        /// </summary>
+        NoPreLaunchSync = 0x01,
+
+        /// <summary>
+        /// If set, any subsequent work pushed in a stream that participated in a call to
+        /// ::cuLaunchCooperativeKernelMultiDevice will only wait for the kernel launched on
+        /// the GPU corresponding to that stream to complete before it begins execution.
+        /// </summary>
+        NoPostLaunchSync = 0x02,
+    }
+
+    /// <summary>
+    /// CUDAArray3DFlags
+    /// </summary>
+    [Flags]
 	public enum CUDAArray3DFlags
 	{
 		/// <summary>
@@ -5454,7 +5605,7 @@ namespace ManagedCuda.BasicTypes
     public enum CUstreamWaitValue_flags
     {
         /// <summary>
-        /// Wait until (int32_t)(*addr - value) >= 0. Note this is a cyclic comparison which ignores wraparound. (Default behavior.) 
+        /// Wait until (int32_t)(*addr - value) >= 0 (or int64_t for 64 bit values). Note this is a cyclic comparison which ignores wraparound. (Default behavior.) 
         /// </summary>
         GEQ = 0x0,
         /// <summary>
@@ -5465,6 +5616,12 @@ namespace ManagedCuda.BasicTypes
         /// Wait until (*addr &amp; value) != 0.
         /// </summary>
         And = 0x2,
+        /// <summary>
+        /// Wait until ~(*addr | value) != 0. Support for this operation can be
+        /// queried with ::cuDeviceGetAttribute() and ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR. 
+        /// Generally, this requires compute capability 7.0 or greater. 
+        /// </summary>
+        NOr = 0x3,
         /// <summary>
         /// Follow the wait operation with a flush of outstanding remote writes. This
         /// means that, if a remote write operation is guaranteed to have reached the

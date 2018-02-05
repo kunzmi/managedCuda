@@ -5205,19 +5205,19 @@ namespace ManagedCuda.NPP
 		}
 
 
-		/// <summary>
-		/// Resizes images.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void Resize(NPPImage_16uC4 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_C4R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_C4R", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Resizes images.
+		///// </summary>
+		///// <param name="dest">Destination image</param>
+		///// <param name="xFactor">X scaling factor</param>
+		///// <param name="yFactor">Y scaling factor</param>
+		///// <param name="eInterpolation">Interpolation mode</param>
+		//public void Resize(NPPImage_16uC4 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
+		//{
+		//	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_C4R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_C4R", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 		#endregion
 
@@ -5696,19 +5696,19 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiScale_16u8u_AC4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		/// <summary>
-		/// Resizes images. Not affecting Alpha.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void ResizeA(NPPImage_16uC4 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_AC4R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_AC4R", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Resizes images. Not affecting Alpha.
+		///// </summary>
+		///// <param name="dest">Destination image</param>
+		///// <param name="xFactor">X scaling factor</param>
+		///// <param name="yFactor">Y scaling factor</param>
+		///// <param name="eInterpolation">Interpolation mode</param>
+		//public void ResizeA(NPPImage_16uC4 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
+		//{
+		//	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_AC4R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_AC4R", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 		#endregion
 
 		#region LUT
@@ -5951,28 +5951,28 @@ namespace ManagedCuda.NPP
 		}
 
 
-		/// <summary>
-		/// resizes planar images.
-		/// </summary>
-		/// <param name="src0">Source image (Channel 0)</param>
-		/// <param name="src1">Source image (Channel 1)</param>
-		/// <param name="src2">Source image (Channel 2)</param>
-		/// <param name="src3">Source image (Channel 3)</param>
-		/// <param name="dest0">Destination image (Channel 0)</param>
-		/// <param name="dest1">Destination image (Channel 1)</param>
-		/// <param name="dest2">Destination image (Channel 2)</param>
-		/// <param name="dest3">Destination image (Channel 3)</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public static void Resize(NPPImage_16uC1 src0, NPPImage_16uC1 src1, NPPImage_16uC1 src2, NPPImage_16uC1 src3, NPPImage_16uC1 dest0, NPPImage_16uC1 dest1, NPPImage_16uC1 dest2, NPPImage_16uC1 dest3, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer, src3.DevicePointer };
-			CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi, dest3.DevicePointerRoi };
-			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_P4R(src, src0.Size, src0.Pitch, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_P4R", status));
-			NPPException.CheckNppStatus(status, null);
-		}
+		///// <summary>
+		///// resizes planar images.
+		///// </summary>
+		///// <param name="src0">Source image (Channel 0)</param>
+		///// <param name="src1">Source image (Channel 1)</param>
+		///// <param name="src2">Source image (Channel 2)</param>
+		///// <param name="src3">Source image (Channel 3)</param>
+		///// <param name="dest0">Destination image (Channel 0)</param>
+		///// <param name="dest1">Destination image (Channel 1)</param>
+		///// <param name="dest2">Destination image (Channel 2)</param>
+		///// <param name="dest3">Destination image (Channel 3)</param>
+		///// <param name="xFactor">X scaling factor</param>
+		///// <param name="yFactor">Y scaling factor</param>
+		///// <param name="eInterpolation">Interpolation mode</param>
+		//public static void Resize(NPPImage_16uC1 src0, NPPImage_16uC1 src1, NPPImage_16uC1 src2, NPPImage_16uC1 src3, NPPImage_16uC1 dest0, NPPImage_16uC1 dest1, NPPImage_16uC1 dest2, NPPImage_16uC1 dest3, double xFactor, double yFactor, InterpolationMode eInterpolation)
+		//{
+		//	CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer, src3.DevicePointer };
+		//	CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi, dest3.DevicePointerRoi };
+		//	NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_P4R(src, src0.Size, src0.Pitch, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.SizeRoi, xFactor, yFactor, eInterpolation);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_P4R", status));
+		//	NPPException.CheckNppStatus(status, null);
+		//}
 
 
 
@@ -7463,6 +7463,55 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, this);
 		}
 
-		#endregion
-	}
+        #endregion
+
+        #region New in Cuda 9.0
+
+
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_16uC4 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_C4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Resizes images. Not affecting Alpha.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void ResizeA(NPPImage_16uC4 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_AC4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_AC4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// resizes planar images.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="src3">Source image (Channel 3)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        /// <param name="dest3">Destination image (Channel 3)</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public static void Resize(NPPImage_16uC1 src0, NPPImage_16uC1 src1, NPPImage_16uC1 src2, NPPImage_16uC1 src3, NPPImage_16uC1 dest0, NPPImage_16uC1 dest1, NPPImage_16uC1 dest2, NPPImage_16uC1 dest3, InterpolationMode eInterpolation)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer, src3.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer, dest3.DevicePointer };
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_P4R(src, src0.Pitch, src0.Size, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.Size, new NppiRect(dest0.PointRoi, dest0.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_P4R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+    }
 }

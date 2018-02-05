@@ -225,7 +225,10 @@ namespace ManagedCuda
 				case CUResult.NVLinkUncorrectable:
 					message = "This indicates that an uncorrectable NVLink error was detected during the execution.";
 					break;
-				case CUResult.ErrorInvalidSource:
+                case CUResult.JITCompilerNotFound:
+                    message = "This indicates that the PTX JIT compiler library was not found.";
+                    break;
+                case CUResult.ErrorInvalidSource:
 					message = "This indicates that the device kernel source is invalid.";
 					break;
 				case CUResult.ErrorFileNotFound:
@@ -250,13 +253,13 @@ namespace ManagedCuda
 					message = "This indicates that asynchronous operations issued previously have not completed yet. This result is not actually an error, but must be indicated differently than CUDA_SUCCESS (which indicates completion). Calls that may return this value include cuEventQuery() and cuStreamQuery().";
 					break;
 				case CUResult.ErrorIllegalAddress:
-					message = "While executing a kernel, the device encountered a load or store instruction on an invalid memory address.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device encountered a load or store instruction on an invalid memory address.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorLaunchOutOfResources:
 					message = "This indicates that a launch did not occur because it did not have appropriate resources. This error usually indicates that the user has attempted to pass too many arguments to the device kernel, or the kernel launch specifies too many threads for the kernel's register count. Passing arguments of the wrong size (i.e. a 64-bit pointer when a 32-bit int is expected) is equivalent to passing too many arguments and can also result in this error.";
 					break;
 				case CUResult.ErrorLaunchTimeout:
-					message = "This indicates that the device kernel took too long to execute. This can only occur if timeouts are enabled - see the device attribute CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT for more information. The context cannot be used (and must be destroyed similar to CUDA_ERROR_LAUNCH_FAILED). All existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "This indicates that the device kernel took too long to execute. This can only occur if timeouts are enabled - see the device attribute CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT for more information. This leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorLaunchIncompatibleTexturing:
 					message = "This error indicates a kernel launch that uses an incompatible texturing mode.";
@@ -274,7 +277,7 @@ namespace ManagedCuda
 					message = "This error indicates that the context current to the calling thread has been destroyed using ::cuCtxDestroy, or is a primary context which has not yet been initialized.";
 					break;
 				case CUResult.ErrorAssert:
-					message = "A device-side assert triggered during kernel execution. The context cannot be used anymore, and must be destroyed. All existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "A device-side assert triggered during kernel execution. This leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorTooManyPeers:
 					message = "This error indicates that the hardware resources required to enable peer access have been exhausted for one or more of the devices passed to cuCtxEnablePeerAccess().";
@@ -286,22 +289,25 @@ namespace ManagedCuda
 					message = "This error indicates that the pointer passed to cuMemHostUnregister() does not correspond to any currently registered memory region.";
 					break;
 				case CUResult.ErrorHardwareStackError:
-					message = "While executing a kernel, the device encountered a stack error.\nThis can be due to stack corruption or exceeding the stack size limit.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device encountered a stack error.\nThis can be due to stack corruption or exceeding the stack size limit.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorIllegalInstruction:
-					message = "While executing a kernel, the device encountered an illegal instruction.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device encountered an illegal instruction.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorMisalignedAddress:
-					message = "While executing a kernel, the device encountered a load or store instruction on a memory address which is not aligned.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device encountered a load or store instruction on a memory address which is not aligned.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorInvalidAddressSpace:
-					message = "While executing a kernel, the device encountered an instruction which can only operate on memory locations in certain address spaces (global, shared, or local), but was supplied a memory address not belonging to an allowed address space.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device encountered an instruction which can only operate on memory locations in certain address spaces (global, shared, or local), but was supplied a memory address not belonging to an allowed address space.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorInvalidPC:
-					message = "While executing a kernel, the device program counter wrapped its address space.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "While executing a kernel, the device program counter wrapped its address space.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
 					break;
 				case CUResult.ErrorLaunchFailed:
-					message = "An exception occurred on the device while executing a kernel. Common causes include dereferencing an invalid device pointer and accessing out of bounds shared memory.\nThe context cannot be used, so it must be destroyed (and a new one should be created).\nAll existing device memory allocations from this context are invalid and must be reconstructed if the program is to continue using CUDA.";
+					message = "An exception occurred on the device while executing a kernel. Common causes include dereferencing an invalid device pointer and accessing out of bounds shared memory.\nThis leaves the process in an inconsistent state and any further CUDA work will return the same error.\nTo continue using CUDA, the process must be terminated and relaunched.";
+					break;
+				case CUResult.ErrorCooperativeLaunchTooLarge:
+					message = "This error indicates that the number of blocks launched per grid for a kernel that was launched via either ::cuLaunchCooperativeKernel or ::cuLaunchCooperativeKernelMultiDevice exceeds the maximum number of blocks as allowed by ::cuOccupancyMaxActiveBlocksPerMultiprocessor or ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags times the number of multiprocessors as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.";
 					break;
 				case CUResult.ErrorNotPermitted:
 					message = "This error indicates that the attempted operation is not permitted.";

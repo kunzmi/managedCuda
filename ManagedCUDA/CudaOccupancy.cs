@@ -33,9 +33,6 @@ namespace ManagedCuda
 	/// </summary>
 	public class CudaOccupancy
 	{
-		const int MIN_SHARED_MEM_PER_SM = 16384;
-		const int MIN_SHARED_MEM_PER_SM_GK210 = 81920;
-
 		/// <summary>
 		/// mirror the type and spelling of cudaDeviceProp's members keep these alphabetized
 		/// </summary>
@@ -59,7 +56,9 @@ namespace ManagedCuda
 			/// <summary/>
 			public SizeT sharedMemPerMultiprocessor;
 			/// <summary/>
-			public int numSms; 
+			public int numSms;
+			/// <summary/>
+			public SizeT sharedMemPerBlockOptin;
 
 			/// <summary/>
 			public cudaOccDeviceProp()
@@ -87,6 +86,7 @@ namespace ManagedCuda
 				sharedMemPerBlock = props.SharedMemoryPerBlock;
 				sharedMemPerMultiprocessor = props.MaxSharedMemoryPerMultiprocessor;
 				numSms = props.MultiProcessorCount;
+                sharedMemPerBlockOptin = props.MaxSharedMemoryPerBlockOptin;
 			}
 		}
 
@@ -104,36 +104,44 @@ namespace ManagedCuda
 			public SizeT sharedSizeBytes;
 			/// <summary/>
 			public cudaOccPartitionedGCConfig partitionedGCConfig;
+            /// <summary/>
+            public cudaOccFuncShmemConfig shmemLimitConfig;
+            /// <summary/>
+            public SizeT maxDynamicSharedSizeBytes;
 
-			/// <summary>
-			/// 
-			/// </summary>
-			public cudaOccFuncAttributes()
+            /// <summary>
+            /// 
+            /// </summary>
+            public cudaOccFuncAttributes()
 			{ 
 			
 			}
 
-			/// <summary>
-			/// cudaOccFuncAttributes
-			/// </summary>
-			/// <param name="aMaxThreadsPerBlock"></param>
-			/// <param name="aNumRegs"></param>
-			/// <param name="aSharedSizeBytes">Only the static part shared memory (without dynamic allocations)</param>
-			/// <param name="partitionedGC"></param>
-			public cudaOccFuncAttributes(int aMaxThreadsPerBlock, int aNumRegs, SizeT aSharedSizeBytes, cudaOccPartitionedGCConfig partitionedGC)
+            /// <summary>
+            /// cudaOccFuncAttributes
+            /// </summary>
+            /// <param name="aMaxThreadsPerBlock"></param>
+            /// <param name="aNumRegs"></param>
+            /// <param name="aSharedSizeBytes">Only the static part shared memory (without dynamic allocations)</param>
+            /// <param name="partitionedGC"></param>
+            /// <param name="aShmemConfig"></param>
+            /// <param name="aMaxDynamicSharedMemSizeBytes"></param>
+            public cudaOccFuncAttributes(int aMaxThreadsPerBlock, int aNumRegs, SizeT aSharedSizeBytes, cudaOccPartitionedGCConfig partitionedGC, cudaOccFuncShmemConfig aShmemConfig, SizeT aMaxDynamicSharedMemSizeBytes)
 			{
 				maxThreadsPerBlock = aMaxThreadsPerBlock;
 				numRegs = aNumRegs;
 				sharedSizeBytes = aSharedSizeBytes;
 				partitionedGCConfig = partitionedGC;
-			}
+                shmemLimitConfig = aShmemConfig;
+                maxDynamicSharedSizeBytes = aMaxDynamicSharedMemSizeBytes;
+            }
 
 			/// <summary>
 			/// 
 			/// </summary>
 			/// <param name="aKernel"></param>
 			public cudaOccFuncAttributes(CudaKernel aKernel)
-				: this(aKernel.MaxThreadsPerBlock, aKernel.Registers, aKernel.SharedMemory, cudaOccPartitionedGCConfig.Off)
+				: this(aKernel.MaxThreadsPerBlock, aKernel.Registers, aKernel.SharedMemory, cudaOccPartitionedGCConfig.Off, cudaOccFuncShmemConfig.Optin, aKernel.MaxDynamicSharedSizeBytes)
 			{ 
 			
 			}
@@ -248,10 +256,45 @@ namespace ManagedCuda
 			OnStrict
 		};
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public class cudaOccResult
+
+        /// <summary>
+        /// Per function opt in maximum dynamic shared memory limit
+        /// </summary>
+        public enum cudaOccFuncShmemConfig
+        {
+            /// <summary>
+            /// Default shmem limit
+            /// </summary>
+            Default,
+            /// <summary>
+            /// Use the optin shmem limit
+            /// </summary>
+            Optin
+        };
+
+        /// <summary>
+        /// Shared memory carveout configurations
+        /// </summary>
+        public enum cudaOccCarveoutConfig
+        {
+            /// <summary>
+            /// no preference for shared memory or L1 (default)
+            /// </summary>
+            Default = -1,
+            /// <summary>
+            /// prefer maximum available shared memory, minimum L1 cache
+            /// </summary>
+            MaxShared = 100,
+            /// <summary>
+            /// prefer maximum available L1 cache, minimum shared memory
+            /// </summary>
+            MaxL1 = 0
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public class cudaOccResult
 		{
 			/// <summary>
 			/// Active Thread Blocks per Multiprocessor
@@ -285,7 +328,9 @@ namespace ManagedCuda
 		{
 			/// <summary/>
 			public cudaOccCacheConfig cacheConfig;
-		}
+            /// <summary/>
+            public cudaOccCarveoutConfig carveoutConfig;
+        }
 
 		// get the minimum out of two parameters
 		private static int __occMin(int lhs, int rhs)
@@ -322,8 +367,9 @@ namespace ManagedCuda
 				//case 1:  return 512;
 				case 2:  return 128;
 				case 3:
-				case 5: 
-				case 6: return 256;
+                case 5:
+                case 6:
+                case 7: return 256;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -352,8 +398,9 @@ namespace ManagedCuda
 								return 64;
 						 }
 				case 3:
-				case 5:
-				case 6:  return 256;
+                case 5:
+                case 6:
+                case 7:  return 256;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -378,8 +425,9 @@ namespace ManagedCuda
 				case 2: return 2;
 				case 3: return 4;
 				case 5: return 4;
-				case 6: return 4;
-				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+                case 6: return 4;
+                case 7: return 4;
+                default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
 
@@ -394,45 +442,58 @@ namespace ManagedCuda
 				case 2: return 8;
 				case 3: return 16;
 				case 5: return 32;
-				case 6: return 32;
-				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+                case 6: return 32;
+                case 7: return 32;
+                default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
 
-		///*!
-		// * Map int to cudaOccCacheConfig
-		// */
-		//private static cudaOccCacheConfig cudaOccGetCacheConfig(cudaOccDeviceState state)
-		//{
-		//    switch(state.cacheConfig)
-		//    {
-		//        case 0:  return cudaOccCacheConfig.PreferNone;
-		//        case 1:  return cudaOccCacheConfig.PreferShared;
-		//        case 2:  return cudaOccCacheConfig.PreferL1;
-		//        case 3:  return cudaOccCacheConfig.PreferEqual;
-		//        default: return cudaOccCacheConfig.PreferNone;
-		//    }
-		//}
+        
 
-		/*!
-		 * Shared memory based on config requested by User
-		 */
-		private static SizeT cudaOccSMemPerMultiprocessor(cudaOccDeviceProp properties, cudaOccCacheConfig cacheConfig)
+        /*!
+         * Shared memory based on config requested by User
+         */
+        private static SizeT cudaOccSMemPerMultiprocessor(cudaOccDeviceProp properties, cudaOccDeviceState state)
 		{
-			SizeT bytes = 0;
+            cudaOccCarveoutConfig carveoutConfig = state.carveoutConfig;
+            SizeT bytes = 0;
 			SizeT sharedMemPerMultiprocessorHigh = (int)properties.sharedMemPerMultiprocessor;
-			// Fermi and Kepler has shared L1 cache / shared memory, and support cache
-			// configuration to trade one for the other. These values are needed to
-			// calculate the correct shared memory size for user requested cache
-			// configuration.
-			//
-			SizeT minCacheSize = 16384;
-			SizeT maxCacheSize = 49152;
+            
+            // Fermi and Kepler has shared L1 cache / shared memory, and support cache
+            // configuration to trade one for the other. These values are needed to
+            // calculate the correct shared memory size for user requested cache
+            // configuration.
+            //
+            SizeT minCacheSize = (7 == properties.computeMajor) ? 32768 : 16384;
+			SizeT maxCacheSize = (7 == properties.computeMajor) ? 98304 : 49152;
 			SizeT cacheAndSharedTotal = sharedMemPerMultiprocessorHigh + minCacheSize;
 			SizeT sharedMemPerMultiprocessorLow = cacheAndSharedTotal - maxCacheSize;
 
+            // Volta introduces a new API to set shared memory - L1 configuration on supported
+            // devices. Map the new setting to cacheConfig
+            cudaOccCacheConfig cacheConfig;
+            if (carveoutConfig == cudaOccCarveoutConfig.Default)
+            {
+                cacheConfig = state.cacheConfig;
+            }
+            else
+            {
+                SizeT midPoint = (int)cudaOccCarveoutConfig.MaxShared / 2;
+                if ((int)carveoutConfig < midPoint)
+                {
+                    cacheConfig = cudaOccCacheConfig.PreferL1;
+                }
+                else if ((int)carveoutConfig > midPoint)
+                {
+                    cacheConfig = cudaOccCacheConfig.PreferShared;
+                }
+                else
+                {
+                    cacheConfig = cudaOccCacheConfig.PreferEqual;
+                }
+            }
 
-			switch (properties.computeMajor)
+            switch (properties.computeMajor)
 			{
 				case 2:
 					// Fermi supports 48KB / 16KB or 16KB / 48KB partitions for shared /
@@ -479,17 +540,74 @@ namespace ManagedCuda
 					//
 					bytes = sharedMemPerMultiprocessorHigh;
 					break;
-				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+                case 7:
+                    // Volta (total 128K) supports 0KB, 8KB, 16KB, 32KB, 64KB, and 96KB shared mem.
+                    // Thus, map the cache preference (PREFER_SHARED, PREFER_L1, PREFER_EQUAL) to 96K, 32K, 64K.
+                    switch (cacheConfig)
+                    {
+                        default:
+                        case cudaOccCacheConfig.PreferNone:
+                        case cudaOccCacheConfig.PreferShared:
+                            bytes = sharedMemPerMultiprocessorHigh;  // 96K
+                            break;
+                        case cudaOccCacheConfig.PreferL1:
+                            bytes = sharedMemPerMultiprocessorLow;  // 32K
+                            break;
+                        case cudaOccCacheConfig.PreferEqual:
+                            // Equal is the mid-point between high and low. It should be 64K.
+                            bytes = (sharedMemPerMultiprocessorHigh + sharedMemPerMultiprocessorLow) / 2;
+                            break;
+                    }
+                    break;
+                default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 
 			return bytes;
 		}
 
-		
-		/**
-		 * Partitioned global caching mode support
-		 */
-		private static cudaOccPartitionedGCSupport cudaOccPartitionedGlobalCachingModeSupport(cudaOccDeviceProp properties)
+        
+
+        /**
+         * Return the per block shared memory limit based on function config
+         */
+        static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemConfig shmemLimitConfig, SizeT smemPerCta)
+        {
+            switch (properties.computeMajor)
+            {
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    return properties.sharedMemPerBlock;
+                case 7:
+                    switch (shmemLimitConfig)
+                    {
+                        //default:
+                        case cudaOccFuncShmemConfig.Default:
+                            return properties.sharedMemPerBlock;
+                        case cudaOccFuncShmemConfig.Optin:
+                            if (smemPerCta > properties.sharedMemPerBlock)
+                            {
+                                return properties.sharedMemPerBlockOptin;
+                            }
+                            else
+                            {
+                                return properties.sharedMemPerBlock;
+                            }
+                    }
+                    break;
+                default:
+                    throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+            }
+            throw new CudaOccupancyException(cudaOccError.ErrorInvalidInput);
+        }
+
+
+        /**
+         * Partitioned global caching mode support
+         */
+        private static cudaOccPartitionedGCSupport cudaOccPartitionedGlobalCachingModeSupport(cudaOccDeviceProp properties)
 		{
 			cudaOccPartitionedGCSupport limit = cudaOccPartitionedGCSupport.NotSupported;
 
@@ -683,46 +801,86 @@ namespace ManagedCuda
 			int allocationGranularity;
 			SizeT userSmemPreference;
 			SizeT totalSmemUsagePerCTA;
-			SizeT smemAllocatedPerCTA;
+            SizeT maxSmemUsagePerCTA;
+            SizeT smemAllocatedPerCTA;
 			SizeT sharedMemPerMultiprocessor;
-			int maxBlocks;
+            SizeT smemLimitPerCTA;
+            int maxBlocks;
+            int dynamicSmemSizeExceeded = 0;
+            int totalSmemSizeExceeded = 0;
 
-			allocationGranularity = cudaOccSMemAllocationGranularity(properties);
+            allocationGranularity = cudaOccSMemAllocationGranularity(properties);
 			
 
 			// Obtain the user preferred shared memory size. This setting is ignored if
 			// user requests more shared memory than preferred.
 			//
-			userSmemPreference = cudaOccSMemPerMultiprocessor(properties, state.cacheConfig);
+			userSmemPreference = cudaOccSMemPerMultiprocessor(properties, state);
 
 			totalSmemUsagePerCTA = attributes.sharedSizeBytes + dynamicSmemSize;
 			smemAllocatedPerCTA = __occRoundUp((int)totalSmemUsagePerCTA, (int)allocationGranularity);
 
-			if (smemAllocatedPerCTA > properties.sharedMemPerBlock) {
-				maxBlocks = 0;
-			}
-			else {
-				// User requested shared memory limit is used as long as it is greater
-				// than the total shared memory used per CTA, i.e. as long as at least
-				// one CTA can be launched. Otherwise, the maximum shared memory limit
-				// is used instead.
-				//
-				if (userSmemPreference >= smemAllocatedPerCTA) {
-					sharedMemPerMultiprocessor = userSmemPreference;
-				}
-				else{
-					sharedMemPerMultiprocessor = properties.sharedMemPerMultiprocessor;
-				}
+            maxSmemUsagePerCTA = attributes.sharedSizeBytes + attributes.maxDynamicSharedSizeBytes;
 
-				if (smemAllocatedPerCTA > 0) {
-					maxBlocks = (int)(sharedMemPerMultiprocessor / smemAllocatedPerCTA);
-				}
-				else {
-					maxBlocks = int.MaxValue;
-				}
-			}
+            dynamicSmemSizeExceeded = 0;
+            totalSmemSizeExceeded = 0;
 
-			result.AllocatedSharedMemPerBlock = smemAllocatedPerCTA;
+            // Obtain the user set maximum dynamic size if it exists
+            // If so, the current launch dynamic shared memory must not
+            // exceed the set limit
+            if (attributes.shmemLimitConfig != cudaOccFuncShmemConfig.Default &&
+                dynamicSmemSize > attributes.maxDynamicSharedSizeBytes)
+            {
+                dynamicSmemSizeExceeded = 1;
+            }
+
+            smemLimitPerCTA = cudaOccSMemPerBlock(properties, attributes.shmemLimitConfig, maxSmemUsagePerCTA);
+            
+
+            if (smemAllocatedPerCTA > smemLimitPerCTA)
+            {
+                totalSmemSizeExceeded = 1;
+            }
+
+            if (dynamicSmemSizeExceeded != 0 || totalSmemSizeExceeded != 0)
+            {
+                maxBlocks = 0;
+            }
+            else
+            {
+                // User requested shared memory limit is used as long as it is greater
+                // than the total shared memory used per CTA, i.e. as long as at least
+                // one CTA can be launched.
+                if (userSmemPreference >= smemAllocatedPerCTA)
+                {
+                    sharedMemPerMultiprocessor = userSmemPreference;
+                }
+                else
+                {
+                    // On Volta+, user requested shared memory will limit occupancy
+                    // if it's less than shared memory per CTA. Otherwise, the
+                    // maximum shared memory limit is used.
+                    if (properties.computeMajor >= 7)
+                    {
+                        sharedMemPerMultiprocessor = smemAllocatedPerCTA;
+                    }
+                    else
+                    {
+                        sharedMemPerMultiprocessor = properties.sharedMemPerMultiprocessor;
+                    }
+                }
+
+                if (smemAllocatedPerCTA > 0)
+                {
+                    maxBlocks = (int)(sharedMemPerMultiprocessor / smemAllocatedPerCTA);
+                }
+                else
+                {
+                    maxBlocks = int.MaxValue;
+                }
+            }
+
+            result.AllocatedSharedMemPerBlock = smemAllocatedPerCTA;
 
 			return maxBlocks;
 		}

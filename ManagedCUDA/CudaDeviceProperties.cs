@@ -119,6 +119,12 @@ namespace ManagedCuda
 		private bool _concurrentManagedAccess;
 		private bool _computePreemptionSupported;
 		private bool _canUseHostPointerForRegisteredMem;
+        private bool _canUseStreamMemOps;
+        private bool _canUse64BitStreamMemOps;
+        private bool _canUseStreamWaitValueNOr;
+        private bool _cooperativeLaunch;
+        private bool _cooperativeMultiDeviceLaunch;
+        private int _maxSharedMemoryPerBlockOptin;
 
 		// Properties
 		/// <summary>
@@ -918,5 +924,55 @@ namespace ManagedCuda
 			get { return this._canUseHostPointerForRegisteredMem; }
 			internal set { this._canUseHostPointerForRegisteredMem = value; }
 		}
-	}
+
+        /// <summary>
+        /// cuStreamBatchMemOp and related APIs are supported.
+        /// </summary>
+        public bool CanUseStreamMemOps
+        {
+            get { return this._canUseStreamMemOps; }
+            internal set { this._canUseStreamMemOps = value; }
+        }
+
+        /// <summary>
+        /// 64-bit operations are supported in ::cuStreamBatchMemOp and related APIs.
+        /// </summary>
+        public bool CanUse64BitStreamMemOps
+        {
+            get { return this._canUse64BitStreamMemOps; }
+            internal set { this._canUse64BitStreamMemOps = value; }
+        }
+        /// <summary>
+        /// CU_STREAM_WAIT_VALUE_NOR is supported.
+        /// </summary>
+        public bool CanUseStreamWaitValueNOr
+        {
+            get { return this._canUseStreamWaitValueNOr; }
+            internal set { this._canUseStreamWaitValueNOr = value; }
+        }
+        /// <summary>
+        /// Device supports launching cooperative kernels via ::cuLaunchCooperativeKernel
+        /// </summary>
+        public bool CooperativeLaunch
+        {
+            get { return this._cooperativeLaunch; }
+            internal set { this._cooperativeLaunch = value; }
+        }
+        /// <summary>
+        /// Device can participate in cooperative kernels launched via ::cuLaunchCooperativeKernelMultiDevice
+        /// </summary>
+        public bool CooperativeMultiDeviceLaunch
+        {
+            get { return this._cooperativeMultiDeviceLaunch; }
+            internal set { this._cooperativeMultiDeviceLaunch = value; }
+        }
+        /// <summary>
+        /// Maximum optin shared memory per block
+        /// </summary>
+        public int MaxSharedMemoryPerBlockOptin
+        {
+            get { return this._maxSharedMemoryPerBlockOptin; }
+            internal set { this._maxSharedMemoryPerBlockOptin = value; }
+        }
+    }
 }
