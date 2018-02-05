@@ -1665,9 +1665,9 @@ namespace ManagedCuda.CudaDNN
         /// <param name="c_desc">Handle to a previously initialized tensor descriptor.</param>
         /// <param name="c">Output pointer to data of the tensor described by the c_desc.</param>
         public void OpTensor(OpTensorDescriptor op_desc,
-            double alpha1, TensorDescriptor a_desc, CudaDeviceVariable<float> a,
-            double alpha2, TensorDescriptor b_desc, CudaDeviceVariable<float> b,
-            double beta, TensorDescriptor c_desc, CudaDeviceVariable<float> c)
+            double alpha1, TensorDescriptor a_desc, CudaDeviceVariable<double> a,
+            double alpha2, TensorDescriptor b_desc, CudaDeviceVariable<double> b,
+            double beta, TensorDescriptor c_desc, CudaDeviceVariable<double> c)
         {
             res = CudaDNNNativeMethods.cudnnOpTensor(_handle, op_desc.Desc,
                 ref alpha1, a_desc.Desc, a.DevicePointer,
