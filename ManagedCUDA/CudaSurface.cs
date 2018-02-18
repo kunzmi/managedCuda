@@ -48,21 +48,22 @@ namespace ManagedCuda
 		CudaArray3D _array;
 		CUResult res;
 		bool disposed;
+        bool _isOwner;
 
-		#region Construtors
-		/// <summary>
-		/// Creates a new surface from array memory. Allocates new array.
-		/// </summary>
-		/// <param name="kernel"></param>
-		/// <param name="surfName"></param>
-		/// <param name="flags"></param>
-		/// <param name="format"></param>
-		/// <param name="width">In elements</param>
-		/// <param name="height">In elements</param>
-		/// <param name="depth">In elements</param>
-		/// <param name="numChannels"></param>
-		/// <param name="arrayFlags"></param>
-		public CudaSurface(CudaKernel kernel, string surfName, CUSurfRefSetFlags flags, CUArrayFormat format, SizeT width, SizeT height, SizeT depth, CudaArray3DNumChannels numChannels, CUDAArray3DFlags arrayFlags)
+        #region Construtors
+        /// <summary>
+        /// Creates a new surface from array memory. Allocates new array.
+        /// </summary>
+        /// <param name="kernel"></param>
+        /// <param name="surfName"></param>
+        /// <param name="flags"></param>
+        /// <param name="format"></param>
+        /// <param name="width">In elements</param>
+        /// <param name="height">In elements</param>
+        /// <param name="depth">In elements</param>
+        /// <param name="numChannels"></param>
+        /// <param name="arrayFlags"></param>
+        public CudaSurface(CudaKernel kernel, string surfName, CUSurfRefSetFlags flags, CUArrayFormat format, SizeT width, SizeT height, SizeT depth, CudaArray3DNumChannels numChannels, CUDAArray3DFlags arrayFlags)
 		{
 			_surfref = new CUsurfref();
 			res = DriverAPINativeMethods.ModuleManagement.cuModuleGetSurfRef(ref _surfref, kernel.CUModule, surfName);
@@ -86,7 +87,8 @@ namespace ManagedCuda
 			res = DriverAPINativeMethods.SurfaceReferenceManagement.cuSurfRefSetArray(_surfref, _array.CUArray, flags);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuSurfRefSetArray", res));
 			if (res != CUResult.Success) throw new CudaException(res);
-		}
+            _isOwner = true;
+        }
 
 		/// <summary>
 		/// Creates a new surface from array memory.
@@ -118,7 +120,8 @@ namespace ManagedCuda
 			res = DriverAPINativeMethods.SurfaceReferenceManagement.cuSurfRefSetArray(_surfref, _array.CUArray, flags);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuSurfRefSetArray", res));
 			if (res != CUResult.Success) throw new CudaException(res);
-		}
+            _isOwner = false;
+        }
 
 		/// <summary>
 		/// For dispose
@@ -147,7 +150,11 @@ namespace ManagedCuda
 		{
 			if (fDisposing && !disposed)
 			{
-				_array.Dispose();
+                if (_isOwner)
+                {
+                    //Dispose the internal array only if it was created internally
+                    _array.Dispose();
+                }
 				disposed = true;
 				// the _surfref reference is not destroyed explicitly, as it is done automatically when module is unloaded
 			}
