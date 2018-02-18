@@ -97,7 +97,10 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         public cudnnDeterminism determinism;
 
-        int reserved0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnMathType mathType;
         int reserved1;
         int reserved2;
         int reserved3;
@@ -137,7 +140,10 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         public cudnnDeterminism determinism;
 
-        int reserved0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnMathType mathType;
         int reserved1;
         int reserved2;
         int reserved3;
@@ -177,7 +183,10 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         public cudnnDeterminism determinism;
 
-        int reserved0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnMathType mathType;
         int reserved1;
         int reserved2;
         int reserved3;
@@ -331,6 +340,24 @@ namespace ManagedCuda.CudaDNN
     {
         private IntPtr Pointer;
     }
+
+    /// <summary>
+    /// Forward definition in this version only
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnRuntimeTag
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnCTCLossDescriptor
+    {
+        private IntPtr Pointer;
+    }
     #endregion
 
     #region enums
@@ -423,8 +450,16 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// 
         /// </summary>
-        RuntimePrerequisiteMissing = 11
-	}
+        RuntimePrerequisiteMissing = 11,
+        /// <summary>
+        /// 
+        /// </summary>
+        RuntimInProgress = 12,
+        /// <summary>
+        /// 
+        /// </summary>
+        RuntimeFPOverflow = 13
+    }
 
 	/// <summary>
 	/// cudnnDataType is an enumerated type indicating the data type to which a tensor
@@ -931,7 +966,12 @@ namespace ManagedCuda.CudaDNN
         /// convolutional layers (where spatial invariance is desired). In this mode bnBias, bnScale tensor
         /// dimensions are 1xCx1x1.
         /// </summary>
-        BatchNormSpatial = 1
+        BatchNormSpatial = 1,
+        /// <summary>
+        /// bnScale, bnBias tensor dims are 1xCx1x1 (one value per C-dim normalized over Nx1xHxW subtensors). 
+        /// May be faster than CUDNN_BATCHNORM_SPATIAL but imposes some limits on the range of values
+        /// </summary>
+        BatchNormSpatialPersitent = 2
     }
 
     /// <summary>
@@ -961,6 +1001,10 @@ namespace ManagedCuda.CudaDNN
         /// 
         /// </summary>
         OpTensorSqrt = 4,
+        /// <summary>
+        /// 
+        /// </summary>
+        OpTensorNot = 5,
     }
 
     /// <summary>
@@ -1139,6 +1183,10 @@ namespace ManagedCuda.CudaDNN
         /// The operation to be performed is a square root of sum of squares
         /// </summary>
         Norm2 = 7,
+        /// <summary>
+        /// 
+        /// </summary>
+        MulNoZeros = 8,
     }
 
     /// <summary>
@@ -1226,6 +1274,55 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         PersistDynamic = 2
     }
-    ;  
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum cudnnErrQueryMode
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        RawCode = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        NonBlocking = 1,
+        /// <summary>
+        /// 
+        /// </summary>
+        Blocking = 2
+    }
+
+    /// <summary>
+    /// CUDNN math type
+    /// </summary>
+    public enum cudnnMathType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        TensorOP = 1
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum cudnnCTCLossAlgo
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Deterministic = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        NonDeterministic = 1
+    }
+  
     #endregion
 }

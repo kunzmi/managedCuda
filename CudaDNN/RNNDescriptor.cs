@@ -99,25 +99,26 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// This function initializes a previously created RNN descriptor object.
         /// </summary>
+        /// <param name="ctx">Handle to a previously created cuDNN library descriptor.</param>
         /// <param name="hiddenSize">Size of the internal hidden state for each layer.</param>
-        /// <param name="seqLength">Number of iterations to unroll over.</param>
         /// <param name="numLayers">Number of layers.</param>
         /// <param name="dropoutDesc">Handle to a previously created and initialized dropout descriptor.</param>
         /// <param name="inputMode">Specifies the behavior at the input to the first layer.</param>
         /// <param name="direction">Specifies the recurrence pattern. (eg. bidirectional)</param>
         /// <param name="mode">The type of RNN to compute.</param>
+        /// <param name="algo">Specifies which RNN algorithm should be used to compute the results.</param>
         /// <param name="dataType">Math precision.</param>
-        public void SetRNNDescriptor(
+        public void SetRNNDescriptor(CudaDNNContext ctx,
                                                         int hiddenSize,
-                                                        int seqLength,
                                                         int numLayers,
                                                         DropoutDescriptor dropoutDesc, // Between layers, not between recurrent steps.
                                                         cudnnRNNInputMode inputMode,
                                                         cudnnDirectionMode direction,
                                                         cudnnRNNMode mode,
+                                                cudnnRNNAlgo algo,
                                                         cudnnDataType dataType)
         {
-            res = CudaDNNNativeMethods.cudnnSetRNNDescriptor(_desc, hiddenSize, seqLength, numLayers, dropoutDesc.Desc, inputMode, direction, mode, dataType);
+            res = CudaDNNNativeMethods.cudnnSetRNNDescriptor(ctx.Handle, _desc, hiddenSize, numLayers, dropoutDesc.Desc, inputMode, direction, mode, algo, dataType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
@@ -1034,6 +1035,29 @@ namespace ManagedCuda.CudaDNN
             res = CudaDNNNativeMethods.cudnnSetPersistentRNNPlan(_desc, plan.Plan);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetPersistentRNNPlan", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        /// <summary>
+        /// The math type specified in a given RNN descriptor.
+        /// </summary>
+        public cudnnMathType MathType
+        {
+            //get
+            //{
+            //    cudnnMathType mathType = new cudnnMathType();
+            //    res = CudaDNNNativeMethods.cudnnGetConvolutionMathType(_desc, ref mathType);
+            //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionMathType", res));
+            //    if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            //    return mathType;
+            //}
+            set
+            {
+                res = CudaDNNNativeMethods.cudnnSetRNNMatrixMathType(_desc, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNMatrixMathType", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            }
         }
     }
 }

@@ -952,6 +952,54 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnReduceTensor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+
+
+        /// <summary>  
+        /// This function performs forward dropout operation over x returning results in y. If dropout was   
+        /// used as a parameter to cudnnSetDropoutDescriptor, the approximately dropout fraction of x values   
+        /// will be replaces by 0, and the rest will be scaled by 1/(1-dropout) This function should not be   
+        /// running concurrently with another cudnnDropoutForward function using the same states.  
+        /// </summary>  
+        /// <param name="dropoutDesc">Handle to a previously created dropout descriptor object.</param>  
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>  
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>  
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>  
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>  
+        /// <param name="reserveSpace">Data pointer to GPU memory used by this function. It is expected that contents of reserveSpace doe not change between cudnnDropoutForward and cudnnDropoutBackward calls.</param>  
+        public void DropoutForward(DropoutDescriptor dropoutDesc,
+                                   TensorDescriptor xDesc,
+                                   CudaDeviceVariable<float> x,
+                                   TensorDescriptor yDesc,
+                                   CudaDeviceVariable<float> y,
+                                   CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnDropoutForward(_handle, dropoutDesc.Desc, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutForward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>  
+        /// This function performs backward dropout operation over dy returning results in dx. If during   
+        /// forward dropout operation value from x was propagated to y then during backward operation value   
+        /// from dy will be propagated to dx, otherwise, dx value will be set to 0.  
+        /// </summary>  
+        /// <param name="dropoutDesc">Handle to a previously created dropout descriptor object.</param>  
+        /// <param name="dyDesc">Handle to a previously initialized tensor descriptor.</param>  
+        /// <param name="dy">Pointer to data of the tensor described by the dyDesc descriptor.</param>  
+        /// <param name="dxDesc">Handle to a previously initialized tensor descriptor.</param>  
+        /// <param name="dx">Pointer to data of the tensor described by the dxDesc descriptor.</param>  
+        /// <param name="reserveSpace">Data pointer to GPU memory used by this function. It is expected that contents of reserveSpace doe not change between cudnnDropoutForward and cudnnDropoutBackward calls.</param>  
+        public void DropoutBackward(DropoutDescriptor dropoutDesc,
+                                    TensorDescriptor dyDesc,
+                                    CudaDeviceVariable<float> dy,
+                                    TensorDescriptor dxDesc,
+                                    CudaDeviceVariable<float> dx,
+                                    CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnDropoutBackward(_handle, dropoutDesc.Desc, dyDesc.Desc, dy.DevicePointer, dxDesc.Desc, dx.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutBackward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
         #endregion
 
         #region doubles
@@ -1774,9 +1822,96 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnReduceTensor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+
+
+        /// <summary>  
+        /// This function performs forward dropout operation over x returning results in y. If dropout was   
+        /// used as a parameter to cudnnSetDropoutDescriptor, the approximately dropout fraction of x values   
+        /// will be replaces by 0, and the rest will be scaled by 1/(1-dropout) This function should not be   
+        /// running concurrently with another cudnnDropoutForward function using the same states.  
+        /// </summary>  
+        /// <param name="dropoutDesc">Handle to a previously created dropout descriptor object.</param>  
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>  
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor srcDesc.</param>  
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>  
+        /// <param name="y">Data pointer to GPU memory associated with the output tensor descriptor destDesc.</param>  
+        /// <param name="reserveSpace">Data pointer to GPU memory used by this function. It is expected that contents of reserveSpace doe not change between cudnnDropoutForward and cudnnDropoutBackward calls.</param>  
+        public void DropoutForward(DropoutDescriptor dropoutDesc,
+                                   TensorDescriptor xDesc,
+                                   CudaDeviceVariable<double> x,
+                                   TensorDescriptor yDesc,
+                                   CudaDeviceVariable<double> y,
+                                   CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnDropoutForward(_handle, dropoutDesc.Desc, xDesc.Desc, x.DevicePointer, yDesc.Desc, y.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutForward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>  
+        /// This function performs backward dropout operation over dy returning results in dx. If during   
+        /// forward dropout operation value from x was propagated to y then during backward operation value   
+        /// from dy will be propagated to dx, otherwise, dx value will be set to 0.  
+        /// </summary>  
+        /// <param name="dropoutDesc">Handle to a previously created dropout descriptor object.</param>  
+        /// <param name="dyDesc">Handle to a previously initialized tensor descriptor.</param>  
+        /// <param name="dy">Pointer to data of the tensor described by the dyDesc descriptor.</param>  
+        /// <param name="dxDesc">Handle to a previously initialized tensor descriptor.</param>  
+        /// <param name="dx">Pointer to data of the tensor described by the dxDesc descriptor.</param>  
+        /// <param name="reserveSpace">Data pointer to GPU memory used by this function. It is expected that contents of reserveSpace doe not change between cudnnDropoutForward and cudnnDropoutBackward calls.</param>  
+        public void DropoutBackward(DropoutDescriptor dropoutDesc,
+                                    TensorDescriptor dyDesc,
+                                    CudaDeviceVariable<double> dy,
+                                    TensorDescriptor dxDesc,
+                                    CudaDeviceVariable<double> dx,
+                                    CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnDropoutBackward(_handle, dropoutDesc.Desc, dyDesc.Desc, dy.DevicePointer, dxDesc.Desc, dx.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutBackward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
         #endregion
 
         #region Type independent
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int GetConvolutionForwardAlgorithmMaxCount()
+        {
+            int count = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionForwardAlgorithmMaxCount(_handle, ref count);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionForwardAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return count;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int GetConvolutionBackwardFilterAlgorithmMaxCount()
+        {
+            int count = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardFilterAlgorithmMaxCount(_handle, ref count);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardFilterAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return count;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int GetConvolutionBackwardDataAlgorithmMaxCount()
+        {
+            int count = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardDataAlgorithmMaxCount(_handle, ref count);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardDataAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return count;
+        }
+
 
         /// <summary>
         /// This function attempts all cuDNN algorithms and outputs performance metrics to a
@@ -1839,6 +1974,42 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionForwardAlgorithm", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
             return algo;
+        }
+
+        /// <summary>
+        /// This function serves as a heuristic for obtaining the best suited algorithm for
+        /// cudnnConvolutionForward for the given layer specifications.This function will return
+        /// all algorithms sorted by expected (based on internal heuristic) relative performance with
+        /// fastest being index 0 of perfResults.For an exhaustive search for the fastest algorithm,
+        /// please use cudnnFindConvolutionForwardAlgorithm.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <returns>array to store performance metrics sorted ascending by compute time.</returns>
+        public cudnnConvolutionFwdAlgoPerf[] GetConvolutionForwardAlgorithm(TensorDescriptor xDesc,
+                                                    FilterDescriptor filterDesc,
+                                                    ConvolutionDescriptor convDesc,
+                                                    TensorDescriptor yDesc,
+                                                    int requestedAlgoCount
+                                                    )
+        {
+            cudnnConvolutionFwdAlgoPerf[] algos = new cudnnConvolutionFwdAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionForwardAlgorithm_v7(_handle, xDesc.Desc, filterDesc.Desc, convDesc.Desc, yDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, algos);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionForwardAlgorithm_v7", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+
+            if (returnedAlgoCount != requestedAlgoCount)
+            {
+                cudnnConvolutionFwdAlgoPerf[] temp = new cudnnConvolutionFwdAlgoPerf[returnedAlgoCount];
+                Array.Copy(algos, temp, returnedAlgoCount);
+                algos = temp;
+            }
+
+            return algos;
         }
 
         /// <summary>
@@ -2024,6 +2195,79 @@ namespace ManagedCuda.CudaDNN
             return algo;
         }
 
+
+        /// <summary>
+        /// This function serves as a heuristic for obtaining the best suited algorithm for
+        /// cudnnConvolutionBackwardFilter for the given layer specifications.This function
+        /// will return all algorithms sorted by expected (based on internal heuristic) relative
+        /// performance with fastest being index 0 of perfResults.For an exhaustive search for the
+        /// fastest algorithm, please use cudnnFindConvolutionBackwardFilterAlgorithm.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <returns>array to store performance metrics sorted ascending by compute time.</returns>
+        public cudnnConvolutionBwdFilterAlgoPerf[] GetConvolutionBackwardFilterAlgorithm(TensorDescriptor xDesc,
+                                                        TensorDescriptor dyDesc,
+                                                    FilterDescriptor filterDesc,
+                                                    ConvolutionDescriptor convDesc,
+                                                    int requestedAlgoCount
+                                                    )
+        {
+            cudnnConvolutionBwdFilterAlgoPerf[] algos = new cudnnConvolutionBwdFilterAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardFilterAlgorithm_v7(_handle, xDesc.Desc, dyDesc.Desc, convDesc.Desc, filterDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, algos);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardFilterAlgorithm_v7", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+
+            if (returnedAlgoCount != requestedAlgoCount)
+            {
+                cudnnConvolutionBwdFilterAlgoPerf[] temp = new cudnnConvolutionBwdFilterAlgoPerf[returnedAlgoCount];
+                Array.Copy(algos, temp, returnedAlgoCount);
+                algos = temp;
+            }
+
+            return algos;
+        }
+
+
+        /// <summary>
+        /// This function serves as a heuristic for obtaining the best suited algorithm for
+        /// cudnnConvolutionBackwardData for the given layer specifications.This function
+        /// will return all algorithms sorted by expected (based on internal heuristic) relative
+        /// performance with fastest being index 0 of perfResults.For an exhaustive search for the
+        /// fastest algorithm, please use cudnnFindConvolutionBackwardDataAlgorithm.
+        /// </summary>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="dxDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <returns>array to store performance metrics sorted ascending by compute time.</returns>
+        public cudnnConvolutionBwdDataAlgoPerf[] GetConvolutionBackwardDataAlgorithm(
+                                                    FilterDescriptor filterDesc, TensorDescriptor dyDesc,
+                                                    ConvolutionDescriptor convDesc,TensorDescriptor dxDesc,
+                                                    int requestedAlgoCount
+                                                    )
+        {
+            cudnnConvolutionBwdDataAlgoPerf[] algos = new cudnnConvolutionBwdDataAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnGetConvolutionBackwardDataAlgorithm_v7(_handle, filterDesc.Desc, dyDesc.Desc, convDesc.Desc, dxDesc.Desc, requestedAlgoCount, ref returnedAlgoCount, algos);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionBackwardDataAlgorithm_v7", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+
+            if (returnedAlgoCount != requestedAlgoCount)
+            {
+                cudnnConvolutionBwdDataAlgoPerf[] temp = new cudnnConvolutionBwdDataAlgoPerf[returnedAlgoCount];
+                Array.Copy(algos, temp, returnedAlgoCount);
+                algos = temp;
+            }
+
+            return algos;
+        }
+
         /// <summary>
         /// This function returns the amount of GPU memory workspace the user needs
         /// to allocate to be able to call cudnnConvolutionBackwardData_v3 with the
@@ -2115,6 +2359,96 @@ namespace ManagedCuda.CudaDNN
         {
             res = CudaDNNNativeMethods.cudnnSetRNNDescriptor(_handle, rnnDesc.Desc, hiddenSize, numLayers, dropoutDesc.Desc, inputMode, direction, mode, algo, dataType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNDescriptor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        /// <summary>  
+        /// This function is used to query the amount of reserve needed to run dropout with the input dimensions given by xDesc.   
+        /// The same reserve space is expected to be passed to cudnnDropoutForward and cudnnDropoutBackward, and its contents is   
+        /// expected to remain unchanged between cudnnDropoutForward and cudnnDropoutBackward calls.   
+        /// </summary>  
+        /// <param name="xDesc">Handle to a previously initialized tensor descriptor, describing input to a dropout operation.</param>  
+        public SizeT GetDropoutReserveSpaceSize(TensorDescriptor xDesc)
+        {
+            SizeT sizeInBytes = new SizeT();
+            res = CudaDNNNativeMethods.cudnnDropoutGetReserveSpaceSize(xDesc.Desc, ref sizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutGetReserveSpaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return sizeInBytes;
+        }
+
+        /// <summary>  
+        /// This function is used to query the amount of space required to store the states of the random number generators used by cudnnDropoutForward function.  
+        /// </summary>  
+        public SizeT GetDropoutStateSize()
+        {
+            SizeT sizeInBytes = new SizeT();
+            res = CudaDNNNativeMethods.cudnnDropoutGetStatesSize(_handle, ref sizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutGetStatesSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return sizeInBytes;
+        }
+
+        //new in CUDNN 7
+
+        /// <summary>
+        /// cuDNN library functions perform extensive input argument checking before launching
+        /// GPU kernels.The last step is to verify that the GPU kernel actually started. When
+        /// a kernel fails to start, CUDNN_STATUS_EXECUTION_FAILED is returned by the
+        /// corresponding API call. Typically, after a GPU kernel starts, no runtime checks are
+        /// performed by the kernel itself -- numerical results are simply written to output buffers.<para/>
+        /// When the CUDNN_BATCHNORM_SPATIAL_PERSISTENT mode is selected in cudnnBatchNormalizationForwardTraining or
+        /// cudnnBatchNormalizationBackward, the algorithm may encounter numerical overflows
+        /// where CUDNN_BATCHNORM_SPATIAL performs just fine albeit at a slower speed.<para/>
+        /// The user can invoke cudnnQueryRuntimeError to make sure numerical overflows did
+        /// not occur during the kernel execution.Those issues are reported by the kernel that
+        /// performs computations.
+        /// </summary>
+        /// <param name="mode">Remote error query mode.</param>
+        /// <returns>the user's error code</returns>
+        public cudnnStatus QueryRuntimeError(cudnnErrQueryMode mode)
+        {
+            cudnnStatus rstatus = new cudnnStatus();
+            cudnnRuntimeTag tag = new cudnnRuntimeTag();
+            res = CudaDNNNativeMethods.cudnnQueryRuntimeError(_handle, ref rstatus, mode, tag);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnQueryRuntimeError", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return rstatus;
+        }
+
+        /// <summary>
+        /// This function queries the fields of a previously initialized dropout descriptor.
+        /// </summary>
+        /// <param name="dropoutDesc">Previously initialized dropout descriptor.</param>
+        /// <param name="droupout">The probability with which the value from input is set to 0 during the 
+        /// dropout layer.</param>
+        /// <param name="seed">Seed used to initialize random number generator states.</param>
+        /// <returns>user-allocated GPU memory that holds random number generator states.</returns>
+        public CudaDeviceVariable<byte> GetDropoutDescriptor(DropoutDescriptor dropoutDesc, ref float droupout, ref ulong seed)
+        {
+            CUdeviceptr states = new CUdeviceptr();
+            res = CudaDNNNativeMethods.cudnnGetDropoutDescriptor(dropoutDesc.Desc, _handle, ref droupout, ref states, ref seed);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnQueryRuntimeError", res));
+            CudaDeviceVariable<byte> ret = new CudaDeviceVariable<byte>(states, false);
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+        /// <summary>
+        /// This function restores a dropout descriptor to a previously saved-off state.
+        /// </summary>
+        /// <param name="dropoutDesc">Previously created dropout descriptor.</param>
+        /// <param name="droupout">Probability with which the value from an input tensor is set to 0 when performing dropout.</param>
+        /// <param name="seed">Seed used in prior call to cudnnSetDropoutDescriptor that initialized
+        /// #states' buffer. Using a different seed from this has no effect. A change of seed, and subsequent update to random number generator states can be achieved by calling
+        /// cudnnSetDropoutDescriptor.</param>
+        /// <param name="states">Pointer to GPU memory that holds random number generator states initialized by a prior call to cudnnSetDropoutDescriptor.</param>
+        public void RestoreDropoutDescriptor(DropoutDescriptor dropoutDesc, CudaDeviceVariable<byte> states, ref float droupout, ref ulong seed)
+        {
+            res = CudaDNNNativeMethods.cudnnRestoreDropoutDescriptor(dropoutDesc.Desc, _handle, droupout, states.DevicePointer, states.SizeInBytes, seed);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRestoreDropoutDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
         #endregion

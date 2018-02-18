@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="ActivationDescriptor.cs" />
     <Compile Include="ConvolutionDescriptor.cs" />
+    <Compile Include="CTCLossDescriptor.cs" />
     <Compile Include="CudaDNNContext.cs" />
     <Compile Include="CudaDNNException.cs" />
     <Compile Include="CudaDNNNativeMethods.cs" />
