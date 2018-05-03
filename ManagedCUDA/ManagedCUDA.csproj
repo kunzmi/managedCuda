@@ -6,11 +6,9 @@
     <PackageId>ManagedCuda.NETStandard</PackageId>
     <title>ManagedCuda $(BaseVersion) for .NET Standard</title>
     <description>
-    ManagedCUDA aims an easy integration of NVidia's CUDA in .NET applications written in C#, 
-    Visual Basic or any other .NET language. This package includes only the core managedCuda library and 
-    no additional CUDA libraries.
-    
-    $(NETStandardNote)
+    ManagedCuda aims an easy integration of NVidia's CUDA in .NET applications written in C#, 
+    Visual Basic or any other .NET language. This package includes only the core ManagedCuda 
+    library and no additional CUDA libraries. $(NETStandardNote)
     </description>   
 
     <RootNamespace>ManagedCuda</RootNamespace>
