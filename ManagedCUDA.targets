@@ -10,23 +10,32 @@
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
       <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
-      <IncludeSymbols>true</IncludeSymbols>
-      <IncludeSource>true</IncludeSource>
+      <DebugSymbols>true</DebugSymbols>
+      <DebugType>embedded</DebugType>
+      <EmbedAllSources>true</EmbedAllSources>      
+      <Platform>x64</Platform>      
 
-      <BaseVersion>8.0</BaseVersion>
+      <BaseVersion>9.1</BaseVersion>
       <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
       <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
       <FileVersion>$(PackageVersion)</FileVersion>  
 
-      <Company>Michael Kunz</Company>
-      <authors>Michael Kunz</authors>
-      <owners>Michael Kunz</owners>
-      <Copyright>Copyright (C) Michael Kunz 2016</Copyright>
-      <requireLicenseAcceptance>false</requireLicenseAcceptance>
-      <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl.html</PackageLicenseUrl>
-      <PackageProjectUrl>http://kunzmi.github.io/managedCuda/</PackageProjectUrl>
+      <NETStandardNote>
+      This package is an unofficial port of ManagedCUDA to .NET Standard 2.0 and was tested on Linux and Windows (x64).
+
+      This package contains components that are property of Nvidia Corporation and redistributed
+      according to the "CUDA Supplement to Software License Agreement" of the 
+      "NVIDIA Software License Agreement". See the package license for details.
+      </NETStandardNote>
+      <Company>Michael Kunz, Sebastian Urban</Company>
+      <authors>Michael Kunz, Sebastian Urban</authors>
+      <owners>Sebastian Urban</owners>
+      <Copyright>Copyright (C) 2016-2018</Copyright>
+      <requireLicenseAcceptance>true</requireLicenseAcceptance>
+      <PackageLicenseUrl>https://raw.githubusercontent.com/surban/managedCuda/master/LICENSE.txt</PackageLicenseUrl>
+      <PackageProjectUrl>http://surban.github.io/managedCuda/</PackageProjectUrl>
       <PackageTags>gpu cuda</PackageTags>
-      <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>
+      <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>      
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
