@@ -56,3 +56,6 @@ Temporary Items
 # Files containing private data
 NuGetPackage.ps1
 NuGetPush.ps1
+
+Redist/Linux/*.so.*
+Redist/Windows/*.dll

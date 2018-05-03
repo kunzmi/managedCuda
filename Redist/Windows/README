@@ -1,0 +1,22 @@
+Put redistributable CUDA SDK libraries here:
+
+cublas64_91.dll
+cufft64_91.dll
+curand64_91.dll
+cusolver64_91.dll
+cusparse64_91.dll
+nppc64_91.dll
+nppial64_91.dll
+nppicc64_91.dll
+nppicom64_91.dll
+nppidei64_91.dll
+nppif64_91.dll
+nppig64_91.dll
+nppim64_91.dll
+nppist64_91.dll
+nppisu64_91.dll
+nppitc64_91.dll
+npps64_91.dll
+nvgraph64_91.dll
+nvrtc64_91.dll
+nvrtc-builtins64_91.dll
