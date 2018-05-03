@@ -3,14 +3,15 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-Nvml</PackageId>
-    <title>ManagedCuda $(BaseVersion) Nvml</title>
-    <description>managedCuda-wrapper for Nvml, only for x64-platform</description>   
+    <PackageId>ManagedCuda-Nvml.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) Nvml for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for Nvml, only for x64-platform. $(NETStandardNote)
+    </description>   
 
     <RootNamespace>ManagedCuda.Nvml</RootNamespace>
     <AssemblyName>ManagedNvml</AssemblyName>
     <ProjectGuid>{92D51A33-7BF0-47FD-9ECE-D758FFE1691D}</ProjectGuid>
-    <Platform>x64</Platform>
     <SignAssembly>false</SignAssembly>  
     <PublicSign>false</PublicSign>    
     <NoWarn>CS1570;CS1591;CS1572;CS1573;CS1591;CS1587;CS1574</NoWarn>    
@@ -24,6 +25,12 @@
     <Compile Include="NvmlNativeMethods.cs" />
     <Compile Include="NvmlTypes.cs" />
   </ItemGroup> 
+
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libnvml.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>         
+  </ItemGroup>     
 
 </Project>
 

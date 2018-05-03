@@ -3,15 +3,16 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-CURAND</PackageId>
-    <title>ManagedCuda $(BaseVersion) CURAND</title>
-    <description>managedCuda-wrapper for CURAND, only for x64-platform</description>   
+    <PackageId>ManagedCuda-CURAND.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) CURAND for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for CURAND, only for x64-platform. $(NETStandardNote)
+    </description>   
 
     <RootNamespace>ManagedCuda.CudaRand</RootNamespace>
     <AssemblyName>CudaRand</AssemblyName>
     <ProjectGuid>{93B9FB2B-083A-4320-AFCC-DC0E9F7D011B}</ProjectGuid>
     <AssemblyOriginatorKeyFile>CudaRandKey.snk</AssemblyOriginatorKeyFile>    
-    <Platform>x64</Platform>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,16 +29,15 @@
   </ItemGroup> 
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libcurand64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>librand64_80.so</Link>
+    <Content Include="../StubsForLinux/libcurand64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libcurand64_80.so" PackagePath="build">
-      <Link>libcurand64_80.so</Link>
+    <Content Include="../Redist/Linux/libcurand.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="ManagedCuda-CURAND.targets" PackagePath="build">
-      <Link>ManagedCuda-CURAND.targets</Link>
-    </Content>            
+    <Content Include="../Redist/Windows/curand64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>                   
   </ItemGroup>   
 
 </Project>

@@ -3,15 +3,16 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-CUFFT</PackageId>
-    <title>ManagedCuda $(BaseVersion) CUFFT</title>
-    <description>managedCuda-wrapper for CUFFT, only for x64-platform</description>   
+    <PackageId>ManagedCuda-CUFFT.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) CUFFT for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for CUFFT, only for x64-platform. $(NETStandardNote)  
+    </description>   
 
     <RootNamespace>ManagedCuda.CudaFFT</RootNamespace>
     <AssemblyName>CudaFFT</AssemblyName>
     <ProjectGuid>{6B495207-44CC-43D6-970B-9B07662FB60B}</ProjectGuid>
     <AssemblyOriginatorKeyFile>CudaFFTKey.snk</AssemblyOriginatorKeyFile>    
-    <Platform>x64</Platform>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,15 +31,14 @@
   </ItemGroup> 
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libcufft64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libfft64_80.so</Link>
+    <Content Include="../StubsForLinux/libcufft64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libcufft64_80.so" PackagePath="build">
-      <Link>llibcufft64_80.so</Link>
-    </Content>    
-    <Content Include="ManagedCuda-CUFFT.targets" PackagePath="build">
-      <Link>ManagedCuda-CUFFT.targets</Link>
+    <Content Include="../Redist/Linux/libcufft.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>          
+    <Content Include="../Redist/Windows/cufft64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>            
   </ItemGroup>   
 

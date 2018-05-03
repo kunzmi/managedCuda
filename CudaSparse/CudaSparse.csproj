@@ -3,15 +3,16 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-CUSPARSE</PackageId>
-    <title>ManagedCuda $(BaseVersion) CUSPARSE</title>
-    <description>managedCuda-wrapper for CUSPARSE, only for x64-platform</description>   
+    <PackageId>ManagedCuda-CUSPARSE.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) CUSPARSE for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for CUSPARSE, only for x64-platform. $(NETStandardNote)  
+    </description>   
 
     <RootNamespace>ManagedCuda.CudaSparse</RootNamespace>
     <AssemblyName>CudaSparse</AssemblyName>
     <ProjectGuid>{6F782AA1-E9CF-4CE9-83FD-4FC035D45BC3}</ProjectGuid>
     <AssemblyOriginatorKeyFile>CudaSparseKey.snk</AssemblyOriginatorKeyFile>    
-    <Platform>x64</Platform>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,16 +41,15 @@
   </ItemGroup> 
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libcusparse64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libcusparse64_80.so</Link>
+    <Content Include="../StubsForLinux/libcusparse64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libcusparse64_80.so" PackagePath="build">
-      <Link>libcusparse64_80.so</Link>
+    <Content Include="../Redist/Linux/libcusparse.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="ManagedCuda-CUSPARSE.targets" PackagePath="build">
-      <Link>ManagedCuda-CUSPARSE.targets</Link>
-    </Content>            
+    <Content Include="../Redist/Windows/cusparse64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>                 
   </ItemGroup>   
 
 </Project>

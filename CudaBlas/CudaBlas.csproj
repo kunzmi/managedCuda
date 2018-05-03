@@ -3,15 +3,16 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-CUBLAS</PackageId>
-    <title>ManagedCuda $(BaseVersion) CUBLAS</title>
-    <description>managedCuda-wrapper for CUBLAS, only for x64-platform</description>   
+    <PackageId>ManagedCuda-CUBLAS.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) CUBLAS for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for CUBLAS, only for x64-platform. $(NETStandardNote)
+    </description>   
 
     <RootNamespace>ManagedCuda.CudaBlas</RootNamespace>
     <AssemblyName>CudaBlas</AssemblyName>
     <ProjectGuid>{A4F79FC4-65E9-4568-9660-BB0294FC5931}</ProjectGuid>
     <AssemblyOriginatorKeyFile>CudaBlasKey.snk</AssemblyOriginatorKeyFile>    
-    <Platform>x64</Platform>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,15 +27,14 @@
   </ItemGroup> 
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libcublas64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libcublas64_80.so</Link>
+    <Content Include="../StubsForLinux/libcublas64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libcublas64_80.so" PackagePath="build">
-      <Link>libcublas64_80.so</Link>
+    <Content Include="../Redist/Linux/libcublas.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="ManagedCuda-CUBLAS.targets" PackagePath="build">
-      <Link>ManagedCuda-CUBLAS.targets</Link>
+    <Content Include="../Redist/Windows/cublas64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>        
   </ItemGroup>      
 

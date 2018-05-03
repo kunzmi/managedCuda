@@ -1,13 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../ManagedCUDA.targets" />
   <PropertyGroup>
-    <PackageId>ManagedCuda-NPP</PackageId>
-    <title>ManagedCuda $(BaseVersion) NPP</title>
-    <description>managedCuda-wrapper for NPP, only for x64-platform</description>
+    <PackageId>ManagedCuda-NPP.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) NPP for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for NPP, only for x64-platform. $(NETStandardNote)
+    </description>
+    <!-- Need prerelease version for dependency on System.Drawing.Common -->
+    <PackageVersion>$(BaseVersion).$(Rev)-preview</PackageVersion>
+
     <RootNamespace>ManagedCuda.NPP</RootNamespace>
     <AssemblyName>NPP</AssemblyName>
     <ProjectGuid>{BC77F366-EEC7-43FD-83DE-F487F0B1C5A3}</ProjectGuid>
-    <Platform>x64</Platform>
     <SignAssembly>false</SignAssembly>
     <PublicSign>false</PublicSign>
   </PropertyGroup>
@@ -15,7 +19,8 @@
     <ProjectReference Include="../ManagedCUDA/ManagedCUDA.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
+    <!-- <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" /> -->
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview2-26406-04" /> 
   </ItemGroup>  
   <ItemGroup>
     <Compile Include="JPEGCompression.cs" />
@@ -67,30 +72,115 @@
   </ItemGroup>
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libnppc64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libnppc64_80.so</Link>
+    <Content Include="../StubsForLinux/libnppc64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>    
-    <Content Include="../StubsForLinux/libnppc64_80.so" PackagePath="build">
-      <Link>libnppc64_80.so</Link>
     </Content>        
-    <Content Include="../StubsForLinux/libnppi64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libnppi64_80.so</Link>
+    <Content Include="../Redist/Linux/libnppc.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>        
+    <Content Include="../StubsForLinux/libnppial64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libnppi64_80.so" PackagePath="build">
-      <Link>libnppi64_80.so</Link>
-    </Content>       
-    <Content Include="../StubsForLinux/libnpps64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libnpps64_80.so</Link>
+    <Content Include="../Redist/Linux/libnppial.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppicc64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppicc.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppicom64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppicom.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppidei64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppidei.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppif64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppif.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppig64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppig.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppim64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppim.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppist64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppist.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppisu64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Linux/libnppisu.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../StubsForLinux/libnppitc64_91.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>           
+    <Content Include="../Redist/Linux/libnppitc.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>           
+    <Content Include="../StubsForLinux/libnpps64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>         
-    <Content Include="../StubsForLinux/libnpps64_80.so" PackagePath="build">
-      <Link>libnpps64_80.so</Link>
+    <Content Include="../Redist/Linux/libnpps.so.9.1" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>         
-    <Content Include="ManagedCuda-NPP.targets" PackagePath="build">
-      <Link>ManagedCuda-NPP.targets</Link>
-    </Content>            
+
+    <Content Include="../Redist/Windows/nppc64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>        
+    <Content Include="../Redist/Windows/nppial64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppicc64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppicom64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppidei64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppif64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppig64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppim64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppist64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppisu64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="../Redist/Windows/nppitc64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>           
+    <Content Include="../Redist/Windows/npps64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>                
   </ItemGroup>   
 
 </Project>

@@ -3,14 +3,15 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-NVGraph</PackageId>
-    <title>ManagedCuda $(BaseVersion) NVGraph</title>
-    <description>managedCuda-wrapper for NVGraph, only for x64-platform</description>   
+    <PackageId>ManagedCuda-NVGraph.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) NVGraph for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for NVGraph, only for x64-platform. $(NETStandardNote)
+    </description>   
 
     <RootNamespace>ManagedCuda.NVGraph</RootNamespace>
     <AssemblyName>NVGraph</AssemblyName>
     <ProjectGuid>{58CA750C-64A6-44D2-827D-253AA6A19E8E}</ProjectGuid>
-    <Platform>x64</Platform>
     <SignAssembly>false</SignAssembly>  
     <PublicSign>false</PublicSign>    
     <NoWarn>CS1570;CS1591;CS1572;CS1573;CS1591;CS1587;CS1574</NoWarn>
@@ -29,16 +30,15 @@
   </ItemGroup> 
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libnvgraph64_80.so" PackagePath="lib/netstandard2.0">
-      <Link>libnvgraph64_80.so</Link>
+    <Content Include="../StubsForLinux/libnvgraph64_91.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="../StubsForLinux/libnvgraph64_80.so" PackagePath="build">
-      <Link>libnvgraph64_80.so</Link>
+    <Content Include="../Redist/Linux/libnvgraph.so.9.1" PackagePath="build">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
-    <Content Include="ManagedCuda-NVGraph.targets" PackagePath="build">
-      <Link>ManagedCuda-NVGraph.targets</Link>
-    </Content>           
+    <Content Include="../Redist/Windows/nvgraph64_91.dll" PackagePath="runtimes/win-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>            
   </ItemGroup>     
 
 </Project>

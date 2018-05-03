@@ -3,14 +3,20 @@
   <Import Project="../ManagedCUDA.targets" />
 
   <PropertyGroup>
-    <PackageId>ManagedCuda-CudaDNN</PackageId>
-    <title>ManagedCuda $(BaseVersion) CudaDNN</title>
-    <description>managedCuda-wrapper for cuDNN, only for x64-platform. This release is not thoroughly tested and is not considered for production releases!</description>   
+    <PackageId>ManagedCuda-CudaDNN.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) CudaDNN for .NET Standard</title>
+    <description>
+    managedCuda-wrapper for cuDNN, only for x64-platform. 
+    This release is not thoroughly tested and is not considered for production releases!
+    $(NETStandardNote)  
+
+    The cuDNN library is not redistributable and thus not included in this package.
+    You must download and install cuDNN 7 in your PATH or LD_LIBRARY_PATH for this package to work.
+    </description>   
 
     <RootNamespace>ManagedCuda.CudaDNN</RootNamespace>
     <AssemblyName>CudaDNN</AssemblyName>
     <ProjectGuid>{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}</ProjectGuid>
-    <Platform>x64</Platform>
     <SignAssembly>false</SignAssembly>  
     <PublicSign>false</PublicSign>
   </PropertyGroup>
@@ -40,15 +46,8 @@
   </ItemGroup>
 
   <ItemGroup>  
-    <Content Include="../StubsForLinux/libcudnn64_6.so" PackagePath="lib/netstandard2.0">
-      <Link>libcudnn64_6.so</Link>
+    <Content Include="../StubsForLinux/libcudnn64_7.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>    
-    <Content Include="../StubsForLinux/libcudnn64_6.so" PackagePath="build">
-      <Link>libcudnn64_6.so</Link>
-    </Content>    
-    <Content Include="ManagedCuda-CudaDNN.targets" PackagePath="build">
-      <Link>ManagedCuda-CudaDNN.targets</Link>
     </Content>        
   </ItemGroup>   
 
