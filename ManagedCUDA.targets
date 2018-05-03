@@ -16,9 +16,9 @@
       <Platform>x64</Platform>      
 
       <BaseVersion>9.1</BaseVersion>
-      <PackageVersion>$(BaseVersion).$(Rev)</PackageVersion>
-      <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
-      <FileVersion>$(PackageVersion)</FileVersion>  
+      <PackageVersion>$(BaseVersion).$(Rev)$(Prerelease)</PackageVersion>
+      <AssemblyVersion>$(BaseVersion).$(Rev)</AssemblyVersion>
+      <FileVersion>$(AssemblyVersion)</FileVersion>  
 
       <NETStandardNote>
       This package is an unofficial port of ManagedCUDA to .NET Standard 2.0 and was tested on Linux and Windows (x64).
@@ -27,8 +27,8 @@
       according to the "CUDA Supplement to Software License Agreement" of the 
       "NVIDIA Software License Agreement". See the package license for details.
       </NETStandardNote>
-      <Company>Michael Kunz, Sebastian Urban</Company>
-      <authors>Michael Kunz, Sebastian Urban</authors>
+      <authors>Michael Kunz, Sebastian Urban (.NET Standard port)</authors>
+      <Company>Michael Kunz, Sebastian Urban (.NET Standard port)</Company>      
       <owners>Sebastian Urban</owners>
       <Copyright>Copyright (C) 2016-2018</Copyright>
       <requireLicenseAcceptance>true</requireLicenseAcceptance>

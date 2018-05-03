@@ -1,1 +1,4 @@
-<Project><PropertyGroup><Rev>1</Rev></PropertyGroup></Project>
+<Project><PropertyGroup>
+    <Rev>1</Rev>
+    <Prerelease>-preview1</Prerelease>
+</PropertyGroup></Project>

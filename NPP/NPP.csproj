@@ -7,7 +7,7 @@
     managedCuda-wrapper for NPP, only for x64-platform. $(NETStandardNote)
     </description>
     <!-- Need prerelease version for dependency on System.Drawing.Common -->
-    <PackageVersion>$(BaseVersion).$(Rev)-preview</PackageVersion>
+    <PackageVersion>$(BaseVersion).$(Rev)$(Prerelease)-preview</PackageVersion>
 
     <RootNamespace>ManagedCuda.NPP</RootNamespace>
     <AssemblyName>NPP</AssemblyName>
