@@ -35,7 +35,7 @@ namespace ManagedCuda.NVGraph
 	/// </summary>
 	public static class NVGraphNativeMathods
 	{
-		internal const string NVGRAPH_API_DLL_NAME = "nvgraph64_80";
+		internal const string NVGRAPH_API_DLL_NAME = "nvgraph64_91";
 
 		[DllImport(NVGRAPH_API_DLL_NAME, EntryPoint = "nvgraphStatusGetString")]
 		private static extern IntPtr nvgraphStatusGetStringInternal(nvgraphStatus status);
