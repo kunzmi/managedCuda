@@ -32,13 +32,14 @@ namespace ManagedCuda.CudaDNN
 	/// <summary/>
 	public static class CudaDNNNativeMethods
 	{
-		internal const string CUDNN_API_DLL_NAME = "cudnn64_6";
+		internal const string CUDNN_API_DLL_NAME = "cudnn64_7";
+
 		/// <summary>
 		/// Gives the version of the wrapped api
 		/// </summary>
 		public static Version Version
 		{
-			get { return new Version(6, 0, 21); }
+			get { return new Version(7, 0, 5); }
 		}
 
 		[DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetVersion")]
@@ -78,21 +79,32 @@ namespace ManagedCuda.CudaDNN
 			IntPtr str = cudnnGetErrorStringInternal(status);
 			return Marshal.PtrToStringAnsi(str);
 		}
-		
-		/// <summary>
-		/// This function initializes the cuDNN library and creates a handle to an opaque
-		/// structure holding the cuDNN library context. It allocates hardware resources on
-		/// the host and device and must be called prior to making any other cuDNN library
-		/// calls. The cuDNN library context is tied to the current CUDA device. To use the
-		/// library on multiple devices, one cuDNN handle needs to be created for each device.
-		/// For a given device, multiple cuDNN handles with different configurations (e.g.,
-		/// different current CUDA streams) may be created. Because cudnnCreate allocates
-		/// some internal resources, the release of those resources by calling cudnnDestroy will
-		/// implicitly call cudaDeviceSynchronize; therefore, the recommended best practice
-		/// is to call cudnnCreate/cudnnDestroy outside of performance-critical code paths.
-		/// For multithreaded applications that use the same device from different threads, the
-		/// </summary>
-		[DllImport(CUDNN_API_DLL_NAME)]
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="rstatus"></param>
+        /// <param name="mode"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnQueryRuntimeError(cudnnHandle handle, ref cudnnStatus rstatus, cudnnErrQueryMode mode, cudnnRuntimeTag tag);
+
+        /// <summary>
+        /// This function initializes the cuDNN library and creates a handle to an opaque
+        /// structure holding the cuDNN library context. It allocates hardware resources on
+        /// the host and device and must be called prior to making any other cuDNN library
+        /// calls. The cuDNN library context is tied to the current CUDA device. To use the
+        /// library on multiple devices, one cuDNN handle needs to be created for each device.
+        /// For a given device, multiple cuDNN handles with different configurations (e.g.,
+        /// different current CUDA streams) may be created. Because cudnnCreate allocates
+        /// some internal resources, the release of those resources by calling cudnnDestroy will
+        /// implicitly call cudaDeviceSynchronize; therefore, the recommended best practice
+        /// is to call cudnnCreate/cudnnDestroy outside of performance-critical code paths.
+        /// For multithreaded applications that use the same device from different threads, the
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnCreate(ref cudnnHandle handle);
 		
 		/// <summary>
@@ -854,6 +866,40 @@ namespace ManagedCuda.CudaDNN
 		[DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnCreateConvolutionDescriptor(ref cudnnConvolutionDescriptor convDesc );
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="convDesc"></param>
+        /// <param name="mathType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetConvolutionMathType(cudnnConvolutionDescriptor convDesc, cudnnMathType mathType);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="convDesc"></param>
+        /// <param name="mathType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionMathType(cudnnConvolutionDescriptor convDesc, ref cudnnMathType mathType);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="convDesc"></param>
+        /// <param name="groupCount"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetConvolutionGroupCount(cudnnConvolutionDescriptor convDesc, int groupCount);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="convDesc"></param>
+        /// <param name="groupCount"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionGroupCount(cudnnConvolutionDescriptor convDesc, ref int groupCount);
+
         /// <summary>
         /// This function initializes a previously created convolution descriptor object into a 2D
         /// correlation. This function assumes that the tensor and filter descriptors corresponds
@@ -1025,21 +1071,31 @@ namespace ManagedCuda.CudaDNN
 		public static extern cudnnStatus cudnnDestroyConvolutionDescriptor( cudnnConvolutionDescriptor convDesc );
 
 
-		/// <summary>
-		/// This function attempts all cuDNN algorithms and outputs performance metrics to a
-		/// user-allocated array of cudnnConvolutionFwdAlgoPerf_t. These metrics are written
-		/// in sorted fashion where the first element has the lowest compute time.
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
-		/// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
-		/// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
-		/// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by
-		/// compute time.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionForwardAlgorithmMaxCount(cudnnHandle handle, ref int count);
+
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms and outputs performance metrics to a
+        /// user-allocated array of cudnnConvolutionFwdAlgoPerf_t. These metrics are written
+        /// in sorted fashion where the first element has the lowest compute time.
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="srcDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="filterDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="destDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
+        /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by
+        /// compute time.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnFindConvolutionForwardAlgorithm(cudnnHandle   handle,
                                                                  cudnnTensorDescriptor      srcDesc,
                                                                  cudnnFilterDescriptor      filterDesc,
@@ -1116,7 +1172,26 @@ namespace ManagedCuda.CudaDNN
 																	   cudnnConvolutionFwdPreference    preference, 
 																	   SizeT                             memoryLimitInbytes,
 																	   ref cudnnConvolutionFwdAlgo         algo                                                  
-																	 );        
+																	 );
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="srcDesc"></param>
+        /// <param name="filterDesc"></param>
+        /// <param name="convDesc"></param>
+        /// <param name="destDesc"></param>
+        /// <param name="requestedAlgoCount"></param>
+        /// <param name="returnedAlgoCount"></param>
+        /// <param name="perfResults"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionForwardAlgorithm_v7(cudnnHandle handle, cudnnTensorDescriptor srcDesc, cudnnFilterDescriptor filterDesc,
+            cudnnConvolutionDescriptor convDesc, cudnnTensorDescriptor destDesc, int requestedAlgoCount, ref int returnedAlgoCount, cudnnConvolutionFwdAlgoPerf[] perfResults);
+
+              
                                                                                                            
 		/// <summary>
 		/// This function returns the amount of GPU memory workspace the user needs
@@ -1395,20 +1470,31 @@ namespace ManagedCuda.CudaDNN
 															  );
 
 
-		/// <summary>
-		/// This function attempts all cuDNN algorithms for cudnnConvolutionBackwardFilter_v3 and outputs performance metrics to a user-
-		/// allocated array of cudnnConvolutionBwdFilterAlgoPerf_t. These metrics are
-		/// written in sorted fashion where the first element has the lowest compute time. 
-		/// </summary>
-		/// <param name="handle">Handle to a previously created cuDNN context.</param>
-		/// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
-		/// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
-		/// <param name="convDesc">Previously initialized convolution descriptor.</param>
-		/// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
-		/// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
-		/// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
-		/// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
-		[DllImport(CUDNN_API_DLL_NAME)]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionBackwardFilterAlgorithmMaxCount(cudnnHandle handle, ref int count);
+
+
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms for cudnnConvolutionBackwardFilter_v3 and outputs performance metrics to a user-
+        /// allocated array of cudnnConvolutionBwdFilterAlgoPerf_t. These metrics are
+        /// written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        /// <param name="handle">Handle to a previously created cuDNN context.</param>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="returnedAlgoCount">The number of output elements stored in perfResults.</param>
+        /// <param name="perfResults">A user-allocated array to store performance metrics sorted ascending by compute time.</param>
+        [DllImport(CUDNN_API_DLL_NAME)]
 		public static extern cudnnStatus cudnnFindConvolutionBackwardFilterAlgorithm( cudnnHandle     handle,
                                                                        cudnnTensorDescriptor          xDesc,
                                                                        cudnnTensorDescriptor          dyDesc,
@@ -1483,6 +1569,24 @@ namespace ManagedCuda.CudaDNN
                                                                       SizeT                                memoryLimitInbytes,
                                                                       ref cudnnConvolutionBwdFilterAlgo algo
                                                                      );
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="srcDesc"></param>
+        /// <param name="diffDesc"></param>
+        /// <param name="convDesc"></param>
+        /// <param name="gradDesc"></param>
+        /// <param name="requestedAlgoCount"></param>
+        /// <param name="returnedAlgoCount"></param>
+        /// <param name="perfResults"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionBackwardFilterAlgorithm_v7(cudnnHandle handle, cudnnTensorDescriptor srcDesc, cudnnTensorDescriptor diffDesc,
+                                cudnnConvolutionDescriptor convDesc, cudnnFilterDescriptor gradDesc, int requestedAlgoCount, ref int returnedAlgoCount, cudnnConvolutionBwdFilterAlgoPerf[] perfResults);
 
 
 
@@ -1600,6 +1704,16 @@ namespace ManagedCuda.CudaDNN
                                                                      CUdeviceptr dw
                                                                    );
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionBackwardDataAlgorithmMaxCount(cudnnHandle handle, ref int count);
+
+
 
         /// <summary>
         /// This function attempts all cuDNN algorithms for
@@ -1654,6 +1768,13 @@ namespace ManagedCuda.CudaDNN
 																	   SizeT                              memoryLimitInbytes,
 																	   ref cudnnConvolutionBwdDataAlgo algo
 																	 );
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionBackwardDataAlgorithm_v7(cudnnHandle handle, cudnnFilterDescriptor filterDesc, cudnnTensorDescriptor diffDesc,
+            cudnnConvolutionDescriptor convDesc, cudnnTensorDescriptor gradDesc, int requestedAlgoCount, ref int returnedAlgoCount, cudnnConvolutionBwdDataAlgoPerf[] perfResults);
+
+
 
 		/// <summary>
 		/// This function returns the amount of GPU memory workspace the user needs
@@ -3420,6 +3541,34 @@ namespace ManagedCuda.CudaDNN
                                                             SizeT stateSizeInBytes,
                                                             ulong seed);
 
+
+        /// <summary>
+        /// Restores the dropout descriptor to a previously saved-off state
+        /// </summary>
+        /// <param name="dropoutDesc"></param>
+        /// <param name="handle"></param>
+        /// <param name="dropout"></param>
+        /// <param name="states"></param>
+        /// <param name="stateSizeInBytes"></param>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRestoreDropoutDescriptor(cudnnDropoutDescriptor dropoutDesc, cudnnHandle handle,
+                                                                float dropout, CUdeviceptr states, SizeT stateSizeInBytes, ulong seed);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dropoutDesc"></param>
+        /// <param name="handle"></param>
+        /// <param name="dropout"></param>
+        /// <param name="states"></param>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetDropoutDescriptor(cudnnDropoutDescriptor dropoutDesc, cudnnHandle handle, ref float dropout, ref CUdeviceptr states, ref ulong seed);
+
+
         /// <summary>
         /// This function performs forward dropout operation over x returning results in y. If dropout was 
         /// used as a parameter to cudnnSetDropoutDescriptor, the approximately dropout fraction of x values 
@@ -3515,6 +3664,8 @@ namespace ManagedCuda.CudaDNN
         public static extern cudnnStatus cudnnDestroyPersistentRNNPlan(cudnnPersistentRNNPlan plan);
 
 
+
+
         /// <summary>
         /// This function initializes a previously created RNN descriptor object.
         /// </summary>
@@ -3529,7 +3680,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="mode">Specifies the type of RNN to compute.</param>
         /// <param name="algo">Specifies which RNN algorithm should be used to compute the results.</param>
         /// <param name="dataType">Compute precision.</param>
-        [DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnSetRNNDescriptor_v6")]
+        [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnSetRNNDescriptor(cudnnHandle handle,
                                                         cudnnRNNDescriptor rnnDesc,
                                                 int hiddenSize,
@@ -3542,30 +3693,65 @@ namespace ManagedCuda.CudaDNN
                                                 cudnnDataType dataType);
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cudnnHandle"></param>
+        /// <param name="rnnDesc"></param>
+        /// <param name="hiddenSize"></param>
+        /// <param name="numLayers"></param>
+        /// <param name="dropoutDesc"></param>
+        /// <param name="inputMode"></param>
+        /// <param name="direction"></param>
+        /// <param name="mode"></param>
+        /// <param name="algo"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNDescriptor(cudnnHandle cudnnHandle,
+                                                        cudnnRNNDescriptor rnnDesc,
+                                                        ref int hiddenSize,
+                                                        ref int numLayers,
+                                                        ref cudnnDropoutDescriptor dropoutDesc,
+                                                        ref cudnnRNNInputMode inputMode,
+                                                        ref cudnnDirectionMode direction,
+                                                        ref cudnnRNNMode mode,
+                                                        ref cudnnRNNAlgo algo,
+                                                        ref cudnnDataType dataType);
 
         /// <summary>
-        /// This function initializes a previously created RNN descriptor object.
+        /// 
         /// </summary>
-        /// <param name="rnnDesc">A previously created RNN descriptor.</param>
-        /// <param name="hiddenSize">Size of the internal hidden state for each layer.</param>
-        /// <param name="seqLength">Number of iterations to unroll over.</param>
-        /// <param name="numLayers">Number of layers.</param>
-        /// <param name="dropoutDesc">Handle to a previously created and initialized dropout descriptor.</param>
-        /// <param name="inputMode">Specifies the behavior at the input to the first layer.</param>
-        /// <param name="direction">Specifies the recurrence pattern. (eg. bidirectional)</param>
-        /// <param name="mode">The type of RNN to compute.</param>
-        /// <param name="dataType">Math precision.</param>
+        /// <param name="desc"></param>
+        /// <param name="math"></param>
+        /// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
-        public static extern cudnnStatus cudnnSetRNNDescriptor(cudnnRNNDescriptor rnnDesc,
-                                                        int hiddenSize,
-                                                        int seqLength,
-                                                        int numLayers,
-                                                        cudnnDropoutDescriptor dropoutDesc, // Between layers, not between recurrent steps.
-                                                        cudnnRNNInputMode inputMode,
-                                                        cudnnDirectionMode direction,
-                                                        cudnnRNNMode mode,
-                                                        cudnnDataType dataType);
+        public static extern cudnnStatus cudnnSetRNNMatrixMathType(cudnnRNNDescriptor desc, cudnnMathType math);
+
+
+
+        ///// <summary>
+        ///// This function initializes a previously created RNN descriptor object.
+        ///// </summary>
+        ///// <param name="rnnDesc">A previously created RNN descriptor.</param>
+        ///// <param name="hiddenSize">Size of the internal hidden state for each layer.</param>
+        ///// <param name="seqLength">Number of iterations to unroll over.</param>
+        ///// <param name="numLayers">Number of layers.</param>
+        ///// <param name="dropoutDesc">Handle to a previously created and initialized dropout descriptor.</param>
+        ///// <param name="inputMode">Specifies the behavior at the input to the first layer.</param>
+        ///// <param name="direction">Specifies the recurrence pattern. (eg. bidirectional)</param>
+        ///// <param name="mode">The type of RNN to compute.</param>
+        ///// <param name="dataType">Math precision.</param>
+        //[DllImport(CUDNN_API_DLL_NAME)]
+        //public static extern cudnnStatus cudnnSetRNNDescriptor(cudnnRNNDescriptor rnnDesc,
+        //                                                int hiddenSize,
+        //                                                int seqLength,
+        //                                                int numLayers,
+        //                                                cudnnDropoutDescriptor dropoutDesc, // Between layers, not between recurrent steps.
+        //                                                cudnnRNNInputMode inputMode,
+        //                                                cudnnDirectionMode direction,
+        //                                                cudnnRNNMode mode,
+        //                                                cudnnDataType dataType);
 
 
         // dataType in the RNN descriptor is used to determine math precision
@@ -4036,6 +4222,104 @@ namespace ManagedCuda.CudaDNN
                                                    CUdeviceptr dw,
                                                    CUdeviceptr reserveSpace,
                                                    SizeT reserveSpaceSizeInBytes );
+
+
+
+
+
+
+
+        /// <summary>
+        /// Create an instance of a CTC (Connectionist Temporal Classification) loss descriptor
+        /// </summary>
+        /// <param name="ctcLossDesc"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateCTCLossDescriptor(ref cudnnCTCLossDescriptor ctcLossDesc);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctcLossDesc"></param>
+        /// <param name="compType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetCTCLossDescriptor(cudnnCTCLossDescriptor ctcLossDesc, cudnnDataType compType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctcLossDesc"></param>
+        /// <param name="compType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetCTCLossDescriptor(cudnnCTCLossDescriptor ctcLossDesc, ref cudnnDataType compType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctcLossDesc"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyCTCLossDescriptor(cudnnCTCLossDescriptor ctcLossDesc);
+
+        /// <summary>
+        /// return the ctc costs and gradients, given the probabilities and labels
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="probsDesc"></param>
+        /// <param name="probs"></param>
+        /// <param name="labels"></param>
+        /// <param name="labelLengths"></param>
+        /// <param name="inputLengths"></param>
+        /// <param name="costs"></param>
+        /// <param name="gradientsDesc"></param>
+        /// <param name="gradients"></param>
+        /// <param name="algo"></param>
+        /// <param name="ctcLossDesc"></param>
+        /// <param name="workspace"></param>
+        /// <param name="workSpaceSizeInBytes"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCTCLoss(cudnnHandle handle,
+                                        cudnnTensorDescriptor probsDesc,     /* Tensor descriptor for probabilities, the dimensions are T,N,A (T is the timing steps, N is the mini batch size, A is the alphabet size)  */
+                                        CUdeviceptr probs,                          /* probabilities after softmax, in GPU memory */
+                                        int[] labels,                          /* labels, in CPU memory */
+                                        int[] labelLengths,                    /* the length of each label, in CPU memory */
+                                        int[] inputLengths,                    /* the lengths of timing steps in each batch, in CPU memory */
+                                        CUdeviceptr costs,                                /* the returned costs of CTC, in GPU memory */
+                                        cudnnTensorDescriptor gradientsDesc, /* Tensor descriptor for gradients, the dimensions are T,N,A */
+                                        CUdeviceptr gradients,                      /* the returned CTC gradients, in GPU memory, to compute costs only, set it to NULL */
+                                        cudnnCTCLossAlgo algo,                     /* algorithm selected, supported now 0 and 1 */
+                                        cudnnCTCLossDescriptor ctcLossDesc,
+                                        CUdeviceptr workspace,                            /* pointer to the workspace, in GPU memory */
+                                        SizeT workSpaceSizeInBytes);                /* the workspace size needed */
+
+        /// <summary>
+        /// return the workspace size needed for ctc
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="probsDesc"></param>
+        /// <param name="gradientsDesc"></param>
+        /// <param name="labels"></param>
+        /// <param name="labelLengths"></param>
+        /// <param name="inputLengths"></param>
+        /// <param name="algo"></param>
+        /// <param name="ctcLossDesc"></param>
+        /// <param name="sizeInBytes"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetCTCLossWorkspaceSize(
+                                cudnnHandle handle,
+                                cudnnTensorDescriptor probsDesc,       /* Tensor descriptor for probabilities, the dimensions are T,N,A (T is the timing steps, N is the mini batch size, A is the alphabet size) */
+                                cudnnTensorDescriptor gradientsDesc,   /* Tensor descriptor for gradients, the dimensions are T,N,A. To compute costs only, set it to NULL */
+                                int[] labels,         /* labels, in CPU memory */
+                                int[] labelLengths,   /* the length of each label, in CPU memory */
+                                int[] inputLengths,   /* the lengths of timing steps in each batch, in CPU memory */
+                                cudnnCTCLossAlgo                  algo,            /* algorithm selected, supported now 0 and 1 */
+                                cudnnCTCLossDescriptor ctcLossDesc,
+                                ref SizeT sizeInBytes );   /* pointer to the returned workspace size */
+
 
     }
 }

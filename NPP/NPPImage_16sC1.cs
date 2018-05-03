@@ -3219,7 +3219,158 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_16s32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		#endregion
+        #endregion
 
-	}
+
+
+
+        #region NewInCuda9.0
+
+        
+        /// <summary>
+        /// Wiener filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorder(NPPImage_16sC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, float aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 16-bit signed grayscale per source image descriptor window location with source image border control 
+        /// to per descriptor window destination floating point histogram of gradients. Requires first calling nppiHistogramOfGradientsBorderGetBufferSize function
+        /// call to get required scratch (host) working buffer size and nppiHistogramOfGradientsBorderGetDescriptorsSize() function call to get
+        /// total size for nLocations of output histogram block descriptor windows.
+        /// </summary>
+        /// <param name="hpLocations">Host pointer to array of NppiPoint source pixel starting locations of requested descriptor windows. Important: hpLocations is a </param>
+        /// <param name="pDstWindowDescriptorBuffer">Output device memory buffer pointer of size hpDescriptorsSize bytes to first of nLoc descriptor windows (see nppiHistogramOfGradientsBorderGetDescriptorsSize() above).</param>
+        /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
+        /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_16s32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_16s32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_16sC1 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16s_C1R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 16 bit signed integer MorphCloseBorder, MorphOpenBorder, MorphTopHatBorder, 
+        /// MorphBlackHatBorder, or MorphGradientBorder function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int MorphGetBufferSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGetBufferSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGetBufferSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// 1 channel 16 bit signed integer morphological close with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphCloseBorder(NPPImage_16sC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 16 bit signed integer morphological open with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphOpenBorder(NPPImage_16sC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 16 bit signed integer morphological top hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphTopHatBorder(NPPImage_16sC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 16 bit signed integer morphological black hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphBlackHatBorder(NPPImage_16sC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 16 bit signed integer morphological gradient with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphGradientBorder(NPPImage_16sC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+    }
 }

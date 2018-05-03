@@ -1149,29 +1149,41 @@ namespace ManagedCuda.NPP
 			return bbox;
 		}
 
-		/// <summary>
-		/// Resizes images.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void Resize(NPPImage_8uC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+        ///// <summary>
+        ///// Resizes images.
+        ///// </summary>
+        ///// <param name="dest">Destination image</param>
+        ///// <param name="xFactor">X scaling factor</param>
+        ///// <param name="yFactor">Y scaling factor</param>
+        ///// <param name="eInterpolation">Interpolation mode</param>
+        //public void Resize(NPPImage_8uC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
+        //{
+        //	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
+        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R", status));
+        //	NPPException.CheckNppStatus(status, this);
+        //}
 
-		/// <summary>
-		/// Rotate images.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nAngle">The angle of rotation in degrees.</param>
-		/// <param name="nShiftX">Shift along horizontal axis</param>
-		/// <param name="nShiftY">Shift along vertical axis</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void Rotate(NPPImage_8uC1 dest, double nAngle, double nShiftX, double nShiftY, InterpolationMode eInterpolation)
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_8uC1 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_8u_C1R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Rotate images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nAngle">The angle of rotation in degrees.</param>
+        /// <param name="nShiftX">Shift along horizontal axis</param>
+        /// <param name="nShiftY">Shift along vertical axis</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Rotate(NPPImage_8uC1 dest, double nAngle, double nShiftX, double nShiftY, InterpolationMode eInterpolation)
 		{
 			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiRotate_8u_C1R(_devPtr, _sizeRoi, _pitch, new NppiRect(_pointRoi, _sizeRoi), 
 				dest.DevicePointer, dest.Pitch, new NppiRect(dest.PointRoi, dest.SizeRoi), nAngle, nShiftX, nShiftY, eInterpolation);
@@ -6041,7 +6053,456 @@ namespace ManagedCuda.NPP
 			status = NPPNativeMethods.NPPi.FilterHarrisCornersBorder.nppiFilterHarrisCornersBorder_8u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eFilterType, eMaskSize, eAvgWindowSize, nK, nScale, eBorderType, pDeviceBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHarrisCornersBorder_8u32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
-		}
-		#endregion
-	}
+        }
+        #endregion
+
+        #region NewInCuda9.0
+
+
+        /// <summary>
+        /// Single channel 8-bit unsigned threshold adaptive box filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="eFilterType">selects between Sobel or Scharr filter type.</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation, Width and Height must be equal and odd.</param>
+        /// <param name="nDelta">Neighborhood average adjustment value.</param>
+        /// <param name="nValGT">Destination output value if source pixel is greater than average.</param>
+        /// <param name="nValLE">Destination output value if source pixel is less than or equal to average.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterThresholdAdaptiveBoxBorder(NPPImage_8uC1 dest, DifferentialKernel eFilterType,
+                     NppiSize oMaskSize, float nDelta, byte nValGT, byte nValLE,
+                     NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterThresholdAdaptiveBoxBorder.nppiFilterThresholdAdaptiveBoxBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, nDelta, nValGT, nValLE, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Wiener filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, float aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for the FilterHoughLine or FilterHoughLineRegion functions based on destination image SizeROI width and height and nDelta parameters.
+        /// </summary>
+        /// <param name="nDelta">rho radial increment and theta angular increment that will be used in the FilterHoughLine or FilterHoughLineRegion function call.</param>
+        /// <param name="nMaxLineCount">The maximum number of lines expected from the FilterHoughLine or FilterHoughLineRegion function call.</param>
+        public int FilterHoughLineGetBufferSize(NppPointPolar nDelta, int nMaxLineCount)
+        {
+            int hpBufferSize = 0;
+            status = NPPNativeMethods.NPPi.FilterHoughLine.nppiFilterHoughLineGetBufferSize(_sizeRoi, nDelta, nMaxLineCount, ref hpBufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHoughLineGetBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return hpBufferSize;
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned binarized (0, 255) source feature (canny edges, etc.) source image to list of lines in point polar format
+        /// representing the length (rho) and angle (theta) of each line from the origin of the normal to the line using the formula rho = x cos(theta) + y sin(theta).
+        /// The level of discretization, nDelta, is specified as an input parameter. The performance and effectiveness of this function highly depends on
+        /// this parameter with higher performance for larger numbers and more detailed results for lower numbers. nDelta must have the same values as
+        /// those used in the nppiFilterHoughLineGetBufferSize() function call.
+        /// </summary>
+        /// <param name="nDelta">Discretization steps, range 0.0F &lt; radial increment nDelta.rho &lt; 3.0F, 1.0F recommended, range 0.25F &lt; angular increment nDelta.theta &lt; 3.0F, 1.0F recommended.</param>
+        /// <param name="nThreshold">Minimum number of points to accept a line.</param>
+        /// <param name="pDeviceLines">Device pointer to (nMaxLineCount * sizeof(NppPointPolar) line objects.</param>
+        /// <param name="pDeviceLineCount">The number of lines detected by this function up to nMaxLineCount.</param>
+        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterHoughLineGetBufferSize() above)</param>
+        public void FilterHoughLine(NppPointPolar nDelta, int nThreshold, CudaDeviceVariable<NppPointPolar> pDeviceLines, CudaDeviceVariable<int> pDeviceLineCount, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.FilterHoughLine.nppiFilterHoughLine_8u32f_C1R(_devPtr, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHoughLine_8u32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned binarized (0, 255) source feature (canny edges, etc.) source image to list of lines in point polar format
+        /// representing the length (rho) and angle (theta) of each line from the origin of the normal to the line using the formula rho = x cos(theta) + y sin(theta).
+        /// The level of discretization, nDelta, is specified as an input parameter. The performance and effectiveness of this function highly depends on
+        /// this parameter with higher performance for larger numbers and more detailed results for lower numbers. nDelta must have the same values as
+        /// those used in the nppiFilterHoughLineGetBufferSize() function call. The oDstROI region limits are used to limit accepted lines to those that fall within
+        /// those limits.
+        /// </summary>
+        /// <param name="nDelta">Discretization steps, range 0.0F &lt; radial increment nDelta.rho &lt; 3.0F, 1.0F recommended, range 0.25F &lt; angular increment nDelta.theta &lt; 3.0F, 1.0F recommended.</param>
+        /// <param name="nThreshold">Minimum number of points to accept a line.</param>
+        /// <param name="pDeviceLines">Device pointer to (nMaxLineCount * sizeof(NppPointPolar) line objects.</param>
+        /// <param name="oDstROI">Region limits with oDstROI[0].rho &lt;= accepted rho &lt;= oDstROI[1].rho and oDstROI[0].theta &lt;= accepted theta &lt;= oDstROI[1].theta.</param>
+        /// <param name="pDeviceLineCount">The number of lines detected by this function up to nMaxLineCount.</param>
+        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterHoughLineGetBufferSize() above)</param>
+        public void FilterHoughLine(NppPointPolar nDelta, int nThreshold, CudaDeviceVariable<NppPointPolar> pDeviceLines, NppPointPolar[] oDstROI, CudaDeviceVariable<int> pDeviceLineCount, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.FilterHoughLine.nppiFilterHoughLineRegion_8u32f_C1R(_devPtr, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, oDstROI, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHoughLineRegion_8u32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned grayscale per source image descriptor window location with source image border control 
+        /// to per descriptor window destination floating point histogram of gradients. Requires first calling nppiHistogramOfGradientsBorderGetBufferSize function
+        /// call to get required scratch (host) working buffer size and nppiHistogramOfGradientsBorderGetDescriptorsSize() function call to get
+        /// total size for nLocations of output histogram block descriptor windows.
+        /// </summary>
+        /// <param name="hpLocations">Host pointer to array of NppiPoint source pixel starting locations of requested descriptor windows. Important: hpLocations is a </param>
+        /// <param name="pDstWindowDescriptorBuffer">Output device memory buffer pointer of size hpDescriptorsSize bytes to first of nLoc descriptor windows (see nppiHistogramOfGradientsBorderGetDescriptorsSize() above).</param>
+        /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
+        /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_8u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_8u32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// One-channel 8-bit unsigned image MSE.
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="pMSE">Pointer to the computed MSE of two images. </param>
+        /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiMSEGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
+        public void MSE(NPPImage_8uC1 src2 , CudaDeviceVariable<float> pMSE, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.IQA.nppiMSE_8u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pMSE.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMSE_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// One-channel 8-bit unsigned image PSNR.
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="pPSNR">Pointer to the computed PSNR of two images. </param>
+        /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiPSNRGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
+        public void PSNR(NPPImage_8uC1 src2, CudaDeviceVariable<float> pPSNR, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.IQA.nppiPSNR_8u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pPSNR.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiPSNR_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// One-channel 8-bit unsigned image SSIM.
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="pSSIM">Pointer to the computed SSIM of two images. </param>
+        /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiSSIMGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
+        public void SSIM(NPPImage_8uC1 src2, CudaDeviceVariable<float> pSSIM, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.IQA.nppiSSIM_8u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pSSIM.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSSIM_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// One-channel 8-bit unsigned image MS-SSIM.
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="pMSSSIM">Pointer to the computed SSIM of two images. </param>
+        /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiMSSSIMGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
+        public void MSSSIM(NPPImage_8uC1 src2, CudaDeviceVariable<float> pMSSSIM, CudaDeviceVariable<byte> pDeviceBuffer)
+        {
+            status = NPPNativeMethods.NPPi.IQA.nppiMSSSIM_8u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pMSSSIM.DevicePointer, pDeviceBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMSSSIM_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiMSE_8u_C1R.
+        /// </summary>
+        public int MSEGetBufferHostSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.IQA.nppiMSEGetBufferHostSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMSEGetBufferHostSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiPSNR_8u_C1R.
+        /// </summary>
+        public int PSNRGetBufferHostSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.IQA.nppiPSNRGetBufferHostSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiPSNRGetBufferHostSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiSSIM_8u_C1R.
+        /// </summary>
+        public int SSIMGetBufferHostSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.IQA.nppiSSIMGetBufferHostSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSSIMGetBufferHostSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiMSSSIM_8u_C1R.
+        /// </summary>
+        public int MSSSIMGetBufferHostSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.IQA.nppiMSSSIMGetBufferHostSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMSSSIMGetBufferHostSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// Gray scale dilation with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="Mask">Pointer to the start address of the mask array.</param>
+        /// <param name="aMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void GrayDilateBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.DilationWithBorderControl.nppiGrayDilateBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayDilateBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Gray scale erosion with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="Mask">Pointer to the start address of the mask array.</param>
+        /// <param name="aMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void GrayErodeBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ErosionWithBorderControl.nppiGrayErodeBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayErodeBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 8-bit unsigned integer LabelMarkers function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int LabelMarkersGetBufferSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersGetBufferSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersGetBufferSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 8-bit to 1 channel 32-bit unsigned integer LabelMarkers function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int LabelMarkersGetBufferSize8u32u()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersGetBufferSize_8u32u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersGetBufferSize_8u32u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer in place label markers image generation.
+        /// </summary>
+        /// <param name="nMinVal">Pixel values less than or equal to nMinVal will be excluded as members of any connected region and given a label ID of 0.</param>
+        /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersGetBufferSize call.</param>
+        /// <returns>The maximum generated marker label ID will be returned.</returns>
+        public int LabelMarkers(byte nMinVal, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+        {
+            int pNumber = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkers_8u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nMinVal, eNorm, ref pNumber, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkers_8u_C1IR", status));
+            NPPException.CheckNppStatus(status, this);
+            return pNumber;
+        }
+
+
+        /// <summary>
+        /// 1 channel 8-bit to 32-bit unsigned integer label markers image generation.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nMinVal">Pixel values less than or equal to nMinVal will be excluded as members of any connected region and given a label ID of 0.</param>
+        /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersGetBufferSize call.</param>
+        /// <returns>The maximum generated marker label ID will be returned.</returns>
+        public int LabelMarkers(NPPImage_32uC1 dest, byte nMinVal, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+        {
+            int pNumber = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkers_8u32u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMinVal, eNorm, ref pNumber, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkers_8u32u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return pNumber;
+        }
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 8-bit unsigned integer CompressMarkerLabels function based on the number returned in pNumber from a previous nppiLabelMarkers call.
+        /// </summary>
+        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u function.</param>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int CompressMarkerLabelsGetBufferSize(int nStartingNumber)
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabelsGetBufferSize_8u_C1R(nStartingNumber, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabelsGetBufferSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer in place connected region marker label renumbering with numbering sparseness elimination.
+        /// </summary>
+        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding CompressMarkerLabelsGetBufferSize call.</param>
+        /// <returns>The maximum renumbered marker label ID will be returned.</returns>
+        public int CompressMarkerLabels(int nStartingNumber, CudaDeviceVariable<byte> pBuffer)
+        {
+            int pNewNumber = 0;
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabels_8u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nStartingNumber, ref pNewNumber, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabels_8u_C1IR", status));
+            NPPException.CheckNppStatus(status, this);
+            return pNewNumber;
+        }
+
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer in place region boundary border image generation.
+        /// </summary>
+        /// <param name="nBorderVal">Pixel value to be used at connected region boundary borders</param>
+        public void BoundSegments(byte nBorderVal)
+        {
+            status = NPPNativeMethods.NPPi.LabelMarkers.nppiBoundSegments_8u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nBorderVal);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBoundSegments_8u_C1IR", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 8-bit unsigned integer MorphCloseBorder, MorphOpenBorder, MorphTopHatBorder, 
+        /// MorphBlackHatBorder, or MorphGradientBorder function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int MorphGetBufferSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGetBufferSize_8u_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGetBufferSize_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer morphological close with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphCloseBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer morphological open with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphOpenBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer morphological top hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphTopHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer morphological black hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphBlackHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned integer morphological gradient with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphGradientBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_8u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_8u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        #endregion
+    }
 }

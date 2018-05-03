@@ -28,6 +28,7 @@
     <Compile Include="CudaSparseHybMat.cs" />
     <Compile Include="CudaSparseMatrixDescriptor.cs" />
     <Compile Include="CudaSparseNativeMethods.cs" />
+    <Compile Include="CudaSparsePruneInfo.cs" />
     <Compile Include="CudaSparseSolveAnalysisInfo.cs" />
     <Compile Include="CudaSparseTypes.cs" />
     <Compile Include="CudaSparseCsrsv2Info.cs" />

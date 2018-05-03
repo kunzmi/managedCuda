@@ -265,5 +265,47 @@ namespace ManagedCuda.CudaDNN
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionNdForwardOutputDim", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
-	}
+
+        /// <summary>
+        /// The math type specified in a given convolution descriptor.
+        /// </summary>
+        public cudnnMathType MathType
+        {
+            get
+            {
+                cudnnMathType mathType = new cudnnMathType();
+                res = CudaDNNNativeMethods.cudnnGetConvolutionMathType(_desc, ref mathType);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionMathType", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+                return mathType;
+            }
+            set
+            {
+                res = CudaDNNNativeMethods.cudnnSetConvolutionMathType(_desc, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetConvolutionMathType", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            }
+        }
+
+        /// <summary>
+        /// This function allows the user to specify the number of groups to be used in the associated convolution.
+        /// </summary>
+        public int GroupCount
+        {
+            get
+            {
+                int groupCount = 0;
+                res = CudaDNNNativeMethods.cudnnGetConvolutionGroupCount(_desc, ref groupCount);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionGroupCount", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+                return groupCount;
+            }
+            set
+            {
+                res = CudaDNNNativeMethods.cudnnSetConvolutionGroupCount(_desc, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetConvolutionGroupCount", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            }
+        }
+    }
 }

@@ -495,5 +495,17 @@ namespace ManagedCuda.CudaSparse
 		/// </summary>
 		public IntPtr Handle;
 	}
+    
+    /// <summary>
+    /// Opaque structure holding the prune information
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+	public struct pruneInfo
+    {
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
 	#endregion
 }

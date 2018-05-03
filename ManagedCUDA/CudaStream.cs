@@ -302,6 +302,112 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			return flags;
 		}
+
+        /// <summary>
+        /// Wait on a memory location<para/>
+        /// Enqueues a synchronization of the stream on the given memory location. Work
+        /// ordered after the operation will block until the given condition on the
+        /// memory is satisfied. By default, the condition is to wait for (int32_t)(*addr - value) >= 0, a cyclic greater-or-equal.
+        /// <para/>
+        /// Other condition types can be specified via \p flags.
+        /// <para/>
+        /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+        /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+        /// be used with managed memory(::cuMemAllocManaged).
+        /// <para/>
+        /// Support for this can be queried with ::cuDeviceGetAttribute() and
+        /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The only requirement for basic
+        /// support is that on Windows, a device must be in TCC mode.
+        /// </summary>
+        /// <param name="addr">The memory location to wait on.</param>
+        /// <param name="value">The value to compare with the memory location.</param>
+        /// <param name="flags">See::CUstreamWaitValue_flags.</param>
+        public void WaitValue(CUdeviceptr addr, uint value, CUstreamWaitValue_flags flags)
+        {
+            CUResult res = DriverAPINativeMethods.Events.cuStreamWaitValue32(_stream, addr, value, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamWaitValue32", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Wait on a memory location<para/>
+        /// Enqueues a synchronization of the stream on the given memory location. Work
+        /// ordered after the operation will block until the given condition on the
+        /// memory is satisfied. By default, the condition is to wait for (int32_t)(*addr - value) >= 0, a cyclic greater-or-equal.
+        /// <para/>
+        /// Other condition types can be specified via \p flags.
+        /// <para/>
+        /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+        /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+        /// be used with managed memory(::cuMemAllocManaged).
+        /// <para/>
+        /// Support for this can be queried with ::cuDeviceGetAttribute() and
+        /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The requirements are
+        /// compute capability 7.0 or greater, and on Windows, that the device be in
+        /// TCC mode.
+        /// </summary>
+        /// <param name="addr">The memory location to wait on.</param>
+        /// <param name="value">The value to compare with the memory location.</param>
+        /// <param name="flags">See::CUstreamWaitValue_flags.</param>
+        public void WaitValue(CUdeviceptr addr, ulong value, CUstreamWaitValue_flags flags)
+        {
+            CUResult res = DriverAPINativeMethods.Events.cuStreamWaitValue64(_stream, addr, value, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamWaitValue64", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Write a value to memory
+        /// <para/>
+        /// Write a value to memory.Unless the ::CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
+        /// flag is passed, the write is preceded by a system-wide memory fence,
+        /// equivalent to a __threadfence_system() but scoped to the stream
+        /// rather than a CUDA thread.
+        /// <para/>
+        /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+        /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+        /// be used with managed memory(::cuMemAllocManaged).
+        /// <para/>
+        /// Support for this can be queried with ::cuDeviceGetAttribute() and
+        /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The only requirement for basic
+        /// support is that on Windows, a device must be in TCC mode.
+        /// </summary>
+        /// <param name="addr">The device address to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <param name="flags">See::CUstreamWriteValue_flags.</param>
+        public void WriteValue(CUdeviceptr addr, uint value, CUstreamWriteValue_flags flags)
+        {
+            CUResult res = DriverAPINativeMethods.Events.cuStreamWriteValue32(_stream, addr, value, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamWriteValue32", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Write a value to memory
+        /// <para/>
+        /// Write a value to memory.Unless the ::CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
+        /// flag is passed, the write is preceded by a system-wide memory fence,
+        /// equivalent to a __threadfence_system() but scoped to the stream
+        /// rather than a CUDA thread.
+        /// <para/>
+        /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+        /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+        /// be used with managed memory(::cuMemAllocManaged).
+        /// <para/>
+        /// Support for this can be queried with ::cuDeviceGetAttribute() and
+        /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The requirements are
+        /// compute capability 7.0 or greater, and on Windows, that the device be in
+        /// TCC mode.
+        /// </summary>
+        /// <param name="addr">The device address to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <param name="flags">See::CUstreamWriteValue_flags.</param>
+        public void WriteValue(CUdeviceptr addr, ulong value, CUstreamWriteValue_flags flags)
+        {
+            CUResult res = DriverAPINativeMethods.Events.cuStreamWriteValue64(_stream, addr, value, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamWriteValue64", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
         #endregion
     }
 }

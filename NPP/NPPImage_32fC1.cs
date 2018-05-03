@@ -4055,30 +4055,42 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, this);
 		}
 
-		/// <summary>
-		/// Resizes images.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="xFactor">X scaling factor</param>
-		/// <param name="yFactor">Y scaling factor</param>
-		/// <param name="eInterpolation">Interpolation mode</param>
-		public void Resize(NPPImage_32fC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-		{
-			status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_32f_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_32f_C1R", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		#endregion
+        ///// <summary>
+        ///// Resizes images.
+        ///// </summary>
+        ///// <param name="dest">Destination image</param>
+        ///// <param name="xFactor">X scaling factor</param>
+        ///// <param name="yFactor">Y scaling factor</param>
+        ///// <param name="eInterpolation">Interpolation mode</param>
+        //public void Resize(NPPImage_32fC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
+        //{
+        //	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_32f_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
+        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_32f_C1R", status));
+        //	NPPException.CheckNppStatus(status, this);
+        //}
 
-		#region RectStdDev
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_32fC1 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_32f_C1R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region RectStdDev
 
 
-		/// <summary>
-		///  RectStdDev.
-		/// </summary>
-		/// <param name="dst">Destination-Image</param>
-		/// <param name="sqr">Destination-Image</param>
-		public void RectStdDev(NPPImage_32fC1 dst, NPPImage_32fC1 sqr)
+        /// <summary>
+        ///  RectStdDev.
+        /// </summary>
+        /// <param name="dst">Destination-Image</param>
+        /// <param name="sqr">Destination-Image</param>
+        public void RectStdDev(NPPImage_32fC1 dst, NPPImage_32fC1 sqr)
 		{
 			status = NPPNativeMethods.NPPi.Integral.nppiRectStdDev_32f_C1R(_devPtr, _pitch, sqr.DevicePointer, sqr.Pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, new NppiRect(_pointRoi, _sizeRoi));
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRectStdDev_32f_C1R", status));
@@ -4915,7 +4927,268 @@ namespace ManagedCuda.NPP
 			status = NPPNativeMethods.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
-		}
-		#endregion
-	}
+        }
+        #endregion
+
+        //New in Cuda 9.0
+        #region New in Cuda 9.0
+        /// <summary>
+        /// color twist batch
+        /// An input color twist matrix with floating-point coefficient values is applied
+        /// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+        /// </summary>
+        /// <param name="nMin">Minimum clamp value.</param>
+        /// <param name="nMax">Maximum saturation and clamp value.</param>
+        /// <param name="oSizeROI"></param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+        public static void ColorTwistBatch(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch_32f_C1R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch_32f_C1R", status));
+            NPPException.CheckNppStatus(status, pBatchList);
+        }
+
+        /// <summary>
+        /// color twist batch
+        /// An input color twist matrix with floating-point coefficient values is applied
+        /// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+        /// </summary>
+        /// <param name="nMin">Minimum clamp value.</param>
+        /// <param name="nMax">Maximum saturation and clamp value.</param>
+        /// <param name="oSizeROI"></param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+        public static void ColorTwistBatchI(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch_32f_C1IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch_32f_C1IR", status));
+            NPPException.CheckNppStatus(status, pBatchList);
+        }
+
+
+        /// <summary>
+        /// Wiener filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorder(NPPImage_32fC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, float aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 32-bit floating point grayscale per source image descriptor window location with source image border control 
+        /// to per descriptor window destination floating point histogram of gradients. Requires first calling nppiHistogramOfGradientsBorderGetBufferSize function
+        /// call to get required scratch (host) working buffer size and nppiHistogramOfGradientsBorderGetDescriptorsSize() function call to get
+        /// total size for nLocations of output histogram block descriptor windows.
+        /// </summary>
+        /// <param name="hpLocations">Host pointer to array of NppiPoint source pixel starting locations of requested descriptor windows. Important: hpLocations is a </param>
+        /// <param name="pDstWindowDescriptorBuffer">Output device memory buffer pointer of size hpDescriptorsSize bytes to first of nLoc descriptor windows (see nppiHistogramOfGradientsBorderGetDescriptorsSize() above).</param>
+        /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
+        /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+        /// <summary>
+        /// floating point image resize batch.
+        /// </summary>
+        /// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="oSmallestDstSize">Size in pixels of the entire smallest destination image width and height, may be from different images.</param>
+        /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
+        public static void ResizeBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiSize oSmallestDstSize, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiResizeBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResizeBatch_32f_C1R(oSmallestSrcSize, oSrcRectROI, oSmallestDstSize, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_32f_C1R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// floating point image resize batch.
+        /// </summary>
+        /// <param name="oSizeROI">Size in pixel.</param>
+        /// <param name="flip">Specifies the axis about which the images are to be mirrored..</param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiMirrorBatchCXR structures.</param>
+        public static void MirrorBatch(NppiSize oSizeROI, NppiAxis flip, CudaDeviceVariable<NppiMirrorBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiMirrorBatch_32f_C1R(oSizeROI, flip, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMirrorBatch_32f_C1R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// floating point in place image resize batch.
+        /// </summary>
+        /// <param name="oSizeROI">Size in pixel.</param>
+        /// <param name="flip">Specifies the axis about which the images are to be mirrored..</param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiMirrorBatchCXR structures.</param>
+        public static void MirrorBatchI(NppiSize oSizeROI, NppiAxis flip, CudaDeviceVariable<NppiMirrorBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiMirrorBatch_32f_C1IR(oSizeROI, flip, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMirrorBatch_32f_C1IR", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+
+        /// <summary>
+        /// floating point image warp affine batch.
+        /// </summary>
+        /// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+        public static void WarpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatch_32f_C1R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatch_32f_C1R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Gray scale dilation with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="Mask">Pointer to the start address of the mask array.</param>
+        /// <param name="aMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void GrayDilateBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.DilationWithBorderControl.nppiGrayDilateBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayDilateBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Gray scale erosion with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="Mask">Pointer to the start address of the mask array.</param>
+        /// <param name="aMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void GrayErodeBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ErosionWithBorderControl.nppiGrayErodeBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayErodeBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 32-bit floating point MorphCloseBorder, MorphOpenBorder, MorphTopHatBorder, 
+        /// MorphBlackHatBorder, or MorphGradientBorder function based on destination image oSizeROI width and height.
+        /// </summary>
+        /// <returns>Required buffer size in bytes.</returns>
+        public int MorphGetBufferSize()
+        {
+            int ret = 0;
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGetBufferSize_32f_C1R(_sizeRoi, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGetBufferSize_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// 1 channel 32-bit floating point morphological close with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphCloseBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 32-bit floating point morphological open with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphOpenBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 32-bit floating point morphological top hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphTopHatBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 32-bit floating point morphological black hat with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphBlackHatBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 32-bit floating point morphological gradient with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="pMask">Pointer to the start address of the mask array</param>
+        /// <param name="oMaskSize">Width and Height mask array.</param>
+        /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void MorphGradientBorder(NPPImage_32fC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+    }
 }

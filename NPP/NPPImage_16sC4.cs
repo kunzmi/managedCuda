@@ -5552,6 +5552,85 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, this);
 		}
 
-		#endregion
-	}
+        #endregion
+
+
+        //New in Cuda 9.0
+        #region New Cuda9
+        /// <summary>
+        /// Wiener filter with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorder(NPPImage_16sC4 dest, NppiSize oMaskSize, NppiPoint oAnchor, float[] aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_16s_C4R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_16s_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Wiener filter with border control, ignoring alpha channel.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="oMaskSize">Pixel Width and Height of the rectangular region of interest surrounding the source pixel.</param>
+        /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
+        /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public void FilterWienerBorderA(NPPImage_16sC4 dest, NppiSize oMaskSize, NppiPoint oAnchor, float[] aNoise, NppiBorderType eBorderType)
+        {
+            status = NPPNativeMethods.NPPi.FilterWienerBorder.nppiFilterWienerBorder_16s_AC4R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_16s_AC4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Resizes images.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void Resize(NPPImage_16sC4 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16s_C4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16s_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Resizes images. Not affecting Alpha.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public void ResizeA(NPPImage_16sC4 dest, InterpolationMode eInterpolation)
+        {
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16s_AC4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16s_AC4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// resizes planar images.
+        /// </summary>
+        /// <param name="src0">Source image (Channel 0)</param>
+        /// <param name="src1">Source image (Channel 1)</param>
+        /// <param name="src2">Source image (Channel 2)</param>
+        /// <param name="src3">Source image (Channel 3)</param>
+        /// <param name="dest0">Destination image (Channel 0)</param>
+        /// <param name="dest1">Destination image (Channel 1)</param>
+        /// <param name="dest2">Destination image (Channel 2)</param>
+        /// <param name="dest3">Destination image (Channel 3)</param>
+        /// <param name="eInterpolation">Interpolation mode</param>
+        public static void Resize(NPPImage_16sC1 src0, NPPImage_16sC1 src1, NPPImage_16sC1 src2, NPPImage_16sC1 src3, NPPImage_16sC1 dest0, NPPImage_16sC1 dest1, NPPImage_16sC1 dest2, NPPImage_16sC1 dest3, InterpolationMode eInterpolation)
+        {
+            CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer, src3.DevicePointer };
+            CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer, dest3.DevicePointer };
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16s_P4R(src, src0.Pitch, src0.Size, new NppiRect(src0.PointRoi, src0.SizeRoi), dst, dest0.Pitch, dest0.Size, new NppiRect(dest0.PointRoi, dest0.SizeRoi), eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16s_P4R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+    }
 }

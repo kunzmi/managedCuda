@@ -159,6 +159,15 @@ namespace ManagedCuda.CudaDNN
 				case cudnnStatus.LicenseError:
 					message = "The functionality requested requires some license and an error was detected when trying to check the current licensing. This error can happen if the license is not present or is expired or if the environment variable NVIDIA_LICENSE_FILE is not set properly.";
 					break;
+                case cudnnStatus.RuntimePrerequisiteMissing:
+                    message = "Runtime library required by RNN calls (libcuda.so or nvcuda.dll) cannot be found in predefined search paths.";
+                    break;
+                case cudnnStatus.RuntimInProgress:
+                    message = "Some tasks in the user stream are not completed.";
+                    break;
+                case cudnnStatus.RuntimeFPOverflow:
+                    message = "Numerical overflow occurred during the GPU kernel execution.";
+                    break;
 				default:
 					break;
 			}

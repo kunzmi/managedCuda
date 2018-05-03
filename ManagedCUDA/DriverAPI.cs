@@ -52,7 +52,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(8, 0); }
+            get { return new Version(9, 1); }
         }
 
         #region Initialization
@@ -97,7 +97,7 @@ namespace ManagedCuda
             public static extern CUResult cuDeviceGet(ref CUdevice device, int ordinal);
 
             /// <summary>
-            /// Returns in <c>count</c> the number of devices with compute capability greater than or equal to 1.0 that are available for
+            /// Returns in <c>count</c> the number of devices with compute capability greater than or equal to 2.0 that are available for
             /// execution. If there is no such device, <see cref="cuDeviceGetCount"/> returns 0.
             /// </summary>
             /// <param name="count">Returned number of compute-capable devices</param>
@@ -6180,7 +6180,42 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuFuncGetAttribute(ref int pi, CUFunctionAttribute attrib, CUfunction hfunc);
+
+            /// <summary>
+            /// Sets information about a function
+            /// <para/>
+            /// This call sets the value of a specified attribute \p attrib on the kernel given
+            /// by \p hfunc to an integer value specified by \p val
+            /// <para/>
+            /// This function returns CUDA_SUCCESS if the new value of the attribute could be
+            /// successfully set. If the set fails, this call will return an error.
+            /// <para/>
+            /// Not all attributes can have values set. Attempting to set a value on a read-only
+            /// attribute will result in an error (CUDA_ERROR_INVALID_VALUE)
+            /// <para/>
+            /// Supported attributes for the cuFuncSetAttribute call are:
+            /// <para/>
+            /// ::CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES: This maximum size in bytes of
+            /// dynamically-allocated shared memory.The value should contain the requested
+            /// maximum size of dynamically-allocated shared memory.The sum of this value and
+            /// the function attribute::CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES cannot exceed the
+            /// device attribute ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN.
+            /// The maximal size of requestable dynamic shared memory may differ by GPU
+            /// architecture.
+            /// <para/>
+            /// ::CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: On devices where the L1
+            /// cache and shared memory use the same hardware resources, this sets the shared memory
+            /// carveout preference, in percent of the total resources.This is only a hint, and the
+            /// driver can choose a different ratio if required to execute the function.
+            /// </summary>
+            /// <param name="hfunc">Function to query attribute of</param>
+            /// <param name="attrib">Attribute requested</param>
+            /// <param name="value">The value to set</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncSetAttribute(CUfunction hfunc, CUFunctionAttribute attrib, int value);
             
+
+
             /// <summary>
             /// On devices where the L1 cache and shared memory use the same hardware resources, this sets through <c>config</c>
             /// the preferred cache configuration for the device function <c>hfunc</c>. This is only a preference. The driver will use the
@@ -8467,7 +8502,141 @@ namespace ManagedCuda
                                 CUstream hStream,
                                 IntPtr[] kernelParams,
                                 IntPtr[] extra);
+
+            /// <summary>
+            /// Launches a CUDA function where thread blocks can cooperate and synchronize as they execute
+            /// <para/>
+            /// Invokes the kernel \p f on a \p gridDimX x \p gridDimY x \p gridDimZ
+            /// grid of blocks.Each block contains \p blockDimX x \p blockDimY x
+            /// \p blockDimZ threads.
+            /// <para/>
+            /// \p sharedMemBytes sets the amount of dynamic shared memory that will be
+            /// available to each thread block.
+            /// <para/>
+            /// The device on which this kernel is invoked must have a non-zero value for
+            /// the device attribute::CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH.
+            /// <para/>
+            /// The total number of blocks launched cannot exceed the maximum number of blocks per
+            /// multiprocessor as returned by ::cuOccupancyMaxActiveBlocksPerMultiprocessor (or
+            /// ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags) times the number of multiprocessors
+            /// as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.
+            /// <para/>
+            /// The kernel cannot make use of CUDA dynamic parallelism.
+            /// <para/>
+            /// Kernel parameters must be specified via \p kernelParams.  If \p f
+            /// has N parameters, then \p kernelParams needs to be an array of N
+            /// pointers.  Each of \p kernelParams [0]
+            /// through \p kernelParams [N-1]
+            /// must point to a region of memory from which the actual kernel
+            /// parameter will be copied.  The number of kernel parameters and their
+            /// offsets and sizes do not need to be specified as that information is
+            /// retrieved directly from the kernel's image.
+            /// <para/>
+            /// Calling ::cuLaunchCooperativeKernel() sets persistent function state that is
+            /// the same as function state set through ::cuLaunchKernel API
+            /// <para/>
+            /// When the kernel \p f is launched via ::cuLaunchCooperativeKernel(), the previous
+            /// block shape, shared size and parameter info associated with \p f
+            /// is overwritten.
+            /// <para/>
+            /// Note that to use ::cuLaunchCooperativeKernel(), the kernel \p f must either have
+            /// been compiled with toolchain version 3.2 or later so that it will
+            /// contain kernel parameter information, or have no kernel parameters.
+            /// If either of these conditions is not met, then ::cuLaunchCooperativeKernel() will
+            /// return ::CUDA_ERROR_INVALID_IMAGE.
+            /// </summary>
+            /// <param name="f">Kernel to launch</param>
+            /// <param name="gridDimX">Width of grid in blocks</param>
+            /// <param name="gridDimY">Height of grid in blocks</param>
+            /// <param name="gridDimZ">Depth of grid in blocks</param>
+            /// <param name="blockDimX">X dimension of each thread block</param>
+            /// <param name="blockDimY">Y dimension of each thread block</param>
+            /// <param name="blockDimZ">Z dimension of each thread block</param>
+            /// <param name="sharedMemBytes">Dynamic shared-memory size per thread block in bytes</param>
+            /// <param name="hStream">Stream identifier</param>
+            /// <param name="kernelParams">Array of pointers to kernel parameters</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLaunchCooperativeKernel" + CUDA_PTSZ)]
+            public static extern CUResult cuLaunchCooperativeKernel(CUfunction f,
+                                            uint gridDimX,
+                                            uint gridDimY,
+                                            uint gridDimZ,
+                                            uint blockDimX,
+                                            uint blockDimY,
+                                            uint blockDimZ,
+                                            uint sharedMemBytes,
+                                            CUstream hStream,
+                                            IntPtr[] kernelParams);
+        
+            /// <summary>
+            /// Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute
+            /// <para/>
+            /// Invokes kernels as specified in the \p launchParamsList array where each element
+            /// of the array specifies all the parameters required to perform a single kernel launch.
+            /// These kernels can cooperate and synchronize as they execute. The size of the array is
+            /// specified by \p numDevices.
+            /// <para/>
+            /// No two kernels can be launched on the same device. All the devices targeted by this
+            /// multi-device launch must be identical. All devices must have a non-zero value for the
+            /// device attribute ::CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH.
+            /// <para/>
+            /// All kernels launched must be identical with respect to the compiled code. Note that
+            /// any __device__, __constant__ or __managed__ variables present in the module that owns
+            /// the kernel launched on each device, are independently instantiated on every device.
+            /// It is the application's responsiblity to ensure these variables are initialized and
+            /// used appropriately.
+            /// <para/>
+            /// The size of the grids as specified in blocks, the size of the blocks themselves
+            /// and the amount of shared memory used by each thread block must also match across
+            /// all launched kernels.
+            /// <para/>
+            /// The streams used to launch these kernels must have been created via either ::cuStreamCreate
+            /// or ::cuStreamCreateWithPriority. The NULL stream or ::CU_STREAM_LEGACY or ::CU_STREAM_PER_THREAD
+            /// cannot be used.
+            /// <para/>
+            /// The total number of blocks launched per kernel cannot exceed the maximum number of blocks
+            /// per multiprocessor as returned by ::cuOccupancyMaxActiveBlocksPerMultiprocessor (or
+            /// ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags) times the number of multiprocessors
+            /// as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT. Since the
+            /// total number of blocks launched per device has to match across all devices, the maximum
+            /// number of blocks that can be launched per device will be limited by the device with the
+            /// least number of multiprocessors.
+            /// <para/>
+            /// The kernels cannot make use of CUDA dynamic parallelism.
+            /// <para/>
+            /// By default, the kernel won't begin execution on any GPU until all prior work in all the specified
+            /// streams has completed. This behavior can be overridden by specifying the flag
+            /// ::CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC. When this flag is specified, each kernel
+            /// will only wait for prior work in the stream corresponding to that GPU to complete before it begins
+            /// execution.
+            /// <para/>
+            /// Similarly, by default, any subsequent work pushed in any of the specified streams will not begin
+            /// execution until the kernels on all GPUs have completed. This behavior can be overridden by specifying
+            /// the flag ::CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_POST_LAUNCH_SYNC. When this flag is specified,
+            /// any subsequent work pushed in any of the specified streams will only wait for the kernel launched
+            /// on the GPU corresponding to that stream to complete before it begins execution.
+            /// <para/>
+            /// Calling ::cuLaunchCooperativeKernelMultiDevice() sets persistent function state that is
+            /// the same as function state set through ::cuLaunchKernel API when called individually for each
+            /// element in \p launchParamsList.
+            /// <para/>
+            /// When kernels are launched via ::cuLaunchCooperativeKernelMultiDevice(), the previous
+            /// block shape, shared size and parameter info associated with each ::CUDA_LAUNCH_PARAMS::function
+            /// in \p launchParamsList is overwritten.
+            /// <para/>
+            /// Note that to use ::cuLaunchCooperativeKernelMultiDevice(), the kernels must either have
+            /// been compiled with toolchain version 3.2 or later so that it will
+            /// contain kernel parameter information, or have no kernel parameters.
+            /// If either of these conditions is not met, then ::cuLaunchCooperativeKernelMultiDevice() will
+            /// return ::CUDA_ERROR_INVALID_IMAGE.
+            /// </summary>
+            /// <param name="launchParamsList">List of launch parameters, one per device</param>
+            /// <param name="numDevices">Size of the \p launchParamsList array</param>
+            /// <param name="flags">Flags to control launch behavior</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuLaunchCooperativeKernelMultiDevice(CudaLaunchParams[] launchParamsList, uint numDevices, CudaCooperativeLaunchMultiDeviceFlags flags);
         }
+
+
         #endregion
 
         #region Events
@@ -8579,7 +8748,9 @@ namespace ManagedCuda
             /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
             /// be used with managed memory(::cuMemAllocManaged).
             /// <para/>
-            /// On Windows, the device must be using TCC, or the operation is not supported. See::cuDeviceGetAttributes().
+            /// Support for this can be queried with ::cuDeviceGetAttribute() and
+            /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The only requirement for basic
+            /// support is that on Windows, a device must be in TCC mode.
             /// </summary>
             /// <param name="stream">The stream to synchronize on the memory location.</param>
             /// <param name="addr">The memory location to wait on.</param>
@@ -8587,6 +8758,32 @@ namespace ManagedCuda
             /// <param name="flags"> See::CUstreamWaitValue_flags.</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitValue32" + CUDA_PTSZ)]
             public static extern CUResult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, uint value, CUstreamWaitValue_flags flags);
+
+            /// <summary>
+            /// Wait on a memory location
+            /// <para/>
+            /// Enqueues a synchronization of the stream on the given memory location.Work
+            /// ordered after the operation will block until the given condition on the
+            /// memory is satisfied.By default, the condition is to wait for
+            /// (int64_t)(*addr - value) >= 0, a cyclic greater-or-equal.
+            /// <para/>
+            /// Other condition types can be specified via \p flags.
+            /// <para/>
+            /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+            /// should be obtained with::cuMemHostGetDevicePointer().
+            /// <para/>
+            /// Support for this can be queried with ::cuDeviceGetAttribute() and
+            /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS.The requirements are
+            /// compute capability 7.0 or greater, and on Windows, that the device be in
+            /// TCC mode.
+            /// </summary>
+            /// <param name="stream">The stream to synchronize on the memory location.</param>
+            /// <param name="addr">The memory location to wait on.</param>
+            /// <param name="value">The value to compare with the memory location.</param>
+            /// <param name="flags">See::CUstreamWaitValue_flags.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitValue64" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, ulong value, CUstreamWaitValue_flags flags);
+
 
             /// <summary>
             /// Write a value to memory
@@ -8600,7 +8797,9 @@ namespace ManagedCuda
             /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
             /// be used with managed memory(::cuMemAllocManaged).
             /// <para/>
-            /// On Windows, the device must be using TCC, or the operation is not supported. See::cuDeviceGetAttribute().
+            /// Support for this can be queried with ::cuDeviceGetAttribute() and
+            /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS. The only requirement for basic
+            /// support is that on Windows, a device must be in TCC mode.
             /// </summary>
             /// <param name="stream">The stream to do the write in.</param>
             /// <param name="addr">The device address to write to.</param>
@@ -8608,6 +8807,32 @@ namespace ManagedCuda
             /// <param name="flags">See::CUstreamWriteValue_flags.</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWriteValue32" + CUDA_PTSZ)]
             public static extern CUResult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, uint value, CUstreamWriteValue_flags flags);
+
+
+            /// <summary>
+            /// Write a value to memory
+            /// <para/>
+            /// Write a value to memory.Unless the ::CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
+            /// flag is passed, the write is preceded by a system-wide memory fence,
+            /// equivalent to a __threadfence_system() but scoped to the stream
+            /// rather than a CUDA thread.
+            /// <para/>
+            /// If the memory was registered via ::cuMemHostRegister(), the device pointer
+            /// should be obtained with::cuMemHostGetDevicePointer(). This function cannot
+            /// be used with managed memory(::cuMemAllocManaged).
+            /// <para/>
+            /// Support for this can be queried with ::cuDeviceGetAttribute() and
+            /// ::CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS.The requirements are
+            /// compute capability 7.0 or greater, and on Windows, that the device be in
+            /// TCC mode.
+            /// </summary>
+            /// <param name="stream">The stream to do the write in.</param>
+            /// <param name="addr">The device address to write to.</param>
+            /// <param name="value">The value to write.</param>
+            /// <param name="flags">See::CUstreamWriteValue_flags.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWriteValue64" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, ulong value, CUstreamWriteValue_flags flags);
+            
 
             /// <summary>
             /// Batch operations to synchronize the stream via memory operations
@@ -9209,24 +9434,9 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxDisablePeerAccess(CUcontext peerContext);
-			/**
-			 * \brief Queries attributes of the link between two devices.
-			 *
-			 * Returns in \p *value the value of the requested attribute \p attrib of the
-			 * link between \p srcDevice and \p dstDevice. The supported attributes are:
-			 * - ::CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value indicating the
-			 *   performance of the link between two devices.
-			 * - ::CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is enable.
-			 * - ::CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic operations over
-			 *   the link are supported.
-			 *
-			 * Returns ::CUDA_ERROR_INVALID_DEVICE if \p srcDevice or \p dstDevice are not valid
-			 * or if they represent the same device.
-			 *
-			 * Returns ::CUDA_ERROR_INVALID_VALUE if \p attrib is not valid or if \p value is
-			 * a null pointer.
 			
-			 */
+			
+			
 			/// <summary>
 			/// Queries attributes of the link between two devices.<para/>
 			/// Returns in \p *value the value of the requested attribute \p attrib of the
