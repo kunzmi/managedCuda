@@ -80,6 +80,10 @@ a.Dispose();
 
 Prebuilt NuGet packages are [available on nuget.org](https://www.nuget.org/packages?q=ManagedCuda+NETStandard).
 
+## Documentation
+
+Reference documentation is available at <https://http://surban.github.io/managedCuda>.
+
 ## Building
 
 Requirements: .NET Core SDK 2.0
