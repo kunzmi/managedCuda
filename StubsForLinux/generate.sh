@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 genstub () 
 {
     DLLNAME=$1
-    TARGET=$2
+    TARGETS=$2
     LOCAL=$3
 
     if [ "$LOCAL" = "true" ]; then
@@ -17,14 +17,19 @@ genstub ()
 
     rm -f empty.c
     touch empty.c
-    gcc-6 -shared -o ${TARGET} empty.c    
-    gcc-6 -Wl,--no-as-needed $RPATH -shared -o lib${DLLNAME}.so -fPIC -L. -l:${TARGET}
-    rm -f ${TARGET}
+    LIBARG=""
+    for TARGET in $TARGETS ; do
+        gcc -shared -o ${TARGET} empty.c
+        LIBARG="$LIBARG -l:${TARGET}"
+    done
+    gcc -Wl,--no-as-needed $RPATH -shared -o lib${DLLNAME}.so -fPIC -L. $LIBARG
+    for TARGET in $TARGETS ; do
+        rm -f ${TARGET}
+    done
     rm -f empty.c
 
-    echo "Mapped ${DLLNAME}.dll ==> ${TARGET}"
+    echo "Mapped ${DLLNAME}.dll ==> ${TARGETS}"
 }
-
 
 # nvcuda.dll or libcuda.so.1 and nvml.dll or libnvidia-ml.so.1 are always installed by the GPU driver.
 genstub nvcuda libcuda.so.1 false
@@ -38,7 +43,7 @@ genstub cusolver64_91 libcusolver.so.9.1 true
 genstub cusparse64_91 libcusparse.so.9.1 true
 genstub cudnn64_7 libcudnn.so.7.0 true
 genstub nvgraph64_91 libnvgraph.so.9.1 true
-genstub nvrtc64_91 libnvrtc.so.9.1 true
+genstub nvrtc64_91 "libnvrtc.so.9.1 libnvrtc-builtins.so" true
 genstub nppc64_91 libnppc.so.9.1 true
 genstub nppial64_91 libnppial.so.9.1 true
 genstub nppicc64_91 libnppicc.so.9.1 true

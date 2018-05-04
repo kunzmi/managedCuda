@@ -34,7 +34,7 @@
     <Content Include="../Redist/Linux/libnvrtc.so.9.1" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>  
-    <Content Include="../Redist/Linux/libnvrtc-builtins.so.9.1" PackagePath="runtimes/linux-x64/native">
+    <Content Include="../Redist/Linux/libnvrtc-builtins.so" PackagePath="runtimes/linux-x64/native">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>      
     <Content Include="../Redist/Windows/nvrtc64_91.dll" PackagePath="runtimes/win-x64/native">

@@ -58,4 +58,5 @@ NuGetPackage.ps1
 NuGetPush.ps1
 
 Redist/Linux/*.so.*
+Redist/Linux/*.so
 Redist/Windows/*.dll

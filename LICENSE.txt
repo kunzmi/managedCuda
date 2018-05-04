@@ -44,8 +44,8 @@ libnppisu.so.9.1
 libnppitc.so.9.1
 libnpps.so.9.1
 libnvgraph.so.9.1
-libnvrtc-builtins.so.9.1
 libnvrtc.so.9.1
+libnvrtc-builtins.so
       
 It is your responsibility to enforce the license terms when redistributing
 these components.
