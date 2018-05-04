@@ -1,6 +1,6 @@
 # ManagedCuda.NETStandard
 
-[![Build Status](https://travis-ci.org/surban/managedCuda.svg?branch=v9.1)](https://travis-ci.org/surban/managedCuda)
+[![Build Status](https://travis-ci.org/surban/managedCuda.svg?branch=master)](https://travis-ci.org/surban/managedCuda)
 
 This is a port of [ManagedCuda](https://kunzmi.github.io/managedCuda/) to .NET Standard 2.0.
 
