@@ -60,3 +60,5 @@ NuGetPush.ps1
 Redist/Linux/*.so.*
 Redist/Linux/*.so
 Redist/Windows/*.dll
+Redist/pack.sh
+Redist/redist.7z
