@@ -9,7 +9,7 @@ Donate a beer to help the original author keep managedCuda up to date :)
 or
 [![Support via PayPal](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.me/kunzmi/)
 
-ManagedCUDA aims an easy integration of NVidia's CUDA in .NET applications written in C#, F#, Visual Basic or any other .net language.
+ManagedCUDA aims an easy integration of NVidia's CUDA in .NET applications written in C#, F#, Visual Basic or any other .NET language.
 
 For this it includes:
 - A complete wrapper for the  CUDA Driver API, version 9.1 (a 1:1 representation of cuda.h in C#) 
