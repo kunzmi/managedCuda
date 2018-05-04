@@ -2,12 +2,13 @@
 
 [![Build Status](https://travis-ci.org/surban/managedCuda.svg?branch=master)](https://travis-ci.org/surban/managedCuda)
 
-This is a port of [ManagedCuda](https://kunzmi.github.io/managedCuda/) to .NET Standard 2.0.
-
 Donate a beer to help the original author keep managedCuda up to date :)
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=kunzmi&url=https://github.com/kunzmi/managedCuda&title=managedCuda&language=&tags=github&category=software)
 or
 [![Support via PayPal](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif)](https://www.paypal.me/kunzmi/)
+
+This is a port of [ManagedCuda](https://kunzmi.github.io/managedCuda/) to .NET Standard 2.0.
+It has been tested on Linux and Microsoft Windows.
 
 ManagedCUDA aims an easy integration of NVidia's CUDA in .NET applications written in C#, F#, Visual Basic or any other .NET language.
 
@@ -80,13 +81,12 @@ a.Dispose();
 
 Prebuilt NuGet packages are [available on nuget.org](https://www.nuget.org/packages?q=ManagedCuda+NETStandard).
 
-## Documentation
-
-Reference documentation is available at <https://http://surban.github.io/managedCuda>.
-
 ## Building
 
-Requirements: .NET Core SDK 2.0
+Requirements:
+
+- .NET Core SDK 2.0
+- CUDA SDK
 
 Place the required native libraries from the CUDA SDK into the `Redist` folder.
 

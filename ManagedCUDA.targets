@@ -21,10 +21,13 @@
       <FileVersion>$(AssemblyVersion)</FileVersion>  
 
       <NETStandardNote>
-      
-      This package is an unofficial port of ManagedCUDA to .NET Standard 2.0 and was tested 
-      on Linux and Windows (x64). It requires NVIDIA GPU driver 387.92 or higher.
 
+      CUDA Toolkit: 9.1.85.3
+      Minimum NVIDIA GPU driver: 387.92
+
+      This package is an unofficial port of ManagedCUDA to .NET Standard 2.0 and was tested 
+      on Linux and Windows (x64). 
+      
       This package contains components that are property of Nvidia Corporation and redistributed
       according to the "CUDA Supplement to Software License Agreement" of the 
       "NVIDIA Software License Agreement". See the package license for details.

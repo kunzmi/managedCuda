@@ -12,7 +12,7 @@ script:
   - unset DOTNET_CLI_TELEMETRY_OPTOUT
   - if [ "$REDISTPASSWORD" = "" ]; dotnet build -c Release
   - if [ "$REDISTPASSWORD" != "" ]; then dotnet pack -c Release ; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then bash Docs/build.sh ; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then travis_wait 40 bash Docs/build.sh ; fi
 after_success:
   - dotnet nuget push -s https://api.nuget.org/v3/index.json -k $NUGETKEY 'Packages/Release/*.nupkg' || true 
 deploy:
