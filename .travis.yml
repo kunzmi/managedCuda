@@ -3,8 +3,7 @@ matrix:
     - os: linux
       dist: trusty
 language: csharp
-#mono: latest
-mono: none
+mono: latest
 dotnet: 2.1.105
 before_install:
   - sudo apt-get install p7zip-full 
