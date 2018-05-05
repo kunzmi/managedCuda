@@ -52,8 +52,7 @@
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "default",
-      "docfx/memberpage/content"
+      "default"
     ],
     "postProcessors": [],
     "markdownEngineName": "markdig",

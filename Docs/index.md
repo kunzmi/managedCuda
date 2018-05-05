@@ -20,60 +20,60 @@ For this it includes:
 - Define your own types: CudaDeviceVariable accepts any user defined type if it is a value type, i.e. a struct in C# 
 - Includes all CUDA libraries: CUFFT, CURAND, CUSPARSE, CUBLAS, CUSOLVE, NPP, NVGRAPH, Nvml and NVRTC (not all of them are up to date yet)
 - Access device memory directly per element using [] operator:
-```
-CudaDeviceVariable<float> devVar = new CudaDeviceVariable<float>(64);
-devVar[0] = 1.0f;
-devVar[1] = 2.0f;
-float hostVar1 = devVar[0];
-float hostVar2 = devVar[1];
-```
+  ```csharp
+  CudaDeviceVariable<float> devVar = new CudaDeviceVariable<float>(64);
+  devVar[0] = 1.0f;
+  devVar[1] = 2.0f;
+  float hostVar1 = devVar[0];
+  float hostVar2 = devVar[1];
+  ```
 - Implicit converter operators: Allocate and initialize device or host arrays in only one line of code: 
-```
-float3[] array_host = new float3[100];
-for (int i = 0; i < 100; i++)
-{
-	array_host[i] = new float3(i, i+1, i+2);
-}
-//alloc device memory and copy data:
-CudaDeviceVariable<float3> array_device = array_host;
-//alloc host array and copy data: 
-float3[] array_host2 = array_device; 
-```
+  ```csharp
+  float3[] array_host = new float3[100];
+  for (int i = 0; i < 100; i++)
+  {
+    array_host[i] = new float3(i, i+1, i+2);
+  }
+  //alloc device memory and copy data:
+  CudaDeviceVariable<float3> array_device = array_host;
+  //alloc host array and copy data: 
+  float3[] array_host2 = array_device; 
+  ```
 - NPPs extension methods for CudaDeviceVariable. Add a reference to the NPP library and include the ManagedCuda.NPP.NPPsExtensions namespace: 
-```
-Random rand = new Random();
-int length = 256;
-
-//init some ramdom values
-double[] randoms = new double[length];
-for (int i = 0; i < length; i++)
-{
-	randoms[i] = rand.NextDouble();
-}
-
-//Alloc device memory
-CudaDeviceVariable<double> a = randoms;
-CudaDeviceVariable<double> b = new CudaDeviceVariable<double>(length);
-b.Set(10.0); //NPPs method
-int size = a.MeanGetBufferSize(); //NPPs method
-//Alloc temporary memory for NPPs mean method
-CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(size);
-CudaDeviceVariable<double> mean = new CudaDeviceVariable<double>(1);
-
-a.Mul(b); //NPPs method
-a.DivC(10.0); //NPPs method
-a.Mean(mean, buffer); //NPPs method
-
-//Copy data back to host
-double m = mean;
-double[] res = a;
-
-//Clean up
-mean.Dispose();
-buffer.Dispose();
-b.Dispose();
-a.Dispose();
-```
+  ```csharp
+  Random rand = new Random();
+  int length = 256;
+  
+  //init some ramdom values
+  double[] randoms = new double[length];
+  for (int i = 0; i < length; i++)
+  {
+  	randoms[i] = rand.NextDouble();
+  }
+  
+  //Alloc device memory
+  CudaDeviceVariable<double> a = randoms;
+  CudaDeviceVariable<double> b = new CudaDeviceVariable<double>(length);
+  b.Set(10.0); //NPPs method
+  int size = a.MeanGetBufferSize(); //NPPs method
+  //Alloc temporary memory for NPPs mean method
+  CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(size);
+  CudaDeviceVariable<double> mean = new CudaDeviceVariable<double>(1);
+  
+  a.Mul(b); //NPPs method
+  a.DivC(10.0); //NPPs method
+  a.Mean(mean, buffer); //NPPs method
+  
+  //Copy data back to host
+  double m = mean;
+  double[] res = a;
+  
+  //Clean up
+  mean.Dispose();
+  buffer.Dispose();
+  b.Dispose();
+  a.Dispose();
+  ```
 - Compiles for .NET Standard 2.0, runs on Windows and Linux. 
 - The new feature 'per thread default stream' is available as a compiler directive of the managedCuda main library: Compile the library with the option "_PerThreadDefaultStream" to enable it.
 
@@ -81,9 +81,15 @@ a.Dispose();
 
 Prebuilt NuGet packages are [available on nuget.org](https://www.nuget.org/packages?q=ManagedCuda+NETStandard).
 
-## Building
+## Documentation
 
-Requirements:
+You can read the [full API reference documentation](api/index.md).
+
+## Building from source
+
+Source code is available at <https://github.com/surban/managedCuda>.
+
+For building you need the following software:
 
 - .NET Core SDK 2.0
 - CUDA SDK
