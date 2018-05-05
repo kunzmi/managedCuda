@@ -1,0 +1,23 @@
+Put redistributable CUDA SDK libraries here:
+
+libcublas.so.9.1
+libcufft.so.9.1
+libcurand.so.9.1
+libcusolver.so.9.1
+libcusparse.so.9.1
+libnppc.so.9.1
+libnppial.so.9.1
+libnppicc.so.9.1
+libnppicom.so.9.1
+libnppidei.so.9.1
+libnppif.so.9.1
+libnppig.so.9.1
+libnppim.so.9.1
+libnppist.so.9.1
+libnppisu.so.9.1
+libnppitc.so.9.1
+libnpps.so.9.1
+libnvgraph.so.9.1
+libnvrtc.so.9.1
+libnvrtc-builtins.so
+

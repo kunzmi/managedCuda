@@ -1,0 +1,54 @@
+<Project>
+
+  <Import Project="Revision.targets" />
+
+  <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <EnableDefaultCompileItems>False</EnableDefaultCompileItems>    
+      <SignAssembly>true</SignAssembly>    
+      <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>    
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
+      <GenerateAssemblyInfo>true</GenerateAssemblyInfo>    
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <DebugSymbols>true</DebugSymbols>
+      <DebugType>embedded</DebugType>
+      <EmbedAllSources>true</EmbedAllSources>      
+      <Platform>x64</Platform>      
+
+      <BaseVersion>9.1</BaseVersion>
+      <PackageVersion>$(BaseVersion).$(Rev)$(Prerelease)</PackageVersion>
+      <AssemblyVersion>$(BaseVersion).$(Rev)</AssemblyVersion>
+      <FileVersion>$(AssemblyVersion)</FileVersion>  
+
+      <NETStandardNote>
+
+      CUDA Toolkit: 9.1.85.3
+      Minimum NVIDIA GPU driver: 387.92
+
+      This package is an unofficial port of ManagedCUDA to .NET Standard 2.0 and was tested 
+      on Linux and Windows (x64). 
+      
+      This package contains components that are property of Nvidia Corporation and redistributed
+      according to the "CUDA Supplement to Software License Agreement" of the 
+      "NVIDIA Software License Agreement". See the package license for details.
+      </NETStandardNote>
+      <authors>Michael Kunz, Sebastian Urban (.NET Standard port)</authors>
+      <Company>Michael Kunz, Sebastian Urban (.NET Standard port)</Company>      
+      <owners>Sebastian Urban</owners>
+      <Copyright>Copyright (C) 2016-2018</Copyright>
+      <requireLicenseAcceptance>true</requireLicenseAcceptance>
+      <PackageLicenseUrl>https://raw.githubusercontent.com/surban/managedCuda/v9.1/LICENSE.txt</PackageLicenseUrl>
+      <PackageProjectUrl>http://surban.github.io/managedCuda/</PackageProjectUrl>
+      <PackageTags>gpu cuda</PackageTags>
+      <PackageOutputPath>../Packages/$(Configuration)/</PackageOutputPath>      
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>TRACE;DEBUG;_x64</DefineConstants>
+  </PropertyGroup>    
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>_x64</DefineConstants>
+  </PropertyGroup>    
+
+</Project>

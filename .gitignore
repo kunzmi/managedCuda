@@ -49,6 +49,16 @@ Temporary Items
 # Program debug database
 *.pdb
 
+*/bin
+*/obj
+/Packages
+
 # Files containing private data
 NuGetPackage.ps1
 NuGetPush.ps1
+
+Redist/Linux/*.so.*
+Redist/Linux/*.so
+Redist/Windows/*.dll
+Redist/pack.sh
+Redist/redist.7z

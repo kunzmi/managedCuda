@@ -1,0 +1,119 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../ManagedCUDA.targets" />
+
+  <PropertyGroup>
+    <PackageId>ManagedCuda.NETStandard</PackageId>
+    <title>ManagedCuda $(BaseVersion) for .NET Standard</title>
+    <description>
+    ManagedCuda aims an easy integration of NVidia's CUDA in .NET applications written in C#, 
+    Visual Basic or any other .NET language. This package includes only the core ManagedCuda 
+    library and no additional CUDA libraries. $(NETStandardNote)
+    </description>   
+
+    <RootNamespace>ManagedCuda</RootNamespace>
+    <AssemblyName>ManagedCuda</AssemblyName>
+    <ProjectGuid>{F5A866CC-151E-472A-8020-75F62D74D687}</ProjectGuid>
+    <AssemblyOriginatorKeyFile>ManagedCUDAKey.snk</AssemblyOriginatorKeyFile>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BasicTypes.cs" />
+    <Compile Include="CudaContext.cs" />
+    <Compile Include="CudaArray1D.cs" />
+    <Compile Include="CudaArray2D.cs" />
+    <Compile Include="CudaArray3D.cs" />
+    <Compile Include="CudaEvent.cs" />
+    <Compile Include="CudaJitOptions.cs" />
+    <Compile Include="CudaLinker.cs" />
+    <Compile Include="CudaManagedMemoryFixedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CudaManagedMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CudaMipmappedArray.cs" />
+    <Compile Include="CudaOccupancy.cs" />
+    <Compile Include="CudaOccupancyException.cs" />
+    <Compile Include="CudaPageLockedHostMemory2DFixedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CudaPageLockedHostMemory2DFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CudaPageLockedHostMemory3DFixedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CudaPageLockedHostMemory3DFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CudaPageLockedHostMemoryFixedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CudaPageLockedHostMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CudaRegisteredHostMemoryFixedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CudaRegisteredHostMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CudaSurfObject.cs" />
+    <Compile Include="CudaTexObject.cs" />
+    <Compile Include="CudaTexture.cs" />
+    <Compile Include="CudaTextureArray1D.cs" />
+    <Compile Include="CudaTextureArray2D.cs" />
+    <Compile Include="CudaTextureArray3D.cs" />
+    <Compile Include="CudaDeviceVariable.cs" />
+    <Compile Include="CudaException.cs" />
+    <Compile Include="CudaGraphicsInteropResourceCollection.cs" />
+    <Compile Include="CudaHelperMethods.cs" />
+    <Compile Include="CudaTextureLinearPitched2D.cs" />
+    <Compile Include="CudaPitchedDeviceVariable.cs" />
+    <Compile Include="CudaStopWatch.cs" />
+    <Compile Include="CudaStream.cs" />
+    <Compile Include="CudaTextureLinear1D.cs" />
+    <Compile Include="CudaDeviceProperties.cs" />
+    <Compile Include="DirectX.cs" />
+    <Compile Include="DriverAPI.cs" />
+    <Compile Include="CudaKernel.cs" />
+    <Compile Include="CudaPageLockedHostMemory.cs" />
+    <Compile Include="CudaPageLockedHostMemory2D.cs" />
+    <Compile Include="CudaPageLockedHostMemory3D.cs" />
+    <Compile Include="CudaRegisteredHostMemory.cs" />
+    <Compile Include="ICudaGraphicsInteropResource.cs" />
+    <Compile Include="CudaDirectXInteropResource.cs" />
+    <Compile Include="CudaOpenGLBufferInteropResource.cs" />
+    <Compile Include="CudaOpenGLImageInteropResource.cs" />
+    <Compile Include="CudaSurface.cs" />
+    <Compile Include="CudaTextureMipmappedArray.cs" />
+    <Compile Include="OpenGL.cs" />
+    <Compile Include="PrimaryContext.cs" />
+    <Compile Include="VectorTypes.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CudaManagedMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaManagedMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Include="CudaPageLockedHostMemory2DFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemory2DFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Include="CudaPageLockedHostMemory3DFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemory3DFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Include="CudaPageLockedHostMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Include="CudaRegisteredHostMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaRegisteredHostMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>  
+    <Content Include="../StubsForLinux/libnvcuda.so" PackagePath="runtimes/linux-x64/native">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>     
+  </ItemGroup>      
+
+</Project>
