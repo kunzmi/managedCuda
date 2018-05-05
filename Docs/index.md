@@ -9,10 +9,10 @@ or
 
 This is a port of [ManagedCuda](https://kunzmi.github.io/managedCuda/) to .NET Standard 2.0.
 It has been tested on Linux and Microsoft Windows.
-
 ManagedCUDA aims an easy integration of NVidia's CUDA in .NET applications written in C#, F#, Visual Basic or any other .NET language.
 
 For this it includes:
+
 - A complete wrapper for the  CUDA Driver API, version 9.1 (a 1:1 representation of cuda.h in C#) 
 - Based on this, wrapper classes for CUDA context, kernel, device variable, etc. 
 - Wrapper for graphics interop with DirectX and OpenGL, respectively SlimDX and OpenTK 
@@ -74,7 +74,7 @@ For this it includes:
   b.Dispose();
   a.Dispose();
   ```
-- Compiles for .NET Standard 2.0, runs on Windows and Linux. 
+- Compiles for .NET Standard 2.0, runs on Windows and Linux.
 - The new feature 'per thread default stream' is available as a compiler directive of the managedCuda main library: Compile the library with the option "_PerThreadDefaultStream" to enable it.
 
 ## NuGet packages
@@ -84,6 +84,10 @@ Prebuilt NuGet packages are [available on nuget.org](https://www.nuget.org/packa
 ## Documentation
 
 You can read the [full API reference documentation](api/index.md).
+
+## Issues
+
+Pleases report issues related to the .NET Standard port of ManagedCuda at <https://github.com/surban/managedCuda/issues>.
 
 ## Building from source
 
