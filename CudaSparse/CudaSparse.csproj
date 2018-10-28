@@ -122,6 +122,7 @@
     <Compile Include="CudaSparseColorInfo.cs" />
     <Compile Include="CudaSparseContext.cs" />
     <Compile Include="CudaSparseCsrgemm2Info.cs" />
+    <Compile Include="CudaSparseCsrsm2Info.cs" />
     <Compile Include="CudaSparseCsru2csrInfo.cs" />
     <Compile Include="CudaSparseException.cs" />
     <Compile Include="CudaSparseHybMat.cs" />

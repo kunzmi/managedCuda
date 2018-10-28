@@ -62,6 +62,8 @@
     <Compile Include="CudaArray2D.cs" />
     <Compile Include="CudaArray3D.cs" />
     <Compile Include="CudaEvent.cs" />
+    <Compile Include="CudaGraph.cs" />
+    <Compile Include="CudaGraphExec.cs" />
     <Compile Include="CudaJitOptions.cs" />
     <Compile Include="CudaLinker.cs" />
     <Compile Include="CudaManagedMemoryFixedTypes.cs">

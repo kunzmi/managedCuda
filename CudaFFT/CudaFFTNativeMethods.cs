@@ -33,12 +33,7 @@ namespace ManagedCuda.CudaFFT
 	/// </summary>
 	public static class CudaFFTNativeMethods
 	{        
-		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
-#if _x64
-		internal const string CUFFT_API_DLL_NAME = "cufft64_91";
-#else
-		internal const string CUFFT_API_DLL_NAME = "cufft32_91";
-#endif
+		internal const string CUFFT_API_DLL_NAME = "cufft64_100";
 
 
 		/// <summary>
@@ -673,16 +668,16 @@ namespace ManagedCuda.CudaFFT
 		[DllImport(CUFFT_API_DLL_NAME)]
 		public static extern cufftResult cufftSetStream([In] cufftHandle plan, [In] CUstream stream);
 
-		/// <summary>
-		/// configures the layout of CUFFT output in FFTW‐compatible modes.
-		/// When FFTW compatibility is desired, it can be configured for padding
-		/// only, for asymmetric complex inputs only, or to be fully compatible.
-		/// </summary>
-		/// <param name="plan">The <see cref="cufftHandle"/> object of the plan to be destroyed.</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <returns>cufftResult Error Codes: <see cref="cufftResult.SetupFailed"/>, <see cref="cufftResult.InvalidPlan"/>, <see cref="cufftResult.Success"/></returns>
-		[DllImport(CUFFT_API_DLL_NAME)]
-		public static extern cufftResult cufftSetCompatibilityMode([In] cufftHandle plan, [In] Compatibility mode);
+		///// <summary>
+		///// configures the layout of CUFFT output in FFTW‐compatible modes.
+		///// When FFTW compatibility is desired, it can be configured for padding
+		///// only, for asymmetric complex inputs only, or to be fully compatible.
+		///// </summary>
+		///// <param name="plan">The <see cref="cufftHandle"/> object of the plan to be destroyed.</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <returns>cufftResult Error Codes: <see cref="cufftResult.SetupFailed"/>, <see cref="cufftResult.InvalidPlan"/>, <see cref="cufftResult.Success"/></returns>
+		//[DllImport(CUFFT_API_DLL_NAME)]
+		//public static extern cufftResult cufftSetCompatibilityMode([In] cufftHandle plan, [In] Compatibility mode);
 
 	}
 }

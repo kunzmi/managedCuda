@@ -139,15 +139,34 @@ namespace ManagedCuda
 			: this(deviceId, flags, true)
 		{
 
-		}
+        }
 
-		/// <summary>
-		/// Create a new instace of managed Cuda
-		/// </summary>
-		/// <param name="deviceId">DeviceID.</param>
-		/// <param name="flags">Context creation flags.</param>
-		/// <param name="createNew">Create a new CUDA context or use an exiting context for the calling thread. Creates a new context if no context exists.</param>
-		public CudaContext(int deviceId, CUCtxFlags flags, bool createNew)
+        /// <summary>
+        /// Create a new instace of a cuda context from the given CudaStream
+        /// </summary>
+        /// <param name="stream">The stream to query</param>
+        public CudaContext(CudaStream stream)
+        {
+            CUResult res;
+
+            _deviceID = -1;
+            _contextOwner = false;
+            _device = new CUdevice();
+
+            res = DriverAPINativeMethods.Streams.cuStreamGetCtx(stream.Stream, ref _context);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetCtx", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+        }
+
+        /// <summary>
+        /// Create a new instace of managed Cuda
+        /// </summary>
+        /// <param name="deviceId">DeviceID.</param>
+        /// <param name="flags">Context creation flags.</param>
+        /// <param name="createNew">Create a new CUDA context or use an exiting context for the calling thread. Creates a new context if no context exists.</param>
+        public CudaContext(int deviceId, CUCtxFlags flags, bool createNew)
 		{
 			CUResult res;
 			int deviceCount = 0;
@@ -6009,6 +6028,30 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.MaxSharedMemoryPerBlockOptin = maxSharedMemoryPerBlockOptin;
+            
+            int canFlushRemoteWrites = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.CanFlushRemoteWrites = canFlushRemoteWrites > 0;
+            
+            int hostRegisterSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.HostRegisterSupported = hostRegisterSupported > 0;
+            
+            int pageableMemoryAccessUsesHostPageTables = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.PageableMemoryAccessUsesHostPageTables = pageableMemoryAccessUsesHostPageTables > 0;
+            
+            int directManagedMemoryAccessFromHost = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.DirectManagedMemoryAccessFromHost = directManagedMemoryAccessFromHost > 0;
 
             return props;
 		}

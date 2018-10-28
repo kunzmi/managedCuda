@@ -28,7 +28,10 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
-	class NPPImage_32fC2 : NPPImageBase
+    /// <summary>
+    /// 
+    /// </summary>
+	public class NPPImage_32fC2 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -174,15 +177,28 @@ namespace ManagedCuda.NPP
 		{
 			return img.ToNPPImage();
 		}
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Image composition using image alpha values (0 - max channel pixel value).
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nppAlphaOp">alpha compositing operation</param>
-		public void AlphaComp(NPPImage_32fC2 src2, NPPImage_32fC2 dest, NppiAlphaOp nppAlphaOp)
+        /// <summary>
+        /// Image copy.
+        /// </summary>
+        /// <param name="dst">Destination image</param>
+        /// <param name="channel">Channel number. This number is added to the dst pointer</param>
+        public void Copy(NPPImage_32fC1 dst, int channel)
+        {
+            if (channel < 0 | channel >= _channels) throw new ArgumentOutOfRangeException("channel", "channel must be in range [0..1].");
+            status = NPPNativeMethods.NPPi.MemCopy.nppiCopy_32f_C2C1R(_devPtrRoi + channel * _typeSize, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCopy_32f_C2C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Image composition using image alpha values (0 - max channel pixel value).
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppAlphaOp">alpha compositing operation</param>
+        public void AlphaComp(NPPImage_32fC2 src2, NPPImage_32fC2 dest, NppiAlphaOp nppAlphaOp)
 		{
 			status = NPPNativeMethods.NPPi.AlphaComp.nppiAlphaComp_32f_AC1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppAlphaOp);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAlphaComp_32f_AC1R", status));

@@ -2188,7 +2188,7 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="dest">Destination image</param>
 		/// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		public void Compare(NPPImage_16sC1 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
+		public void Compare(NPPImage_16sC4 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
 		{
 			status = NPPNativeMethods.NPPi.Compare.nppiCompare_16s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompare_16s_C4R", status));
@@ -2212,7 +2212,7 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="dest">Destination image</param>
 		/// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		public void CompareA(NPPImage_16sC1 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
+		public void CompareA(NPPImage_16sC4 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
 		{
 			status = NPPNativeMethods.NPPi.Compare.nppiCompare_16s_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompare_16s_AC4R", status));

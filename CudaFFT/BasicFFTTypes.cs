@@ -188,19 +188,19 @@ namespace ManagedCuda.CudaFFT
 				throw new CudaFFTException(res);
 		}
 
-		/// <summary>
-		/// configures the layout of CUFFT output in FFTW‐compatible modes.
-		/// When FFTW compatibility is desired, it can be configured for padding
-		/// only, for asymmetric complex inputs only, or to be fully compatible.
-		/// </summary>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public void SetCompatibilityMode(Compatibility mode)
-		{
-			cufftResult res = CudaFFTNativeMethods.cufftSetCompatibilityMode(this, mode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-		}
+		///// <summary>
+		///// configures the layout of CUFFT output in FFTW‐compatible modes.
+		///// When FFTW compatibility is desired, it can be configured for padding
+		///// only, for asymmetric complex inputs only, or to be fully compatible.
+		///// </summary>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		//public void SetCompatibilityMode(Compatibility mode)
+		//{
+		//	cufftResult res = CudaFFTNativeMethods.cufftSetCompatibilityMode(this, mode);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
+		//	if (res != cufftResult.Success)
+		//		throw new CudaFFTException(res);
+		//}
     }
 
     /// <summary>
@@ -249,18 +249,18 @@ namespace ManagedCuda.CudaFFT
         Z2Z = 0x69
     }
 
-    /// <summary>
-    /// Certain R2C and C2R transforms go much more slowly when FFTW memory
-    /// layout and behaviour is required. The default is "best performance",
-    /// which means not-compatible-with-fftw. Use the <see cref="CudaFFTNativeMethods.cufftSetCompatibilityMode"/>
-    /// API to enable exact FFTW-like behaviour.
-    /// </summary>
-    [Flags]
-    public enum Compatibility
-    {
-        /// <summary>
-        /// Default value
-        /// </summary>
-        FFTWPadding = 0x01
-    }
+    ///// <summary>
+    ///// Certain R2C and C2R transforms go much more slowly when FFTW memory
+    ///// layout and behaviour is required. The default is "best performance",
+    ///// which means not-compatible-with-fftw. Use the <see cref="CudaFFTNativeMethods.cufftSetCompatibilityMode"/>
+    ///// API to enable exact FFTW-like behaviour.
+    ///// </summary>
+    //[Flags]
+    //public enum Compatibility
+    //{
+    //    /// <summary>
+    //    /// Default value
+    //    /// </summary>
+    //    FFTWPadding = 0x01
+    //}
 }

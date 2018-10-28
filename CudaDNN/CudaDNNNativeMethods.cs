@@ -1769,6 +1769,18 @@ namespace ManagedCuda.CudaDNN
 																	 );
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="filterDesc"></param>
+        /// <param name="diffDesc"></param>
+        /// <param name="convDesc"></param>
+        /// <param name="gradDesc"></param>
+        /// <param name="requestedAlgoCount"></param>
+        /// <param name="returnedAlgoCount"></param>
+        /// <param name="perfResults"></param>
+        /// <returns></returns>
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnGetConvolutionBackwardDataAlgorithm_v7(cudnnHandle handle, cudnnFilterDescriptor filterDesc, cudnnTensorDescriptor diffDesc,
             cudnnConvolutionDescriptor convDesc, cudnnTensorDescriptor gradDesc, int requestedAlgoCount, ref int returnedAlgoCount, cudnnConvolutionBwdDataAlgoPerf[] perfResults);
@@ -3628,6 +3640,171 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnDestroyRNNDescriptor(cudnnRNNDescriptor rnnDesc);
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="rnnDesc"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNForwardInferenceAlgorithmMaxCount(
+                                cudnnHandle handle,
+                                cudnnRNNDescriptor rnnDesc,
+                                ref int count);
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardInference, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnFindRNNForwardInferenceAlgorithmEx(cudnnHandle handle,
+                                                    cudnnRNNDescriptor rnnDesc,
+                                                    int seqLength,
+                                                    cudnnTensorDescriptor[] xDesc,
+                                                    CUdeviceptr x,
+                                                    cudnnTensorDescriptor hxDesc,
+                                                    CUdeviceptr hx,
+                                                    cudnnTensorDescriptor cxDesc,
+                                                    CUdeviceptr cx,
+                                                    cudnnFilterDescriptor wDesc,
+                                                    CUdeviceptr w,
+                                                    cudnnTensorDescriptor[] yDesc,
+                                                    CUdeviceptr y,
+                                                    cudnnTensorDescriptor hyDesc,
+                                                    CUdeviceptr hy,
+                                                    cudnnTensorDescriptor cyDesc,
+                                                    CUdeviceptr cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    ref int returnedAlgoCount,
+                                                    cudnnAlgorithmPerformance[] perfResults,
+                                                    CUdeviceptr workspace,
+                                                    SizeT workSpaceSizeInBytes);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNForwardTrainingAlgorithmMaxCount(
+                                cudnnHandle handle,
+                                cudnnRNNDescriptor rnnDesc,
+                                ref int count);
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardTraining, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnFindRNNForwardTrainingAlgorithmEx(cudnnHandle handle,
+                                                    cudnnRNNDescriptor rnnDesc,
+                                                    int seqLength,
+                                                    cudnnTensorDescriptor[] xDesc,
+                                                    CUdeviceptr x,
+                                                    cudnnTensorDescriptor hxDesc,
+                                                    CUdeviceptr hx,
+                                                    cudnnTensorDescriptor cxDesc,
+                                                    CUdeviceptr cx,
+                                                    cudnnFilterDescriptor wDesc,
+                                                    CUdeviceptr w,
+                                                    cudnnTensorDescriptor[] yDesc,
+                                                    CUdeviceptr y,
+                                                    cudnnTensorDescriptor hyDesc,
+                                                    CUdeviceptr hy,
+                                                    cudnnTensorDescriptor cyDesc,
+                                                    CUdeviceptr cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    ref int returnedAlgoCount,
+                                                    cudnnAlgorithmPerformance[] perfResults,
+                                                    CUdeviceptr workspace,
+                                                    SizeT workSpaceSizeInBytes,
+                                                    CUdeviceptr reserveSpace,
+                                                    SizeT reserveSpaceSizeInBytes);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNBackwardDataAlgorithmMaxCount(
+                                cudnnHandle handle,
+                                cudnnRNNDescriptor rnnDesc,
+                                ref int count);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnFindRNNBackwardDataAlgorithmEx(cudnnHandle handle,
+                                                cudnnRNNDescriptor rnnDesc,
+                                                int seqLength,
+                                                cudnnTensorDescriptor[] yDesc,
+                                                CUdeviceptr y,
+                                                cudnnTensorDescriptor[] dyDesc,
+                                                CUdeviceptr dy,
+                                                cudnnTensorDescriptor dhyDesc,
+                                                CUdeviceptr dhy,
+                                                cudnnTensorDescriptor dcyDesc,
+                                                CUdeviceptr dcy,
+                                                cudnnFilterDescriptor wDesc,
+                                                CUdeviceptr w,
+                                                cudnnTensorDescriptor hxDesc,
+                                                CUdeviceptr hx,
+                                                cudnnTensorDescriptor cxDesc,
+                                                CUdeviceptr cx,
+                                                cudnnTensorDescriptor[] dxDesc,
+                                                CUdeviceptr dx,
+                                                cudnnTensorDescriptor dhxDesc,
+                                                CUdeviceptr dhx,
+                                                cudnnTensorDescriptor dcxDesc,
+                                                CUdeviceptr dcx,
+                                                float findIntensity,
+                                                int requestedAlgoCount,
+                                                ref int returnedAlgoCount,
+                                                cudnnAlgorithmPerformance[] perfResults,
+                                                CUdeviceptr workspace,
+                                                SizeT workSpaceSizeInBytes,
+                                                CUdeviceptr reserveSpace,
+                                                SizeT reserveSpaceSizeInBytes );
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNBackwardWeightsAlgorithmMaxCount(
+                                cudnnHandle handle,
+                                cudnnRNNDescriptor rnnDesc,
+                                ref int count);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnFindRNNBackwardWeightsAlgorithmEx(cudnnHandle handle,
+                                                   cudnnRNNDescriptor rnnDesc,
+                                                   int seqLength,
+                                                   cudnnTensorDescriptor[] xDesc,
+                                                   CUdeviceptr x,
+                                                   cudnnTensorDescriptor hxDesc,
+                                                   CUdeviceptr hx,
+                                                   cudnnTensorDescriptor[] yDesc,
+                                                   CUdeviceptr y,
+                                                   float findIntensity,
+                                                   int requestedAlgoCount,
+                                                   ref int returnedAlgoCount,
+                                                   cudnnAlgorithmPerformance[] perfResults,
+                                                   CUdeviceptr workspace,
+                                                   SizeT workSpaceSizeInBytes, 
+                                                   cudnnFilterDescriptor dwDesc,
+                                                   CUdeviceptr dw,
+                                                   CUdeviceptr reserveSpace,
+                                                   SizeT reserveSpaceSizeInBytes );
+
+
+
+
+
+
         // Expensive. Creates the plan for the specific settings.
         /// <summary>
         /// This function creates a plan to execute persistent RNNs when using the
@@ -3691,6 +3868,42 @@ namespace ManagedCuda.CudaDNN
                                                 cudnnRNNAlgo algo, 
                                                 cudnnDataType dataType);
 
+        /// <summary>
+        /// The cudnnSetRNNProjectionLayers() function should be called after cudnnSetRNNDescriptor() to enable the "recurrent" and/or "output" projection in a recursive neural network
+        /// </summary>
+        /// <param name="handle"> Handle to a previously created cuDNN library descriptor</param>
+        /// <param name="rnnDesc"> A previously created and initialized RNN descriptor. </param>
+        /// <param name="recProjSize">The size of the LSTM cell output after the “recurrent” projection. This value should not be larger than hiddenSize programmed via cudnnSetRNNDescriptor().</param>
+        /// <param name="outProjSize"> This parameter should be zero. </param>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNProjectionLayers(cudnnHandle handle,
+                                                cudnnRNNDescriptor rnnDesc,
+                                                int recProjSize,
+                                                int outProjSize);
+        /// <summary>
+        /// This function retrieves the current RNN “projection” parameters. By default the projection feature is disabled so invoking this function immediately after cudnnSetRNNDescriptor() will yield recProjSize equal to hiddenSize and outProjSize set to zero. The cudnnSetRNNProjectionLayers() method enables the RNN projection. 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="rnnDesc"></param>
+        /// <param name="recProjSize"></param>
+        /// <param name="outProjSize"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNProjectionLayers(cudnnHandle handle,
+                                                cudnnRNNDescriptor rnnDesc,
+                                                ref int recProjSize,
+                                                ref int outProjSize);
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNAlgorithmDescriptor(cudnnHandle handle,
+                                                        cudnnRNNDescriptor rnnDesc,
+                                                        cudnnAlgorithmDescriptor algoDesc);
+
+
+
+
 
         /// <summary>
         /// 
@@ -3727,6 +3940,14 @@ namespace ManagedCuda.CudaDNN
         [DllImport(CUDNN_API_DLL_NAME)]
         public static extern cudnnStatus cudnnSetRNNMatrixMathType(cudnnRNNDescriptor desc, cudnnMathType math);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rnnDesc"></param>
+        /// <param name="mType"></param>
+        /// <returns></returns>
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNMatrixMathType(cudnnRNNDescriptor rnnDesc, ref cudnnMathType mType);
 
 
         ///// <summary>
@@ -4318,6 +4539,90 @@ namespace ManagedCuda.CudaDNN
                                 cudnnCTCLossAlgo                  algo,            /* algorithm selected, supported now 0 and 1 */
                                 cudnnCTCLossDescriptor ctcLossDesc,
                                 ref SizeT sizeInBytes );   /* pointer to the returned workspace size */
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateAlgorithmDescriptor(
+                                ref cudnnAlgorithmDescriptor algoDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetAlgorithmDescriptor(
+                                        cudnnAlgorithmDescriptor algoDesc,
+                                        cudnnAlgorithm algorithm);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetAlgorithmDescriptor(
+                                cudnnAlgorithmDescriptor algoDesc,
+                                ref cudnnAlgorithm algorithm);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCopyAlgorithmDescriptor(
+                                cudnnAlgorithmDescriptor src,
+                                cudnnAlgorithmDescriptor dest);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyAlgorithmDescriptor(
+                                cudnnAlgorithmDescriptor algoDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateAlgorithmPerformance(
+                                        cudnnAlgorithmPerformance[] algoPerf,
+                                        int numberToCreate);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetAlgorithmPerformance(
+                                        cudnnAlgorithmPerformance algoPerf,
+                                        cudnnAlgorithmDescriptor algoDesc,
+                                        cudnnStatus status,
+                                        float time,
+                                        SizeT memory);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetAlgorithmPerformance(
+                                cudnnAlgorithmPerformance algoPerf,
+                                ref cudnnAlgorithmDescriptor algoDesc,
+                                ref cudnnStatus status,
+                                ref float time,
+                                ref SizeT memory );
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyAlgorithmPerformance(
+                                cudnnAlgorithmPerformance[] algoPerf,
+                                int numberToDestroy);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetAlgorithmSpaceSize(
+                                        cudnnHandle handle,
+                                        cudnnAlgorithmDescriptor algoDesc,
+                                        ref SizeT algoSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSaveAlgorithm(
+                                        cudnnHandle handle,
+                                        cudnnAlgorithmDescriptor algoDesc,
+                                        IntPtr algoSpace,
+                                        SizeT algoSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRestoreAlgorithm(
+                                        cudnnHandle handle,
+                                        IntPtr algoSpace,
+                                        SizeT algoSpaceSizeInBytes,
+                                        cudnnAlgorithmDescriptor algoDesc);
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetCallback(
+                                MessageMask mask,
+                                IntPtr udata,
+                                cudnnCallback fptr);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetCallback(
+                                        ref MessageMask mask,
+                                        ref IntPtr udata,
+                                        ref cudnnCallback fptr);
 
 
     }

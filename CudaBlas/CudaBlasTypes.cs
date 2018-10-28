@@ -248,6 +248,30 @@ namespace ManagedCuda.CudaBlas
         /// </summary>
         Algo17 = 17,
         /// <summary>
+        /// sliced 32x32  
+        /// </summary>
+        Algo18 = 18, 
+        /// <summary>
+        /// sliced 64x32
+        /// </summary>  
+        Algo19 = 19,   
+        /// <summary>
+        /// sliced 128x32
+        /// </summary>  
+        Algo20 = 20,  
+        /// <summary>
+        /// sliced 32x32  -splitK
+        /// </summary>   
+        Algo21 = 21, 
+        /// <summary>
+        /// sliced 64x32  -splitK
+        /// </summary>      
+        Algo22 = 22, 
+        /// <summary>
+        /// sliced 128x32 -splitK 
+        /// </summary>    
+        Algo23 = 23, //     
+        /// <summary>
         /// </summary>
         DefaultTensorOp = 99,
         /// <summary>
@@ -264,7 +288,40 @@ namespace ManagedCuda.CudaBlas
         Algo3TensorOp = 103,
         /// <summary>
         /// </summary>
-        Algo4TensorOp = 104
+        Algo4TensorOp = 104,
+        /// <summary>
+        /// </summary>
+        Algo5TensorOp = 105,
+        /// <summary>
+        /// </summary>
+        Algo6TensorOp = 106,
+        /// <summary>
+        /// </summary>
+        Algo7TensorOp = 107,
+        /// <summary>
+        /// </summary>
+        Algo8TensorOp = 108,
+        /// <summary>
+        /// </summary>
+        Algo9TensorOp = 109,
+        /// <summary>
+        /// </summary>
+        Algo10TensorOp = 110,
+        /// <summary>
+        /// </summary>
+        Algo11TensorOp = 111,
+        /// <summary>
+        /// </summary>
+        Algo12TensorOp = 112,
+        /// <summary>
+        /// </summary>
+        Algo13TensorOp = 113,
+        /// <summary>
+        /// </summary>
+        Algo14TensorOp = 114,
+        /// <summary>
+        /// </summary>
+        Algo15TensorOp = 115
     }
 
     /// <summary>
@@ -366,4 +423,9 @@ namespace ManagedCuda.CudaBlas
 		/// </summary>
 		public IntPtr Pointer;
 	}
+
+    /// <summary>
+    /// Cublas logging
+    /// </summary>
+    public delegate void cublasLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
 }

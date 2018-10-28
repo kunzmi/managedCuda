@@ -1258,6 +1258,14 @@ namespace ManagedCuda
 		{
 			get { return _pitch * _height; }
 		}
+
+		/// <summary>
+		/// Type size in bytes
+		/// </summary>
+		public SizeT TypeSize
+		{
+			get { return _typeSize; }
+		}
 		#endregion
 
 		/// <summary>

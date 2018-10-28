@@ -106,41 +106,41 @@ namespace ManagedCuda.CudaFFT
             SetStream(stream);
         }
 
-        /// <summary>
-        /// Creates a FFT plan configuration of dimension rank, with sizes
-        /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-        /// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (old API)
-        /// </summary>
-        /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-        /// <param name="n">An array of size rank, describing the size of each dimension</param>
-        /// <param name="batch">Batch size for this transform</param>
-        /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, Compatibility mode)
-            : this(rank, n, batch, type)
-        {
-            SetCompatibilityMode(mode);
-        }
+  //      /// <summary>
+  //      /// Creates a FFT plan configuration of dimension rank, with sizes
+  //      /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+  //      /// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (old API)
+  //      /// </summary>
+  //      /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+  //      /// <param name="n">An array of size rank, describing the size of each dimension</param>
+  //      /// <param name="batch">Batch size for this transform</param>
+  //      /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+  //      public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, Compatibility mode)
+  //          : this(rank, n, batch, type)
+  //      {
+  //          SetCompatibilityMode(mode);
+  //      }
 
-        /// <summary>
-        /// Creates a FFT plan configuration of dimension rank, with sizes
-        /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-        /// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (old API)
-        /// </summary>
-        /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-        /// <param name="n">An array of size rank, describing the size of each dimension</param>
-        /// <param name="batch">Batch size for this transform</param>
-        /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode)
-            : this(rank, n, batch, type)
-        {
-            SetStream(stream);
-            SetCompatibilityMode(mode);
-        }
+  //      /// <summary>
+  //      /// Creates a FFT plan configuration of dimension rank, with sizes
+  //      /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+  //      /// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (old API)
+  //      /// </summary>
+  //      /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+  //      /// <param name="n">An array of size rank, describing the size of each dimension</param>
+  //      /// <param name="batch">Batch size for this transform</param>
+  //      /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+  //      /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+  //      public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode)
+  //          : this(rank, n, batch, type)
+  //      {
+  //          SetStream(stream);
+  //          SetCompatibilityMode(mode);
+  //      }
 
         /// <summary>
         /// Creates a FFT plan configuration of dimension rank, with sizes
@@ -203,53 +203,53 @@ namespace ManagedCuda.CudaFFT
             SetStream(stream);
         }
 
-        /// <summary>
-        /// Creates a FFT plan configuration of dimension rank, with sizes
-        /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-        /// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (old API)
-        /// </summary>
-        /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-        /// <param name="n">An array of size rank, describing the size of each dimension</param>
-        /// <param name="batch">Batch size for this transform</param>
-        /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        /// <param name="inembed">See CUFFT Manual</param>
-        /// <param name="istride">See CUFFT Manual</param>
-        /// <param name="idist">See CUFFT Manual</param>
-        /// <param name="onembed">See CUFFT Manual</param>
-        /// <param name="ostride">See CUFFT Manual</param>
-        /// <param name="odist">See CUFFT Manual</param>
-        public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, Compatibility mode, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist)
-            : this(rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-        {
-            SetCompatibilityMode(mode);
-        }
+  //      /// <summary>
+  //      /// Creates a FFT plan configuration of dimension rank, with sizes
+  //      /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+  //      /// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (old API)
+  //      /// </summary>
+  //      /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+  //      /// <param name="n">An array of size rank, describing the size of each dimension</param>
+  //      /// <param name="batch">Batch size for this transform</param>
+  //      /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+  //      /// <param name="inembed">See CUFFT Manual</param>
+  //      /// <param name="istride">See CUFFT Manual</param>
+  //      /// <param name="idist">See CUFFT Manual</param>
+  //      /// <param name="onembed">See CUFFT Manual</param>
+  //      /// <param name="ostride">See CUFFT Manual</param>
+  //      /// <param name="odist">See CUFFT Manual</param>
+  //      public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, Compatibility mode, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist)
+  //          : this(rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+  //      {
+  //          SetCompatibilityMode(mode);
+  //      }
 
-        /// <summary>
-        /// Creates a FFT plan configuration of dimension rank, with sizes
-        /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-        /// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (old API)
-        /// </summary>
-        /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-        /// <param name="n">An array of size rank, describing the size of each dimension</param>
-        /// <param name="batch">Batch size for this transform</param>
-        /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        /// <param name="inembed">See CUFFT Manual</param>
-        /// <param name="istride">See CUFFT Manual</param>
-        /// <param name="idist">See CUFFT Manual</param>
-        /// <param name="onembed">See CUFFT Manual</param>
-        /// <param name="ostride">See CUFFT Manual</param>
-        /// <param name="odist">See CUFFT Manual</param>
-        public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist)
-            : this(rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-        {
-            SetStream(stream);
-            SetCompatibilityMode(mode);
-        }
+  //      /// <summary>
+  //      /// Creates a FFT plan configuration of dimension rank, with sizes
+  //      /// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+  //      /// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (old API)
+  //      /// </summary>
+  //      /// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+  //      /// <param name="n">An array of size rank, describing the size of each dimension</param>
+  //      /// <param name="batch">Batch size for this transform</param>
+  //      /// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+  //      /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+  //      /// <param name="inembed">See CUFFT Manual</param>
+  //      /// <param name="istride">See CUFFT Manual</param>
+  //      /// <param name="idist">See CUFFT Manual</param>
+  //      /// <param name="onembed">See CUFFT Manual</param>
+  //      /// <param name="ostride">See CUFFT Manual</param>
+  //      /// <param name="odist">See CUFFT Manual</param>
+  //      public CudaFFTPlanMany(int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist)
+  //          : this(rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+  //      {
+  //          SetStream(stream);
+  //          SetCompatibilityMode(mode);
+  //      }
 		#endregion
 
 		#region newApiSimplified
@@ -337,43 +337,43 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode)
-			: this(handle, rank, n, batch, type)
-		{
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode)
+		//	: this(handle, rank, n, batch, type)
+		//{
+		//	SetCompatibilityMode(mode);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode)
-			: this(handle, rank, n, batch, type)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode)
+		//	: this(handle, rank, n, batch, type)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//}
 
 
 		/// <summary>
@@ -395,45 +395,45 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, ref SizeT size)
-			: this(handle, rank, n, batch, type, ref size)
-		{
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, ref SizeT size)
+		//	: this(handle, rank, n, batch, type, ref size)
+		//{
+		//	SetCompatibilityMode(mode);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, ref SizeT size)
-			: this(handle, rank, n, batch, type, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, ref SizeT size)
+		//	: this(handle, rank, n, batch, type, ref size)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//}
 
 		/// <summary>
 		/// Creates a FFT plan configuration of dimension rank, with sizes
@@ -495,49 +495,49 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, bool autoAllocate)
-			: this(handle, rank, n, batch, type)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type)
+		//{
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, bool autoAllocate)
-			: this(handle, rank, n, batch, type)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
 
 		/// <summary>
@@ -562,51 +562,51 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, rank, n, batch, type, ref size)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, Compatibility mode, ref SizeT size, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, ref size)
+		//{
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, rank, n, batch, type, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, ref size)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 		#endregion
 
 		#region newApiComplete
@@ -712,55 +712,55 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-		{
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+		//{
+		//	SetCompatibilityMode(mode);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//}
 
 
 		/// <summary>
@@ -788,57 +788,57 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, ref SizeT size)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
-		{
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, ref SizeT size)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
+		//{
+		//	SetCompatibilityMode(mode);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, ref SizeT size)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, ref SizeT size)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//}
 
 		/// <summary>
 		/// Creates a FFT plan configuration of dimension rank, with sizes
@@ -918,61 +918,61 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, bool autoAllocate)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+		//{
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, bool autoAllocate)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
 
 		/// <summary>
@@ -1003,63 +1003,63 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, Compatibility mode, ref SizeT size, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
+		//{
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 
-		/// <summary>
-		/// Creates a FFT plan configuration of dimension rank, with sizes
-		/// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
-		/// many transforms to configure in parallel. With this function, batched
-		/// plans of any dimension may be created. (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
-		/// <param name="n">An array of size rank, describing the size of each dimension</param>
-		/// <param name="batch">Batch size for this transform</param>
-		/// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
-		/// <param name="inembed">See CUFFT Manual</param>
-		/// <param name="istride">See CUFFT Manual</param>
-		/// <param name="idist">See CUFFT Manual</param>
-		/// <param name="onembed">See CUFFT Manual</param>
-		/// <param name="ostride">See CUFFT Manual</param>
-		/// <param name="odist">See CUFFT Manual</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
+		///// <summary>
+		///// Creates a FFT plan configuration of dimension rank, with sizes
+		///// specified in the array <c>n</c>. The <c>batch</c> input parameter tells CUFFT how
+		///// many transforms to configure in parallel. With this function, batched
+		///// plans of any dimension may be created. (new API)
+		///// </summary>
+		///// <param name="handle">cufftHandle object</param>
+		///// <param name="rank">Dimensionality of the transform (1, 2, or 3)</param>
+		///// <param name="n">An array of size rank, describing the size of each dimension</param>
+		///// <param name="batch">Batch size for this transform</param>
+		///// <param name="type">Transform data type (e.g., C2C, as per other CUFFT calls)</param>
+		///// <param name="inembed">See CUFFT Manual</param>
+		///// <param name="istride">See CUFFT Manual</param>
+		///// <param name="idist">See CUFFT Manual</param>
+		///// <param name="onembed">See CUFFT Manual</param>
+		///// <param name="ostride">See CUFFT Manual</param>
+		///// <param name="odist">See CUFFT Manual</param>
+		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+		///// <param name="size"></param>
+		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+		///// work areas for plans that have been generated.</param>
+		//public CudaFFTPlanMany(cufftHandle handle, int rank, int[] n, int batch, cufftType type, int[] inembed, int istride, int idist, int[] onembed, int ostride, int odist, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
+		//	: this(handle, rank, n, batch, type, inembed, istride, idist, onembed, ostride, odist, ref size)
+		//{
+		//	SetStream(stream);
+		//	SetCompatibilityMode(mode);
+		//	SetAutoAllocation(autoAllocate);
+		//}
 		#endregion
 
 		/// <summary>
@@ -1368,19 +1368,19 @@ namespace ManagedCuda.CudaFFT
                 throw new CudaFFTException(res);
         }
 
-        /// <summary>
-        /// configures the layout of CUFFT output in FFTW‐compatible modes.
-        /// When FFTW compatibility is desired, it can be configured for padding
-        /// only, for asymmetric complex inputs only, or to be fully compatible.
-        /// </summary>
-        /// <param name="mode"></param>
-        public void SetCompatibilityMode(Compatibility mode)
-        {
-            res = CudaFFTNativeMethods.cufftSetCompatibilityMode(_handle, mode);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
-            if (res != cufftResult.Success)
-                throw new CudaFFTException(res);
-        }
+        ///// <summary>
+        ///// configures the layout of CUFFT output in FFTW‐compatible modes.
+        ///// When FFTW compatibility is desired, it can be configured for padding
+        ///// only, for asymmetric complex inputs only, or to be fully compatible.
+        ///// </summary>
+        ///// <param name="mode"></param>
+        //public void SetCompatibilityMode(Compatibility mode)
+        //{
+        //    res = CudaFFTNativeMethods.cufftSetCompatibilityMode(_handle, mode);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
+        //    if (res != cufftResult.Success)
+        //        throw new CudaFFTException(res);
+        //}
         #endregion
 
         #region Properties

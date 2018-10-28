@@ -444,13 +444,25 @@ namespace ManagedCuda.NPP
         /// </summary>
         Cuda6_2 = 620,
         /// <summary>
-        /// Indicates that CUDA 6.3 or better is machine's default device
+        /// Indicates that CUDA 6.3 capable device is machine's default device
         /// </summary>
         Cuda6_3 = 630,
         /// <summary>
-        /// Indicates that CUDA 7.0 or better is machine's default device
+        /// Indicates that CUDA 7.0 capable device is machine's default device
         /// </summary>
-        Cuda7_0 = 700
+        Cuda7_0 = 700,
+        /// <summary>
+        /// Indicates that CUDA 7.2 capable device is machine's default device
+        /// </summary>
+        Cuda7_2 = 720,
+        /// <summary>
+        /// Indicates that CUDA 7.3 capable device is machine's default device
+        /// </summary>
+        Cuda7_3 = 730,
+        /// <summary>
+        /// Indicates that CUDA 7.5 or better is machine's default device
+        /// </summary>
+        Cuda7_5 = 750
     }
 
 	/// <summary>
@@ -741,14 +753,66 @@ namespace ManagedCuda.NPP
 		GRBG = 3
 	}
 
+    /// <summary>
+    /// Channel indicator for complex numbers
+    /// </summary>
+    public enum ComplexChannel
+    {
+        /// <summary>
+        /// Real part of the complex number
+        /// </summary>
+        Real = 0,
+        /// <summary>
+        /// Imaginary part of the complex number
+        /// </summary>
+        Imag = 1
+    }
 
-	#endregion
 
-	#region Structs
-	/// <summary>
-	/// Npp Library Version.
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+
+    /// <summary>
+    /// Type of job to execute. Usually you will need just SIMPLE
+    /// for each scan, one MEMZERO at the beginning and FINALIZE at the end.
+    /// See the example in \ref nppiJpegDecodeJob
+    /// SIMPLE can be split into multiple jobs: PRE, CPU &amp; GPU.
+    /// Please note that if you don't use SIMPLE,
+    /// you man need to add some memcopies and synchronizes as
+    /// described in \ref nppiJpegDecodeJob.
+    /// </summary>
+    public enum NppiJpegDecodeJobKind
+    {
+        /// <summary>
+        /// Decode whole scan using a single job
+        /// </summary>
+        NPPI_JPEG_DECODE_SIMPLE,
+        /// <summary>
+        /// Preprocessing scan on GPU
+        /// </summary>
+        NPPI_JPEG_DECODE_PRE,
+        /// <summary>
+        /// Part of decoding run on CPU
+        /// </summary>
+        NPPI_JPEG_DECODE_CPU,
+        /// <summary>
+        /// Part of decoding run on GPU
+        /// </summary>
+        NPPI_JPEG_DECODE_GPU,
+        /// <summary>
+        /// Zeroing memory before decoding
+        /// </summary>
+        NPPI_JPEG_DECODE_MEMZERO,
+        /// <summary>
+        /// Change memory representation of DCT coefficients to final
+        /// </summary>
+        NPPI_JPEG_DECODE_FINALIZE
+    }
+    #endregion
+
+    #region Structs
+    /// <summary>
+    /// Npp Library Version.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct NppLibraryVersion
 	{
 		/// <summary>
@@ -784,12 +848,12 @@ namespace ManagedCuda.NPP
 		/// <summary>
 		/// Real part
 		/// </summary>
-		short re;
+		public short re;
 
 		/// <summary>
 		/// Imaginary part
 		/// </summary>
-		short im;
+		public short im;
 
 		/// <summary>
 		/// Non-default constructor
@@ -823,12 +887,12 @@ namespace ManagedCuda.NPP
 		/// <summary>
 		/// Real part
 		/// </summary>
-		int re;
+		public int re;
 
 		/// <summary>
 		/// Imaginary part
 		/// </summary>
-		int im;
+		public int im;
 
 		/// <summary>
 		/// Non-default constructor
@@ -861,12 +925,12 @@ namespace ManagedCuda.NPP
 		/// <summary>
 		/// Real part
 		/// </summary>
-		float re;
+		public float re;
 
 		/// <summary>
 		/// Imaginary part
 		/// </summary>
-		float im;
+		public float im;
 
 		/// <summary>
 		/// Non-default constructor
@@ -899,12 +963,12 @@ namespace ManagedCuda.NPP
 		/// <summary>
 		/// Real part
 		/// </summary>
-		long re;
+		public long re;
 
 		/// <summary>
 		/// Imaginary part
 		/// </summary>
-		long im;
+		public long im;
 
 		/// <summary>
 		/// Non-default constructor
@@ -937,12 +1001,12 @@ namespace ManagedCuda.NPP
 		/// <summary>
 		/// Real part
 		/// </summary>
-		double  re;
+		public double  re;
 
 		/// <summary>
 		/// Imaginary part
 		/// </summary>
-		double im;
+		public double im;
 
 		/// <summary>
 		/// Non-default constructor
@@ -3576,6 +3640,51 @@ namespace ManagedCuda.NPP
         }
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiWarpPerspectiveBatchCXR
+    {
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pSrc;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nSrcStep;
+        /// <summary>
+        /// device memory pointer
+        /// </summary>
+        public CUdeviceptr pDst;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int nDstStep;
+        /// <summary>
+        /// device memory pointer to the tranformation matrix with double precision floating-point coefficient values to be used for this image
+        /// </summary>
+        public CUdeviceptr pCoeffs;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3 * 3)]
+        private double[] aTransformedCoeffs; /* FOR INTERNAL USE, DO NOT INITIALIZE  */
+
+        /// <summary>
+        /// Initializes the aTransformdedCoeffs array in pBatchList for each image in the list. 
+        /// MUST be called before calling the corresponding warp affine batch function whenever any of the transformation matrices in the list have changed.
+        /// </summary>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpPerspectiveBatchCXR structures.</param>
+        public static void WarpPerspectiveBatchInit(CudaDeviceVariable<NppiWarpPerspectiveBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatchInit(pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatchInit", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+    }
+
+
+
     /// <summary>
     /// JPEG frame descriptor. Can hold from 1 to 4 components.
     /// </summary>
@@ -3669,43 +3778,6 @@ namespace ManagedCuda.NPP
     }
 
     /// <summary>
-    /// Type of job to execute. Usually you will need just SIMPLE
-    /// for each scan, one MEMZERO at the beginning and FINALIZE at the end.
-    /// See the example in \ref nppiJpegDecodeJob
-    /// SIMPLE can be split into multiple jobs: PRE, CPU &amp; GPU.
-    /// Please note that if you don't use SIMPLE,
-    /// you man need to add some memcopies and synchronizes as
-    /// described in \ref nppiJpegDecodeJob.
-    /// </summary>
-    public enum NppiJpegDecodeJobKind
-    {
-        /// <summary>
-        /// Decode whole scan using a single job
-        /// </summary>
-        NPPI_JPEG_DECODE_SIMPLE,
-        /// <summary>
-        /// Preprocessing scan on GPU
-        /// </summary>
-        NPPI_JPEG_DECODE_PRE,
-        /// <summary>
-        /// Part of decoding run on CPU
-        /// </summary>
-        NPPI_JPEG_DECODE_CPU,
-        /// <summary>
-        /// Part of decoding run on GPU
-        /// </summary>
-        NPPI_JPEG_DECODE_GPU,
-        /// <summary>
-        /// Zeroing memory before decoding
-        /// </summary>
-        NPPI_JPEG_DECODE_MEMZERO, 
-        /// <summary>
-        /// Change memory representation of DCT coefficients to final
-        /// </summary>
-        NPPI_JPEG_DECODE_FINALIZE
-    }
-
-    /// <summary>
     /// JPEG decode job used by \ref nppiJpegDecodeJob (see that for more documentation)
     /// The job describes piece of computation to be done.
     /// </summary>
@@ -3726,12 +3798,9 @@ namespace ManagedCuda.NPP
         public NppiJpegDecodeJobKind eKind;
     }
 
-    /**
-     * Memory buffers used by one decode job.
-     *
-     * \sa nppiJpegDecodeJobMemorySize
-     * \sa nppiJpegDecodeJob
-     */
+    /// <summary>
+    /// Memory buffers used by one decode job.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct NppiJpegDecodeJobMemory
     {
@@ -3746,7 +3815,7 @@ namespace ManagedCuda.NPP
         /// bytes of usable memory after the end of compressed scan data.
         /// Should be filled by caller.
         /// </summary>
-        IntPtr pCpuScan;
+        public IntPtr pCpuScan;
         /// <summary>
         /// Pointer to device memory used for compressed scan data.
         /// Should be allocated with additional \ref nppiJpegDecodeGetScanDeadzoneSize
@@ -3755,20 +3824,85 @@ namespace ManagedCuda.NPP
         /// This buffer may be overwritten by the decoder.
         /// Could be NULL for \ref NPPI_JPEG_DECODE_CPU.
         /// </summary>
-        CUdeviceptr pGpuScan;
+        public CUdeviceptr pGpuScan;
         /// <summary>
         /// Pointers to additional host buffers used by job. Call \ref nppiJpegDecodeJobMemorySize
         /// to query sizes of these buffers. `apCpuBuffer[i]` should point to
         /// at least `aSize[i]` bytes.If `aSize[i] == 0`, the pointer should be set to NULL.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = NPPI_JPEG_DECODE_N_BUFFERS)]
-        IntPtr[] apCpuBuffer;
+        public IntPtr[] apCpuBuffer;
         /// <summary>
         /// Pointers to additional device buffers used by job. Minimal sizes of buffers should be the same as the sizes of \ref apCpuBuffer.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = NPPI_JPEG_DECODE_N_BUFFERS)]
-        CUdeviceptr[] apGpuBuffer;
-    } 
+        public CUdeviceptr[] apGpuBuffer;
+    }
 
+    /// <summary>
+    /// General image descriptor. Defines the basic parameters of an image,
+    /// including data pointer, step size and size information.
+    /// This can be used by both source and destination sides.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiImageDescriptor
+    {
+        /// <summary>
+        /// device memory pointer to the image
+        /// </summary>
+        public CUdeviceptr pData;
+        /// <summary>
+        /// step size
+        /// </summary>
+        public int nStep;
+        /// <summary>
+        /// width and height of the image
+        /// </summary>
+        public NppiSize oSize;
+
+        /// <summary>
+        /// Creates a new NppiImageDescriptor from a NPPImage
+        /// </summary>
+        public NppiImageDescriptor(NPPImageBase img)
+        {
+            pData = img.DevicePointer;
+            nStep = img.Pitch;
+            oSize = img.SizeRoi;
+        }
+    }
+
+    /// <summary>
+    /// NppiResizeBatchROI_Advanced
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiResizeBatchROI_Advanced
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public NppiRect oSrcRectROI;
+        /// <summary>
+        /// 
+        /// </summary>
+        public NppiRect oDstRectROI;
+
+        /// <summary>
+        /// Creates a new NppiResizeBatchROI_Advanced from two (source and destination) NPPImages
+        /// </summary>
+        public NppiResizeBatchROI_Advanced(NPPImageBase src, NPPImageBase dst)
+        {
+            oSrcRectROI = new NppiRect(src.PointRoi, src.SizeRoi);
+            oDstRectROI = new NppiRect(dst.PointRoi, src.SizeRoi);
+        }
+
+        /// <summary>
+        /// Creates a new NppiResizeBatchROI_Advanced
+        /// </summary>
+        public NppiResizeBatchROI_Advanced(NppiRect src, NppiRect dst)
+        {
+            oSrcRectROI = src;
+            oDstRectROI = dst;
+        }
+    }
     #endregion
 }

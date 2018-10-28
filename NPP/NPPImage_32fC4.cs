@@ -3218,7 +3218,7 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="dest">Destination image</param>
 		/// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		public void Compare(NPPImage_32fC1 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
+		public void Compare(NPPImage_32fC4 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
 		{
 			status = NPPNativeMethods.NPPi.Compare.nppiCompare_32f_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompare_32f_C4R", status));
@@ -3242,7 +3242,7 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="dest">Destination image</param>
 		/// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		public void CompareA(NPPImage_32fC1 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
+		public void CompareA(NPPImage_32fC4 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation)
 		{
 			status = NPPNativeMethods.NPPi.Compare.nppiCompare_32f_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompare_32f_AC4R", status));
@@ -7328,6 +7328,81 @@ namespace ManagedCuda.NPP
             status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_32f_C4R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_32f_C4R", status));
             NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region new in Cuda 9.2
+
+        /// <summary>
+        /// floating point image warp perspective batch.
+        /// </summary>
+        /// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, or NPPI_INTER_CUBIC. </param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpPerspectiveBatchCXR structures.</param>
+        public static void WarpPerspectiveBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpPerspectiveBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_32f_C4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_32f_C4R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// floating point image warp perspective batch not affecting alpha..
+        /// </summary>
+        /// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, or NPPI_INTER_CUBIC. </param>
+        /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpPerspectiveBatchCXR structures.</param>
+        public static void WarpPerspectiveBatchA(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpPerspectiveBatchCXR> pBatchList)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_32f_AC4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_32f_AC4R", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+
+        #region new in Cuda 10.0
+
+
+        /// <summary>
+        /// image resize batch for variable ROI.
+        /// </summary>
+        /// <param name="nMaxWidth">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="nMaxHeight">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="pBatchSrc">Size in pixels of the entire smallest destination image width and height, may be from different images.</param>
+        /// <param name="pBatchDst">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="nBatchSize">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
+        /// <param name="pBatchROI">Device pointer to NppiResizeBatchROI_Advanced list of per-image variable ROIs.User needs to initialize this structure and copy it to device.</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
+        public static void ResizeBatchAdvanced(int nMaxWidth, int nMaxHeight, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc, CudaDeviceVariable<NppiImageDescriptor> pBatchDst,
+                                        CudaDeviceVariable<NppiResizeBatchROI_Advanced> pBatchROI, uint nBatchSize, InterpolationMode eInterpolation)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResizeBatch_32f_C4R_Advanced(nMaxWidth, nMaxHeight, pBatchSrc.DevicePointer, pBatchDst.DevicePointer,
+                pBatchROI.DevicePointer, pBatchDst.Size, eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_32f_C4R_Advanced", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// image resize batch for variable ROI not affecting alpha.
+        /// </summary>
+        /// <param name="nMaxWidth">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+        /// <param name="nMaxHeight">Region of interest in the source images (may overlap source image size width and height).</param>
+        /// <param name="pBatchSrc">Size in pixels of the entire smallest destination image width and height, may be from different images.</param>
+        /// <param name="pBatchDst">Region of interest in the destination images (may overlap destination image size width and height).</param>
+        /// <param name="nBatchSize">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
+        /// <param name="pBatchROI">Device pointer to NppiResizeBatchROI_Advanced list of per-image variable ROIs.User needs to initialize this structure and copy it to device.</param>
+        /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
+        public static void ResizeBatchAdvancedA(int nMaxWidth, int nMaxHeight, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc, CudaDeviceVariable<NppiImageDescriptor> pBatchDst,
+                                        CudaDeviceVariable<NppiResizeBatchROI_Advanced> pBatchROI, uint nBatchSize, InterpolationMode eInterpolation)
+        {
+            NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResizeBatch_32f_AC4R_Advanced(nMaxWidth, nMaxHeight, pBatchSrc.DevicePointer, pBatchDst.DevicePointer,
+                pBatchROI.DevicePointer, pBatchDst.Size, eInterpolation);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_32f_AC4R_Advanced", status));
+            NPPException.CheckNppStatus(status, null);
         }
         #endregion
     }

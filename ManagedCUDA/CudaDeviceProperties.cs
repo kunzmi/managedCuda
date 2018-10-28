@@ -125,12 +125,16 @@ namespace ManagedCuda
         private bool _cooperativeLaunch;
         private bool _cooperativeMultiDeviceLaunch;
         private int _maxSharedMemoryPerBlockOptin;
+        private bool _canFlushRemoteWrites;
+        private bool _hostRegisterSupported;
+        private bool _pageableMemoryAccessUsesHostPageTables;
+        private bool _directManagedMemoryAccessFromHost;
 
-		// Properties
-		/// <summary>
-		/// Typical clock frequency in kilohertz
-		/// </summary>
-		public int ClockRate
+        // Properties
+        /// <summary>
+        /// Typical clock frequency in kilohertz
+        /// </summary>
+        public int ClockRate
 		{
 			get
 			{
@@ -973,6 +977,38 @@ namespace ManagedCuda
         {
             get { return this._maxSharedMemoryPerBlockOptin; }
             internal set { this._maxSharedMemoryPerBlockOptin = value; }
+        }
+        /// <summary>
+        /// Both the ::CU_STREAM_WAIT_VALUE_FLUSH flag and the ::CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES MemOp are supported on the device. See \ref CUDA_MEMOP for additional details.
+        /// </summary>
+        public bool CanFlushRemoteWrites
+        {
+            get { return this._canFlushRemoteWrites; }
+            internal set { this._canFlushRemoteWrites = value; }
+        }
+        /// <summary>
+        /// Device supports host memory registration via ::cudaHostRegister.
+        /// </summary>
+        public bool HostRegisterSupported
+        {
+            get { return this._hostRegisterSupported; }
+            internal set { this._hostRegisterSupported = value; }
+        }
+        /// <summary>
+        /// Device accesses pageable memory via the host's page tables.
+        /// </summary>
+        public bool PageableMemoryAccessUsesHostPageTables
+        {
+            get { return this._pageableMemoryAccessUsesHostPageTables; }
+            internal set { this._pageableMemoryAccessUsesHostPageTables = value; }
+        }
+        /// <summary>
+        /// The host can directly access managed memory on the device without migration.
+        /// </summary>
+        public bool DirectManagedMemoryAccessFromHost
+        {
+            get { return this._directManagedMemoryAccessFromHost; }
+            internal set { this._directManagedMemoryAccessFromHost = value; }
         }
     }
 }

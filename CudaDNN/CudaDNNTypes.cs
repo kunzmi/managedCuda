@@ -62,12 +62,22 @@ namespace ManagedCuda.CudaDNN
         public const double MinEpsilon = 1e-5;
     }
 
-	#region struct
-	/// <summary>
-	/// cudnnConvolutionFwdAlgoPerf is a structure containing performance results
-	/// returned by cudnnFindConvolutionForwardAlgorithm().
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sev"></param>
+    /// <param name="udata"></param>
+    /// <param name="dbg"></param>
+    /// <param name="msg"></param>
+    public delegate void cudnnCallback(cudnnSeverity sev, IntPtr udata, ref cudnnDebug dbg, [MarshalAs(UnmanagedType.LPStr)] string msg);
+
+
+    #region struct
+    /// <summary>
+    /// cudnnConvolutionFwdAlgoPerf is a structure containing performance results
+    /// returned by cudnnFindConvolutionForwardAlgorithm().
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct cudnnConvolutionFwdAlgoPerf
 	{
 		/// <summary>
@@ -190,6 +200,102 @@ namespace ManagedCuda.CudaDNN
         int reserved1;
         int reserved2;
         int reserved3;
+    }
+
+
+	/// <summary>
+	/// </summary>
+	[StructLayout(LayoutKind.Explicit)]
+	public struct cudnnAlgorithm
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public cudnnConvolutionFwdAlgo convFwdAlgo;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public cudnnConvolutionBwdFilterAlgo convBwdFilterAlgo;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public cudnnConvolutionBwdDataAlgo convBwdDataAlgo;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public cudnnRNNAlgo RNNAlgo;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public cudnnCTCLossAlgo CTCLossAlgo;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct cudnnDebug
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public uint cudnn_version;
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnStatus cudnnStatus;
+        /// <summary>
+        /// epoch time in seconds
+        /// </summary>
+        public uint time_sec;              
+        /// <summary>
+        /// microseconds part of epoch time
+        /// </summary>
+        public uint time_usec;             
+        /// <summary>
+        /// time since start in seconds
+        /// </summary>
+        public uint time_delta;           
+        /// <summary>
+        /// cudnn handle 
+        /// </summary>
+        public cudnnHandle handle;           
+        /// <summary>
+        /// cuda stream ID
+        /// </summary>
+        public CUstream stream;           
+        /// <summary>
+        /// process ID
+        /// </summary>
+        public ulong pid;      
+        /// <summary>
+        /// thread ID
+        /// </summary>
+        public ulong tid;       
+        /// <summary>
+        /// CUDA device ID
+        /// </summary>
+        public int cudaDeviceId;             
+        int reserved0;               /* reserved for future use */
+        int reserved1;               /* reserved for future use */
+        int reserved2;               /* reserved for future use */
+        int reserved3;               /* reserved for future use */
+        int reserved4;               /* reserved for future use */
+        int reserved5;               /* reserved for future use */
+        int reserved6;               /* reserved for future use */
+        int reserved7;               /* reserved for future use */
+        int reserved8;               /* reserved for future use */
+        int reserved9;               /* reserved for future use */
+        int reserved10;               /* reserved for future use */
+        int reserved11;               /* reserved for future use */
+        int reserved12;               /* reserved for future use */
+        int reserved13;               /* reserved for future use */
+        int reserved14;               /* reserved for future use */
     }
 	#endregion
 
@@ -358,6 +464,24 @@ namespace ManagedCuda.CudaDNN
     {
         private IntPtr Pointer;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnAlgorithmDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnAlgorithmPerformance
+    {
+        private IntPtr Pointer;
+    }
     #endregion
 
     #region enums
@@ -491,8 +615,17 @@ namespace ManagedCuda.CudaDNN
         /// The data is 32-bit element composed of 4 8-bit signed integer. This data type
         /// is only supported with tensor format CUDNN_TENSOR_NCHW_VECT_C.
         /// </summary>
-        Int8x4 = 5
-	}
+        Int8x4 = 5,
+        /// <summary>
+        /// The data is 8-bit unsigned integer.
+        /// </summary>
+        UInt8 = 6,
+        /// <summary>
+        /// The data is 32-bit element composed of 4 8-bit unsigned integer. This data type
+        /// is only supported with tensor format CUDNN_TENSOR_NCHW_VECT_C.
+        /// </summary>
+        UInt8x4 = 7,
+    }
 
     /// <summary>
 	/// cudnnNanPropagation is an enumerated type for the NanPropagation flag.
@@ -777,7 +910,11 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// Selects the exponential linear function
         /// </summary>
-        Elu = 4
+        Elu = 4,
+        /// <summary>
+        /// Selects the identity function, intended for bypassing the activation step in cudnnConvolutionBiasActivationForward() (need to use CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM). Does not work with cudnnActivationForward() or cudnnActivationBackward().
+        /// </summary>
+        Identity = 5
     }
 
 	/// <summary>
@@ -1272,7 +1409,11 @@ namespace ManagedCuda.CudaDNN
         /// CUDNN_RNN_ALGO_PERSIST_DYNAMIC is only supported on devices
         /// with compute capability >= 6.0 on Linux machines.
         /// </summary>
-        PersistDynamic = 2
+        PersistDynamic = 2,
+        /// <summary>
+        /// 
+        /// </summary>
+        Count = 3
     }
 
     /// <summary>
@@ -1323,6 +1464,49 @@ namespace ManagedCuda.CudaDNN
         /// </summary>
         NonDeterministic = 1
     }
-  
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum cudnnSeverity
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Fatal = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        Error = 1,
+        /// <summary>
+        /// 
+        /// </summary>
+        Warning = 2,
+        /// <summary>
+        /// 
+        /// </summary>
+        Info = 3,
+    }
+
+    /// <summary>
+    /// Message masks to be used with cudnnSetCallback()  
+    /// </summary>
+    [Flags]
+    public enum MessageMask
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Error = 1 << (int)cudnnSeverity.Error,
+        /// <summary>
+        /// 
+        /// </summary>
+        Warning = 1 << (int)cudnnSeverity.Warning,
+        /// <summary>
+        /// 
+        /// </summary>
+        Info = 1 << (int)cudnnSeverity.Info        
+    }
+
     #endregion
 }

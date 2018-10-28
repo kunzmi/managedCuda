@@ -377,6 +377,18 @@ namespace ManagedCuda.CudaSparse
 	}
 
 	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct csrsm2Info
+    {
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+
+	/// <summary>
 	/// Opaque structure holding the sparse triangular solve information
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]

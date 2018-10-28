@@ -35,12 +35,8 @@ namespace ManagedCuda.CudaSparse
 	/// </summary>
 	public static class CudaSparseNativeMethods
 	{
-		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
-#if _x64
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_91";
-#else
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse32_91";
-#endif
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_100";
+
 		#region CUSPARSE initialization and managment routines
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
@@ -2022,12 +2018,536 @@ namespace ManagedCuda.CudaSparse
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseZcsrsm_solve(cusparseContext handle, cusparseOperation transA, int m, int n, CUdeviceptr alpha, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, cusparseSolveAnalysisInfo info, CUdeviceptr x, int ldx, CUdeviceptr y, int ldy);
-		#endregion
+        #endregion
 
-
-
-		/// <summary/>
+        /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateCsrsm2Info(ref csrsm2Info info);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDestroyCsrsm2Info(csrsm2Info info);
+
+        #region host memory
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, ref int position);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref float alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref double alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuFloatComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuDoubleComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref float alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref double alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuFloatComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuDoubleComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref float alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref double alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuFloatComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            ref cuDoubleComplex alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+        #endregion
+
+        #region device memory
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, CUdeviceptr position);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            ref SizeT pBufferSize);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_analysis(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrsm2_solve(
+            cusparseContext handle,
+            int algo, /* algo = 0, 1 */
+            cusparseOperation transA,
+            cusparseOperation transB,
+            int m,
+            int nrhs,
+            int nnz,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr B,
+            int ldb,
+            csrsm2Info info,
+            cusparseSolvePolicy policy,
+            CUdeviceptr pBuffer);
+        #endregion
+
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseSbsrsm2_bufferSize(cusparseContext handle,
                                                         cusparseDirection dirA,
                                                         cusparseOperation transA,
@@ -3993,6 +4513,239 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseZgtsv2StridedBatch(cusparseContext handle, int m, CUdeviceptr dl, CUdeviceptr d, CUdeviceptr du, CUdeviceptr x, int batchCount, int batchStride, CUdeviceptr pBuffer);
 
 
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgtsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgtsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgtsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgtsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+
+        /* Description: Solution of pentadiagonal linear system A * X = B, 
+           with multiple right-hand-sides. The coefficient matrix A is 
+           composed of lower (ds, dl), main (d) and upper (du, dw) diagonals, and 
+           the right-hand-sides B are overwritten with the solution X. 
+         */
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgpsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgpsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgpsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgpsvInterleavedBatch_bufferSizeExt(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSgpsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDgpsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCgpsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZgpsvInterleavedBatch(
+            cusparseContext handle,
+            int algo,
+            int m,
+            CUdeviceptr ds,
+            CUdeviceptr dl,
+            CUdeviceptr d,
+            CUdeviceptr du,
+            CUdeviceptr dw,
+            CUdeviceptr x,
+            int batchCount,
+            CUdeviceptr pBuffer);
+
+
+
         /* --- Sparse Format Conversion --- */
 
 
@@ -5168,15 +5921,448 @@ namespace ManagedCuda.CudaSparse
 											CUdeviceptr csrValC,
 											CUdeviceptr csrRowPtrC,
 											CUdeviceptr csrColIndC);
-		#endregion
+        #endregion
 
 
-		/* --- Sparse Matrix Reorderings --- */
 
-		/* Description: Find an approximate coloring of a matrix stored in CSR format. */
-		#region ref host
-		/// <summary/>
+
+
+        #region host
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseXcsrgeam2Nnz(
+            cusparseContext handle,
+            int m,
+            int n,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedRowPtrC,
+            ref int nnzTotalDevHostPtr,
+            CUdeviceptr workspace);
+        /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref float alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref float beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes );
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref double alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref double beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref cuFloatComplex alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref cuFloatComplex beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref cuDoubleComplex alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref cuDoubleComplex beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref float alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref float beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer );
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref double alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref double beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer );
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref cuFloatComplex alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref cuFloatComplex beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer );
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            ref cuDoubleComplex alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            ref cuDoubleComplex beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer );
+        #endregion
+
+        #region device
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseXcsrgeam2Nnz(
+            cusparseContext handle,
+            int m,
+            int n,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr nnzTotalDevHostPtr,
+            CUdeviceptr workspace);
+
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrgeam2_bufferSizeExt(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            ref SizeT pBufferSizeInBytes);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseScsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer);
+
+        /// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseZcsrgeam2(
+            cusparseContext handle,
+            int m,
+            int n,
+            CUdeviceptr alpha,
+            cusparseMatDescr descrA,
+            int nnzA,
+            CUdeviceptr csrSortedValA,
+            CUdeviceptr csrSortedRowPtrA,
+            CUdeviceptr csrSortedColIndA,
+            CUdeviceptr beta,
+            cusparseMatDescr descrB,
+            int nnzB,
+            CUdeviceptr csrSortedValB,
+            CUdeviceptr csrSortedRowPtrB,
+            CUdeviceptr csrSortedColIndB,
+            cusparseMatDescr descrC,
+            CUdeviceptr csrSortedValC,
+            CUdeviceptr csrSortedRowPtrC,
+            CUdeviceptr csrSortedColIndC,
+            CUdeviceptr pBuffer);
+        #endregion
+
+
+
+
+        /* --- Sparse Matrix Reorderings --- */
+
+        /* Description: Find an approximate coloring of a matrix stored in CSR format. */
+        #region ref host
+        /// <summary/>
+        [DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseScsrcolor(cusparseContext handle,
                                                int m, 
                                                int nnz,

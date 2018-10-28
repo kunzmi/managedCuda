@@ -6761,6 +6761,53 @@ namespace ManagedCuda.CudaBlas
         }
 
 
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplications of an array of matrices.
+        /// where and are scalars, and , and are arrays of pointers to matrices stored
+        /// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
+        /// respectively.<para/>
+        /// This function is intended to be used for matrices of small sizes where the launch
+        /// overhead is a significant factor. For small sizes, typically smaller than 100x100,
+        /// this function improves significantly performance compared to making calls to its
+        /// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
+        /// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
+        /// into different streams as the matrix sizes increase.
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to <![CDATA[<Atype>]]> matrix, A, corresponds to the first instance of the batch of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="strideA">value of type long long int that gives the address offset between A[i] and A[i+1]. </param>
+        /// <param name="strideB">value of type long long int that gives the address offset between B[i] and B[i+1]. </param>
+        /// <param name="strideC">value of type long long int that gives the address offset between C[i] and C[i+1]. </param>
+        /// <param name="B">pointer to <![CDATA[<Btype>]]> matrix, A, corresponds to the first instance of the batch of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to <![CDATA[<Ctype>]]> matrix, A, corresponds to the first instance of the batch. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        /// <param name="algo"></param>
+        /// <param name="Atype"></param>
+        /// <param name="Btype"></param>
+        /// <param name="computeType"></param>
+        /// <param name="Ctype"></param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CUdeviceptr alpha,
+                                   CUdeviceptr A, cudaDataType Atype, int lda, long strideA, CUdeviceptr B, cudaDataType Btype, int ldb, long strideB,
+                                   CUdeviceptr beta, CUdeviceptr C, cudaDataType Ctype, int ldc, long strideC, int batchCount, cudaDataType computeType, GemmAlgo algo)
+        {
+            _status = CudaBlasNativeMethods.cublasGemmStridedBatchedEx(_blasHandle, transa, transb, m, n, k, alpha, A, 
+                Atype, lda, strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc, strideC, batchCount, computeType, algo);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasGemmStridedBatchedEx", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
         /// <summary>
         /// This function performs the matrix-matrix multiplications of an array of matrices.
         /// where and are scalars, and , and are arrays of pointers to matrices stored
@@ -6834,38 +6881,72 @@ namespace ManagedCuda.CudaBlas
 			_status = CudaBlasNativeMethods.cublasCgemmBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, Aarray.DevicePointer, lda, Barray.DevicePointer, ldb, beta.DevicePointer, Carray.DevicePointer, ldc, batchCount);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasCgemmBatched", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
-		}
+        }
 
 
-		/// <summary>
-		/// This function performs the matrix-matrix multiplications of an array of matrices.
-		/// where and are scalars, and , and are arrays of pointers to matrices stored
-		/// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
-		/// respectively.<para/>
-		/// This function is intended to be used for matrices of small sizes where the launch
-		/// overhead is a significant factor. For small sizes, typically smaller than 100x100,
-		/// this function improves significantly performance compared to making calls to its
-		/// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
-		/// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
-		/// into different streams as the matrix sizes increase.
-		/// </summary>
-		/// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
-		/// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
-		/// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
-		/// <param name="n">number of columns of op(B[i]) and C[i].</param>
-		/// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
-		/// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
-		/// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
-		/// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
-		/// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
-		/// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
-		/// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
-		/// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
-		/// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
-		/// <param name="batchCount">number of pointers contained in A, B and C.</param>
-		public void GemmBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<cuDoubleComplex> alpha,
+        /// <summary>
+        /// This function performs the complex matrix-matrix multiplication, using Gauss complexity reduction algorithm. This can lead to an increase in performance up to 25% <para/>
+        /// C = a op(A ) op(B ) +  C <para/>
+        /// where a and b are scalars, and A , B and C are matrices stored in column-major format with dimensions op(A ) m k, op ( B ) k n and C m n, respectively. Also, for matrix A
+        /// op(A ) = A if  transa == CUBLAS_OP_N A T if  transa == CUBLAS_OP_T A H if  transa == CUBLAS_OP_C
+        /// and op(B ) is defined similarly for matrix B. <para/>
+        /// Note: These 2 routines are only supported on GPUs with architecture capabilities equal or greater than 5.0 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        public void Gemm3mBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<cuFloatComplex> alpha,
+            CudaDeviceVariable<CUdeviceptr> Aarray, int lda, CudaDeviceVariable<CUdeviceptr> Barray, int ldb,
+            CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<CUdeviceptr> Carray, int ldc, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasCgemm3mBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, Aarray.DevicePointer, lda, Barray.DevicePointer, ldb, beta.DevicePointer, Carray.DevicePointer, ldc, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasCgemm3mBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplications of an array of matrices.
+        /// where and are scalars, and , and are arrays of pointers to matrices stored
+        /// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
+        /// respectively.<para/>
+        /// This function is intended to be used for matrices of small sizes where the launch
+        /// overhead is a significant factor. For small sizes, typically smaller than 100x100,
+        /// this function improves significantly performance compared to making calls to its
+        /// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
+        /// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
+        /// into different streams as the matrix sizes increase.
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        public void GemmBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<cuDoubleComplex> alpha,
 			CudaDeviceVariable<CUdeviceptr> Aarray, int lda, CudaDeviceVariable<CUdeviceptr> Barray, int ldb,
 			CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<CUdeviceptr> Carray, int ldc, int batchCount)
 		{
@@ -6874,6 +6955,181 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<float> alpha,
+            CudaDeviceVariable<float> A, int lda, long strideA, CudaDeviceVariable<float> B, int ldb, long strideB,
+            CudaDeviceVariable<float> beta, CudaDeviceVariable<float> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, beta.DevicePointer, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmStridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<double> alpha,
+            CudaDeviceVariable<double> A, int lda, long strideA, CudaDeviceVariable<double> B, int ldb, long strideB,
+            CudaDeviceVariable<double> beta, CudaDeviceVariable<double> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasDgemmStridedBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, beta.DevicePointer, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDgemmStridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<cuFloatComplex> alpha,
+            CudaDeviceVariable<cuFloatComplex> A, int lda, long strideA, CudaDeviceVariable<cuFloatComplex> B, int ldb, long strideB,
+            CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasCgemmStridedBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, beta.DevicePointer, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmCtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<cuDoubleComplex> alpha,
+            CudaDeviceVariable<cuDoubleComplex> A, int lda, long strideA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, long strideB,
+            CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasZgemmStridedBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, beta.DevicePointer, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmZtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<half> alpha,
+            CudaDeviceVariable<half> A, int lda, long strideA, CudaDeviceVariable<half> B, int ldb, long strideB,
+            CudaDeviceVariable<half> beta, CudaDeviceVariable<half> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasHgemmStridedBatched(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, beta.DevicePointer, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmHtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
         #endregion
         #region host pointer
         /// <summary>
@@ -6950,6 +7206,52 @@ namespace ManagedCuda.CudaBlas
                                    IntPtr beta, CudaDeviceVariable<CUdeviceptr> Carray, cudaDataType Ctype, int ldc, int batchCount, cudaDataType computeType, GemmAlgo algo)
         {
             _status = CudaBlasNativeMethods.cublasGemmBatchedEx(_blasHandle, transa, transb, m, n, k, alpha, Aarray.DevicePointer, Atype, lda, Barray.DevicePointer, Btype, ldb, beta, Carray.DevicePointer, Ctype, ldc, batchCount, computeType, algo);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasGemmBatchedEx", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplications of an array of matrices.
+        /// where and are scalars, and , and are arrays of pointers to matrices stored
+        /// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
+        /// respectively.<para/>
+        /// This function is intended to be used for matrices of small sizes where the launch
+        /// overhead is a significant factor. For small sizes, typically smaller than 100x100,
+        /// this function improves significantly performance compared to making calls to its
+        /// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
+        /// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
+        /// into different streams as the matrix sizes increase.
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to <![CDATA[<Atype>]]> matrix, A, corresponds to the first instance of the batch of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="strideA">value of type long long int that gives the address offset between A[i] and A[i+1]. </param>
+        /// <param name="strideB">value of type long long int that gives the address offset between B[i] and B[i+1]. </param>
+        /// <param name="strideC">value of type long long int that gives the address offset between C[i] and C[i+1]. </param>
+        /// <param name="B">pointer to <![CDATA[<Btype>]]> matrix, A, corresponds to the first instance of the batch of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to <![CDATA[<Ctype>]]> matrix, A, corresponds to the first instance of the batch. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        /// <param name="algo"></param>
+        /// <param name="Atype"></param>
+        /// <param name="Btype"></param>
+        /// <param name="computeType"></param>
+        /// <param name="Ctype"></param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, IntPtr alpha,
+                                   CUdeviceptr A, cudaDataType Atype, int lda, long strideA, CUdeviceptr B, cudaDataType Btype, int ldb, long strideB,
+                                   IntPtr beta, CUdeviceptr C, cudaDataType Ctype, int ldc, long strideC, int batchCount, cudaDataType computeType, GemmAlgo algo)
+        {
+            _status = CudaBlasNativeMethods.cublasGemmStridedBatchedEx(_blasHandle, transa, transb, m, n, k, alpha, A,
+                Atype, lda, strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc, strideC, batchCount, computeType, algo);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasGemmBatchedEx", _status));
             if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
         }
@@ -7065,38 +7367,72 @@ namespace ManagedCuda.CudaBlas
 			_status = CudaBlasNativeMethods.cublasCgemmBatched(_blasHandle, transa, transb, m, n, k, ref alpha, Aarray.DevicePointer, lda, Barray.DevicePointer, ldb, ref beta, Carray.DevicePointer, ldc, batchCount);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasCgemmBatched", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
-		}
+        }
 
 
-		/// <summary>
-		/// This function performs the matrix-matrix multiplications of an array of matrices.
-		/// where and are scalars, and , and are arrays of pointers to matrices stored
-		/// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
-		/// respectively.<para/>
-		/// This function is intended to be used for matrices of small sizes where the launch
-		/// overhead is a significant factor. For small sizes, typically smaller than 100x100,
-		/// this function improves significantly performance compared to making calls to its
-		/// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
-		/// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
-		/// into different streams as the matrix sizes increase.
-		/// </summary>
-		/// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
-		/// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
-		/// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
-		/// <param name="n">number of columns of op(B[i]) and C[i].</param>
-		/// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
-		/// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
-		/// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
-		/// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
-		/// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
-		/// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
-		/// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
-		/// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
-		/// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
-		/// <param name="batchCount">number of pointers contained in A, B and C.</param>
-		public void GemmBatched(Operation transa, Operation transb, int m, int n, int k, cuDoubleComplex alpha,
+        /// <summary>
+        /// This function performs the complex matrix-matrix multiplication, using Gauss complexity reduction algorithm. This can lead to an increase in performance up to 25% <para/>
+        /// C = a op(A ) op(B ) +  C <para/>
+        /// where a and b are scalars, and A , B and C are matrices stored in column-major format with dimensions op(A ) m k, op ( B ) k n and C m n, respectively. Also, for matrix A
+        /// op(A ) = A if  transa == CUBLAS_OP_N A T if  transa == CUBLAS_OP_T A H if  transa == CUBLAS_OP_C
+        /// and op(B ) is defined similarly for matrix B. <para/>
+        /// Note: These 2 routines are only supported on GPUs with architecture capabilities equal or greater than 5.0 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        public void Gemm3mBatched(Operation transa, Operation transb, int m, int n, int k, cuFloatComplex alpha,
+            CudaDeviceVariable<CUdeviceptr> Aarray, int lda, CudaDeviceVariable<CUdeviceptr> Barray, int ldb,
+            cuFloatComplex beta, CudaDeviceVariable<CUdeviceptr> Carray, int ldc, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasCgemm3mBatched(_blasHandle, transa, transb, m, n, k, ref alpha, Aarray.DevicePointer, lda, Barray.DevicePointer, ldb, ref beta, Carray.DevicePointer, ldc, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasCgemm3mBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplications of an array of matrices.
+        /// where and are scalars, and , and are arrays of pointers to matrices stored
+        /// in column-major format with dimensions op(A[i])m x k, op(B[i])k x n and op(C[i])m x n, 
+        /// respectively.<para/>
+        /// This function is intended to be used for matrices of small sizes where the launch
+        /// overhead is a significant factor. For small sizes, typically smaller than 100x100,
+        /// this function improves significantly performance compared to making calls to its
+        /// corresponding cublas<![CDATA[<type>]]>gemm routine. However, on GPU architectures that support
+        /// concurrent kernels, it might be advantageous to make multiple calls to cublas<![CDATA[<type>]]>gemm
+        /// into different streams as the matrix sizes increase.
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose.</param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i].</param>
+        /// <param name="n">number of columns of op(B[i]) and C[i].</param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda x k with lda>=max(1,m) if
+        /// transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb x n with ldb>=max(1,k) if
+        /// transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise.</param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i].</param>
+        /// <param name="beta">scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc x n with ldc>=max(1,m).</param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i].</param>
+        /// <param name="batchCount">number of pointers contained in A, B and C.</param>
+        public void GemmBatched(Operation transa, Operation transb, int m, int n, int k, cuDoubleComplex alpha,
 			CudaDeviceVariable<CUdeviceptr> Aarray, int lda, CudaDeviceVariable<CUdeviceptr> Barray, int ldb,
 			cuDoubleComplex beta, CudaDeviceVariable<CUdeviceptr> Carray, int ldc, int batchCount)
 		{
@@ -7105,25 +7441,200 @@ namespace ManagedCuda.CudaBlas
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
-		#endregion
-		#endregion
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, float alpha,
+            CudaDeviceVariable<float> A, int lda, long strideA, CudaDeviceVariable<float> B, int ldb, long strideB,
+            float beta, CudaDeviceVariable<float> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, ref beta, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmStridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
 
-		#region Batched LU - GETRF
-		/// <summary>
-		/// This function performs the LU factorization of an array of n x n matrices.<para/>
-		/// This function is intended to be used for matrices of small sizes where the launch
-		/// overhead is a significant factor. The current implementation limits the dimension n to 32.
-		/// </summary>
-		/// <param name="n">number of rows and columns of A[i].</param>
-		/// <param name="A">array of device pointers with each array/device pointer of dim. n x n with lda>=max(1,n).</param>
-		/// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
-		/// <param name="P">array of size n x batchSize that contains the permutation vector 
-		/// of each factorization of A[i] stored in a linear fashion.</param>
-		/// <param name="INFO">If info=0, the execution is successful.<para/>
-		/// If info = -i, the i-th parameter had an illegal value.<para/>
-		/// If info = i, aii is 0. The factorization has been completed, but U is exactly singular.</param>
-		/// <param name="batchSize">number of pointers contained in A</param>
-		public void GetrfBatchedS(int n, CudaDeviceVariable<CUdeviceptr> A, int lda, CudaDeviceVariable<int> P,
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, double alpha,
+            CudaDeviceVariable<double> A, int lda, long strideA, CudaDeviceVariable<double> B, int ldb, long strideB,
+            double beta, CudaDeviceVariable<double> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasDgemmStridedBatched(_blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, ref beta, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDgemmStridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, cuFloatComplex alpha,
+            CudaDeviceVariable<cuFloatComplex> A, int lda, long strideA, CudaDeviceVariable<cuFloatComplex> B, int ldb, long strideB,
+            cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasCgemmStridedBatched(_blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, ref beta, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmCtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, cuDoubleComplex alpha,
+            CudaDeviceVariable<cuDoubleComplex> A, int lda, long strideA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, long strideB,
+            cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasZgemmStridedBatched(_blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, ref beta, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmZtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication of a batch of matrices. The batch is considered to be "uniform", 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. Input matrices A, B and output matrix C for each instance of the batch are located 
+        /// at fixed address offsets from their locations in the previous instance. Pointers to A, B and C matrices for the first 
+        /// instance are passed to the function by the user along with the address offsets - strideA, strideB and strideC that determine 
+        /// the locations of input and output matrices in future instances. 
+        /// </summary>
+        /// <param name="transa">operation op(A[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="transb">operation op(B[i]) that is non- or (conj.) transpose. </param>
+        /// <param name="m">number of rows of matrix op(A[i]) and C[i]. </param>
+        /// <param name="n">number of columns of op(B[i]) and C[i]. </param>
+        /// <param name="k">number of columns of op(A[i]) and rows of op(B[i]).</param>
+        /// <param name="alpha">scalar used for multiplication.</param>
+        /// <param name="A">pointer to the A matrix corresponding to the first instance of the batch, with dimensions lda x k with lda>=max(1,m) if transa==CUBLAS_OP_N and lda x m with lda>=max(1,k) otherwise. </param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i]. </param>
+        /// <param name="strideA">Value of type long long int that gives the address offset between A[i] and A[i+1]</param>
+        /// <param name="B">pointer to the B matrix corresponding to the first instance of the batch, with dimensions ldb x n with ldb>=max(1,k) if transa==CUBLAS_OP_N and ldb x k with ldb>=max(1,n) max(1,) otherwise. </param>
+        /// <param name="ldb">leading dimension of two-dimensional array used to store each matrix B[i]. </param>
+        /// <param name="strideB">Value of type long long int that gives the address offset between B[i] and B[i+1]</param>
+        /// <param name="beta"> scalar used for multiplication. If beta == 0, C does not have to be a valid input.</param>
+        /// <param name="C">pointer to the C matrix corresponding to the first instance of the batch, with dimensions ldc x n with ldc>=max(1,m). </param>
+        /// <param name="ldc">leading dimension of two-dimensional array used to store each matrix C[i]. </param>
+        /// <param name="strideC">Value of type long long int that gives the address offset between C[i] and C[i+1]</param>
+        /// <param name="batchCount">number of GEMMs to perform in the batch.</param>
+        public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, half alpha,
+            CudaDeviceVariable<half> A, int lda, long strideA, CudaDeviceVariable<half> B, int ldb, long strideB,
+            half beta, CudaDeviceVariable<half> C, int ldc, long strideC, int batchCount)
+        {
+            _status = CudaBlasNativeMethods.cublasHgemmStridedBatched(_blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, strideA,
+                B.DevicePointer, ldb, strideB, ref beta, C.DevicePointer, ldc, strideC, batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmHtridedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        #endregion
+        #endregion
+
+        #region Batched LU - GETRF
+        /// <summary>
+        /// This function performs the LU factorization of an array of n x n matrices.<para/>
+        /// This function is intended to be used for matrices of small sizes where the launch
+        /// overhead is a significant factor. The current implementation limits the dimension n to 32.
+        /// </summary>
+        /// <param name="n">number of rows and columns of A[i].</param>
+        /// <param name="A">array of device pointers with each array/device pointer of dim. n x n with lda>=max(1,n).</param>
+        /// <param name="lda">leading dimension of two-dimensional array used to store each matrix A[i].</param>
+        /// <param name="P">array of size n x batchSize that contains the permutation vector 
+        /// of each factorization of A[i] stored in a linear fashion.</param>
+        /// <param name="INFO">If info=0, the execution is successful.<para/>
+        /// If info = -i, the i-th parameter had an illegal value.<para/>
+        /// If info = i, aii is 0. The factorization has been completed, but U is exactly singular.</param>
+        /// <param name="batchSize">number of pointers contained in A</param>
+        public void GetrfBatchedS(int n, CudaDeviceVariable<CUdeviceptr> A, int lda, CudaDeviceVariable<int> P,
 			CudaDeviceVariable<int> INFO, int batchSize)
 		{
 			_status = CudaBlasNativeMethods.cublasSgetrfBatched(_blasHandle, n, A.DevicePointer, lda, P.DevicePointer, INFO.DevicePointer, batchSize);

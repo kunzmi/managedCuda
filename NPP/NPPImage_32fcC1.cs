@@ -190,14 +190,28 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCopy_32fc_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-		#endregion
 
-		#region Set
-		/// <summary>
-		/// Set pixel values to nValue.
-		/// </summary>
-		/// <param name="nValue">Value to be set</param>
-		public void Set(Npp32fc nValue)
+        /// <summary>
+        /// Image copy.
+        /// </summary>
+        /// <param name="dst">Destination image</param>
+        /// <param name="channel">Channel indicator (real or imaginary part of the complex number)</param>
+        public void Copy(NPPImage_32fC1 dst, ComplexChannel channel)
+        {
+            int c = (int)channel;
+            //typesize is sizeof(float2), so the entire complex number, use sizeof(float) instead!
+            status = NPPNativeMethods.NPPi.MemCopy.nppiCopy_32f_C2C1R(_devPtrRoi + c * sizeof(float), _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCopy_32f_C2C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Set
+        /// <summary>
+        /// Set pixel values to nValue.
+        /// </summary>
+        /// <param name="nValue">Value to be set</param>
+        public void Set(Npp32fc nValue)
 		{
 			status = NPPNativeMethods.NPPi.MemSet.nppiSet_32fc_C1R(nValue, _devPtrRoi, _pitch, _sizeRoi);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSet_32fc_C1R", status));

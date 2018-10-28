@@ -73,34 +73,6 @@ namespace ManagedCuda.CudaFFT
             SetStream(stream);
         }
 
-        /// <summary>
-		/// Creates a new 1D FFT plan (old API)
-        /// </summary>
-        /// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-        /// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-        /// <param name="batch">Number of transforms of size nx</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        public CudaFFTPlan1D(int nx, cufftType type, int batch, Compatibility mode)
-            : this(nx, type, batch)
-        {
-            SetCompatibilityMode(mode);
-        }
-
-        /// <summary>
-		/// Creates a new 1D FFT plan (old API)
-        /// </summary>
-        /// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-        /// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-        /// <param name="batch">Number of transforms of size nx</param>
-        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        public CudaFFTPlan1D(int nx, cufftType type, int batch, CUstream stream, Compatibility mode)
-            : this(nx, type, batch)
-        {
-            SetStream(stream);
-            SetCompatibilityMode(mode);
-		}
-
 		/// <summary>
 		/// Creates a new 1D FFT plan (new API)
 		/// </summary>
@@ -155,35 +127,7 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, Compatibility mode)
-			: this(handle, nx, type, batch)
-		{
-			SetCompatibilityMode(mode);
-		}
-
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, CUstream stream, Compatibility mode)
-			: this(handle, nx, type, batch)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		
 
 
 		/// <summary>
@@ -201,37 +145,7 @@ namespace ManagedCuda.CudaFFT
 			SetStream(stream);
 		}
 
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, Compatibility mode, ref SizeT size)
-			: this(handle, nx, type, batch, ref size)
-		{
-			SetCompatibilityMode(mode);
-		}
-
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, CUstream stream, Compatibility mode, ref SizeT size)
-			: this(handle, nx, type, batch, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-		}
+		
 
 		/// <summary>
 		/// Creates a new 1D FFT plan (new API)
@@ -281,41 +195,6 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, Compatibility mode, bool autoAllocate)
-			: this(handle, nx, type, batch)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
-
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, CUstream stream, Compatibility mode, bool autoAllocate)
-			: this(handle, nx, type, batch)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
 
 
 		/// <summary>
@@ -336,43 +215,7 @@ namespace ManagedCuda.CudaFFT
 			SetAutoAllocation(autoAllocate);
 		}
 
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, nx, type, batch, ref size)
-		{
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
 
-		/// <summary>
-		/// Creates a new 1D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size (e.g., 256 for a 256-point FFT)</param>
-		/// <param name="type">The transform data type (e.g., C2C for complex to complex)</param>
-		/// <param name="batch">Number of transforms of size nx</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan1D(cufftHandle handle, int nx, cufftType type, int batch, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
-			: this(handle, nx, type, batch, ref size)
-		{
-			SetStream(stream);
-			SetCompatibilityMode(mode);
-			SetAutoAllocation(autoAllocate);
-		}
 
         /// <summary>
         /// For dispose
@@ -673,19 +516,19 @@ namespace ManagedCuda.CudaFFT
                 throw new CudaFFTException(res);
         }
 
-        /// <summary>
-        /// configures the layout of CUFFT output in FFTW‐compatible modes.
-        /// When FFTW compatibility is desired, it can be configured for padding
-        /// only, for asymmetric complex inputs only, or to be fully compatible.
-        /// </summary>
-        /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-        public void SetCompatibilityMode(Compatibility mode)
-        {
-            res = CudaFFTNativeMethods.cufftSetCompatibilityMode(_handle, mode);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
-            if (res != cufftResult.Success)
-                throw new CudaFFTException(res);
-        }
+        ///// <summary>
+        ///// configures the layout of CUFFT output in FFTW‐compatible modes.
+        ///// When FFTW compatibility is desired, it can be configured for padding
+        ///// only, for asymmetric complex inputs only, or to be fully compatible.
+        ///// </summary>
+        ///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
+        //public void SetCompatibilityMode(Compatibility mode)
+        //{
+        //    res = CudaFFTNativeMethods.cufftSetCompatibilityMode(_handle, mode);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetCompatibilityMode", res));
+        //    if (res != cufftResult.Success)
+        //        throw new CudaFFTException(res);
+        //}
         #endregion
 
         #region Properties

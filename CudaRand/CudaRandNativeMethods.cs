@@ -34,12 +34,7 @@ namespace ManagedCuda.CudaRand
 	/// </summary>
 	public static class CudaRandNativeMethods
 	{
-		//unfortunately Nvidia provides different dll-names for x86 and x64. Use preprocessor macro to switch names:
-#if _x64
-		internal const string CURAND_API_DLL_NAME = "curand64_91";
-#else
-		internal const string CURAND_API_DLL_NAME = "curand32_91";
-#endif
+		internal const string CURAND_API_DLL_NAME = "curand64_10";
 
 
 		/// <summary>

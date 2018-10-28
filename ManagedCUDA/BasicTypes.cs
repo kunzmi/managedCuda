@@ -534,12 +534,26 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.I1)]
 		public byte[] bytes;
-	}
+    }
 
-	/// <summary>
-	/// Interprocess Handle for Events
-	/// </summary>
-	public struct CUipcEventHandle
+    /// <summary>
+    /// 8-byte locally unique identifier. Value is undefined on TCC and non-Windows platforms 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Luid
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8, ArraySubType = UnmanagedType.I1)]
+        public byte[] bytes;
+    }
+
+    /// <summary>
+    /// Interprocess Handle for Events
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUipcEventHandle
 	{
 		/// <summary>
 		/// 
@@ -548,10 +562,11 @@ namespace ManagedCuda.BasicTypes
 		public byte[] reserved;
 	}
 
-	/// <summary>
-	/// Interprocess Handle for Memory
-	/// </summary>
-	public struct CUipcMemHandle
+    /// <summary>
+    /// Interprocess Handle for Memory
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUipcMemHandle
 	{
 		/// <summary>
 		/// 
@@ -577,13 +592,243 @@ namespace ManagedCuda.BasicTypes
 	{
 		uint x;
 	}
-	#endregion
 
-	#region Structs
-	/// <summary>
-	/// Legacy device properties
+
+    /// <summary>
+	/// CUDA external memory
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
+    public struct CUexternalMemory
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUDA external semaphore
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUexternalSemaphore
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUDA graph
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraph
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUDA graph node
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraphNode
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+
+        #region Properties
+        /// <summary>
+        /// Returns the type of the Node
+        /// </summary>
+        public CUgraphNodeType Type
+        {
+            get
+            {
+                CUgraphNodeType type = new CUgraphNodeType();
+                CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetType(this, ref type);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetType", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return type;
+            }
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Sets the parameters of host node nodeParams.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(CUDA_HOST_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphHostNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphHostNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Sets the parameters of kernel node nodeParams.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(CUDA_KERNEL_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphKernelNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphKernelNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Sets the parameters of memcpy node nodeParams.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(CUDAMemCpy3D nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemcpyNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemcpyNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Sets the parameters of memset node nodeParams.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(CUDA_MEMSET_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemsetNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemsetNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Gets the parameters of host node.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUDA_HOST_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphHostNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphHostNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Gets the parameters of kernel node.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUDA_KERNEL_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphKernelNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphKernelNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Gets the parameters of memcpy node.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUDAMemCpy3D nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemcpyNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemcpyNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Gets the parameters of memset node.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUDA_MEMSET_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemsetNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemsetNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Only for ChildGraphNodes
+        /// </summary>
+        /// <returns></returns>
+        public CudaGraph GetGraph()
+        {
+            CUgraph graph = new CUgraph();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphChildGraphNodeGetGraph(this, ref graph);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphChildGraphNodeGetGraph", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return new CudaGraph(graph);
+        }
+
+        /// <summary>
+        /// Returns a node's dependencies.
+        /// </summary>
+        /// <returns></returns>
+        public CUgraphNode[] GetDependencies()
+        {
+            SizeT numNodes = new SizeT();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependencies(this, null, ref numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependencies", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            if (numNodes > 0)
+            {
+                CUgraphNode[] nodes = new CUgraphNode[numNodes];
+                res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependencies(this, nodes, ref numNodes);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependencies", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return nodes;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns a node's dependent nodes
+        /// </summary>
+        public CUgraphNode[] GetDependentNodes()
+        {
+            SizeT numNodes = new SizeT();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependentNodes(this, null, ref numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependentNodes", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            if (numNodes > 0)
+            {
+                CUgraphNode[] nodes = new CUgraphNode[numNodes];
+                res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependentNodes(this, nodes, ref numNodes);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependentNodes", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return nodes;
+            }
+
+            return null;
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// CUDA executable graph
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraphExec
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+    #endregion
+
+    #region Structs
+    /// <summary>
+    /// Legacy device properties
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct CUDeviceProperties
 	{
 		/// <summary>
@@ -3119,43 +3364,420 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Kernel to launch
         /// </summary>
-        CUfunction function;
+        public CUfunction function;
         /// <summary>
         /// Width of grid in blocks
         /// </summary>
-        uint gridDimX; 
+        public uint gridDimX;
         /// <summary>
         /// Height of grid in blocks
         /// </summary>
-        uint gridDimY;
+        public uint gridDimY;
         /// <summary>
         /// Depth of grid in blocks
         /// </summary>
-        uint gridDimZ; 
+        public uint gridDimZ;
         /// <summary>
         /// X dimension of each thread block
         /// </summary>
-        uint blockDimX;
+        public uint blockDimX;
         /// <summary>
         /// Y dimension of each thread block
         /// </summary>
-        uint blockDimY;
+        public uint blockDimY;
         /// <summary>
         /// Z dimension of each thread block
         /// </summary>
-        uint blockDimZ;
+        public uint blockDimZ;
         /// <summary>
         /// Dynamic shared-memory size per thread block in bytes
         /// </summary>
-        uint sharedMemBytes;
+        public uint sharedMemBytes;
         /// <summary>
         /// Stream identifier
         /// </summary>
-        CUstream hStream; 
+        public CUstream hStream;
         /// <summary>
         /// Array of pointers to kernel parameters
         /// </summary>
-        IntPtr kernelParams; 
+        public IntPtr kernelParams; 
+    }
+
+
+
+    /// <summary>
+    /// GPU kernel node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUDA_KERNEL_NODE_PARAMS
+    {
+        /// <summary>
+        /// Kernel to launch
+        /// </summary>
+        public CUfunction func;
+        /// <summary>
+        /// Width of grid in blocks
+        /// </summary>
+        public uint gridDimX;
+        /// <summary>
+        /// Height of grid in blocks
+        /// </summary>
+        public uint gridDimY;
+        /// <summary>
+        /// Depth of grid in blocks
+        /// </summary>
+        public uint gridDimZ;
+        /// <summary>
+        /// X dimension of each thread block
+        /// </summary>
+        public uint blockDimX;
+        /// <summary>
+        /// Y dimension of each thread block
+        /// </summary>
+        public uint blockDimY;
+        /// <summary>
+        /// Z dimension of each thread block
+        /// </summary>
+        public uint blockDimZ;
+        /// <summary>
+        /// Dynamic shared-memory size per thread block in bytes
+        /// </summary>
+        public uint sharedMemBytes;
+        /// <summary>
+        /// Array of pointers to kernel parameters
+        /// </summary>
+        public IntPtr kernelParams;
+        /// <summary>
+        /// Extra options
+        /// </summary>
+        public IntPtr extra; 
+    }
+
+
+    /// <summary>
+    /// Memset node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUDA_MEMSET_NODE_PARAMS
+    {
+        /// <summary>
+        /// Destination device pointer
+        /// </summary>
+        public CUdeviceptr dst;
+        /// <summary>
+        /// Pitch of destination device pointer. Unused if height is 1
+        /// </summary>
+        public SizeT pitch;
+        /// <summary>
+        /// Value to be set
+        /// </summary>
+        public uint value;
+        /// <summary>
+        /// Size of each element in bytes. Must be 1, 2, or 4.
+        /// </summary>
+        public uint elementSize;
+        /// <summary>
+        /// Width in bytes, of the row
+        /// </summary>
+        public SizeT width;
+        /// <summary>
+        /// Number of rows
+        /// </summary>
+        public SizeT height;
+
+        /// <summary>
+        /// Initialieses the struct
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="deviceVariable"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static CUDA_MEMSET_NODE_PARAMS init<T>(CudaDeviceVariable<T> deviceVariable, uint value) where T : struct
+        {
+            CUDA_MEMSET_NODE_PARAMS para = new CUDA_MEMSET_NODE_PARAMS();
+            para.dst = deviceVariable.DevicePointer;
+            para.pitch = deviceVariable.SizeInBytes;
+            para.value = value;
+            para.elementSize = deviceVariable.TypeSize;
+            para.width = deviceVariable.SizeInBytes;
+            para.height = 1;
+
+            return para;
+        }
+        /// <summary>
+        /// Initialieses the struct
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="deviceVariable"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static CUDA_MEMSET_NODE_PARAMS init<T>(CudaPitchedDeviceVariable<T> deviceVariable, uint value) where T : struct
+        {
+            CUDA_MEMSET_NODE_PARAMS para = new CUDA_MEMSET_NODE_PARAMS();
+            para.dst = deviceVariable.DevicePointer;
+            para.pitch = deviceVariable.Pitch;
+            para.value = value;
+            para.elementSize = deviceVariable.TypeSize;
+            para.width = deviceVariable.WidthInBytes;
+            para.height = deviceVariable.Height;
+
+            return para;
+        }
+    }
+
+
+    /// <summary>
+    /// Host node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUDA_HOST_NODE_PARAMS
+    {
+        /// <summary>
+        /// The function to call when the node executes
+        /// </summary>
+        public CUhostFn fn;
+        /// <summary>
+        /// Argument to pass to the function
+        /// </summary>
+        public IntPtr userData; 
+    }
+
+    /// <summary>
+    ///  Win32 handle referencing the semaphore object. Valid when
+    ///  type is one of the following: <para/>
+    ///  - ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32<para/>
+    ///  - ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT<para/>
+    ///  - ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP<para/>
+    ///  - ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE<para/>
+    ///  Exactly one of 'handle' and 'name' must be non-NULL. If
+    ///  type is 
+    ///  ::CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT
+    ///   then 'name' must be NULL.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+    public struct Win32Handle
+    {
+        /// <summary>
+        /// Valid NT handle. Must be NULL if 'name' is non-NULL
+        /// </summary>
+        public IntPtr handle;
+        /// <summary>
+        /// Name of a valid memory object. Must be NULL if 'handle' is non-NULL.
+        /// </summary>
+        [MarshalAs(UnmanagedType.LPStr)]
+        string name;
+    }
+
+    /// <summary>
+    /// External memory handle descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC
+    {
+        /// <summary>
+        /// Type of the handle
+        /// </summary>
+        [FieldOffset(0)]
+        public CUexternalMemoryHandleType type;
+
+        /// <summary>
+        /// File descriptor referencing the memory object. Valid when type is CUDA_EXTERNAL_MEMORY_DEDICATED
+        /// </summary>
+        [FieldOffset(4)]
+        public int fd;
+
+        /// <summary>
+        /// Win32 handle referencing the semaphore object.
+        /// </summary>
+        [FieldOffset(4)]
+        public Win32Handle handle;
+
+        /// <summary>
+        /// Size of the memory allocation
+        /// </summary>
+        [FieldOffset(20)]
+        public ulong size;
+
+        /// <summary>
+        /// Flags must either be zero or ::CUDA_EXTERNAL_MEMORY_DEDICATED
+        /// </summary>
+        [FieldOffset(28)]
+        public CudaExternalMemory flags;
+
+        //Original struct definition in cuda-header sets a unsigned int[16] array at the end of the struct.
+        //To get the same struct size (96 bytes), we simply put an uint at FieldOffset 92.
+        [FieldOffset(92)]
+        private uint reserved;
+    }
+
+
+    /// <summary>
+    /// External semaphore handle descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC
+    {
+        /// <summary>
+        /// Type of the handle
+        /// </summary>
+        [FieldOffset(0)]
+        CUexternalSemaphoreHandleType type;
+
+        /// <summary>
+        /// File descriptor referencing the semaphore object. Valid when type is CUDA_EXTERNAL_MEMORY_DEDICATED
+        /// </summary>
+        [FieldOffset(4)]
+        public int fd;
+
+        /// <summary>
+        /// Win32 handle referencing the semaphore object.
+        /// </summary>
+        [FieldOffset(4)]
+        public Win32Handle handle;
+        /// <summary>
+        /// Flags reserved for the future. Must be zero.
+        /// </summary>
+        [FieldOffset(20)]
+        public uint flags;
+
+        //Original struct definition in cuda-header sets a unsigned int[16] array at the end of the struct.
+        //To get the same struct size (88 bytes), we simply put an uint at FieldOffset 84.
+        [FieldOffset(84)]
+        private uint reserved;
+    }
+
+
+    /// <summary>
+    /// External memory buffer descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_MEMORY_BUFFER_DESC
+    {
+        /// <summary>
+        /// Offset into the memory object where the buffer's base is
+        /// </summary>
+        [FieldOffset(0)]
+        public ulong offset;
+        /// <summary>
+        /// Size of the buffer
+        /// </summary>
+        [FieldOffset(8)]
+        public ulong size;
+        /// <summary>
+        /// Flags reserved for future use. Must be zero.
+        /// </summary>
+        [FieldOffset(16)]
+        public uint flags;
+
+        [FieldOffset(32)] //instead of uint[16]
+        private uint reserved;
+    }
+
+
+    /// <summary>
+    /// External memory mipmap descriptor
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC
+    {
+        /// <summary>
+        /// Offset into the memory object where the base level of the mipmap chain is.
+        /// </summary>
+        [FieldOffset(0)]
+        public ulong offset;
+        /// <summary>
+        /// Format, dimension and type of base level of the mipmap chain
+        /// </summary>
+        [FieldOffset(8)]
+        public CUDAArray3DDescriptor arrayDesc;
+        /// <summary>
+        /// Total number of levels in the mipmap chain
+        /// </summary>
+        [FieldOffset(12)]
+        public uint numLevels;
+
+        [FieldOffset(24)] //instead of uint[16]
+        private uint reserved;
+    }
+
+
+    /// <summary>
+    /// External semaphore signal parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+    {
+        /// <summary>
+        /// Parameters for fence objects
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        public struct Parameters
+        {
+            /// <summary>
+            /// Value of fence to be signaled
+            /// </summary>
+            [StructLayout(LayoutKind.Sequential)]
+            public struct Fence
+            {
+                /// <summary>
+                /// Value of fence to be signaled
+                /// </summary>
+                public ulong value;
+            }
+            [FieldOffset(0)]
+            Fence fence;
+            [FieldOffset(20)]
+            private uint reserved;
+        }
+        [FieldOffset(0)]
+        Parameters parameters;
+        /// <summary>
+        /// Flags reserved for the future. Must be zero.
+        /// </summary>
+        [FieldOffset(84)]
+        public uint flags;
+        [FieldOffset(88)]
+        uint reserved;
+    }
+
+
+    /// <summary>
+    /// External semaphore wait parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
+    {
+        /// <summary>
+        /// Parameters for fence objects
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        public struct Parameters
+        {
+            /// <summary>
+            /// Value of fence to be waited on
+            /// </summary>
+            [StructLayout(LayoutKind.Sequential)]
+            public struct Fence
+            {
+                /// <summary>
+                /// Value of fence to be waited on
+                /// </summary>
+                public ulong value;
+            }
+            [FieldOffset(0)]
+            Fence fence;
+            [FieldOffset(20)]
+            private uint reserved;
+        }
+        [FieldOffset(0)]
+        Parameters parameters;
+        /// <summary>
+        /// Flags reserved for the future. Must be zero.
+        /// </summary>
+        [FieldOffset(84)]
+        public uint flags;
+        [FieldOffset(88)]
+        uint reserved;
     }
 
     #endregion
@@ -3744,6 +4366,23 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         MaxSharedMemoryPerBlockOptin = 97,
         /// <summary>
+        /// Both the ::CU_STREAM_WAIT_VALUE_FLUSH flag and the ::CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES MemOp are supported on the device. See \ref CUDA_MEMOP for additional details.
+        /// </summary>
+        CanFlushRemoteWrites = 98,
+        /// <summary>
+        /// Device supports host memory registration via ::cudaHostRegister.
+        /// </summary>
+        HostRegisterSupported = 99,
+        /// <summary>
+        /// Device accesses pageable memory via the host's page tables.
+        /// </summary>
+        PageableMemoryAccessUsesHostPageTables = 100, 
+        /// <summary>
+        /// The host can directly access managed memory on the device without migration.
+        /// </summary>
+        DirectManagedMemoryAccessFromHost = 101,
+        
+        /// <summary>
         /// Max elems...
         /// </summary>
         MAX
@@ -4023,6 +4662,37 @@ namespace ManagedCuda.BasicTypes
         /// The below jit options are used for internal purposes only, in this version of CUDA
         /// </summary>
         FastCompile,
+
+        /// <summary>
+        /// Array of device symbol names that will be relocated to the corresponing
+        /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
+        /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
+        /// When loding a device module, driver will relocate all encountered
+        /// unresolved symbols to the host addresses.<para/>
+        /// It is only allowed to register symbols that correspond to unresolved
+        /// global variables.<para/>
+        /// It is illegal to register the same device symbol at multiple addresses.<para/>
+        /// Option type: const char **<para/>
+        /// Applies to: dynamic linker only
+        /// </summary>
+        GlobalSymbolNames,
+
+        /// <summary>
+        /// Array of host addresses that will be used to relocate corresponding
+        /// device symbols stored in ::CU_JIT_GLOBAL_SYMBOL_NAMES.<para/>
+        /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
+        /// Option type: void **<para/>
+        /// Applies to: dynamic linker only
+        /// </summary>
+        GlobalSymbolAddresses,
+
+        /// <summary>
+        /// Number of entries in ::CU_JIT_GLOBAL_SYMBOL_NAMES and
+        /// ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES arrays.<para/>
+        /// Option type: unsigned int<para/>
+        /// Applies to: dynamic linker only
+        /// </summary>
+        GlobalSymbolCount
     }
 
 	/// <summary>
@@ -4095,11 +4765,6 @@ namespace ManagedCuda.BasicTypes
         /// Compute device class 7.0.
         /// </summary>
         Compute_70 = 70,
-
-        /// <summary>
-        /// Compute device class 7.3.
-        /// </summary>
-        Compute_73 = 73,
 
         /// <summary>
         /// Compute device class 7.5.
@@ -4257,13 +4922,19 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// GPU device runtime pending launch count
 		/// </summary>
-		DevRuntimePendingLaunchCount = 4
-	}
+		DevRuntimePendingLaunchCount = 4,
 
-	/// <summary>
-	/// Memory types
-	/// </summary>
-	public enum CUMemoryType : uint
+        /// <summary>
+        /// A value between 0 and 128 that indicates the maximum fetch granularity of L2 (in Bytes). This is a hint
+        /// </summary>
+        MaxL2FetchGranularity = 0x05
+
+    }
+
+    /// <summary>
+    /// Memory types
+    /// </summary>
+    public enum CUMemoryType : uint
 	{
 		/// <summary>
 		/// Host memory
@@ -4512,12 +5183,17 @@ namespace ManagedCuda.BasicTypes
 		/// Invalid handle
 		/// </summary>
 		ErrorInvalidHandle = 400,
-
-		
-		/// <summary>
-		/// Not found
+        
+        /// <summary>
+		/// This indicates that a resource required by the API call is not in a
+        /// valid state to perform the requested operation.
 		/// </summary>
-		ErrorNotFound = 500,
+        ErrorIllegalState = 401,
+
+        /// <summary>
+        /// Not found
+        /// </summary>
+        ErrorNotFound = 500,
 
 		
 		/// <summary>
@@ -4697,10 +5373,64 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		ErrorNotSupported = 801,
 
-		/// <summary>
-		/// Unknown error
-		/// </summary>
-		ErrorUnknown = 999,
+        /// <summary>
+        /// This error indicates that the system is not yet ready to start any CUDA
+        /// work.  To continue using CUDA, verify the system configuration is in a
+        /// valid state and all required driver daemons are actively running.
+        /// </summary>
+        CUDA_ERROR_SYSTEM_NOT_READY = 802,
+
+        /// <summary>
+        /// This error indicates that the operation is not permitted when the stream is capturing.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED = 900,
+
+        /// <summary>
+        /// This error indicates that the current capture sequence on the stream
+        /// has been invalidated due to a previous error.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_INVALIDATED = 901,
+
+        /// <summary>
+        /// This error indicates that the operation would have resulted in a merge of two independent capture sequences.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_MERGE = 902,
+
+        /// <summary>
+        /// This error indicates that the capture was not initiated in this stream.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_UNMATCHED = 903,
+
+        /// <summary>
+        /// This error indicates that the capture sequence contains a fork that was not joined to the primary stream.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_UNJOINED = 904,
+
+        /// <summary>
+        /// This error indicates that a dependency would have been created which
+        /// crosses the capture sequence boundary. Only implicit in-stream ordering
+        /// dependencies are allowed to cross the boundary.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_ISOLATION = 905,
+
+        /// <summary>
+        /// This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.
+        /// </summary>
+        CUDA_ERROR_STREAM_CAPTURE_IMPLICIT = 906,
+
+        /**
+         * This error indicates that the operation is not permitted on an event which
+         * was last recorded in a capturing stream.
+         */
+        /// <summary>
+        /// 
+        /// </summary>
+        CUDA_ERROR_CAPTURED_EVENT = 907,
+
+        /// <summary>
+        /// Unknown error
+        /// </summary>
+        ErrorUnknown = 999,
 	}
 	
 	/// <summary>
@@ -4719,7 +5449,17 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Atomic operation over the link supported
 		/// </summary>
-		NativeAtomicSupported = 0x03 
+		NativeAtomicSupported = 0x03 ,
+        /// <summary>
+        /// \deprecated use CudaArrayAccessAccessSupported instead
+        /// </summary>
+        [Obsolete("use CudaArrayAccessAccessSupported instead")]
+        ArrayAccessAccessSupported = 0x04,
+        /// <summary>
+        /// Accessing CUDA arrays over the link supported
+        /// </summary>
+        CudaArrayAccessAccessSupported = 0x04
+   
 	}
 	
 	/// <summary>
@@ -4803,7 +5543,12 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Indicates if the pointer points to managed memory
 		/// </summary>
-		IsManaged = 8
+		IsManaged = 8,
+
+        /// <summary>
+        /// A device ordinal of a device on which a pointer was allocated or registered
+        /// </summary>
+        DeviceOrdinal = 9
 
 	}
 
@@ -5214,6 +5959,113 @@ namespace ManagedCuda.BasicTypes
         MaxL1 = 0
     }
 
+    /// <summary>
+    /// Graph node types
+    /// </summary>
+    public enum CUgraphNodeType
+    {
+        /// <summary>
+        /// GPU kernel node
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_KERNEL = 0, 
+        /// <summary>
+        /// Memcpy node
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_MEMCPY = 1, 
+        /// <summary>
+        /// Memset node
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_MEMSET = 2, 
+        /// <summary>
+        /// Host (executable) node
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_HOST = 3, 
+        /// <summary>
+        /// Node which executes an embedded graph
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_GRAPH = 4,
+        /// <summary>
+        /// Empty (no-op) node
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_EMPTY = 5, 
+        /// <summary>
+        /// 
+        /// </summary>
+        CU_GRAPH_NODE_TYPE_COUNT
+    }
+
+    /// <summary>
+    /// Possible stream capture statuses returned by ::cuStreamIsCapturing
+    /// </summary>
+    public enum CUstreamCaptureStatus
+    {
+        /// <summary>
+        /// Stream is not capturing
+        /// </summary>
+        CU_STREAM_CAPTURE_STATUS_NONE = 0,
+        /// <summary>
+        /// Stream is actively capturing
+        /// </summary>
+        CU_STREAM_CAPTURE_STATUS_ACTIVE = 1, 
+        /// <summary>
+        /// Stream is part of a capture sequence that has been invalidated, but not terminated
+        /// </summary>
+        CU_STREAM_CAPTURE_STATUS_INVALIDATED = 2
+    }
+
+    /// <summary>
+    /// External memory handle types
+    /// </summary>
+    public enum CUexternalMemoryHandleType
+    {
+        /// <summary>
+        /// Handle is an opaque file descriptor
+        /// </summary>
+        OpaqueFD = 1,
+        /// <summary>
+        /// Handle is an opaque shared NT handle
+        /// </summary>
+        OpaqueWin32 = 2,
+        /// <summary>
+        /// Handle is an opaque, globally shared handle
+        /// </summary>
+        OpaqueWin32KMT = 3,
+        /// <summary>
+        /// Handle is a D3D12 heap object
+        /// </summary>
+        D3D12Heap = 4,
+        /// <summary>
+        /// Handle is a D3D12 committed resource
+        /// </summary>
+        D3D12Resource = 5
+    }
+
+
+
+    /// <summary>
+    /// External semaphore handle types
+    /// </summary>
+    public enum CUexternalSemaphoreHandleType
+    {
+        /// <summary>
+        /// Handle is an opaque file descriptor
+        /// </summary>
+        OpaqueFD = 1,
+        /// <summary>
+        /// Handle is an opaque shared NT handle
+        /// </summary>
+        OpaqueWin32 = 2,
+        /// <summary>
+        /// Handle is an opaque, globally shared handle
+        /// </summary>
+        OpaqueWin32KMT = 3,
+        /// <summary>
+        /// Handle is a shared NT handle referencing a D3D12 fence object
+        /// </summary>
+        D3D12Dence = 4
+    }
+
+
     #endregion
 
     #region Enums (Flags)
@@ -5420,8 +6272,13 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// This flag if set indicates that the CUDA array is a DEPTH_TEXTURE.
 		/// </summary>
-		DepthTexture = 0x10
-	}
+		DepthTexture = 0x10,
+
+        /// <summary>
+        /// This flag indicates that the CUDA array may be bound as a color target in an external graphics API
+        /// </summary>
+        ColorAttachment = 0x20
+    }
 
 	/// <summary>
 	/// CUMemHostAllocFlags. All of these flags are orthogonal to one another: a developer may allocate memory that is portable, mapped and/or
@@ -5602,6 +6459,7 @@ namespace ManagedCuda.BasicTypes
     /// <summary>
     /// Flags for ::cuStreamWaitValue32
     /// </summary>
+    [Flags]
     public enum CUstreamWaitValue_flags
     {
         /// <summary>
@@ -5637,6 +6495,7 @@ namespace ManagedCuda.BasicTypes
     /// <summary>
     /// Flags for ::cuStreamWriteValue32
     /// </summary>
+    [Flags]
     public enum CUstreamWriteValue_flags
     {
         /// <summary>
@@ -5651,18 +6510,35 @@ namespace ManagedCuda.BasicTypes
         NoMemoryBarrier = 0x1
     }
 
-	#endregion
 
 
-	#region Delegates
+    /// <summary>
+    /// Indicates that the external memory object is a dedicated resource
+    /// </summary>
+    [Flags]
+    public enum CudaExternalMemory
+    {
+        /// <summary>
+        /// No flags
+        /// </summary>
+        Nothing = 0x0,
+        /// <summary>
+        /// Indicates that the external memory object is a dedicated resource
+        /// </summary>
+        Dedicated = 0x01,
+    }
+    #endregion
 
-	/// <summary>
-	/// CUDA stream callback
-	/// </summary>
-	/// <param name="hStream">The stream the callback was added to, as passed to ::cuStreamAddCallback.  May be NULL.</param>
-	/// <param name="status">CUDA_SUCCESS or any persistent error on the stream.</param>
-	/// <param name="userData">User parameter provided at registration.</param>
-	public delegate void CUstreamCallback(CUstream hStream, CUResult status, IntPtr userData);
+
+    #region Delegates
+
+    /// <summary>
+    /// CUDA stream callback
+    /// </summary>
+    /// <param name="hStream">The stream the callback was added to, as passed to ::cuStreamAddCallback.  May be NULL.</param>
+    /// <param name="status">CUDA_SUCCESS or any persistent error on the stream.</param>
+    /// <param name="userData">User parameter provided at registration.</param>
+    public delegate void CUstreamCallback(CUstream hStream, CUResult status, IntPtr userData);
 
 	/// <summary>
 	/// Block size to per-block dynamic shared memory mapping for a certain
@@ -5674,6 +6550,12 @@ namespace ManagedCuda.BasicTypes
 	/// <param name="aBlockSize">block size</param>
 	/// <returns>The dynamic shared memory needed by a block</returns>
 	public delegate SizeT del_CUoccupancyB2DSize(int aBlockSize);
+
+    /// <summary>
+	/// CUDA host function
+	/// </summary>
+    /// <param name="userData">Argument value passed to the function</param>
+    public delegate void CUhostFn (IntPtr userData);
 
 	#endregion
 
