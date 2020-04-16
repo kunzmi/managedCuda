@@ -261,6 +261,22 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// This function copies the vector x into the vector y.
 		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="y"></param>
+		/// <param name="yType"></param>
+		/// <param name="incy"></param>
+		public void Copy(int n, CUdeviceptr x, cudaDataType xType, int incx, CUdeviceptr y, cudaDataType yType, int incy)
+		{
+			_status = CudaBlasNativeMethods.cublasCopyEx(_blasHandle, n, x, xType, incx, y, yType, incy);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasCopyEx", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+		/// <summary>
+		/// This function copies the vector x into the vector y.
+		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="incx"></param>
 		/// <param name="y"></param>
@@ -466,6 +482,22 @@ namespace ManagedCuda.CudaBlas
 		{
 			_status = CudaBlasNativeMethods.cublasZswap_v2(_blasHandle, x.Size, x.DevicePointer, incx, y.DevicePointer, incy);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasZswap_v2", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+		/// <summary>
+		/// This function interchanges the elements of vector x and y.
+		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="y"></param>
+		/// <param name="yType"></param>
+		/// <param name="incy"></param>
+		public void Swap(int n, CUdeviceptr x, cudaDataType xType, int incx, CUdeviceptr y, cudaDataType yType, int incy)
+		{
+			_status = CudaBlasNativeMethods.cublasSwapEx(_blasHandle, n, x, xType, incx, y, yType, incy);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSwapEx", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 		#endregion
@@ -1343,6 +1375,21 @@ namespace ManagedCuda.CudaBlas
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamin_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
+		/// <summary>
+		/// This function finds the (smallest) index of the element of the minimum magnitude.<para/>
+		/// First index starts at 1 (Fortran notation)
+		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="result"></param>
+		public void Min(int n, CUdeviceptr x, cudaDataType xType, int incx, CudaDeviceVariable<int> result)
+		{
+			_status = CudaBlasNativeMethods.cublasIaminEx(_blasHandle, n, x, xType, incx, result.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIaminEx", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
 		#endregion
 		#region Imax
 		/// <summary>
@@ -1508,6 +1555,21 @@ namespace ManagedCuda.CudaBlas
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIzamax_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
+		/// <summary>
+		/// This function finds the (smallest) index of the element of the maximum magnitude.<para/>
+		/// First index starts at 1 (Fortran notation)
+		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="result"></param>
+		public void Max(int n, CUdeviceptr x, cudaDataType xType, int incx, CudaDeviceVariable<int> result)
+		{
+			_status = CudaBlasNativeMethods.cublasIamaxEx(_blasHandle, n, x, xType, incx, result.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasIamaxEx", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
 		#endregion
 		#region aSum
 		/// <summary>
@@ -1545,6 +1607,22 @@ namespace ManagedCuda.CudaBlas
 		{
 			_status = CudaBlasNativeMethods.cublasSasum_v2(_blasHandle, x.Size, x.DevicePointer, incx, result.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSasum_v2", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+		/// <summary>
+		/// This function computes the sum of the absolute values of the elements of vector x.
+		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="result"></param>
+		/// <param name="resultType"></param>
+		/// <param name="executiontype"></param>
+		public void AbsoluteSum(int n, CUdeviceptr x, cudaDataType xType, int incx, CUdeviceptr result, cudaDataType resultType, cudaDataType executiontype)
+		{
+			_status = CudaBlasNativeMethods.cublasAsumEx(_blasHandle, n, x, xType, incx, result, resultType, executiontype);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasAsumEx", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 
@@ -1848,6 +1926,26 @@ namespace ManagedCuda.CudaBlas
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasZdrot_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
+		/// <summary>
+		/// This function applies Givens rotation matrix G = |c s; -s c| to vectors x and y.
+		/// </summary>
+		/// <param name="n"></param>
+		/// <param name="x"></param>
+		/// <param name="xType"></param>
+		/// <param name="incx"></param>
+		/// <param name="y"></param>
+		/// <param name="yType"></param>
+		/// <param name="incy"></param>
+		/// <param name="c">Cosine component</param>
+		/// <param name="s">Sine component</param>
+		/// <param name="csType"></param>
+		/// <param name="executiontype"></param>
+		public void Rot(int n, CUdeviceptr x, cudaDataType xType, int incx, CUdeviceptr y, cudaDataType yType, int incy, CUdeviceptr c, CUdeviceptr s, cudaDataType csType, cudaDataType executiontype)
+		{
+			_status = CudaBlasNativeMethods.cublasRotEx(_blasHandle, n, x, xType, incx, y, yType, incy, c, s, csType, executiontype);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasRotEx", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
 		#endregion
 		#region Rotg
 		/// <summary>
@@ -1942,6 +2040,23 @@ namespace ManagedCuda.CudaBlas
 		{
 			_status = CudaBlasNativeMethods.cublasZrotg_v2(_blasHandle, a.DevicePointer, b.DevicePointer, c.DevicePointer, s.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasZrotg_v2", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+
+		/// <summary>
+		/// This function constructs the Givens rotation matrix G = |c s; -s c| that zeros out the second entry of a 2x1 vector (a; b)T
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <param name="abType"></param>
+		/// <param name="c">Cosine component</param>
+		/// <param name="s">Sine component</param>
+		/// <param name="csType"></param>
+		/// <param name="executiontype"></param>
+		public void Rotg(CUdeviceptr a, CUdeviceptr b, cudaDataType abType, CUdeviceptr c, CUdeviceptr s, cudaDataType csType, cudaDataType executiontype)
+		{
+			_status = CudaBlasNativeMethods.cublasRotgEx(_blasHandle, a, b, abType, c, s, csType, executiontype);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasRotgEx", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 		/// <summary>
@@ -2043,6 +2158,33 @@ namespace ManagedCuda.CudaBlas
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDrotg_v2", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
+
+		/// <summary>
+		/// This function applies the modified Givens transformation H = |h11 h12; h21 h22| to vectors x and y.<para/>
+		/// The elements h11, h21, h12 and h22 of 2x2 matrix H are stored in param[1], param[2], param[3] and param[4], respectively. <para/>
+		/// The flag = param[0] defines the following predefined values for the matrix H entries:<para/>
+		/// flag=-1.0: H = |h11 h12; h21 h22|<para/>
+		/// flag= 0.0: H = |1.0 h12; h21 1.0|<para/> 
+		/// flag= 1.0: H = |h11 1.0; -1.0 h22|<para/>
+		/// flag=-2.0: H = |1.0 0.0; 0.0 1.0|<para/>
+		/// Notice that the values -1.0, 0.0 and 1.0 implied by the flag are not stored in param.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="incx"></param>
+		/// <param name="y"></param>
+		/// <param name="incy"></param>
+		/// <param name="param"></param>
+		/// <param name="executiontype"></param>
+		/// <param name="n"></param>
+		/// <param name="paramType"></param>
+		/// <param name="xType"></param>
+		/// <param name="yType"></param>
+		public void Rotm(CUdeviceptr x, int n, cudaDataType xType, int incx, CUdeviceptr y, cudaDataType yType, int incy, CUdeviceptr param, cudaDataType paramType, cudaDataType executiontype)
+		{
+			_status = CudaBlasNativeMethods.cublasRotmEx(_blasHandle, n, x, xType, incx, y, yType, incy, param, paramType, executiontype);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasRotmEx", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
 		#endregion
 		#region Rotmg
 		/// <summary>
@@ -2110,6 +2252,35 @@ namespace ManagedCuda.CudaBlas
 		{
 			_status = CudaBlasNativeMethods.cublasDrotmg_v2(_blasHandle, ref d1, ref d2, ref x1, ref y1, param);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDrotmg_v2", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+
+		/// <summary>
+		/// This function constructs the modified Givens transformation H = |h11 h12; h21 h22| that zeros out the second entry of a 2x1 vector 
+		/// [sqrt(d1)*x1; sqrt(d2)*y1].<para/>
+		/// The elements h11, h21, h12 and h22 of 2x2 matrix H are stored in param[1], param[2], param[3] and param[4], respectively. <para/>
+		/// The flag = param[0] defines the following predefined values for the matrix H entries:<para/>
+		/// flag=-1.0: H = |h11 h12; h21 h22|<para/>
+		/// flag= 0.0: H = |1.0 h12; h21 1.0|<para/> 
+		/// flag= 1.0: H = |h11 1.0; -1.0 h22|<para/>
+		/// flag=-2.0: H = |1.0 0.0; 0.0 1.0|<para/>
+		/// Notice that the values -1.0, 0.0 and 1.0 implied by the flag are not stored in param.
+		/// </summary>
+		/// <param name="d1"></param>
+		/// <param name="d2"></param>
+		/// <param name="x1"></param>
+		/// <param name="y1"></param>
+		/// <param name="param"></param>
+		/// <param name="d1Type"></param>
+		/// <param name="d2Type"></param>
+		/// <param name="x1Type"></param>
+		/// <param name="y1Type"></param>
+		/// <param name="paramType"></param>
+		/// <param name="executiontype"></param>
+		public void Rotm(CUdeviceptr d1, cudaDataType d1Type, CUdeviceptr d2, cudaDataType d2Type, CUdeviceptr x1, cudaDataType x1Type, CUdeviceptr y1, cudaDataType y1Type, CUdeviceptr param, cudaDataType paramType, cudaDataType executiontype)
+		{
+			_status = CudaBlasNativeMethods.cublasRotmgEx(_blasHandle, d1, d1Type, d2, d2Type, x1, x1Type, y1, y1Type, param, paramType, executiontype);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasRotmgEx", _status));
 			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
 		}
 		/// <summary>

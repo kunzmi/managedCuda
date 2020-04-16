@@ -595,6 +595,65 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBoundSegments_32u_C1IR", status));
             NPPException.CheckNppStatus(status, this);
         }
-        #endregion
-    }
+		#endregion
+		#region new in Cuda 10.2
+
+
+		/// <summary>
+		/// Calculate scratch buffer size needed 1 channel 32-bit unsigned integer LabelMarkersUF function based on destination image oSizeROI width and height.
+		/// </summary>
+		/// <returns>Required buffer size in bytes.</returns>
+		public int LabelMarkersUFGetBufferSize()
+		{
+			int ret = 0;
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUFGetBufferSize_32u_C1R(_sizeRoi, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFGetBufferSize_32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+			return ret;
+		}
+
+		/// <summary>
+		/// 1 channel 32-bit to 32-bit unsigned integer label markers image generation.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
+		public void LabelMarkersUF(NPPImage_32uC1 dest, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+		{
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUF_32u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eNorm, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUF_32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		/// <summary>
+		/// Calculate scratch buffer size needed for 1 channel 32-bit unsigned integer to 16-bit unsigned integer CompressMarkerLabels function based on the number returned in pNumber from a previous nppiLabelMarkers call.
+		/// </summary>
+		/// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
+		/// <returns>Required buffer size in bytes.</returns>
+		public int CompressMarkerLabelsGetBufferSize32u16u(int nStartingNumber)
+		{
+			int ret = 0;
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabelsGetBufferSize_32u16u_C1R(nStartingNumber, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabelsGetBufferSize_32u16u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+			return ret;
+		}
+
+		/// <summary>
+		/// 1 channel 32-bit unsigned integer to 16-bit unsigned integer connected region marker label renumbering with numbering sparseness elimination.
+		/// </summary>
+		/// <param name="dest">Destination-Image</param>
+		/// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding CompressMarkerLabelsGetBufferSize call.</param>
+		/// <returns>the maximum renumbered marker label ID will be returned.</returns>
+		public int CompressMarkerLabels(NPPImage_16uC1 dest, int nStartingNumber, CudaDeviceVariable<byte> pBuffer)
+		{
+			int pNewNumber = 0;
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabels_32u16u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nStartingNumber, ref pNewNumber, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabels_32u16u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+			return pNewNumber;
+		}
+		#endregion
+	}
 }

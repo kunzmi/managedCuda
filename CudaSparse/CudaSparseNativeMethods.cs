@@ -5024,6 +5024,25 @@ namespace ManagedCuda.CudaSparse
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseZcsr2csc(cusparseContext handle, int m, int n, int nnz, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr cscVal, CUdeviceptr cscRowInd, CUdeviceptr cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase);
 
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsr2cscEx2(cusparseContext handle,
+				   int m, int n, int nnz,
+				   CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd,
+				   CUdeviceptr cscVal, CUdeviceptr cscColPtr, CUdeviceptr cscRowInd,
+				   cudaDataType valType,
+                   cusparseAction copyValues,
+				   cusparseIndexBase  idxBase,
+                   cusparseCsr2CscAlg alg,
+				   CUdeviceptr buffer);
+
+		/// <summary/>
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsr2cscEx2_bufferSize(cusparseContext handle,
+							  int m, int n, int nnz, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd,
+							  CUdeviceptr cscVal, CUdeviceptr cscColPtr, CUdeviceptr cscRowInd, cudaDataType valType,
+                              cusparseAction copyValues, cusparseIndexBase  idxBase, cusparseCsr2CscAlg alg, ref SizeT bufferSize);
+
 		/* Description: This routine converts a dense matrix to a sparse matrix 
 		   in HYB storage format. */
 		/// <summary/>

@@ -3904,5 +3904,55 @@ namespace ManagedCuda.NPP
             oDstRectROI = dst;
         }
     }
+
+	/// <summary>
+	/// NPP stream context structure must be filled in by application. 
+	/// Application should not initialize or alter reserved fields.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+    public struct NppStreamContext
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public CUstream hStream;
+		/// <summary>
+		/// From cudaGetDevice()
+		/// </summary>
+		public int nCudaDeviceId; 
+		/// <summary>
+		/// From cudaGetDeviceProperties()
+		/// </summary>
+		public int nMultiProcessorCount; 
+		/// <summary>
+		/// From cudaGetDeviceProperties()
+		/// </summary>
+		public int nMaxThreadsPerMultiProcessor; 
+		/// <summary>
+		/// From cudaGetDeviceProperties()
+		/// </summary>
+		public int nMaxThreadsPerBlock;
+		/// <summary>
+		/// From cudaGetDeviceProperties
+		/// </summary>
+		public SizeT nSharedMemPerBlock; 
+		/// <summary>
+		/// From cudaGetDeviceAttribute()
+		/// </summary>
+		public int nCudaDevAttrComputeCapabilityMajor;
+		/// <summary>
+		/// From cudaGetDeviceAttribute()
+		/// </summary>
+		public int nCudaDevAttrComputeCapabilityMinor; 
+		/// <summary>
+		/// From cudaStreamGetFlags()
+		/// </summary>
+		public uint nStreamFlags;
+		/// <summary>
+		/// 
+		/// </summary>
+		public int nReserved0;
+	}
+
     #endregion
 }

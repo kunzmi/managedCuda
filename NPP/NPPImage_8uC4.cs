@@ -9551,6 +9551,187 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_8u_AC4R_Advanced", status));
             NPPException.CheckNppStatus(status, null);
         }
-        #endregion
-    }
+		#endregion
+
+		#region New in Cuda 10.2
+
+		/// <summary>
+		/// image warp affine batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatch_8u_C4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatch_8u_C4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// image warp perspective batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpPerspectiveBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_8u_C4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_8u_C4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// image warp affine batch not affecting alpha.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpAffineBatchA(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatch_8u_AC4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatch_8u_AC4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// image warp perspective batch not affecting alpha.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpPerspectiveBatchA(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_8u_AC4R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_8u_AC4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+
+		/// <summary>
+		/// color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatch(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C4R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C4R", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// in place color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchI(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C4IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C4IR", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// color twist batch not affecting alpha
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchA(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_AC4R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_AC4R", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// in place color twist batch not affecting alpha
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchIA(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_AC4IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_AC4IR", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned integer color twist with 4x5 matrix including a constant vector (20 coefficients total).
+		/// An input 4x5 color twist matrix with floating-point coefficient values including a constant (in the fourth column) vector
+		/// is applied within ROI.  For this particular version of the function the result is generated as shown below.
+		///  \code
+		///      dst[0] = aTwist[0][0]		/// src[0] + aTwist[0][1]		/// src[1] + aTwist[0][2]		/// src[2] + aTwist[0][3]		/// src[3] + aTwist[0][4]
+		///      dst[1] = aTwist[1][0]		/// src[0] + aTwist[1][1]		/// src[1] + aTwist[1][2]		/// src[2] + aTwist[1][3]		/// src[3] + aTwist[1][4]
+		///      dst[2] = aTwist[2][0]		/// src[0] + aTwist[2][1]		/// src[1] + aTwist[2][2]		/// src[2] + aTwist[2][3]		/// src[3] + aTwist[2][4]
+		///      dst[3] = aTwist[3][0]		/// src[0] + aTwist[3][1]		/// src[1] + aTwist[3][2]		/// src[2] + aTwist[3][3]		/// src[3] + aTwist[3][4]
+		///  \endcode
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within ROI for each image in batch.  Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchC(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32fC_8u_C4R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32fC_8u_C4R", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned integer in place color twist with 4x5 matrix including a constant vector (20 coefficients total).
+		/// An input 4x5 color twist matrix with floating-point coefficient values including a constant (in the fourth column) vector
+		/// is applied within ROI.  For this particular version of the function the result is generated as shown below.
+		///  \code
+		///      dst[0] = aTwist[0][0]		/// src[0] + aTwist[0][1]		/// src[1] + aTwist[0][2]		/// src[2] + aTwist[0][3]		/// src[3] + aTwist[0][4]
+		///      dst[1] = aTwist[1][0]		/// src[0] + aTwist[1][1]		/// src[1] + aTwist[1][2]		/// src[2] + aTwist[1][3]		/// src[3] + aTwist[1][4]
+		///      dst[2] = aTwist[2][0]		/// src[0] + aTwist[2][1]		/// src[1] + aTwist[2][2]		/// src[2] + aTwist[2][3]		/// src[3] + aTwist[2][4]
+		///      dst[3] = aTwist[3][0]		/// src[0] + aTwist[3][1]		/// src[1] + aTwist[3][2]		/// src[2] + aTwist[3][3]		/// src[3] + aTwist[3][4]
+		///  \endcode
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within ROI for each image in batch.  Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchIC(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32fC_8u_C4IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32fC_8u_C4IR", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+		#endregion
+	}
 }

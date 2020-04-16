@@ -822,6 +822,18 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         public IntPtr Pointer;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUmemGenericAllocationHandle
+	{
+        /// <summary>
+        /// 
+        /// </summary>
+        public ulong Pointer;
+    }
     #endregion
 
     #region Structs
@@ -3592,6 +3604,13 @@ namespace ManagedCuda.BasicTypes
         [FieldOffset(4)]
         public Win32Handle handle;
 
+		/// <summary>
+		/// A handle representing an NvSciBuf Object.Valid when type
+		/// is ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF
+		/// </summary>
+		[FieldOffset(4)]
+        public IntPtr nvSciBufObject;
+
         /// <summary>
         /// Size of the memory allocation
         /// </summary>
@@ -3634,10 +3653,16 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(4)]
         public Win32Handle handle;
-        /// <summary>
-        /// Flags reserved for the future. Must be zero.
-        /// </summary>
-        [FieldOffset(20)]
+
+		/// <summary>
+		/// Valid NvSciSyncObj. Must be non NULL
+		/// </summary>
+		[FieldOffset(4)]
+		public IntPtr nvSciSyncObj;
+		/// <summary>
+		/// Flags reserved for the future. Must be zero.
+		/// </summary>
+		[FieldOffset(20)]
         public uint flags;
 
         //Original struct definition in cuda-header sets a unsigned int[16] array at the end of the struct.
@@ -3726,18 +3751,51 @@ namespace ManagedCuda.BasicTypes
             }
             [FieldOffset(0)]
             Fence fence;
-            [FieldOffset(20)]
-            private uint reserved;
+			/// <summary>
+			/// Pointer to NvSciSyncFence. Valid if CUexternalSemaphoreHandleType
+			/// is of type CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC.
+			/// </summary>
+			[StructLayout(LayoutKind.Sequential)]
+			public struct NvSciSync
+			{
+				/// <summary>
+				/// 
+				/// </summary>
+				public IntPtr fence;
+			}
+			[FieldOffset(8)]
+			NvSciSync nvSciSync;
+
+			/// <summary>
+			/// Parameters for keyed mutex objects
+			/// </summary>
+			[StructLayout(LayoutKind.Sequential)]
+			public struct KeyedMutex
+			{
+				/// <summary>
+				/// Value of key to acquire the mutex with
+				/// </summary>
+				public ulong key;
+				/// <summary>
+				/// Timeout in milliseconds to wait to acquire the mutex
+				/// </summary>
+				public uint timeoutMs;
+			}
+			[FieldOffset(16)]
+			NvSciSync keyedMutex;
+
+			[FieldOffset(68)] //params.reserved[9];
+			private uint reserved;
         }
         [FieldOffset(0)]
         Parameters parameters;
         /// <summary>
         /// Flags reserved for the future. Must be zero.
         /// </summary>
-        [FieldOffset(84)]
+        [FieldOffset(72)]
         public uint flags;
-        [FieldOffset(88)]
-        uint reserved;
+        [FieldOffset(136)] //offset of reserved[15]
+		uint reserved;
     }
 
 
@@ -3778,7 +3836,71 @@ namespace ManagedCuda.BasicTypes
         public uint flags;
         [FieldOffset(88)]
         uint reserved;
-    }
+	}
+
+	/// <summary>
+	/// Specifies a location for an allocation.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemLocation
+	{
+		/// <summary>
+		/// Specifies the location type, which modifies the meaning of id.
+		/// </summary>
+		public CUmemLocationType type;
+		/// <summary>
+		/// identifier for a given this location's ::CUmemLocationType.
+		/// </summary>
+		public int id;
+	}
+
+	/// <summary>
+	/// Specifies the allocation properties for a allocation.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemAllocationProp
+	{
+		/// <summary>
+		/// Allocation type
+		/// </summary>
+		public CUmemAllocationType type;
+		/// <summary>
+		/// requested ::CUmemAllocationHandleType
+		/// </summary>
+		public CUmemAllocationHandleType requestedHandleTypes;
+		/// <summary>
+		/// Location of allocation
+		/// </summary>
+		public CUmemLocation location;
+		/// <summary>
+		/// Windows-specific LPSECURITYATTRIBUTES required when
+		/// ::CU_MEM_HANDLE_TYPE_WIN32 is specified.This security attribute defines
+		/// the scope of which exported allocations may be tranferred to other
+		/// processes.In all other cases, this field is required to be zero.
+		/// </summary>
+		public IntPtr win32HandleMetaData;
+		/// <summary>
+		/// Reserved for future use, must be zero
+		/// </summary>
+		public ulong reserved;
+	}
+
+
+	/// <summary>
+	///  Memory access descriptor
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemAccessDesc
+	{
+		/// <summary>
+		/// Location on which the request is to change it's accessibility
+		/// </summary>
+		public CUmemLocation location;
+		/// <summary>
+		/// ::CUmemProt accessibility flags to set on the request
+		/// </summary>
+		public CUmemAccess_flags flags;
+	}
 
     #endregion
 
@@ -4381,11 +4503,28 @@ namespace ManagedCuda.BasicTypes
         /// The host can directly access managed memory on the device without migration.
         /// </summary>
         DirectManagedMemoryAccessFromHost = 101,
-        
-        /// <summary>
-        /// Max elems...
-        /// </summary>
-        MAX
+		/// <summary>
+		/// Device supports virtual address management APIs like ::cuMemAddressReserve, ::cuMemCreate, ::cuMemMap and related APIs
+		/// </summary>
+		VirtualAddressManagementSupported = 102,
+		/// <summary>
+		/// Device supports exporting memory to a posix file descriptor with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate
+		/// </summary>
+		HandleTypePosixFileDescriptorSupported = 103,
+		/// <summary>
+		/// Device supports exporting memory to a Win32 NT handle with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate
+		/// </summary>
+		HandleTypeWin32HandleSupported = 104,
+		/// <summary>
+		/// Device supports exporting memory to a Win32 KMT handle with ::cuMemExportToShareableHandle, if requested ::cuMemCreate
+		/// </summary>
+		HandleTypeWin32KMTHandleSupported = 105, 
+
+
+		/// <summary>
+		/// Max elems...
+		/// </summary>
+		MAX
 	}
 
 	/// <summary>
@@ -4766,10 +4905,15 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         Compute_70 = 70,
 
-        /// <summary>
-        /// Compute device class 7.5.
-        /// </summary>
-        Compute_75 = 75
+		/// <summary>
+		/// Compute device class 7.0.
+		/// </summary>
+		Compute_72 = 72,
+
+		/// <summary>
+		/// Compute device class 7.5.
+		/// </summary>
+		Compute_75 = 75
     }
 
 	/// <summary>
@@ -5378,59 +5522,90 @@ namespace ManagedCuda.BasicTypes
         /// work.  To continue using CUDA, verify the system configuration is in a
         /// valid state and all required driver daemons are actively running.
         /// </summary>
-        CUDA_ERROR_SYSTEM_NOT_READY = 802,
+        ErrorSystemNotReady = 802,
 
-        /// <summary>
-        /// This error indicates that the operation is not permitted when the stream is capturing.
-        /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED = 900,
+		/// <summary>
+		/// This error indicates that there is a mismatch between the versions of
+		/// the display driver and the CUDA driver. Refer to the compatibility documentation
+		/// for supported versions.
+		/// </summary>
+		ErrorSystemDriverMismatch = 803,
+
+		/// <summary>
+		/// This error indicates that the system was upgraded to run with forward compatibility
+		/// but the visible hardware detected by CUDA does not support this configuration.
+		/// Refer to the compatibility documentation for the supported hardware matrix or ensure
+		/// that only supported hardware is visible during initialization via the CUDA_VISIBLE_DEVICES
+		/// environment variable.
+		/// </summary>
+		ErrorCompatNotSupportedOnDevice = 804,
+
+		/// <summary>
+		/// This error indicates that the operation is not permitted when the stream is capturing.
+		/// </summary>
+		ErrorStreamCaptureUnsupported = 900,
 
         /// <summary>
         /// This error indicates that the current capture sequence on the stream
         /// has been invalidated due to a previous error.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_INVALIDATED = 901,
+        ErrorStreamCaptureInvalidated = 901,
 
         /// <summary>
         /// This error indicates that the operation would have resulted in a merge of two independent capture sequences.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_MERGE = 902,
+        ErrorStreamCaptureMerge = 902,
 
         /// <summary>
         /// This error indicates that the capture was not initiated in this stream.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_UNMATCHED = 903,
+        ErrorStreamCaptureUnmatched = 903,
 
         /// <summary>
         /// This error indicates that the capture sequence contains a fork that was not joined to the primary stream.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_UNJOINED = 904,
+        ErrorStreamCaptureUnjoined = 904,
 
         /// <summary>
         /// This error indicates that a dependency would have been created which
         /// crosses the capture sequence boundary. Only implicit in-stream ordering
         /// dependencies are allowed to cross the boundary.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_ISOLATION = 905,
+        ErrorStreamCaptureIsolation = 905,
 
         /// <summary>
         /// This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.
         /// </summary>
-        CUDA_ERROR_STREAM_CAPTURE_IMPLICIT = 906,
+        ErrorStreamCaptureImplicit = 906,
 
-        /**
-         * This error indicates that the operation is not permitted on an event which
-         * was last recorded in a capturing stream.
-         */
-        /// <summary>
-        /// 
-        /// </summary>
-        CUDA_ERROR_CAPTURED_EVENT = 907,
+		/// <summary>
+		/// This error indicates that the operation is not permitted on an event which
+		/// was last recorded in a capturing stream.
+		/// </summary>
+		ErrorCapturedEvent = 907,
+		
+		/// <summary>
+		/// A stream capture sequence not initiated with the ::CU_STREAM_CAPTURE_MODE_RELAXED
+		/// argument to ::cuStreamBeginCapture was passed to ::cuStreamEndCapture in a
+		/// different thread.
+		/// </summary>
+		ErrorStreamCaptureWrongThread = 908,
 
-        /// <summary>
-        /// Unknown error
-        /// </summary>
-        ErrorUnknown = 999,
+		/// <summary>
+		/// This error indicates that the timeout specified for the wait operation has lapsed.
+		/// </summary>
+		ErrorTimeOut = 909,
+
+		/// <summary>
+		/// This error indicates that the graph update was not performed because it included 
+		/// changes which violated constraints specific to instantiated graph update.
+		/// </summary>
+		ErrorGraphExecUpdateFailure = 910,
+
+		/// <summary>
+		/// Unknown error
+		/// </summary>
+		ErrorUnknown = 999,
 	}
 	
 	/// <summary>
@@ -5454,7 +5629,7 @@ namespace ManagedCuda.BasicTypes
         /// \deprecated use CudaArrayAccessAccessSupported instead
         /// </summary>
         [Obsolete("use CudaArrayAccessAccessSupported instead")]
-        ArrayAccessAccessSupported = 0x04,
+        AccessAccessSupported = 0x04,
         /// <summary>
         /// Accessing CUDA arrays over the link supported
         /// </summary>
@@ -5548,7 +5723,32 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// A device ordinal of a device on which a pointer was allocated or registered
         /// </summary>
-        DeviceOrdinal = 9
+        DeviceOrdinal = 9,
+
+		/// <summary>
+		/// 1 if this pointer maps to an allocation that is suitable for ::cudaIpcGetMemHandle, 0 otherwise
+		/// </summary>
+		IsLegacyCudaIPCCapable = 10, 
+
+		/// <summary>
+		/// Starting address for this requested pointer
+		/// </summary>
+		RangeStartAddr = 11,          
+
+		/// <summary>
+		/// Size of the address range for this requested pointer
+		/// </summary>
+		RangeSize = 12, 
+		
+		/// <summary>
+		/// 1 if this pointer is in a valid address range that is mapped to a backing allocation, 0 otherwise
+		/// </summary>
+		Mapped = 13,    
+		
+		/// <summary>
+		/// Bitmask of allowed ::CUmemAllocationHandleType for this allocation
+		/// </summary>
+		AllowedHandleTypes = 14       
 
 	}
 
@@ -6012,6 +6212,25 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         CU_STREAM_CAPTURE_STATUS_INVALIDATED = 2
     }
+	
+	/// <summary>
+	/// Possible modes for stream capture thread interactions. For more details see ::cuStreamBeginCapture and ::cuThreadExchangeStreamCaptureMode
+	/// </summary>
+	public enum CUstreamCaptureMode
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Global = 0,
+		/// <summary>
+		/// 
+		/// </summary>
+		Local = 1,
+		/// <summary>
+		/// 
+		/// </summary>
+		Relaxed = 2
+    }
 
     /// <summary>
     /// External memory handle types
@@ -6037,8 +6256,20 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Handle is a D3D12 committed resource
         /// </summary>
-        D3D12Resource = 5
-    }
+        D3D12Resource = 5,
+		/// <summary>
+		/// Handle is a shared NT handle to a D3D11 resource
+		/// </summary>
+		D3D11Resource = 6,
+		/// <summary>
+		/// Handle is a globally shared handle to a D3D11 resource
+		/// </summary>
+		D3D11ResourceKMT = 7,
+		/// <summary>
+		/// Handle is an NvSciBuf object
+		/// </summary>
+		NvSciBuf = 8
+	}
 
 
 
@@ -6062,18 +6293,100 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Handle is a shared NT handle referencing a D3D12 fence object
         /// </summary>
-        D3D12Dence = 4
-    }
+        D3D12DFence = 4,
+		/// <summary>
+		/// Handle is a shared NT handle referencing a D3D11 fence object
+		/// </summary>
+		D3D11Fence = 5,
+		/// <summary>
+		/// Opaque handle to NvSciSync Object
+		/// </summary>
+		NvSciSync = 6,
+		/// <summary>
+		/// Handle is a shared NT handle referencing a D3D11 keyed mutex object
+		/// </summary>
+		D3D11KeyedMutex = 7,
+		/// <summary>
+		/// Handle is a globally shared handle referencing a D3D11 keyed mutex object
+		/// </summary>
+		D3D11KeyedMutexKMT = 8
+	}
 
 
-    #endregion
+	/// <summary>
+	/// Specifies the type of location
+	/// </summary>
+	public enum CUmemLocationType
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Invalid = 0x0,
+		/// <summary>
+		/// Location is a device location, thus id is a device ordinal
+		/// </summary>
+		Device = 0x1
+	}
 
-    #region Enums (Flags)
+	/// <summary>
+	/// Defines the allocation types available
+	/// </summary>
+	public enum CUmemAllocationType
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Invalid = 0x0,
+		/// <summary>
+		/// This allocation type is 'pinned', i.e. cannot migrate from its current
+		/// location while the application is actively using it
+		/// </summary>
+		Pinned = 0x1
+	}
 
-    /// <summary>
-    /// Flags to register a graphics resource
-    /// </summary>
-    [Flags]
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum CUgraphExecUpdateResult
+	{
+		/// <summary>
+		/// The update succeeded
+		/// </summary>
+		Success = 0x0, 
+		/// <summary>
+		/// The update failed for an unexpected reason which is described in the return value of the function
+		/// </summary>
+		Error = 0x1, 
+		/// <summary>
+		/// The update failed because the topology changed
+		/// </summary>
+		ErrorTopologyChanged = 0x2, 
+		/// <summary>
+		/// The update failed because a node type changed
+		/// </summary>
+		ErrorNodeTypeChanged = 0x3, 
+		/// <summary>
+		/// The update failed because the function of a kernel node changed
+		/// </summary>
+		ErrorFunctionChanged = 0x4, 
+		/// <summary>
+		/// The update failed because the parameters changed in a way that is not supported
+		/// </summary>
+		ErrorParametersChanged = 0x5, 
+		/// <summary>
+		/// The update failed because something about the node is not supported
+		/// </summary>
+		ErrorNotSupported = 0x6  
+	}
+
+	#endregion
+
+	#region Enums (Flags)
+
+	/// <summary>
+	/// Flags to register a graphics resource
+	/// </summary>
+	[Flags]
 	public enum CUGraphicsRegisterFlags
 	{
 		/// <summary>
@@ -6527,18 +6840,124 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         Dedicated = 0x01,
     }
-    #endregion
+
+	/// <summary>
+	/// parameter of ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+	/// </summary>
+	[Flags]
+	public enum CudaExternalSemaphore
+	{
+		/// <summary>
+		/// When the /p flags parameter of ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+		/// contains this flag, it indicates that signaling an external semaphore object
+		/// should skip performing appropriate memory synchronization operations over all
+		/// the external memory objects that are imported as ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF,
+		/// which otherwise are performed by default to ensure data coherency with other
+		/// importers of the same NvSciBuf memory objects.
+		/// </summary>
+		SignalSkipNvSciBufMemSync = 0x01,
+
+		/// <summary>
+		/// When the /p flags parameter of ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
+		/// contains this flag, it indicates that waiting on an external semaphore object
+		/// should skip performing appropriate memory synchronization operations over all
+		/// the external memory objects that are imported as ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF,
+		/// which otherwise are performed by default to ensure data coherency with other
+		/// importers of the same NvSciBuf memory objects.
+		/// </summary>
+		WaitSkipNvSciBufMemSync = 0x02,
+	}
+
+	/// <summary>
+	/// flags of ::cuDeviceGetNvSciSyncAttributes
+	/// </summary>
+	[Flags]
+	public enum NvSciSyncAttr
+	{
+		/// <summary>
+		/// When /p flags of ::cuDeviceGetNvSciSyncAttributes is set to this,
+		/// it indicates that application needs signaler specific NvSciSyncAttr
+		/// to be filled by ::cuDeviceGetNvSciSyncAttributes.
+		/// </summary>
+		Signal = 0x01,
+
+		/// <summary>
+		/// When /p flags of ::cuDeviceGetNvSciSyncAttributes is set to this,
+		/// it indicates that application needs waiter specific NvSciSyncAttr
+		/// to be filled by ::cuDeviceGetNvSciSyncAttributes.
+		/// </summary>
+		Wait = 0x02,
+	}
+
+	/// <summary>
+	/// Flags for specifying particular handle types
+	/// </summary>
+	[Flags]
+	public enum CUmemAllocationHandleType
+	{
+		/// <summary>
+		/// Allows a file descriptor to be used for exporting. Permitted only on POSIX systems. (int)
+		/// </summary>
+		PosixFileDescriptor = 0x1,  
+		/// <summary>
+		/// Allows a Win32 NT handle to be used for exporting. (HANDLE)
+		/// </summary>
+		Win32 = 0x2, 
+		/// <summary>
+		/// Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)
+		/// </summary>
+		Win32KMT = 0x4
+	}
+
+	/// <summary>
+	/// Specifies the memory protection flags for mapping.
+	/// </summary>
+	[Flags]
+	public enum CUmemAccess_flags
+	{
+		/// <summary>
+		/// Default, make the address range not accessible
+		/// </summary>
+		ProtNone = 0x1,
+		/// <summary>
+		/// Make the address range read accessible
+		/// </summary>
+		ProtRead = 0x2,
+		/// <summary>
+		/// Make the address range read-write accessible
+		/// </summary>
+		ProtReadWrite = 0x3
+	}
+	
+
+	/// <summary>
+	/// Flag for requesting different optimal and required granularities for an allocation.
+	/// </summary>
+	[Flags]
+	public enum CUmemAllocationGranularity_flags
+	{
+		/// <summary>
+		/// Minimum required granularity for allocation
+		/// </summary>
+		Minimum = 0x0,
+		/// <summary>
+		/// Recommended granularity for allocation for best performance
+		/// </summary>
+		Recommended = 0x1
+	}
+
+	#endregion
 
 
-    #region Delegates
+	#region Delegates
 
-    /// <summary>
-    /// CUDA stream callback
-    /// </summary>
-    /// <param name="hStream">The stream the callback was added to, as passed to ::cuStreamAddCallback.  May be NULL.</param>
-    /// <param name="status">CUDA_SUCCESS or any persistent error on the stream.</param>
-    /// <param name="userData">User parameter provided at registration.</param>
-    public delegate void CUstreamCallback(CUstream hStream, CUResult status, IntPtr userData);
+	/// <summary>
+	/// CUDA stream callback
+	/// </summary>
+	/// <param name="hStream">The stream the callback was added to, as passed to ::cuStreamAddCallback.  May be NULL.</param>
+	/// <param name="status">CUDA_SUCCESS or any persistent error on the stream.</param>
+	/// <param name="userData">User parameter provided at registration.</param>
+	public delegate void CUstreamCallback(CUstream hStream, CUResult status, IntPtr userData);
 
 	/// <summary>
 	/// Block size to per-block dynamic shared memory mapping for a certain

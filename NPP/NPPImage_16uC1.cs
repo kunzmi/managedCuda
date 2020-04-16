@@ -5237,6 +5237,36 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
-        #endregion
-    }
+		#endregion
+
+		#region new in Cuda 10.2
+
+
+		/// <summary>
+		/// Calculate scratch buffer size needed 1 channel 32-bit unsigned integer LabelMarkersUF function based on destination image oSizeROI width and height.
+		/// </summary>
+		/// <returns>Required buffer size in bytes.</returns>
+		public int LabelMarkersUFGetBufferSize()
+		{
+			int ret = 0;
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUFGetBufferSize_32u_C1R(_sizeRoi, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFGetBufferSize_32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+			return ret;
+		}
+
+		/// <summary>
+		/// 1 channel 16-bit to 32-bit unsigned integer label markers image generation.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
+		public void LabelMarkersUF(NPPImage_32uC1 dest, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+		{
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUF_16u32u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eNorm, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUF_16u32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		#endregion
+	}
 }

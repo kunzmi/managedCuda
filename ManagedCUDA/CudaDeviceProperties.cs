@@ -129,12 +129,16 @@ namespace ManagedCuda
         private bool _hostRegisterSupported;
         private bool _pageableMemoryAccessUsesHostPageTables;
         private bool _directManagedMemoryAccessFromHost;
+		private bool _virtualAddressManagementSupported;
+		private bool _handleTypePosixFileDescriptorSupported;
+		private bool _handleTypeWin32HandleSupported;
+		private bool _handleTypeWin32KMTHandleSupported;
 
-        // Properties
-        /// <summary>
-        /// Typical clock frequency in kilohertz
-        /// </summary>
-        public int ClockRate
+		// Properties
+		/// <summary>
+		/// Typical clock frequency in kilohertz
+		/// </summary>
+		public int ClockRate
 		{
 			get
 			{
@@ -1009,6 +1013,38 @@ namespace ManagedCuda
         {
             get { return this._directManagedMemoryAccessFromHost; }
             internal set { this._directManagedMemoryAccessFromHost = value; }
-        }
-    }
+		}
+		/// <summary>
+		/// Device supports virtual address management APIs like ::cuMemAddressReserve, ::cuMemCreate, ::cuMemMap and related APIs
+		/// </summary>
+		public bool VirtualAddressManagementSupported
+		{
+			get { return this._virtualAddressManagementSupported; }
+			internal set { this._virtualAddressManagementSupported = value; }
+		}
+		/// <summary>
+		/// Device supports exporting memory to a posix file descriptor with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate
+		/// </summary>
+		public bool HandleTypePosixFileDescriptorSupported
+		{
+			get { return this._handleTypePosixFileDescriptorSupported; }
+			internal set { this._handleTypePosixFileDescriptorSupported = value; }
+		}
+		/// <summary>
+		/// Device supports exporting memory to a Win32 NT handle with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate
+		/// </summary>
+		public bool HandleTypeWin32HandleSupported
+		{
+			get { return this._handleTypeWin32HandleSupported; }
+			internal set { this._handleTypeWin32HandleSupported = value; }
+		}
+		/// <summary>
+		/// Device supports exporting memory to a Win32 KMT handle with ::cuMemExportToShareableHandle, if requested ::cuMemCreate
+		/// </summary>
+		public bool HandleTypeWin32KMTHandleSupported
+		{
+			get { return this._handleTypeWin32KMTHandleSupported; }
+			internal set { this._handleTypeWin32KMTHandleSupported = value; }
+		}
+	}
 }

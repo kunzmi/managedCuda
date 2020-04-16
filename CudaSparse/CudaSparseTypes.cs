@@ -90,7 +90,11 @@ namespace ManagedCuda.CudaSparse
 		/// <summary>
 		///
 		/// </summary>
-		ZeroPivot = 9
+		ZeroPivot = 9,
+		/// <summary>
+		/// 
+		/// </summary>
+		NotSupported = 10
 	}
 
 	/// <summary>
@@ -323,6 +327,21 @@ namespace ManagedCuda.CudaSparse
 		/// merge path
 		/// </summary>
 		ALG1 = 1
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseCsr2CscAlg
+	{
+		/// <summary>
+		/// faster than V2 (in general), deterministic
+		/// </summary>
+		CSR2CSC_ALG1 = 1, 
+		/// <summary>
+		/// low memory requirement, non-deterministic
+		/// </summary>
+		CSR2CSC_ALG2 = 2 
 	}
 
 	#endregion

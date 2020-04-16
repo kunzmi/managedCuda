@@ -53,7 +53,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(9, 2); }
+            get { return new Version(10, 2); }
         }
 
         #region Initialization
@@ -193,19 +193,51 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceGetAttribute(ref int pi, CUDeviceAttribute attrib, CUdevice dev);
 
-			#region Missing from 4.1
-			/// <summary>
-			/// Returns in <c>device</c> a device handle given a PCI bus ID string.
-			/// </summary>
-			/// <param name="dev">Returned device handle</param>
-			/// <param name="pciBusId">String in one of the following forms: <para/>
-			/// [domain]:[bus]:[device].[function]<para/>
-			/// [domain]:[bus]:[device]<para/>
-			/// [bus]:[device].[function]<para/>
-			/// where domain, bus, device, and function are all hexadecimal values</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Return NvSciSync attributes that this device can support.<para/>
+            /// Returns in \p nvSciSyncAttrList, the properties of NvSciSync that
+            /// this CUDA device, \p dev can support.The returned \p nvSciSyncAttrList
+            /// can be used to create an NvSciSync object that matches this deviceâ€™s capabilities.
+            /// <para/>
+            /// If NvSciSyncAttrKey_RequiredPerm field in \p nvSciSyncAttrList is
+            /// already set this API will return ::CUDA_ERROR_INVALID_VALUE.
+            /// <para/>
+            /// The applications should set \p nvSciSyncAttrList to a valid
+            /// NvSciSyncAttrList failing which this API will return
+            /// ::CUDA_ERROR_INVALID_HANDLE.
+            /// <para/>
+            /// The \p flags controls how applications intends to use
+            /// the NvSciSync created from the \p nvSciSyncAttrList. The valid flags are:
+            /// - ::CUDA_NVSCISYNC_ATTR_SIGNAL, specifies that the applications intends to 
+            /// signal an NvSciSync on this CUDA device.
+            /// - ::CUDA_NVSCISYNC_ATTR_WAIT, specifies that the applications intends to 
+            /// wait on an NvSciSync on this CUDA device.
+            /// <para/>
+            /// At least one of these flags must be set, failing which the API
+            /// returns::CUDA_ERROR_INVALID_VALUE.Both the flags are orthogonal
+            /// to one another: a developer may set both these flags that allows to
+            /// set both wait and signal specific attributes in the same \p nvSciSyncAttrList.
+            /// </summary>
+            /// <param name="nvSciSyncAttrList">Return NvSciSync attributes supported</param>
+            /// <param name="dev">Valid Cuda Device to get NvSciSync attributes for.</param>
+            /// <param name="flags">flags describing NvSciSync usage.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetNvSciSyncAttributes(IntPtr nvSciSyncAttrList, CUdevice dev, NvSciSyncAttr flags);
+
+
+            #region Missing from 4.1
+            /// <summary>
+            /// Returns in <c>device</c> a device handle given a PCI bus ID string.
+            /// </summary>
+            /// <param name="dev">Returned device handle</param>
+            /// <param name="pciBusId">String in one of the following forms: <para/>
+            /// [domain]:[bus]:[device].[function]<para/>
+            /// [domain]:[bus]:[device]<para/>
+            /// [bus]:[device].[function]<para/>
+            /// where domain, bus, device, and function are all hexadecimal values</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuDeviceGetByPCIBusId(ref CUdevice dev, [In, Out] byte[] pciBusId);
 			
 			/// <summary>
@@ -1479,7 +1511,204 @@ namespace ManagedCuda
 			/// <returns></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuPointerGetAttributes(uint numAttributes, [In, Out] CUPointerAttribute[] attributes,  IntPtr data, CUdeviceptr ptr);
+            
+            /// <summary>
+            /// Allocate an address range reservation. <para/>
+            /// Reserves a virtual address range based on the given parameters, giving
+            /// the starting address of the range in \p ptr.This API requires a system that
+            /// supports UVA.The size and address parameters must be a multiple of the
+            /// host page size and the alignment must be a power of two or zero for default
+            /// alignment.
+            /// </summary>
+            /// <param name="ptr">Resulting pointer to start of virtual address range allocated</param>
+            /// <param name="size">Size of the reserved virtual address range requested</param>
+            /// <param name="alignment">Alignment of the reserved virtual address range requested</param>
+            /// <param name="addr">Fixed starting address range requested</param>
+            /// <param name="flags">Currently unused, must be zero</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemAddressReserve(ref CUdeviceptr ptr, SizeT size, SizeT alignment, CUdeviceptr addr, ulong flags);
+            
+            /// <summary>
+            /// Free an address range reservation.<para/>
+            /// Frees a virtual address range reserved by cuMemAddressReserve.  The size
+            /// must match what was given to memAddressReserve and the ptr given must
+            /// match what was returned from memAddressReserve.
+            /// </summary>
+            /// <param name="ptr">Starting address of the virtual address range to free</param>
+            /// <param name="size">Size of the virtual address region to free</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemAddressFree(CUdeviceptr ptr, SizeT size);
 
+            
+            /// <summary>
+            /// Create a shareable memory handle representing a memory allocation of a given size described by the given properties <para/>
+            /// This creates a memory allocation on the target device specified through the
+            /// \p prop strcuture.The created allocation will not have any device or host
+            /// mappings.The generic memory \p handle for the allocation can be
+            /// mapped to the address space of calling process via::cuMemMap.This handle
+            /// cannot be transmitted directly to other processes(see
+            /// ::cuMemExportToShareableHandle).  On Windows, the caller must also pass
+            /// an LPSECURITYATTRIBUTE in \p prop to be associated with this handle which
+            /// limits or allows access to this handle for a recepient process (see
+            /// ::CUmemAllocationProp::win32HandleMetaData for more).  The \p size of this
+            /// allocation must be a multiple of the the value given via
+            /// ::cuMemGetAllocationGranularity with the ::CU_MEM_ALLOC_GRANULARITY_MINIMUM
+            /// flag.
+            /// </summary>
+            /// <param name="handle">Value of handle returned. All operations on this allocation are to be performed using this handle.</param>
+            /// <param name="size">Size of the allocation requested</param>
+            /// <param name="prop">Properties of the allocation to create.</param>
+            /// <param name="flags">flags for future use, must be zero now.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemCreate(ref CUmemGenericAllocationHandle handle, SizeT size, ref CUmemAllocationProp prop, ulong flags);
+
+
+            /// <summary>
+            /// Release a memory handle representing a memory allocation which was previously allocated through cuMemCreate.<para/>
+            /// Frees the memory that was allocated on a device through cuMemCreate.
+            /// <para/>
+            /// The memory allocation will be freed when all outstanding mappings to the memory
+            /// are unmapped and when all outstanding references to the handle(including it's
+            /// shareable counterparts) are also released.The generic memory handle can be
+            /// freed when there are still outstanding mappings made with this handle.Each
+            /// time a recepient process imports a shareable handle, it needs to pair it with
+            /// ::cuMemRelease for the handle to be freed.If \p handle is not a valid handle
+            /// the behavior is undefined.
+            /// </summary>
+            /// <param name="handle">handle Value of handle which was returned previously by cuMemCreate.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemRelease(CUmemGenericAllocationHandle handle);
+
+
+            /// <summary>
+            /// Maps an allocation handle to a reserved virtual address range.<para/>
+            /// Maps bytes of memory represented by \p handle starting from byte \p offset to
+            /// \p size to address range[\p addr, \p addr + \p size]. This range must be an<para/>
+            /// address reservation previously reserved with ::cuMemAddressReserve, and
+            /// \p offset + \p size must be less than the size of the memory allocation.
+            /// Both \p ptr, \p size, and \p offset must be a multiple of the value given via
+            /// ::cuMemGetAllocationGranularity with the::CU_MEM_ALLOC_GRANULARITY_MINIMUM flag.<para/>
+            /// Please note calling::cuMemMap does not make the address accessible,
+            /// the caller needs to update accessibility of a contiguous mapped VA
+            /// range by calling::cuMemSetAccess.<para/>
+            /// Once a recipient process obtains a shareable memory handle
+            /// from::cuMemImportFromShareableHandle, the process must
+            /// use ::cuMemMap to map the memory into its address ranges before
+            /// setting accessibility with::cuMemSetAccess.<para/>
+            /// ::cuMemMap can only create mappings on VA range reservations
+            /// that are not currently mapped.
+            /// </summary>
+            /// <param name="ptr">Address where memory will be mapped. </param>
+            /// <param name="size">Size of the memory mapping. </param>
+            /// <param name="offset">Offset into the memory represented by \p handle from which to start mapping - Note: currently must be zero.</param>
+            /// <param name="handle">Handle to a shareable memory </param>
+            /// <param name="flags">flags for future use, must be zero now. </param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemMap(CUdeviceptr ptr, SizeT size, SizeT offset, CUmemGenericAllocationHandle handle, ulong flags);
+
+
+            /// <summary>
+            /// Unmap the backing memory of a given address range.<para/>
+            /// The range must be the entire contiguous address range that was mapped to.  In
+            /// other words, ::cuMemUnmap cannot unmap a sub-range of an address range mapped
+            /// by::cuMemCreate / ::cuMemMap.Any backing memory allocations will be freed
+            /// if there are no existing mappings and there are no unreleased memory handles.<para/>
+            /// When::cuMemUnmap returns successfully the address range is converted to an
+            /// address reservation and can be used for a future calls to ::cuMemMap.Any new
+            /// mapping to this virtual address will need to have access granted through
+            /// ::cuMemSetAccess, as all mappings start with no accessibility setup.
+            /// </summary>
+            /// <param name="ptr">Starting address for the virtual address range to unmap</param>
+            /// <param name="size">Size of the virtual address range to unmap</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemUnmap(CUdeviceptr ptr, SizeT size);
+
+
+            /// <summary>
+            /// Set the access flags for each location specified in \p desc for the given virtual address range<para/>
+            /// Given the virtual address range via \p ptr and \p size, and the locations
+            /// in the array given by \p desc and \p count, set the access flags for the
+            /// target locations.The range must be a fully mapped address range
+            /// containing all allocations created by ::cuMemMap / ::cuMemCreate.
+            /// </summary>
+            /// <param name="ptr">Starting address for the virtual address range</param>
+            /// <param name="size">Length of the virtual address range</param>
+            /// <param name="desc">Array of ::CUmemAccessDesc that describe how to change the mapping for each location specified</param>
+            /// <param name="count">Number of ::CUmemAccessDesc in \p desc</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemSetAccess(CUdeviceptr ptr, SizeT size, CUmemAccessDesc[] desc, SizeT count);
+
+
+            /// <summary>
+            /// Get the access \p flags set for the given \p location and \p ptr
+            /// </summary>
+            /// <param name="flags">Flags set for this location</param>
+            /// <param name="location">Location in which to check the flags for</param>
+            /// <param name="ptr">Address in which to check the access flags for</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemGetAccess(ref ulong flags, ref CUmemLocation location, CUdeviceptr ptr);
+
+
+            /// <summary>
+            /// Exports an allocation to a requested shareable handle type<para/>
+            /// Given a CUDA memory handle, create a shareable memory
+            /// allocation handle that can be used to share the memory with other
+            /// processes.The recipient process can convert the shareable handle back into a
+            /// CUDA memory handle using ::cuMemImportFromShareableHandle and map
+            /// it with::cuMemMap.The implementation of what this handle is and how it
+            /// can be transferred is defined by the requested handle type in \p handleType<para/>
+            /// Once all shareable handles are closed and the allocation is released, the allocated
+            /// memory referenced will be released back to the OS and uses of the CUDA handle afterward
+            /// will lead to undefined behavior.<para/>
+            /// This API can also be used in conjunction with other APIs (e.g.Vulkan, OpenGL)
+            /// that support importing memory from the shareable type
+            /// </summary>
+            /// <param name="shareableHandle">Pointer to the location in which to store the requested handle type</param>
+            /// <param name="handle">CUDA handle for the memory allocation</param>
+            /// <param name="handleType">Type of shareable handle requested (defines type and size of the \p shareableHandle output parameter)</param>
+            /// <param name="flags">Reserved, must be zero</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemExportToShareableHandle(IntPtr shareableHandle, CUmemGenericAllocationHandle handle, CUmemAllocationHandleType handleType, ulong flags);
+
+
+            /// <summary>
+            /// Imports an allocation from a requested shareable handle type.<para/>
+            /// If the current process cannot support the memory described by this shareable
+            /// handle, this API will error as CUDA_ERROR_NOT_SUPPORTED.<para/>
+            /// \note Importing shareable handles exported from some graphics APIs(Vulkan, OpenGL, etc)
+            /// created on devices under an SLI group may not be supported, and thus this API will
+            /// return CUDA_ERROR_NOT_SUPPORTED.
+            /// There is no guarantee that the contents of \p handle will be the same CUDA memory handle
+            /// for the same given OS shareable handle, or the same underlying allocation.
+            /// </summary>
+            /// <param name="handle">CUDA Memory handle for the memory allocation.</param>
+            /// <param name="osHandle">Shareable Handle representing the memory allocation that is to be imported. </param>
+            /// <param name="shHandleType">handle type of the exported handle ::CUmemAllocationHandleType.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemImportFromShareableHandle(ref CUmemGenericAllocationHandle handle, IntPtr osHandle, CUmemAllocationHandleType shHandleType);
+
+
+            /// <summary>
+            /// Calculates either the minimal or recommended granularity <para/>
+            /// Calculates either the minimal or recommended granularity
+            /// for a given allocation specification and returns it in granularity.This
+            /// granularity can be used as a multiple for alignment, size, or address mapping.
+            /// </summary>
+            /// <param name="granularity">granularity Returned granularity.</param>
+            /// <param name="prop">prop Property for which to determine the granularity for</param>
+            /// <param name="option">option Determines which granularity to return</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemGetAllocationGranularity(ref SizeT granularity, ref CUmemAllocationProp prop, CUmemAllocationGranularity_flags option);
+
+
+            /// <summary>
+            /// Retrieve the contents of the property structure defining properties for this handle
+            /// </summary>
+            /// <param name="prop">Pointer to a properties structure which will hold the information about this handle</param>
+            /// <param name="handle">Handle which to perform the query on</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemGetAllocationPropertiesFromHandle(ref CUmemAllocationProp prop, CUmemGenericAllocationHandle handle);
 
         }
         #endregion
@@ -9165,11 +9394,12 @@ namespace ManagedCuda
             /// mode.The capture mode may be queried via ::cuStreamIsCapturing.
             /// </summary>
             /// <param name="hStream">Stream in which to initiate capture</param>
+            /// <param name="mode">Controls the interaction of this capture sequence with other API calls that are potentially unsafe. For more details see ::cuThreadExchangeStreamCaptureMode.</param>
             /// <remarks>Kernels captured using this API must not use texture and surface references. 
             /// Reading or writing through any texture or surface reference is undefined
             /// behavior.This restriction does not apply to texture and surface objects.</remarks>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamBeginCapture" + CUDA_PTSZ)]
-            public static extern CUResult cuStreamBeginCapture(CUstream hStream);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamBeginCapture_v2" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode);
 
             
             /// <summary>
@@ -9208,6 +9438,64 @@ namespace ManagedCuda
             /// <param name="captureStatus">Returns the stream's capture status</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamIsCapturing" + CUDA_PTSZ)]
             public static extern CUResult cuStreamIsCapturing(CUstream hStream, ref CUstreamCaptureStatus captureStatus);
+
+
+            /// <summary>
+            /// Swaps the stream capture interaction mode for a thread<para/>
+            /// Sets the calling thread's stream capture interaction mode to the value contained
+            /// in \p* mode, and overwrites \p* mode with the previous mode for the thread.To
+            /// facilitate deterministic behavior across function or module boundaries, callers
+            /// are encouraged to use this API in a push-pop fashion: \code<para/>
+            ///   CUstreamCaptureMode mode = desiredMode;<para/>
+            ///   cuThreadExchangeStreamCaptureMode(&amp;mode);<para/>
+            ///   ...<para/>
+            ///   cuThreadExchangeStreamCaptureMode(&amp;mode); // restore previous mode<para/>
+            /// \endcode<para/>
+            /// During stream capture(see::cuStreamBeginCapture), some actions, such as a call
+            /// to::cudaMalloc, may be unsafe. In the case of::cudaMalloc, the operation is
+            /// not enqueued asynchronously to a stream, and is not observed by stream capture.
+            /// Therefore, if the sequence of operations captured via ::cuStreamBeginCapture
+            /// depended on the allocation being replayed whenever the graph is launched, the
+            /// captured graph would be invalid.<para/>
+            /// Therefore, stream capture places restrictions on API calls that can be made within
+            /// or concurrently to a ::cuStreamBeginCapture-::cuStreamEndCapture sequence. This
+            /// behavior can be controlled via this API and flags to ::cuStreamBeginCapture.<para/>
+            /// A thread's mode is one of the following:<para/>
+            /// - \p CU_STREAM_CAPTURE_MODE_GLOBAL: This is the default mode.If the local thread has
+            /// an ongoing capture sequence that was not initiated with
+            ///   \p CU_STREAM_CAPTURE_MODE_RELAXED at \p cuStreamBeginCapture, or if any other thread
+            /// has a concurrent capture sequence initiated with \p CU_STREAM_CAPTURE_MODE_GLOBAL,
+            ///   this thread is prohibited from potentially unsafe API calls.<para/>
+            /// - \p CU_STREAM_CAPTURE_MODE_THREAD_LOCAL: If the local thread has an ongoing capture
+            ///   sequence not initiated with \p CU_STREAM_CAPTURE_MODE_RELAXED, it is prohibited
+            /// from potentially unsafe API calls.Concurrent capture sequences in other threads
+            ///   are ignored.<para/>
+            /// - \p CU_STREAM_CAPTURE_MODE_RELAXED: The local thread is not prohibited from potentially
+            ///   unsafe API calls.Note that the thread is still prohibited from API calls which
+            ///   necessarily conflict with stream capture, for example, attempting::cuEventQuery
+            /// on an event that was last recorded inside a capture sequence.<para/>
+            /// </summary>
+            /// <param name="mode"></param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuThreadExchangeStreamCaptureMode(ref CUstreamCaptureMode mode);
+
+
+            /// <summary>
+            /// Query capture status of a stream<para/>
+            /// Query the capture status of a stream and and get an id for
+            /// the capture sequence, which is unique over the lifetime of the process.<para/>
+            /// If called on::CU_STREAM_LEGACY(the "null stream") while a stream not created
+            /// with::CU_STREAM_NON_BLOCKING is capturing, returns::CUDA_ERROR_STREAM_CAPTURE_IMPLICIT.<para/>
+            /// A valid id is returned only if both of the following are true:<para/>
+            /// - the call returns CUDA_SUCCESS<para/>
+            /// - captureStatus is set to ::CU_STREAM_CAPTURE_STATUS_ACTIVE<para/>
+            /// </summary>
+            /// <param name="hStream"></param>
+            /// <param name="captureStatus"></param>
+            /// <param name="id"></param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCaptureInfo" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetCaptureInfo(CUstream hStream, ref CUstreamCaptureStatus captureStatus, ref ulong id);
+
 
         }
         #endregion
@@ -10401,6 +10689,87 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphInstantiate(ref CUgraphExec phGraphExec, CUgraph hGraph, ref CUgraphNode phErrorNode, [In, Out] byte[] logBuffer, SizeT bufferSize);
 
+            
+            /// <summary>
+            /// Sets the parameters for a kernel node in the given graphExec<para/>
+            /// Sets the parameters of a kernel node in an executable graph \p hGraphExec.
+            /// The node is identified by the corresponding node \p hNode in the
+            /// non-executable graph, from which the executable graph was instantiated.<para/>
+            /// \p hNode must not have been removed from the original graph.The \p func field
+            /// of \p nodeParams cannot be modified and must match the original value.
+            /// All other values can be modified.<para/>
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// \p hNode is also not modified by this call.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">kernel node from the graph from which graphExec was instantiated</param>
+            /// <param name="nodeParams">Updated Parameters to set</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_KERNEL_NODE_PARAMS nodeParams);
+            
+
+            /// <summary>
+            /// Sets the parameters for a memcpy node in the given graphExec.<para/>
+            /// Updates the work represented by \p hNode in \p hGraphExec as though \p hNode had 
+            /// contained \p copyParams at instantiation.  hNode must remain in the graph which was 
+            /// used to instantiate \p hGraphExec.  Changed edges to and from hNode are ignored.<para/>
+            /// The source and destination memory in \p copyParams must be allocated from the same 
+            /// contexts as the original source and destination memory.  Both the instantiation-time 
+            /// memory operands and the memory operands in \p copyParams must be 1-dimensional.
+            /// Zero-length operations are not supported.<para/>
+            /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
+            /// or running launches of \p hGraphExec are not affected by this call.  hNode is also 
+            /// not modified by this call.<para/>
+            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operandsâ€™ mappings changed or
+            /// either the original or new memory operands are multidimensional.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">Memcpy node from the graph which was used to instantiate graphExec</param>
+            /// <param name="copyParams">The updated parameters to set</param>
+            /// <param name="ctx">Context on which to run the node</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDAMemCpy3D copyParams, CUcontext ctx);
+            
+
+            /// <summary>
+            /// Sets the parameters for a memset node in the given graphExec.<para/>
+            /// Updates the work represented by \p hNode in \p hGraphExec as though \p hNode had 
+            /// contained \p memsetParams at instantiation.  hNode must remain in the graph which was 
+            /// used to instantiate \p hGraphExec.  Changed edges to and from hNode are ignored.<para/>
+            /// The destination memory in \p memsetParams must be allocated from the same 
+            /// contexts as the original destination memory.  Both the instantiation-time 
+            /// memory operand and the memory operand in \p memsetParams must be 1-dimensional.
+            /// Zero-length operations are not supported.<para/>
+            /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
+            /// or running launches of \p hGraphExec are not affected by this call.  hNode is also 
+            /// not modified by this call.<para/>
+            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operandâ€™s mappings changed or
+            /// either the original or new memory operand are multidimensional.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">Memset node from the graph which was used to instantiate graphExec</param>
+            /// <param name="memsetParams">The updated parameters to set</param>
+            /// <param name="ctx">Context on which to run the node</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_MEMSET_NODE_PARAMS memsetParams, CUcontext ctx);
+            
+
+            /// <summary>
+            /// Sets the parameters for a host node in the given graphExec.<para/>
+            /// Updates the work represented by \p hNode in \p hGraphExec as though \p hNode had 
+            /// contained \p nodeParams at instantiation.  hNode must remain in the graph which was 
+            /// used to instantiate \p hGraphExec.  Changed edges to and from hNode are ignored.<para/>
+            /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
+            /// or running launches of \p hGraphExec are not affected by this call.  hNode is also 
+            /// not modified by this call.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">Host node from the graph which was used to instantiate graphExec</param>
+            /// <param name="nodeParams">The updated parameters to set</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_HOST_NODE_PARAMS nodeParams);
+
 
             /// <summary>
             /// Launches an executable graph in a stream<para/>
@@ -10433,6 +10802,62 @@ namespace ManagedCuda
             /// <param name="hGraph">Graph to destroy</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphDestroy(CUgraph hGraph);
+            
+
+            /// <summary>
+            /// Check whether an executable graph can be updated with a graph and perform the update if possible<para/>
+            /// Updates the node parameters in the instantiated graph specified by \p hGraphExec with the
+            /// node parameters in a topologically identical graph specified by \p hGraph.<para/>
+            /// Limitations:<para/>
+            /// - Kernel nodes:<para/>
+            ///   - The function must not change (same restriction as cuGraphExecKernelNodeSetParams())<para/>
+            /// - Memset and memcpy nodes:<para/>
+            ///   - The CUDA device(s) to which the operand(s) was allocated/mapped cannot change.<para/>
+            ///   - The source/destination memory must be allocated from the same contexts as the original<para/>
+            ///     source/destination memory.<para/>
+            ///   - Only 1D memsets can be changed.<para/>
+            /// - Additional memcpy node restrictions:<para/>
+            ///   - Changing either the source or destination memory type(i.e. CU_MEMORYTYPE_DEVICE,
+            ///     CU_MEMORYTYPE_ARRAY, etc.) is not supported.<para/>
+            /// Note:  The API may add further restrictions in future releases.  The return code should always be checked.<para/>
+            /// Some node types are not currently supported:<para/>
+            /// - Empty graph nodes(CU_GRAPH_NODE_TYPE_EMPTY)<para/>
+            /// - Child graphs(CU_GRAPH_NODE_TYPE_GRAPH).<para/>
+            /// cuGraphExecUpdate sets \p updateResult_out to CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED under
+            /// the following conditions:<para/>
+            /// - The count of nodes directly in \p hGraphExec and \p hGraph differ, in which case \p hErrorNode_out
+            ///   is NULL.<para/>
+            /// - A node is deleted in \p hGraph but not not its pair from \p hGraphExec, in which case \p hErrorNode_out
+            ///   is NULL.<para/>
+            /// - A node is deleted in \p hGraphExec but not its pair from \p hGraph, in which case \p hErrorNode_out is
+            ///   the pairless node from \p hGraph.<para/>
+            /// - The dependent nodes of a pair differ, in which case \p hErrorNode_out is the node from \p hGraph.<para/>
+            /// cuGraphExecUpdate sets \p updateResult_out to:<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR if passed an invalid value.<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED if the graph topology changed<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR_NODE_TYPE_CHANGED if the type of a node changed, in which case
+            ///   \p hErrorNode_out is set to the node from \p hGraph.<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR_FUNCTION_CHANGED if the func field of a kernel changed, in which
+            ///   case \p hErrorNode_out is set to the node from \p hGraph<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR_PARAMETERS_CHANGED if any parameters to a node changed in a way 
+            ///   that is not supported, in which case \p hErrorNode_out is set to the node from \p hGraph.<para/>
+            /// - CU_GRAPH_EXEC_UPDATE_ERROR_NOT_SUPPORTED if something about a node is unsupported, like 
+            ///   the nodeâ€™s type or configuration, in which case \p hErrorNode_out is set to the node from \p hGraph<para/>
+            /// If \p updateResult_out isnâ€™t set in one of the situations described above, the update check passes
+            /// and cuGraphExecUpdate updates \p hGraphExec to match the contents of \p hGraph.  If an error happens
+            /// during the update, \p updateResult_out will be set to CU_GRAPH_EXEC_UPDATE_ERROR; otherwise,
+            /// \p updateResult_out is set to CU_GRAPH_EXEC_UPDATE_SUCCESS.<para/>
+            /// cuGraphExecUpdate returns CUDA_SUCCESS when the updated was performed successfully.  It returns
+            /// CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE if the graph update was not performed because it included 
+            /// changes which violated constraints specific to instantiated graph update.
+            /// </summary>
+            /// <param name="hGraphExec">The instantiated graph to be updated</param>
+            /// <param name="hGraph">The graph containing the updated parameters</param>
+            /// <param name="hErrorNode_out">The node which caused the permissibility check to forbid the update, if any</param>
+            /// <param name="updateResult_out">Whether the graph update was permitted.  If was forbidden, the reason why</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, ref CUgraphNode hErrorNode_out, ref CUgraphExecUpdateResult updateResult_out);
+
         }
         #endregion
 

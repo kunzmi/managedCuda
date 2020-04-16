@@ -8485,6 +8485,676 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_8u_C3R_Advanced", status));
             NPPException.CheckNppStatus(status, null);
         }
-        #endregion
-    }
+		#endregion
+
+		#region New in Cuda 10.2
+
+		/// <summary>
+		/// image warp affine batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatch_8u_C3R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// image warp perspective batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpPerspectiveBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_8u_C3R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YUV to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input and output images passed in pSrcBatchList and pSrcBatchList
+		/// arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUVToRGBBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YUVToRGB.nppiYUVToRGBBatch_8u_C3R(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToRGBBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YUV to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input and output images passed in pSrcBatchList and pSrcBatchList
+		/// arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUVToBGRBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YUVToBGR.nppiYUVToBGRBatch_8u_C3R(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToBGRBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YCbCr to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair of input/output images has own ROI.
+		/// Provided oMaxSizeROI must contain the maximum width and the maximum height of all ROIs defined in pDstBatchList.API user must ensure that
+		/// ROI from pDstBatchList for each pair of input and output images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCrToRGBBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCrToRGBBatch_8u_C3R(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToRGBBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YCbCr to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input and output images passed in pSrcBatchList and pSrcBatchList
+		/// arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCrToBGRBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCrToBGRBatch_8u_C3R(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToBGRBatch_8u_C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YUV to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair of input/output images has own ROI.
+		/// Provided oMaxSizeROI must contain the maximum width and the maximum height of all ROIs defined in pDstBatchList.API user must ensure that
+		/// ROI from pDstBatchList for each pair of input and output images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUVToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YUVToRGB.nppiYUVToRGBBatch_8u_C3R_Advanced(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToRGBBatch_8u_C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YCbCr to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair of input/output images has own ROI.
+		/// Provided oMaxSizeROI must contain the maximum width and the maximum height of all ROIs defined in pDstBatchList.API user must ensure that
+		/// ROI from pDstBatchList for each pair of input and output images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCrToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCrToBGRBatch_8u_C3R_Advanced(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToBGRBatch_8u_C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YUV to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair of input/output images has own ROI.
+		/// Provided oMaxSizeROI must contain the maximum width and the maximum height of all ROIs defined in pDstBatchList.API user must ensure that
+		/// ROI from pDstBatchList for each pair of input and output images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUVToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YUVToBGR.nppiYUVToBGRBatch_8u_C3R_Advanced(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToBGRBatch_8u_C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned packed YCbCr to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair of input/output images has own ROI.
+		/// Provided oMaxSizeROI must contain the maximum width and the maximum height of all ROIs defined in pDstBatchList.API user must ensure that
+		/// ROI from pDstBatchList for each pair of input and output images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCrToRGBBatch_8u_C3R_Advanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCrToRGBBatch_8u_C3R_Advanced(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToRGBBatch_8u_C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUVToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUVToRGB.nppiYUVToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUVToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUVToBGR.nppiYUVToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV422 to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUV422ToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV422ToRGB.nppiYUV422ToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV422 to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUV422ToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV422ToRGB.nppiYUV422ToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV420 to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUV420ToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV420ToRGB.nppiYUV420ToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV420 to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YUV420ToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV420ToBGR.nppiYUV420ToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCrToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCrToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCrToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCrToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr422 to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCr422ToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCr422ToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr422 to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCr422ToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCr422ToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr420 to 3 channel 8-bit unsigned packed RGB batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.	
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCr420ToRGBBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCr420ToRGBBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToRGBBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr420 to 3 channel 8-bit unsigned packed BGR batch color conversion for a single ROI.
+		/// Provided oSizeROI will be used for all pairs of input planes making input images and output packed images passed in
+		/// pSrcBatchList and pSrcBatchList arguments.API user must ensure that provided ROI (oSizeROI) does not go beyond the
+		/// borders of any of provided images.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		public static void YCbCr420ToBGRBatch(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCr420ToBGRBatch_8u_P3C3R(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToBGRBatch_8u_P3C3R", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+
+
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUVToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUVToRGB.nppiYUVToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUVToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUVToBGR.nppiYUVToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUVToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV422 to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUV422ToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV422ToRGB.nppiYUV422ToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV422 to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUV422ToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV422ToRGB.nppiYUV422ToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV420 to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUV420ToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV420ToRGB.nppiYUV420ToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YUV420 to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YUV420ToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YUV420ToBGR.nppiYUV420ToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCrToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCrToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCrToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCrToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCrToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr422 to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCr422ToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr422 to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCr422ToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr422ToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr420 to 3 channel 8-bit unsigned packed RGB batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCr420ToRGBBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToRGB.nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToRGBBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 3 channel 8-bit unsigned planar YCbCr420 to 3 channel 8-bit unsigned packed BGR batch color conversion where each pair
+		/// of input/output images has own ROI.Provided oMaxSizeROI must contain the maximum width and the maximum height of all
+		/// ROIs defined in pDstBatchList.API user must ensure that ROI from pDstBatchList for each pair of input and output
+		/// images does not go beyond the borders of images in each pair.
+		/// </summary>
+		/// <param name="pSrcBatchList">An array where each element is a batch of images representing one of planes in planar images, 
+		/// \ref source_batch_images_pointer.The first element of array (pSrcBatchList[0]) represents a batch of Y planes. 
+		/// The second element of array (pSrcBatchList[1]) represents a batch of Cb planes.The third element of array
+		///  (pSrcBatchList[2]) represents a batch of Cr planes.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer</param>
+		/// <param name="oMaxSizeROI">Region-of-Interest (ROI), must contain the maximum width and the maximum height from all destination ROIs used for processing data.</param>
+		public static void YCbCr420ToBGRBatchAdvanced(CudaDeviceVariable<NppiImageDescriptor>[] pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList, NppiSize oMaxSizeROI)
+		{
+			CUdeviceptr[] srcList = new CUdeviceptr[] { pSrcBatchList[0].DevicePointer, pSrcBatchList[1].DevicePointer, pSrcBatchList[2].DevicePointer };
+			NppStatus status = NPPNativeMethods.NPPi.YCbCrToBGR.nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced(srcList, pDstBatchList.DevicePointer, pDstBatchList.Size, oMaxSizeROI);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCbCr420ToBGRBatch_8u_P3C3R_Advanced", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+
+		/// <summary>
+		/// color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatch(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C3R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C3R", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// in place color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchI(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C3IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C3IR", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+		#endregion
+	}
 }

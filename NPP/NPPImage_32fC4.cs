@@ -2051,6 +2051,17 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
+		/// 32-bit floating point to 16-bit floating point conversion.
+		/// </summary>
+		/// <param name="dst">Destination image</param>
+		/// <param name="roundMode">Flag specifying how fractional float values are rounded to integer values.</param>
+		public void Convert(NPPImage_16fC4 dst, NppRoundMode roundMode)
+		{
+			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16f_C4R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16f_C4R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		/// <summary>
 		/// 32-bit floating point to 16-bit signed conversion.
 		/// </summary>
 		/// <param name="dst">Destination image</param>
@@ -2093,6 +2104,17 @@ namespace ManagedCuda.NPP
 		{
 			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16u_AC4R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16u_AC4R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+		/// <summary>
+		/// 32-bit floating point to 16-bit floating point conversion. Not affecting Alpha.
+		/// </summary>
+		/// <param name="dst">Destination image</param>
+		/// <param name="roundMode">Flag specifying how fractional float values are rounded to integer values.</param>
+		public void ConvertA(NPPImage_16fC4 dst, NppRoundMode roundMode)
+		{
+			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16f_AC4R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16f_AC4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

@@ -297,6 +297,17 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
+		/// <summary>
+		/// 32-bit floating point to 16-bit conversion.
+		/// </summary>
+		/// <param name="dst">Destination image</param>
+		/// <param name="roundMode">Flag specifying how fractional float values are rounded to integer values.</param>
+		public void Convert(NPPImage_16fC1 dst, NppRoundMode roundMode)
+		{
+			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16f_C1R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
 
 		/// <summary>
 		/// 32-bit floating point to 16-bit conversion.

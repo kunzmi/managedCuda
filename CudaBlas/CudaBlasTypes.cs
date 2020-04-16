@@ -88,7 +88,11 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// the upper part of the matrix is filled
 		/// </summary>
-		Upper=1
+		Upper=1,
+		/// <summary>
+		/// Full
+		/// </summary>
+		Full=2
 	}
 	
 	/// <summary>
@@ -146,7 +150,16 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// the conjugate transpose operation is selected
 		/// </summary>
-		ConjugateTranspose=2
+		ConjugateTranspose=2,
+		/// <summary>
+		/// synonym of ConjugateTranspose
+		/// </summary>
+		Hermitan = 2,
+		/// <summary>
+		/// the conjugate operation is selected
+		/// </summary>
+		Conjugate = 3
+
 	}
 	
 	/// <summary>

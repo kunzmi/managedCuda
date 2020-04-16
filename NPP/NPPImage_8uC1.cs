@@ -6541,6 +6541,99 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_8u_C1R_Advanced", status));
             NPPException.CheckNppStatus(status, null);
         }
-        #endregion
-    }
+		#endregion
+
+		#region New in Cuda 10.2
+
+		/// <summary>
+		/// image warp affine batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpAffineBatch_8u_C1R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpAffineBatch_8u_C1R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// image warp perspective batch.
+		/// </summary>
+		/// <param name="oSmallestSrcSize">Size in pixels of the entire smallest source image width and height, may be from different images.</param>
+		/// <param name="oSrcRectROI">Region of interest in the source images (may overlap source image size width and height).</param>
+		/// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
+		/// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
+		public static void WarpPerspectiveBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_8u_C1R(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWarpPerspectiveBatch_8u_C1R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// Calculate scratch buffer size needed 1 channel 32-bit unsigned integer LabelMarkersUF function based on destination image oSizeROI width and height.
+		/// </summary>
+		/// <returns>Required buffer size in bytes.</returns>
+		public int LabelMarkersUFGetBufferSize()
+		{
+			int ret = 0;
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUFGetBufferSize_32u_C1R(_sizeRoi, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFGetBufferSize_32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+			return ret;
+		}
+
+		/// <summary>
+		/// 1 channel 8-bit to 32-bit unsigned integer label markers image generation.
+		/// </summary>
+		/// <param name="dest">Destination image</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
+		public void LabelMarkersUF(NPPImage_32uC1 dest, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+		{
+			status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersUF_8u32u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eNorm, pBuffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUF_8u32u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+
+		/// <summary>
+		/// color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatch(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C1R(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C1R", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+
+
+		/// <summary>
+		/// in place color twist batch
+		/// An input color twist matrix with floating-point coefficient values is applied
+		/// within the ROI for each image in batch. Color twist matrix can vary per image. The same ROI is applied to each image.
+		/// </summary>
+		/// <param name="nMin">Minimum clamp value.</param>
+		/// <param name="nMax">Maximum saturation and clamp value.</param>
+		/// <param name="oSizeROI"></param>
+		/// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
+		public static void ColorTwistBatchI(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList)
+		{
+			NppStatus status = NPPNativeMethods.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C1IR(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwistBatch32f_8u_C1IR", status));
+			NPPException.CheckNppStatus(status, pBatchList);
+		}
+		#endregion
+	}
 }

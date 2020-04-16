@@ -1328,6 +1328,17 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
+		/// <summary>
+		/// 32-bit floating point to 16-bit floating point conversion.
+		/// </summary>
+		/// <param name="dst">Destination image</param>
+		/// <param name="roundMode">Flag specifying how fractional float values are rounded to integer values.</param>
+		public void Convert(NPPImage_16fC3 dst, NppRoundMode roundMode)
+		{
+			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16f_C3R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f1fu_C3R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
 		#endregion
 
 		#region Sum
@@ -2723,7 +2734,7 @@ namespace ManagedCuda.NPP
 		/// nValue is either written or not written to a particular channel depending on the aDstOrder entry for that destination
 		/// channel. <para/>An aDstOrder value of 3 will output nValue to that channel, an aDstOrder value greater than 3 will leave that
 		/// particular destination channel value unmodified.</param>
-		public void SwapChannels(NPPImage_32fC4 dest, int[] aDstOrder, byte nValue)
+		public void SwapChannels(NPPImage_32fC4 dest, int[] aDstOrder, float nValue)
 		{
 			status = NPPNativeMethods.NPPi.SwapChannel.nppiSwapChannels_32f_C3C4R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, aDstOrder, nValue);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSwapChannels_32f_C3C4R", status));

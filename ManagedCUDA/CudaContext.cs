@@ -52,26 +52,6 @@ namespace ManagedCuda
 			D3D11
 		}
 
-		/// <summary>
-		/// Defines for GPU Architecture types (using the SM version to determine the # of cores per SM
-		/// </summary>
-		protected struct sSMtoCores
-		{
-			/// <summary>
-			/// 0xMm (hexidecimal notation), M = SM Major version, and m = SM minor version
-			/// </summary>
-			public int SM;
-			/// <summary/>
-			public int Cores;
-
-			/// <summary/>
-			public sSMtoCores(int sm, int cores)
-			{
-				SM = sm;
-				Cores = cores;
-			}
-		}
-
 		/// <summary/>
 		protected CUcontext _context;
 		/// <summary/>
@@ -5198,120 +5178,6 @@ namespace ManagedCuda
 		}
 
 		/// <summary>
-		/// GPU Architecture definitions
-		/// </summary>
-		protected static int _ConvertSMVer2Cores(int major, int minor)
-		{
-			sSMtoCores[] nGpuArchCoresPerSM = new[]
-			{  
-				new sSMtoCores( 0x10,  8 ), // Tesla Generation (SM 1.0) G80 class
-				new sSMtoCores( 0x11,  8 ), // Tesla Generation (SM 1.1) G8x class
-				new sSMtoCores( 0x12,  8 ), // Tesla Generation (SM 1.2) G9x class
-				new sSMtoCores( 0x13,  8 ), // Tesla Generation (SM 1.3) GT200 class
-				new sSMtoCores( 0x20, 32 ), // Fermi Generation (SM 2.0) GF100 class
-				new sSMtoCores( 0x21, 48 ), // Fermi Generation (SM 2.1) GF10x class
-				new sSMtoCores( 0x30, 192), // Kepler Generation (SM 3.0) GK10x class
-				new sSMtoCores( 0x32, 192), // Kepler Generation (SM 3.2) GK10x class
-				new sSMtoCores( 0x35, 192), // Kepler Generation (SM 3.5) GK11x class
-				new sSMtoCores( 0x37, 192), // Kepler Generation (SM 3.7) GK21x class
-				new sSMtoCores( 0x50, 128), // Maxwell Generation (SM 5.0) GM10x class
-				new sSMtoCores( 0x52, 128), // Maxwell Generation (SM 5.2) GM20x class
-                new sSMtoCores( 0x53, 128), // Maxwell Generation (SM 5.3) GM20x class
-                new sSMtoCores( 0x60, 64 ), // Pascal Generation (SM 6.0) GP100 class
-                new sSMtoCores( 0x61, 128), // Pascal Generation (SM 6.1) GP10x class
-                new sSMtoCores( 0x62, 128), // Pascal Generation (SM 6.2) GP10x class
-                new sSMtoCores( 0x70, 64 ), // Volta Generation (SM 7.0) GV100 class
-				new sSMtoCores(   -1, -1 ) 
-			};
-
-			int index = 0;
-
-			while (nGpuArchCoresPerSM[index].SM != -1)
-			{
-				if (nGpuArchCoresPerSM[index].SM == ((major << 4) + minor))
-				{
-					return nGpuArchCoresPerSM[index].Cores;
-				}
-				index++;
-			}
-			//throw new CudaException("MapSMtoCores undefined SMversion " + major.ToString() + "." + minor.ToString() + "!");
-			//return a very large core count instead of throwing an exception = take the newest card, even if managedCuda doesn't know it.
-			return int.MaxValue;
-		}
-
-		/// <summary>
-		/// returns the best GPU (with maximum GFLOPS)
-		/// </summary>
-		/// <returns>best GPU</returns>
-		public static CUdevice GetMaxGflopsDevice()
-		{
-			return GetCUdevice(GetMaxGflopsDeviceId());
-		}
-
-		/// <summary>
-		/// returns the best GPU (with maximum GFLOPS).
-		/// </summary>
-		/// <returns>Id of the best GPU</returns>
-		public static int GetMaxGflopsDeviceId()
-		{
-			int current_device = 0, sm_per_multiproc = 0;
-			int max_compute_perf = 0, max_perf_device = 0;
-			int device_count = 0, best_SM_arch = 0;
-			CudaDeviceProperties deviceProp;
-
-			device_count = CudaContext.GetDeviceCount();
-
-			// Find the best major SM Architecture GPU device
-			while (current_device < device_count)
-			{
-				deviceProp = CudaContext.GetDeviceInfo(current_device);
-
-				if (deviceProp.ComputeCapability.Major > 0 && deviceProp.ComputeCapability.Major < 9999)
-				{
-					best_SM_arch = Math.Max(best_SM_arch, deviceProp.ComputeCapability.Major);
-				}
-				current_device++;
-			}
-
-			// Find the best CUDA capable GPU device
-			current_device = 0;
-			while (current_device < device_count)
-			{
-				deviceProp = CudaContext.GetDeviceInfo(current_device);
-				if (deviceProp.ComputeCapability.Major == 9999 && deviceProp.ComputeCapability.Minor == 9999)
-				{
-					sm_per_multiproc = 1;
-				}
-				else
-				{
-					sm_per_multiproc = _ConvertSMVer2Cores(deviceProp.ComputeCapability.Major, deviceProp.ComputeCapability.Minor);
-				}
-
-				int compute_perf = deviceProp.MultiProcessorCount * sm_per_multiproc * deviceProp.ClockRate;
-				if (compute_perf > max_compute_perf)
-				{
-					// If we find GPU with SM major > 2, search only these
-					if (best_SM_arch > 2)
-					{
-						// If our device==dest_SM_arch, choose this, or else pass
-						if (deviceProp.ComputeCapability.Major == best_SM_arch)
-						{
-							max_compute_perf = compute_perf;
-							max_perf_device = current_device;
-						}
-					}
-					else
-					{
-						max_compute_perf = compute_perf;
-						max_perf_device = current_device;
-					}
-				}
-				++current_device;
-			}
-			return max_perf_device;
-		}
-
-		/// <summary>
 		/// Returns the device's compute capability of the device with ID <c>deviceID</c>
 		/// </summary>
 		/// <param name="deviceID"></param>
@@ -6030,30 +5896,54 @@ namespace ManagedCuda
             props.MaxSharedMemoryPerBlockOptin = maxSharedMemoryPerBlockOptin;
             
             int canFlushRemoteWrites = 0;
-            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canFlushRemoteWrites, CUDeviceAttribute.CanFlushRemoteWrites, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.CanFlushRemoteWrites = canFlushRemoteWrites > 0;
             
             int hostRegisterSupported = 0;
-            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref hostRegisterSupported, CUDeviceAttribute.HostRegisterSupported, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.HostRegisterSupported = hostRegisterSupported > 0;
             
             int pageableMemoryAccessUsesHostPageTables = 0;
-            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref pageableMemoryAccessUsesHostPageTables, CUDeviceAttribute.PageableMemoryAccessUsesHostPageTables, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.PageableMemoryAccessUsesHostPageTables = pageableMemoryAccessUsesHostPageTables > 0;
             
             int directManagedMemoryAccessFromHost = 0;
-            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref cooperativeMultiDeviceLaunch, CUDeviceAttribute.CooperativeMultiDeviceLaunch, device);
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref directManagedMemoryAccessFromHost, CUDeviceAttribute.DirectManagedMemoryAccessFromHost, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.DirectManagedMemoryAccessFromHost = directManagedMemoryAccessFromHost > 0;
 
-            return props;
+			int virtualAddressManagementSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref virtualAddressManagementSupported, CUDeviceAttribute.VirtualAddressManagementSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.VirtualAddressManagementSupported = virtualAddressManagementSupported > 0;
+
+			int handleTypePosixFileDescriptorSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref handleTypePosixFileDescriptorSupported, CUDeviceAttribute.HandleTypePosixFileDescriptorSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.HandleTypePosixFileDescriptorSupported = handleTypePosixFileDescriptorSupported > 0;
+
+			int handleTypeWin32HandleSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref handleTypeWin32HandleSupported, CUDeviceAttribute.HandleTypeWin32HandleSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.HandleTypeWin32HandleSupported = handleTypeWin32HandleSupported > 0;
+
+			int handleTypeWin32KMTHandleSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref handleTypeWin32KMTHandleSupported, CUDeviceAttribute.HandleTypeWin32KMTHandleSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.HandleTypeWin32KMTHandleSupported = handleTypeWin32KMTHandleSupported > 0;
+
+			return props;
 		}
 
 		/// <summary>

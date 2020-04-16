@@ -213,6 +213,17 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasCopyEx(CudaBlasHandle handle,
+													  int n,
+													  [In] CUdeviceptr x,
+													  cudaDataType xType,
+                                                      int incx,
+													  CUdeviceptr y,
+													  cudaDataType yType,
+                                                      int incy);
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasScopy_v2(CudaBlasHandle handle,
 										 int n,
 										 [In] CUdeviceptr x,
@@ -289,6 +300,19 @@ namespace ManagedCuda.CudaBlas
 										 int incx,
 										 CUdeviceptr y,
 										 int incy);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasSwapEx(CudaBlasHandle handle,
+													  int n,
+													  CUdeviceptr x,
+													  cudaDataType xType,
+													  int incx,
+													  CUdeviceptr y,
+													  cudaDataType yType,
+													  int incy);
+
 		#endregion
 
 		#region Host pointer
@@ -601,6 +625,16 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasIamaxEx(CudaBlasHandle handle,
+													  int n,
+													  [In] CUdeviceptr x, cudaDataType xType,
+                                                      int incx,
+													  ref int result  /* host or device pointer */
+                                                    );
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasIsamin_v2(CudaBlasHandle handle, 
 										 int n,
 										 [In] CUdeviceptr x, 
@@ -633,6 +667,30 @@ namespace ManagedCuda.CudaBlas
 										 [In] CUdeviceptr x, 
 										 int incx, 
 										 ref int result); // host or device pointer
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasIaminEx(CudaBlasHandle handle,
+													  int n,
+													  [In] CUdeviceptr x, cudaDataType xType,
+													  int incx,
+													  ref int result /* host or device pointer */
+													);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasAsumEx(CudaBlasHandle handle,
+													 int n,
+
+													 [In] CUdeviceptr x,
+													 cudaDataType xType,
+                                                     int incx,
+													 IntPtr result,
+													 cudaDataType resultType, /* host or device pointer */
+                                                     cudaDataType executiontype
+                                                  );
 
 		/// <summary>
 		/// </summary>
@@ -745,6 +803,22 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotEx(CudaBlasHandle handle,
+													 int n,
+													 CUdeviceptr x,
+													 cudaDataType xType,
+													 int incx,
+													 CUdeviceptr y,
+													 cudaDataType yType,
+													 int incy,
+													 IntPtr c,  /* host or device pointer */
+													 IntPtr s,
+													 cudaDataType csType,
+													 cudaDataType executiontype);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotg_v2(CudaBlasHandle handle, 
 										ref float a,   // host or device pointer
 										ref float b,   // host or device pointer
@@ -781,6 +855,19 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotgEx(CudaBlasHandle handle,
+													 IntPtr a,   /* host or device pointer */
+													 IntPtr b,   /* host or device pointer */
+													 cudaDataType abType,
+													 IntPtr c,   /* host or device pointer */
+													 IntPtr s,   /* host or device pointer */
+													 cudaDataType csType,
+													 cudaDataType executiontype);
+
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotm_v2(CudaBlasHandle handle, 
 										int n,
 										CUdeviceptr x, 
@@ -803,6 +890,21 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotmEx(CudaBlasHandle handle,
+													 int n,
+													 CUdeviceptr x,
+													 cudaDataType xType,
+													 int incx,
+													 CUdeviceptr y,
+													 cudaDataType yType,
+													 int incy,
+													 IntPtr param, /* host or device pointer */
+													 cudaDataType paramType,
+													 cudaDataType executiontype);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotmg_v2(CudaBlasHandle handle, 
 										 ref float d1,        // host or device pointer
 										 ref float d2,        // host or device pointer
@@ -819,6 +921,23 @@ namespace ManagedCuda.CudaBlas
 										 ref double x1,        // host or device pointer  
 										 [In] ref double y1,  // host or device pointer  
 										 [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] double []param);    // host or device pointer  
+
+		/// <summary>
+		/// </summary> 
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotmgEx(CudaBlasHandle handle,
+													  IntPtr d1,        /* host or device pointer */
+													  cudaDataType d1Type,
+													  IntPtr d2,        /* host or device pointer */
+													  cudaDataType d2Type,
+													  IntPtr x1,        /* host or device pointer */
+													  cudaDataType x1Type,
+													  IntPtr y1,  /* host or device pointer */
+													  cudaDataType y1Type,
+													  IntPtr param,     /* host or device pointer */
+													  cudaDataType paramType,
+                                                      cudaDataType executiontype
+                                                      );
 		#endregion
 
 		#region Device pointer
@@ -1132,6 +1251,16 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasIamaxEx(CudaBlasHandle handle,
+													  int n,
+													  [In] CUdeviceptr x, cudaDataType xType,
+													  int incx,
+													  CUdeviceptr result  /* host or device pointer */
+													);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasIsamin_v2(CudaBlasHandle handle,
 										 int n,
 										 [In] CUdeviceptr x,
@@ -1164,6 +1293,30 @@ namespace ManagedCuda.CudaBlas
 										 [In] CUdeviceptr x,
 										 int incx,
 										 CUdeviceptr result); // host or device pointer
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasIaminEx(CudaBlasHandle handle,
+													  int n,
+													  [In] CUdeviceptr x, cudaDataType xType,
+                                                      int incx,
+													  CUdeviceptr result /* host or device pointer */
+                                                    );
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasAsumEx(CudaBlasHandle handle,
+													 int n,
+
+													 [In] CUdeviceptr x,
+													 cudaDataType xType,
+													 int incx,
+													 CUdeviceptr result,
+													 cudaDataType resultType, /* host or device pointer */
+													 cudaDataType executiontype
+												  );
 
 		/// <summary>
 		/// </summary>
@@ -1276,6 +1429,23 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotEx(CudaBlasHandle handle,
+													 int n,
+													 CUdeviceptr x,
+													 cudaDataType xType,
+													 int incx,
+													 CUdeviceptr y,
+													 cudaDataType yType,
+													 int incy,
+													 CUdeviceptr c,  /* host or device pointer */
+													 CUdeviceptr s,
+													 cudaDataType csType,
+                                                     cudaDataType executiontype);
+
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotg_v2(CudaBlasHandle handle,
 										CUdeviceptr a,   // host or device pointer
 										CUdeviceptr b,   // host or device pointer
@@ -1312,6 +1482,18 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotgEx(CudaBlasHandle handle,
+													 CUdeviceptr a,   /* host or device pointer */
+													 CUdeviceptr b,   /* host or device pointer */
+													 cudaDataType abType,
+													 CUdeviceptr c,   /* host or device pointer */
+													 CUdeviceptr s,   /* host or device pointer */
+													 cudaDataType csType,
+													 cudaDataType executiontype);
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotm_v2(CudaBlasHandle handle,
 										int n,
 										CUdeviceptr x,
@@ -1334,6 +1516,22 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotmEx(CudaBlasHandle handle,
+													 int n,
+													 CUdeviceptr x,
+													 cudaDataType xType,
+													 int incx,
+													 CUdeviceptr y,
+													 cudaDataType yType,
+													 int incy,
+													 CUdeviceptr param, /* host or device pointer */
+													 cudaDataType paramType,
+                                                     cudaDataType executiontype);
+
+
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSrotmg_v2(CudaBlasHandle handle,
 										 CUdeviceptr d1,        // host or device pointer
 										 CUdeviceptr d2,        // host or device pointer
@@ -1350,6 +1548,23 @@ namespace ManagedCuda.CudaBlas
 										 CUdeviceptr x1,        // host or device pointer
 										 [In] CUdeviceptr y1,  // host or device pointer
 										 CUdeviceptr param);    // host or device pointer  
+
+		/// <summary>
+		/// </summary> 
+		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasRotmgEx(CudaBlasHandle handle,
+													  CUdeviceptr d1,        /* host or device pointer */
+													  cudaDataType d1Type,
+													  CUdeviceptr d2,        /* host or device pointer */
+													  cudaDataType d2Type,
+													  CUdeviceptr x1,        /* host or device pointer */
+													  cudaDataType x1Type,
+													  [In] CUdeviceptr y1,  /* host or device pointer */
+													  cudaDataType y1Type,
+													  CUdeviceptr param,     /* host or device pointer */
+													  cudaDataType paramType,
+													  cudaDataType executiontype
+													  );
 		#endregion
 		#endregion
 

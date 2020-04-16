@@ -99,6 +99,10 @@
     <Compile Include="JPEGCompression.cs" />
     <Compile Include="NPPExtensionMethods.cs" />
     <Compile Include="GraphCut.cs" />
+    <Compile Include="NPPImage_16fC1.cs" />
+    <Compile Include="NPPImage_16fC2.cs" />
+    <Compile Include="NPPImage_16fC3.cs" />
+    <Compile Include="NPPImage_16fC4.cs" />
     <Compile Include="NPPNativeMethods.cs" />
     <Compile Include="NPPException.cs" />
     <Compile Include="NPPImageBase.cs" />

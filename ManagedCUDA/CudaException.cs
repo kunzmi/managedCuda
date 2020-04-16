@@ -315,6 +315,48 @@ namespace ManagedCuda
 				case CUResult.ErrorNotSupported:
 					message = "This error indicates that the attempted operation is not supported on the current system or device.";
 					break;
+				case CUResult.ErrorSystemNotReady:
+					message = "This error indicates that the system is not yet ready to start any CUDA work.  To continue using CUDA, verify the system configuration is in a valid state and all required driver daemons are actively running.";
+					break;
+				case CUResult.ErrorSystemDriverMismatch:
+					message = "This error indicates that there is a mismatch between the versions of the display driver and the CUDA driver. Refer to the compatibility documentation for supported versions.";
+					break;
+				case CUResult.ErrorCompatNotSupportedOnDevice:
+					message = "This error indicates that the system was upgraded to run with forward compatibility but the visible hardware detected by CUDA does not support this configuration. Refer to the compatibility documentation for the supported hardware matrix or ensure that only supported hardware is visible during initialization via the CUDA_VISIBLE_DEVICES environment variable.";
+					break;
+				case CUResult.ErrorStreamCaptureUnsupported:
+					message = "This error indicates that the operation is not permitted when the stream is capturing.";
+					break;
+				case CUResult.ErrorStreamCaptureInvalidated:
+					message = "This error indicates that the current capture sequence on the stream has been invalidated due to a previous error.";
+					break;
+				case CUResult.ErrorStreamCaptureMerge:
+					message = "This error indicates that the operation would have resulted in a merge of two independent capture sequences.";
+					break;
+				case CUResult.ErrorStreamCaptureUnmatched:
+					message = "This error indicates that the capture was not initiated in this stream.";
+					break;
+				case CUResult.ErrorStreamCaptureUnjoined:
+					message = "This error indicates that the capture sequence contains a fork that was not joined to the primary stream.";
+					break;	
+				case CUResult.ErrorStreamCaptureIsolation:
+					message = "This error indicates that a dependency would have been created which crosses the capture sequence boundary. Only implicit in-stream ordering dependencies are allowed to cross the boundary.";
+					break;
+				case CUResult.ErrorStreamCaptureImplicit:
+					message = "This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy.";
+					break;
+				case CUResult.ErrorCapturedEvent:
+					message = "This error indicates that the operation is not permitted on an event which was last recorded in a capturing stream.";
+					break;
+				case CUResult.ErrorStreamCaptureWrongThread:
+					message = "A stream capture sequence not initiated with the ::CU_STREAM_CAPTURE_MODE_RELAXED argument to ::cuStreamBeginCapture was passed to ::cuStreamEndCapture in a different thread.";
+					break;
+				case CUResult.ErrorTimeOut:
+					message = "This error indicates that the timeout specified for the wait operation has lapsed.";
+					break;
+				case CUResult.ErrorGraphExecUpdateFailure:
+					message = "This error indicates that the graph update was not performed because it included changes which violated constraints specific to instantiated graph update.";
+					break;
 				case CUResult.ErrorUnknown:
 					message = "This indicates that an unknown internal error has occurred.";
 					break;
