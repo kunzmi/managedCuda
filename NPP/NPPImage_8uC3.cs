@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_8uC3 : NPPImageBase
+	public partial class NPPImage_8uC3 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -504,7 +504,7 @@ namespace ManagedCuda.NPP
 		public void And(byte[] nConstant, NPPImage_8uC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_8u_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_8u_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_8u_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -548,7 +548,7 @@ namespace ManagedCuda.NPP
 		public void Or(byte[] nConstant, NPPImage_8uC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_8u_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_8u_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_8u_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -592,7 +592,7 @@ namespace ManagedCuda.NPP
 		public void Xor(byte[] nConstant, NPPImage_8uC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_8u_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_8u_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_8u_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -4485,7 +4485,7 @@ namespace ManagedCuda.NPP
 		/// <param name="histogram">Allocated device memory of size nLevels (3 Variables)</param>
 		/// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]. Size = 3</param>
 		/// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]. Size = 3</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int[])"/></param>
 		public void HistogramEven(CudaDeviceVariable<int>[] histogram, int[] nLowerLevel, int[] nUpperLevel, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { (int)histogram[0].Size + 1, (int)histogram[1].Size + 1, (int)histogram[2].Size + 1 };
@@ -4538,7 +4538,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The CudaDeviceVariable must be of size nLevels-1. Array size = 3</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 3</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int[])"/></param>
 		public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { (int)histogram[0].Size, (int)histogram[1].Size, (int)histogram[2].Size };
@@ -7023,7 +7023,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8u_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_8u_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_8u_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -7950,7 +7950,7 @@ namespace ManagedCuda.NPP
         {
             CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
             CUdeviceptr[] dst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
-            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiRGBToYCbCr444_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
+            NppStatus status = NPPNativeMethods.NPPi.RGBToYCbCr_JPEG.nppiBGRToYCbCr444_JPEG_8u_P3R(src, src0.Pitch, dst, dest0.Pitch, dest0.SizeRoi);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBGRToYCbCr444_JPEG_8u_P3R", status));
             NPPException.CheckNppStatus(status, null);
         }

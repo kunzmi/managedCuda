@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_16fC4 : NPPImageBase
+	public partial class NPPImage_16fC4 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>

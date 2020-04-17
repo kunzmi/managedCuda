@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_8sC4 : NPPImageBase
+	public partial class NPPImage_8sC4 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -703,7 +703,7 @@ namespace ManagedCuda.NPP
 		public void ColorTwistA(float[,] aTwist)
 		{
 			status = NPPNativeMethods.NPPi.ColorTwist.nppiColorTwist32f_8s_AC4IR(_devPtr, _pitch, _sizeRoi, aTwist);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_8sA_C4IR", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_8s_AC4IR", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 
@@ -1028,7 +1028,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_8s_C4R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_8s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

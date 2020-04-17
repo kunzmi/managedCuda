@@ -31,9 +31,8 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_16sC1 : NPPImageBase
-	{
-		
+	public partial class NPPImage_16sC1 : NPPImageBase
+	{		
 		#region Constructors
 		/// <summary>
 		/// Allocates new memory on device using NPP-Api.
@@ -430,7 +429,7 @@ namespace ManagedCuda.NPP
 		/// <param name="histogram">Allocated device memory of size nLevels</param>
 		/// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]</param>
 		/// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int)"/></param>
 		public void HistogramEven(CudaDeviceVariable<int> histogram, int nLowerLevel, int nUpperLevel, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = HistogramEvenGetBufferSize(histogram.Size + 1);
@@ -476,7 +475,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The array must be of size nLevels-1.</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The array must be of size nLevels</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int)"/></param>
 		public void HistogramRange(CudaDeviceVariable<int> histogram, CudaDeviceVariable<int> pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = HistogramRangeGetBufferSize(histogram.Size);
@@ -707,7 +706,7 @@ namespace ManagedCuda.NPP
 		public void Abs()
 		{
 			status = NPPNativeMethods.NPPi.Abs.nppiAbs_16s_C1IR(_devPtrRoi, _pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbsDiffC_16s_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbs_16s_C1IR", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -2539,7 +2538,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_16s_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_16s_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_16s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -2755,9 +2754,9 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="dest">Destination image</param>
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		public void FilterSobelVertBorder(NPPImage_16sC3 dest, NppiBorderType eBorderType)
+		public void FilterSobelVertBorder(NPPImage_16sC1 dest, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_16s_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_16s_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelVertBorder_16s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}

@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32fC3 : NPPImageBase
+	public partial class NPPImage_32fC3 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -1336,7 +1336,7 @@ namespace ManagedCuda.NPP
 		public void Convert(NPPImage_16fC3 dst, NppRoundMode roundMode)
 		{
 			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32f16f_C3R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f1fu_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32f16f_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -1662,7 +1662,7 @@ namespace ManagedCuda.NPP
 			CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
 			status = NPPNativeMethods.NPPi.MinMaxIndxNew.nppiMinMaxIndx_32f_C3CR(_devPtrRoi, _pitch, _sizeRoi, coi, min.DevicePointer, max.DevicePointer, minIndex.DevicePointer, maxIndex.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMaxIndx_32f_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMaxIndx_32f_C3CR", status));
 			buffer.Dispose();
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -1937,7 +1937,7 @@ namespace ManagedCuda.NPP
 		{
 			int bufferSize = 0;
 			status = NPPNativeMethods.NPPi.NormInf.nppiNormInfGetBufferHostSize_32f_C3CMR(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormInfGetBufferHostSize_32f_C3MR", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormInfGetBufferHostSize_32f_C3CMR", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -2512,7 +2512,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The CudaDeviceVariable must be of size nLevels-1. Array size = 3</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 3</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int[])"/></param>
 		public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { histogram[0].Size, histogram[1].Size, histogram[2].Size };
@@ -2839,7 +2839,7 @@ namespace ManagedCuda.NPP
 			CUdeviceptr[] src = new CUdeviceptr[] { srcDest0.DevicePointerRoi, srcDest1.DevicePointerRoi, srcDest2.DevicePointerRoi };
 
 			NppStatus status = NPPNativeMethods.NPPi.ColorTwist.nppiColorTwist_32f_IP3R(src, srcDest0.Pitch, srcDest0.SizeRoi, twistMatrix);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_32f_IP3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist_32f_IP3R", status));
 			NPPException.CheckNppStatus(status, null);
 		}
 		#endregion
@@ -4545,7 +4545,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32f_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32f_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32f_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

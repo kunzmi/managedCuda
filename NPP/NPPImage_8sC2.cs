@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_8sC2 : NPPImageBase
+	public partial class NPPImage_8sC2 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -250,7 +250,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8s_C2R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_8s_C2R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_8s_C2R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

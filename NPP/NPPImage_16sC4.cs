@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_16sC4 : NPPImageBase
+	public partial class NPPImage_16sC4 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -1019,7 +1019,7 @@ namespace ManagedCuda.NPP
 		/// <param name="histogram">Allocated device memory of size nLevels (4 Variables)</param>
 		/// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]. Size = 4</param>
 		/// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]. Size = 4</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int[])"/></param>
 		public void HistogramEven(CudaDeviceVariable<int>[] histogram, int[] nLowerLevel, int[] nUpperLevel, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { histogram[0].Size + 1, histogram[1].Size + 1, histogram[2].Size + 1, histogram[3].Size + 1 };
@@ -1060,7 +1060,7 @@ namespace ManagedCuda.NPP
 		/// <param name="histogram">Allocated device memory of size nLevels (3 Variables)</param>
 		/// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]. Size = 3</param>
 		/// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]. Size = 3</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int[])"/></param>
 		public void HistogramEvenA(CudaDeviceVariable<int>[] histogram, int[] nLowerLevel, int[] nUpperLevel, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { histogram[0].Size + 1, histogram[1].Size + 1, histogram[2].Size + 1 };
@@ -1127,7 +1127,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The CudaDeviceVariable must be of size nLevels-1. Array size = 4</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 4</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int[])"/></param>
 		public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { histogram[0].Size, histogram[1].Size, histogram[2].Size, histogram[3].Size };
@@ -1167,7 +1167,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The CudaDeviceVariable must be of size nLevels-1. Array size = 3</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 3</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int[])"/></param>
 		public void HistogramRangeA(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int[] size = new int[] { histogram[0].Size, histogram[1].Size, histogram[2].Size };
@@ -1264,7 +1264,7 @@ namespace ManagedCuda.NPP
 		public void Abs()
 		{
 			status = NPPNativeMethods.NPPi.Abs.nppiAbs_16s_C4IR(_devPtrRoi, _pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbsDiffC_16s_C4R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbs_16s_C4IR", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 
@@ -1285,7 +1285,7 @@ namespace ManagedCuda.NPP
 		public void AbsA()
 		{
 			status = NPPNativeMethods.NPPi.Abs.nppiAbs_16s_AC4IR(_devPtrRoi, _pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbsDiffC_16s_AC4R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbs_16s_AC4IR", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -3555,7 +3555,7 @@ namespace ManagedCuda.NPP
 		public void ColorTwistA(float[,] aTwist)
 		{
 			status = NPPNativeMethods.NPPi.ColorTwist.nppiColorTwist32f_16s_AC4IR(_devPtr, _pitch, _sizeRoi, aTwist);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16sA_C4IR", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16s_AC4IR", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -4615,7 +4615,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_16s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_16s_C4R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_16s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

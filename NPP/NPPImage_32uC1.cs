@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32uC1 : NPPImageBase
+	public partial class NPPImage_32uC1 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -267,20 +267,6 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAlphaCompC_32u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
-
-		///// <summary>
-		///// image composition using image alpha values (0 - max channel pixel value).
-		///// Also the function is called *AC1R, it is a two channel image with second channel as alpha.
-		///// </summary>
-		///// <param name="src2">2nd source image</param>
-		///// <param name="dest">Destination image</param>
-		///// <param name="nppAlphaOp">alpha compositing operation</param>
-		//public void AlphaComp(NPPImage_32uC1 src2, NPPImage_32uC1 dest, NppiAlphaOp nppAlphaOp)
-		//{
-		//    status = NPPNativeMethods.NPPi.AlphaComp.nppiAlphaComp_32u_AC1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppAlphaOp);
-		//    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAlphaComp_32u_AC1R", status));
-		//    NPPException.CheckNppStatus(status, this);
-		//}
 		#endregion
 
 		#region DotProduct
@@ -371,7 +357,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32u_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

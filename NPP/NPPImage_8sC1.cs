@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_8sC1 : NPPImageBase
+	public partial class NPPImage_8sC1 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -227,7 +227,7 @@ namespace ManagedCuda.NPP
 		public void Convert(NPPImage_16sC1 dst)
 		{
 			status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_8s16s_C1R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_8u16s_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_8s16s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1426,7 +1426,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8s_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_8s_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_8s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

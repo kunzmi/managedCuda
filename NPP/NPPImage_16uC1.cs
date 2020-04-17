@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_16uC1 : NPPImageBase
+	public partial class NPPImage_16uC1 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -431,7 +431,7 @@ namespace ManagedCuda.NPP
 		/// <param name="histogram">Allocated device memory of size nLevels</param>
 		/// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]</param>
 		/// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int)"/></param>
 		public void HistogramEven(CudaDeviceVariable<int> histogram, int nLowerLevel, int nUpperLevel, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = HistogramEvenGetBufferSize(histogram.Size + 1);
@@ -477,7 +477,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The array must be of size nLevels-1.</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The array must be of size nLevels</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int)"/></param>
 		public void HistogramRange(CudaDeviceVariable<int> histogram, CudaDeviceVariable<int> pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = HistogramRangeGetBufferSize(histogram.Size);
@@ -625,7 +625,7 @@ namespace ManagedCuda.NPP
 		public void And(ushort nConstant, NPPImage_16uC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_16u_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_16u_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -669,7 +669,7 @@ namespace ManagedCuda.NPP
 		public void Or(ushort nConstant, NPPImage_16uC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_16u_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_16u_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -713,7 +713,7 @@ namespace ManagedCuda.NPP
 		public void Xor(ushort nConstant, NPPImage_16uC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_16u_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_16u_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -4100,7 +4100,7 @@ namespace ManagedCuda.NPP
 		{
 			int bufferSize = 0;
 			status = NPPNativeMethods.NPPi.QualityIndex.nppiQualityIndexGetBufferHostSize_16u32f_C1R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiQualityIndexGetBufferHostSize_16u32f_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiQualityIndexGetBufferHostSize_16u32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -4327,7 +4327,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_16u_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_16u_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

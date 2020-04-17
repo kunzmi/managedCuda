@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32fC1 : NPPImageBase
+	public partial class NPPImage_32fC1 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -1317,7 +1317,7 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="histogram">array that receives the computed histogram. The array must be of size nLevels-1.</param>
 		/// <param name="pLevels">Array in device memory containing the level sizes of the bins. The array must be of size nLevels</param>
-		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize"/></param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int)"/></param>
 		public void HistogramRange(CudaDeviceVariable<int> histogram, CudaDeviceVariable<int> pLevels, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = HistogramRangeGetBufferSize(histogram.Size);
@@ -2537,7 +2537,7 @@ namespace ManagedCuda.NPP
 		public void CopySubpix(NPPImage_32fC1 dst, float nDx, float nDy)
 		{
 			status = NPPNativeMethods.NPPi.CopySubpix.nppiCopySubpix_32f_C1R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nDx, nDy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCopySubpix_8u_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCopySubpix_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -3049,7 +3049,7 @@ namespace ManagedCuda.NPP
 		public void FilterScharrHoriz(NPPImage_32fC1 dst, NppiBorderType eBorderType)
 		{
 			status = NPPNativeMethods.NPPi.FilterScharrHorizBorder.nppiFilterScharrHorizBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterScharrHoriz_32f_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterScharrHorizBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		#endregion
@@ -3922,7 +3922,7 @@ namespace ManagedCuda.NPP
 		{
 			int bufferSize = 0;
 			status = NPPNativeMethods.NPPi.QualityIndex.nppiQualityIndexGetBufferHostSize_32f_C1R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiQualityIndexGetBufferHostSize_32f_C3R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiQualityIndexGetBufferHostSize_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -4213,7 +4213,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32f_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32f_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32scC2 : NPPImageBase
+	public partial class NPPImage_32scC2 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -49,8 +49,8 @@ namespace ManagedCuda.NPP
 			_isOwner = true;
 			_typeSize = Marshal.SizeOf(typeof(Npp32sc));
 
-			_devPtr = NPPNativeMethods.NPPi.MemAlloc.nppiMalloc_32sc_C1(nWidthPixels, nHeightPixels, ref _pitch);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Pitch is: {3}, Number of color channels: {4}", DateTime.Now, "nppiMalloc_32sc_C1", res, _pitch, _channels));
+			_devPtr = NPPNativeMethods.NPPi.MemAlloc.nppiMalloc_32sc_C2(nWidthPixels, nHeightPixels, ref _pitch);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Pitch is: {3}, Number of color channels: {4}", DateTime.Now, "nppiMalloc_32sc_C2", res, _pitch, _channels));
 			
 			if (_devPtr.Pointer == 0)
 			{
@@ -202,7 +202,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32sc_C2R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32sc_C2R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32sc_C2R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

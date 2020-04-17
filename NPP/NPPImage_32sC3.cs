@@ -25,12 +25,13 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
+
 namespace ManagedCuda.NPP
 {
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32sC3 : NPPImageBase
+	public partial class NPPImage_32sC3 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -346,7 +347,7 @@ namespace ManagedCuda.NPP
 		public void And(int[] nConstant, NPPImage_32sC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_32s_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -390,7 +391,7 @@ namespace ManagedCuda.NPP
 		public void Or(int[] nConstant, NPPImage_32sC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_32s_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -434,7 +435,7 @@ namespace ManagedCuda.NPP
 		public void Xor(int[] nConstant, NPPImage_32sC3 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_32s_C3R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C3RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1627,12 +1628,12 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
-		public void MaxError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError)
+		public void MaxError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError)
 		{
 			int bufferSize = MaxErrorGetBufferHostSize();
 			CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
-			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32s_C3R", status));
 			buffer.Dispose();
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -1643,13 +1644,13 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
 		/// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaxError operation.</param>
-		public void MaxError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
+		public void MaxError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = MaxErrorGetBufferHostSize();
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
-			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1659,8 +1660,8 @@ namespace ManagedCuda.NPP
 		public int MaxErrorGetBufferHostSize()
 		{
 			int bufferSize = 0;
-			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumErrorGetBufferHostSize_32s_C4R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumErrorGetBufferHostSize_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumErrorGetBufferHostSize_32s_C3R(_sizeRoi, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumErrorGetBufferHostSize_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -1672,12 +1673,12 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
-		public void AverageError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError)
+		public void AverageError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError)
 		{
 			int bufferSize = AverageErrorGetBufferHostSize();
 			CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
-			status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_32s_C3R", status));
 			buffer.Dispose();
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -1688,13 +1689,13 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
 		/// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageError operation.</param>
-		public void AverageError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
+		public void AverageError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = AverageErrorGetBufferHostSize();
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
-			status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1704,8 +1705,8 @@ namespace ManagedCuda.NPP
 		public int AverageErrorGetBufferHostSize()
 		{
 			int bufferSize = 0;
-			status = NPPNativeMethods.NPPi.AverageError.nppiAverageErrorGetBufferHostSize_32s_C4R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageErrorGetBufferHostSize_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageError.nppiAverageErrorGetBufferHostSize_32s_C3R(_sizeRoi, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageErrorGetBufferHostSize_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -1717,12 +1718,12 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
-		public void MaximumRelativeError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError)
+		public void MaximumRelativeError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError)
 		{
 			int bufferSize = MaximumRelativeErrorGetBufferHostSize();
 			CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
-			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_32s_C3R", status));
 			buffer.Dispose();
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -1733,13 +1734,13 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
 		/// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaximumRelativeError operation.</param>
-		public void MaximumRelativeError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
+		public void MaximumRelativeError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = MaximumRelativeErrorGetBufferHostSize();
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
-			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1749,8 +1750,8 @@ namespace ManagedCuda.NPP
 		public int MaximumRelativeErrorGetBufferHostSize()
 		{
 			int bufferSize = 0;
-			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeErrorGetBufferHostSize_32s_C4R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeErrorGetBufferHostSize_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeErrorGetBufferHostSize_32s_C3R(_sizeRoi, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeErrorGetBufferHostSize_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}
@@ -1762,12 +1763,12 @@ namespace ManagedCuda.NPP
 		/// </summary>
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
-		public void AverageRelativeError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError)
+		public void AverageRelativeError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError)
 		{
 			int bufferSize = AverageRelativeErrorGetBufferHostSize();
 			CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
-			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_32s_C3R", status));
 			buffer.Dispose();
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -1778,13 +1779,13 @@ namespace ManagedCuda.NPP
 		/// <param name="src2">2nd source image</param>
 		/// <param name="pError">Pointer to the computed error.</param>
 		/// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageRelativeError operation.</param>
-		public void AverageRelativeError(NPPImage_32sC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
+		public void AverageRelativeError(NPPImage_32sC3 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
 		{
 			int bufferSize = AverageRelativeErrorGetBufferHostSize();
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
-			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_32s_C3R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1794,8 +1795,8 @@ namespace ManagedCuda.NPP
 		public int AverageRelativeErrorGetBufferHostSize()
 		{
 			int bufferSize = 0;
-			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeErrorGetBufferHostSize_32s_C4R(_sizeRoi, ref bufferSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeErrorGetBufferHostSize_32s_C4R", status));
+			status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeErrorGetBufferHostSize_32s_C3R(_sizeRoi, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeErrorGetBufferHostSize_32s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 			return bufferSize;
 		}

@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32sC1 : NPPImageBase	
+	public partial class NPPImage_32sC1 : NPPImageBase	
 	{
 		#region Constructors
 		/// <summary>
@@ -484,7 +484,7 @@ namespace ManagedCuda.NPP
 		public void And(int nConstant, NPPImage_32sC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_32s_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_32s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -528,7 +528,7 @@ namespace ManagedCuda.NPP
 		public void Or(int nConstant, NPPImage_32sC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_32s_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_32s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -572,7 +572,7 @@ namespace ManagedCuda.NPP
 		public void Xor(int nConstant, NPPImage_32sC1 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_32s_C1R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C1RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_32s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -1124,20 +1124,6 @@ namespace ManagedCuda.NPP
 		}
 		#endregion
 
-		//#region RectStdDev
-		///// <summary>
-		///// Computes the standard deviation of integral images.
-		///// </summary>
-		///// <param name="Sqr">2nd source image</param>
-		///// <param name="dest">Destination image</param>
-		//public void RectStdDev(CudaPitchedDeviceVariable<double> Sqr, NPPImage_32fC1 dest)
-		//{
-		//    //status = NPPNativeMethods.NPPi.unsorted.nppiRectStdDev_32s32f_C1R(_devPtrRoi, _pitch, Sqr.DevicePointer, (int)Sqr.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, new NppiRect(_pointRoi, _sizeRoi));
-		//    //Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRectStdDev_32s32f_C1R", status));
-		//    //NPPException.CheckNppStatus(status, this);
-		//}
-		//#endregion
-
 		#region Norm Inf
 		/// <summary>
 		/// Scratch-buffer size for NormInf.
@@ -1419,7 +1405,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C1R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32s_C1R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32s_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>

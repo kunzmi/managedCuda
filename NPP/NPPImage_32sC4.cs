@@ -31,7 +31,7 @@ namespace ManagedCuda.NPP
 	/// <summary>
 	/// 
 	/// </summary>
-	public class NPPImage_32sC4 : NPPImageBase
+	public partial class NPPImage_32sC4 : NPPImageBase
 	{
 		#region Constructors
 		/// <summary>
@@ -617,7 +617,7 @@ namespace ManagedCuda.NPP
 		public void And(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_32s_C4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_32s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -661,7 +661,7 @@ namespace ManagedCuda.NPP
 		public void AndA(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.AndConst.nppiAndC_32s_AC4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAndC_32s_AC4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -705,7 +705,7 @@ namespace ManagedCuda.NPP
 		public void Or(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_32s_C4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_32s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -749,7 +749,7 @@ namespace ManagedCuda.NPP
 		public void OrA(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.OrConst.nppiOrC_32s_AC4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiOrC_32s_AC4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -793,7 +793,7 @@ namespace ManagedCuda.NPP
 		public void Xor(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_32s_C4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_32s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -837,7 +837,7 @@ namespace ManagedCuda.NPP
 		public void XorA(int[] nConstant, NPPImage_32sC4 dest)
 		{
 			status = NPPNativeMethods.NPPi.XorConst.nppiXorC_32s_AC4R(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4RSfs", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiXorC_32s_AC4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
@@ -2543,7 +2543,7 @@ namespace ManagedCuda.NPP
 			if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
 			status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_32s_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedian_32s_C4R", status));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_32s_C4R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
 		/// <summary>
