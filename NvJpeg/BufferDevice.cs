@@ -1,4 +1,4 @@
-﻿//	Copyright (c) 2015, Michael Kunz. All rights reserved.
+﻿//	Copyright (c) 2020, Michael Kunz. All rights reserved.
 //	http://kunzmi.github.io/managedCuda
 //
 //	This file is part of ManagedCuda.
@@ -24,33 +24,36 @@ using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
-namespace ManagedCuda.CudaSolve
+namespace ManagedCuda.NvJpeg
 {
+
 	/// <summary>
-	/// opaque structure for QR factorization
+	/// Wrapper class for nvjpegBufferDevice
 	/// </summary>
-	public class CsrQrInfo : IDisposable
+	public class BufferDevice : IDisposable
 	{
-		private csrqrInfo _info;
-		private cusolverStatus res;
+		private nvjpegBufferDevice _buffer;
+		private NvJpeg _nvJpeg;
+		private nvjpegStatus res;
 		private bool disposed;
 
 		#region Contructors
 		/// <summary>
 		/// </summary>
-		public CsrQrInfo()
+		internal BufferDevice(NvJpeg nvJpeg, nvjpegDevAllocator deviceAllocator)
 		{
-			_info = new csrqrInfo();
-			res = CudaSolveNativeMethods.Sparse.cusolverSpCreateCsrqrInfo(ref _info);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverSpCreateCsrqrInfo", res));
-			if (res != cusolverStatus.Success)
-				throw new CudaSolveException(res);
+			_nvJpeg = nvJpeg;
+			_buffer = new nvjpegBufferDevice();
+			res = NvJpegNativeMethods.nvjpegBufferDeviceCreate(nvJpeg.Handle, ref deviceAllocator, ref _buffer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegBufferDeviceCreate", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
 		}
 
 		/// <summary>
 		/// For dispose
 		/// </summary>
-		~CsrQrInfo()
+		~BufferDevice()
 		{
 			Dispose(false);
 		}
@@ -75,8 +78,8 @@ namespace ManagedCuda.CudaSolve
 			if (fDisposing && !disposed)
 			{
 				//Ignore if failing
-				res = CudaSolveNativeMethods.Sparse.cusolverSpDestroyCsrqrInfo(_info);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverSpDestroyCsrqrInfo", res));
+				res = NvJpegNativeMethods.nvjpegBufferDeviceDestroy(_buffer);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegBufferDeviceDestroy", res));
 				disposed = true;
 			}
 			if (!fDisposing && !disposed)
@@ -87,9 +90,39 @@ namespace ManagedCuda.CudaSolve
 		/// <summary>
 		/// Returns the inner handle.
 		/// </summary>
-		public csrqrInfo Info
+		public nvjpegBufferDevice Buffer
 		{
-			get { return _info; }
+			get { return _buffer; }
 		}
+
+
+		public SizeT Size
+		{
+			get
+			{
+				SizeT value = 0;
+				CUdeviceptr dummy = new CUdeviceptr();
+				res = NvJpegNativeMethods.nvjpegBufferDeviceRetrieve(_buffer, ref value, ref dummy);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegBufferDeviceRetrieve", res));
+				if (res != nvjpegStatus.Success)
+					throw new NvJpegException(res);
+				return value;
+			}
+		}
+
+		public CUdeviceptr Ptr
+		{
+			get
+			{
+				SizeT dummy = 0;
+				CUdeviceptr value = new CUdeviceptr();
+				res = NvJpegNativeMethods.nvjpegBufferDeviceRetrieve(_buffer, ref dummy, ref value);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegBufferDeviceRetrieve", res));
+				if (res != nvjpegStatus.Success)
+					throw new NvJpegException(res);
+				return value;
+			}
+		}
+
 	}
 }

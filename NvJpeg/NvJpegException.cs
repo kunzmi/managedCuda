@@ -25,24 +25,22 @@ using System.Text;
 using ManagedCuda.BasicTypes;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.InteropServices;
 
-namespace ManagedCuda.NVGraph
+namespace ManagedCuda.NvJpeg
 {
 	/// <summary>
-	/// A NVGraph exception is thrown if a NVGraph API method call does not return <see cref="nvgraphContext.Success"/>
+	/// An NvJpegException is thrown, if any wrapped call to the NvJpeg-library does not return <see cref="nvjpegStatus.Success"/>.
 	/// </summary>
-	[Serializable]
-	public class NVGraphException : Exception, System.Runtime.Serialization.ISerializable
+	public class NvJpegException : Exception, System.Runtime.Serialization.ISerializable
 	{
-		private nvgraphStatus _nvgraphError;
-		private string _internalName;
+
+		private nvjpegStatus _nvjpegError;
 
 		#region Constructors
 		/// <summary>
 		/// 
 		/// </summary>
-		public NVGraphException()
+		public NvJpegException()
 		{
 
 		}
@@ -52,7 +50,7 @@ namespace ManagedCuda.NVGraph
 		/// </summary>
 		/// <param name="serInfo"></param>
 		/// <param name="streamingContext"></param>
-		protected NVGraphException(SerializationInfo serInfo, StreamingContext streamingContext)
+		protected NvJpegException(SerializationInfo serInfo, StreamingContext streamingContext)
 			: base(serInfo, streamingContext)
 		{
 		}
@@ -62,17 +60,16 @@ namespace ManagedCuda.NVGraph
 		/// 
 		/// </summary>
 		/// <param name="error"></param>
-		public NVGraphException(nvgraphStatus error)
-			: base(GetErrorMessageFromNVgraphStatus(error))
+		public NvJpegException(nvjpegStatus error)
+			: base(GetErrorMessageFromCUResult(error))
 		{
-			this._nvgraphError = error;
-			this._internalName = GetInternalNameFromNVgraphStatus(error);
+			this._nvjpegError = error;
 		}
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="message"></param>
-		public NVGraphException(string message)
+		public NvJpegException(string message)
 			: base(message)
 		{
 
@@ -82,7 +79,7 @@ namespace ManagedCuda.NVGraph
 		/// </summary>
 		/// <param name="message"></param>
 		/// <param name="exception"></param>
-		public NVGraphException(string message, Exception exception)
+		public NvJpegException(string message, Exception exception)
 			: base(message, exception)
 		{
 
@@ -94,11 +91,10 @@ namespace ManagedCuda.NVGraph
 		/// <param name="error"></param>
 		/// <param name="message"></param>
 		/// <param name="exception"></param>
-		public NVGraphException(nvgraphStatus error, string message, Exception exception)
+		public NvJpegException(nvjpegStatus error, string message, Exception exception)
 			: base(message, exception)
 		{
-			this._nvgraphError = error;
-			this._internalName = GetInternalNameFromNVgraphStatus(error);
+			this._nvjpegError = error;
 		}
 		#endregion
 
@@ -109,7 +105,7 @@ namespace ManagedCuda.NVGraph
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return this.NVgraphStatus.ToString();
+			return this._nvjpegError.ToString();
 		}
 
 		/// <summary>
@@ -120,57 +116,52 @@ namespace ManagedCuda.NVGraph
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
-			info.AddValue("NVGraphError", this._nvgraphError);
+			info.AddValue("NvJpegError", this._nvjpegError);
 		}
 		#endregion
 
 		#region Static methods
-		private static string GetErrorMessageFromNVgraphStatus(nvgraphStatus error)
+		private static string GetErrorMessageFromCUResult(nvjpegStatus error)
 		{
 			string message = string.Empty;
 
 			switch (error)
 			{
-				case nvgraphStatus.Success:
-					message = "No error.";
+				case nvjpegStatus.Success:
+					message = "The API call has finished successfully. Note that many of the calls are asynchronous and some of the errors may be seen only after synchronization. ";
 					break;
-				case nvgraphStatus.NotInitialized:
-					message = "NotInitialized";
+				case nvjpegStatus.NotInitialized:
+					message = "The library handle was not initialized. A call to nvjpegCreate() is required to initialize the handle.";
 					break;
-				case nvgraphStatus.AllocFailed:
-					message = "AllocFailed";
+				case nvjpegStatus.InvalidParameter:
+					message = "Wrong parameter was passed. For example, a null pointer as input data, or an image index not in the allowed range.";
 					break;
-				case nvgraphStatus.InvalidValue:
-					message = "InvalidValue";
+				case nvjpegStatus.BadJPEG:
+					message = "Cannot parse the JPEG stream. Check that the encoded JPEG stream and its size parameters are correct.";
 					break;
-				case nvgraphStatus.ArchMismatch:
-					message = "ArchMismatch";
+				case nvjpegStatus.JPEGNotSupported:
+					message = "Attempting to decode a JPEG stream that is not supported by the nvJPEG library.";
 					break;
-				case nvgraphStatus.MappingError:
-					message = "MappingError";
+				case nvjpegStatus.AllocatorFailure:
+					message = "The user-provided allocator functions, for either memory allocation or for releasing the memory, returned a non-zero code.";
 					break;
-				case nvgraphStatus.ExecutionFailed:
-					message = "ExecutionFailed";
+				case nvjpegStatus.ExecutionFailed:
+					message = "Error during the execution of the device tasks.";
 					break;
-				case nvgraphStatus.InternalError:
-					message = "InternalError";
+				case nvjpegStatus.ArchMismatch:
+					message = "The device capabilities are not enough for the set of input parameters provided (input parameters such as backend, encoded stream parameters, output format).";
 					break;
-				case nvgraphStatus.TypeNotSupported:
-					message = "TypeNotSupported";
+				case nvjpegStatus.InternalError:
+					message = "Error during the execution of the device tasks.";
 					break;
-				case nvgraphStatus.NotConverged:
-					message = "NotConverged";
+				case nvjpegStatus.ImplementationNotSupported:
+					message = "Not supported.";
 					break;
 				default:
 					break;
 			}
-			return error.ToString() + ": " + message;
-		}
 
-		private static string GetInternalNameFromNVgraphStatus(nvgraphStatus error)
-		{
-			string val = NVGraphNativeMathods.nvgraphStatusGetString(error);
-			return val;
+			return error.ToString() + ": " + message;
 		}
 		#endregion
 
@@ -178,26 +169,15 @@ namespace ManagedCuda.NVGraph
 		/// <summary>
 		/// 
 		/// </summary>
-		public nvgraphStatus NVgraphStatus
+		public nvjpegStatus NvJpegError
 		{
 			get
 			{
-				return this._nvgraphError;
+				return this._nvjpegError;
 			}
 			set
 			{
-				this._nvgraphError = value;
-			}
-		}
-
-		/// <summary>
-		/// Error name as returned by NVGraph API
-		/// </summary>
-		public string InternalErrorName
-		{
-			get
-			{
-				return this._internalName;
+				this._nvjpegError = value;
 			}
 		}
 		#endregion
