@@ -34,7 +34,7 @@ namespace ManagedCuda.CudaBlas
 	public static class CudaBlasNativeMethods
 	{
         //32bit is no more supported, only 64 bit...
-		internal const string CUBLAS_API_DLL_NAME = "cublas64_100";
+		internal const string CUBLAS_API_DLL_NAME = "cublas64_10";
 
 		#region Basics
 		/// <summary>

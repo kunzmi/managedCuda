@@ -226,14 +226,7 @@ namespace ManagedCuda
 			/// <summary>
 			/// Partitioned global caching is supported
 			/// </summary>
-			Supported, 
-			/// <summary>
-			/// This is only needed for Pascal. This, and
-            /// all references / explanations for this,
-            /// should be removed from the header before
-            /// exporting to toolkit.
-			/// </summary>
-			AlwaysOn
+			Supported
 		};
 
 
@@ -369,7 +362,7 @@ namespace ManagedCuda
 			switch(properties.computeMajor)
 			{
 				//case 1:  return 512;
-				case 2:  return 128;
+				//case 2:  return 128;
 				case 3:
                 case 5:
                 case 6:
@@ -380,31 +373,33 @@ namespace ManagedCuda
 
 
 		/*!
+		 * Maximum number of registers per thread
+		 */
+		private static int cudaOccRegAllocationMaxPerThread(cudaOccDeviceProp properties)
+		{
+			switch (properties.computeMajor)
+			{
+				case 3:
+				case 5:
+				case 6: return 255;
+				case 7:
+				case 8: return 256;
+				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+			}
+		}
+
+
+		/*!
 		 * Granularity of register allocation
 		 */
-		private static int cudaOccRegAllocationGranularity(cudaOccDeviceProp properties, int regsPerThread)
+		private static int cudaOccRegAllocationGranularity(cudaOccDeviceProp properties)
 		{
 			switch(properties.computeMajor)
 			{
-				//case 1:  return (properties.minor <= 1) ? 256 : 512;
-				case 2:  switch(regsPerThread)
-						 {
-							case 21:
-							case 22:
-							case 29:
-							case 30:
-							case 37:
-							case 38:
-							case 45:
-							case 46:
-								return 128;
-							default:
-								return 64;
-						 }
 				case 3:
                 case 5:
-                case 6:
-                case 7:  return 256;
+                case 6: 
+				case 7: return 256;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -425,11 +420,9 @@ namespace ManagedCuda
 		{
 			switch(properties.computeMajor)
 			{
-				//case 1:  return 1;
-				case 2: return 2;
 				case 3: return 4;
 				case 5: return 4;
-                case 6: return 4;
+                case 6: return properties.computeMinor != 0 ? 4 : 2;
                 case 7: return 4;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
@@ -443,8 +436,6 @@ namespace ManagedCuda
             int value = 0;
 			switch(properties.computeMajor)
 			{
-				//case 1:  return 8;
-				case 2: return 8;
 				case 3: return 16;
 				case 5:
                     {
@@ -600,23 +591,6 @@ namespace ManagedCuda
             
             switch (properties.computeMajor)
 			{
-				case 2:
-					// Fermi supports 48KB / 16KB or 16KB / 48KB partitions for shared /
-					// L1.
-					//
-					switch (cacheConfig)
-					{
-						default:
-						case cudaOccCacheConfig.PreferNone:
-						case cudaOccCacheConfig.PreferShared:
-						case cudaOccCacheConfig.PreferEqual:
-							bytes = sharedMemPerMultiprocessorHigh;
-							break;
-						case cudaOccCacheConfig.PreferL1:
-							bytes = sharedMemPerMultiprocessorLow;
-							break;
-					}
-					break;
 				case 3:
 					// Kepler supports 16KB, 32KB, or 48KB partitions for L1. The rest
 					// is shared memory.
@@ -828,14 +802,7 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 		//    Occupancy calculation Functions        //
 		///////////////////////////////////////////////
 
-	
-		private static bool cudaOccPartitionedGCForced(cudaOccDeviceProp properties)
-		{
-			cudaOccPartitionedGCSupport gcSupport = cudaOccPartitionedGlobalCachingModeSupport(properties);
-
-			return gcSupport == cudaOccPartitionedGCSupport.AlwaysOn;
-		}
-		
+			
 
 		private static cudaOccPartitionedGCConfig cudaOccPartitionedGCExpected(
 			cudaOccDeviceProp     properties,
@@ -850,10 +817,6 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 
 			if (gcSupport == cudaOccPartitionedGCSupport.NotSupported) {
 				gcConfig = cudaOccPartitionedGCConfig.Off;
-			}
-
-			if (cudaOccPartitionedGCForced(properties)) {
-				gcConfig = cudaOccPartitionedGCConfig.On;
 			}
 
 			return gcConfig;
@@ -1027,10 +990,12 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 			int numWarpsPerSubPartition;
 			int numWarpsPerSM;
 			int maxBlocks;
+			int maxRegsPerThread;
 
 			allocationGranularity = cudaOccRegAllocationGranularity(
-				properties,
-				attributes.numRegs);   // Fermi requires special handling of certain register usage
+				properties);
+
+			maxRegsPerThread = cudaOccRegAllocationMaxPerThread(properties);
 
 			numSubPartitions = cudaOccSubPartitionsPerMultiprocessor(properties);
 
@@ -1054,7 +1019,9 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 			regsAssumedPerCTA = regsAllocatedPerWarp * __occRoundUp(warpsAllocatedPerCTA, numSubPartitions);
 
 			if (properties.regsPerBlock < regsAssumedPerCTA ||   // Hardware check
-				properties.regsPerBlock < regsAllocatedPerCTA) { // Software check
+				properties.regsPerBlock < regsAllocatedPerCTA || // Software check
+				attributes.numRegs > maxRegsPerThread) // Per thread limit check
+			{  
 				maxBlocks = 0;
 			}
 			else {
@@ -1090,17 +1057,14 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 					// assumption with PARTITIONED_GC_ON_STRICT to calculate
 					// occupancy and launch configuration.
 					//
+					if (maxBlocks == 0 && gcConfig != cudaOccPartitionedGCConfig.OnStrict)
 					{
-						bool gcOff = (gcConfig == cudaOccPartitionedGCConfig.Off);
-						bool zeroOccupancy = (maxBlocks == 0);
-						bool cachingForced = (gcConfig == cudaOccPartitionedGCConfig.OnStrict ||
-											 cudaOccPartitionedGCForced(properties));
-
-						if (gcOff || (zeroOccupancy && (!cachingForced))) {
-							gcConfig = cudaOccPartitionedGCConfig.Off;
-							numWarpsPerSM = numWarpsPerSubPartition * numSubPartitions;
-							maxBlocks     = numWarpsPerSM / warpsAllocatedPerCTA;
-						}
+						// In case *gcConfig was PARTITIONED_GC_ON flip it OFF since
+						// this is what it will be if we spread CTA across partitions.
+						
+						gcConfig = cudaOccPartitionedGCConfig.Off;
+						numWarpsPerSM = numWarpsPerSubPartition * numSubPartitions;
+						maxBlocks     = numWarpsPerSM / warpsAllocatedPerCTA;						
 					}
 				}
 				else {
@@ -1172,7 +1136,41 @@ static SizeT cudaOccSMemPerBlock(cudaOccDeviceProp properties, cudaOccFuncShmemC
 			// Also compute if partitioned global caching has to be turned off
 			//
 			ctaLimitRegs = cudaOccMaxBlocksPerSMRegsLimit(ref gcConfig, result, properties, attributes, blockSize);
-			
+
+			// SMs on GP100 (6.0) have 2 subpartitions, while those on GP10x have 4.
+			// As a result, an SM on GP100 may be able to run more CTAs than the one on GP10x.
+			// For forward compatibility within Pascal family, if a function cannot run on GP10x (maxBlock == 0),
+			// we do not let it run on any Pascal processor, even though it may be able to run on GP100.
+			// Therefore, we check the occupancy on GP10x when it can run on GP100
+			if (properties.computeMajor == 6 && properties.computeMinor == 0 && ctaLimitRegs > 0)
+			{
+				cudaOccDeviceProp propertiesGP10x = new cudaOccDeviceProp();
+				cudaOccPartitionedGCConfig gcConfigGP10x = gcConfig;
+				int ctaLimitRegsGP10x = 0;
+
+				// Set up properties for GP10x
+				propertiesGP10x.computeMajor = properties.computeMajor;
+				propertiesGP10x.computeMinor = properties.computeMinor;
+				propertiesGP10x.maxThreadsPerBlock = properties.maxThreadsPerBlock;
+				propertiesGP10x.maxThreadsPerMultiProcessor = properties.maxThreadsPerMultiProcessor;
+				propertiesGP10x.numSms = properties.numSms;
+				propertiesGP10x.regsPerBlock = properties.regsPerBlock;
+				propertiesGP10x.regsPerMultiprocessor = properties.regsPerMultiprocessor;
+				propertiesGP10x.sharedMemPerBlock = properties.sharedMemPerBlock;
+				propertiesGP10x.sharedMemPerBlockOptin = properties.sharedMemPerBlockOptin;
+				propertiesGP10x.sharedMemPerMultiprocessor = properties.sharedMemPerMultiprocessor;
+				propertiesGP10x.warpSize = properties.warpSize;
+
+				propertiesGP10x.computeMinor = 1;
+
+				ctaLimitRegsGP10x = cudaOccMaxBlocksPerSMRegsLimit(ref gcConfigGP10x, result, propertiesGP10x, attributes, blockSize);
+				
+				if (ctaLimitRegsGP10x == 0)
+				{
+					ctaLimitRegs = 0;
+				}
+			}
+
 
 			// Limits due to warps/SM
 			//

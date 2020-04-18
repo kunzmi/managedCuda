@@ -32,7 +32,7 @@ namespace ManagedCuda.NVRTC
 	/// <summary/>
 	public static class NVRTCNativeMethods
 	{
-		internal const string NVRTC_API_DLL_NAME = "nvrtc64_100";
+		internal const string NVRTC_API_DLL_NAME = "nvrtc64_102_0";
 		
 		[DllImport(NVRTC_API_DLL_NAME, EntryPoint="nvrtcGetErrorString")]
         internal static extern IntPtr nvrtcGetErrorStringInternal(nvrtcResult result);

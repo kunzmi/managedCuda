@@ -9,12 +9,12 @@ or
 ManagedCUDA aims an easy integration of NVidia's CUDA in .net applications written in C#, Visual Basic or any other .net language.
 
 For this it includes:
-- A complete wrapper for the  CUDA Driver API, version 10.0 (a 1:1 representation of cuda.h in C#) 
+- A complete wrapper for the  CUDA Driver API, version 10.2 (a 1:1 representation of cuda.h in C#) 
 - Based on this, wrapper classes for CUDA context, kernel, device variable, etc. 
 - Wrapper for graphics interop with DirectX and OpenGL, respectively SlimDX and OpenTK 
 - CUDA vector types like int2, float3 etc. with ToString() methods and operators (+, –, *, /) 
 - Define your own types: CudaDeviceVariable accepts any user defined type if it is a value type, i.e. a struct in C# 
-- Includes most CUDA libraries: CUFFT, CURAND, CUSPARSE, CUBLAS, NPP and NVRTC
+- Includes most CUDA libraries: CUFFT, CURAND, CUSPARSE, CUBLAS, NPP, NvJPEG and NVRTC
 - Access device memory directly per element using [] operator:
 ```
 CudaDeviceVariable<float> devVar = new CudaDeviceVariable<float>(64);
