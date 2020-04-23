@@ -181,5 +181,16 @@ namespace ManagedCuda.CudaDNN
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFilterNdDescriptor", res));
 			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
 		}
+
+
+
+		public SizeT GetFilterSizeInBytes()
+		{
+			SizeT ret = new SizeT();
+			res = CudaDNNNativeMethods.cudnnGetFilterSizeInBytes(_desc, ref ret);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFilterSizeInBytes", res));
+			if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+			return ret;
+		}
 	}
 }

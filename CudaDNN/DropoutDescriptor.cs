@@ -48,6 +48,13 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnCreateDropoutDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+        /// <summary>
+        /// </summary>
+        public DropoutDescriptor(cudnnHandle handle, cudnnDropoutDescriptor desc)
+        {
+            _handle = handle;
+            _desc = desc;
+        }
 
         /// <summary>
         /// For dispose

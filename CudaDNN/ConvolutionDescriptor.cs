@@ -307,5 +307,26 @@ namespace ManagedCuda.CudaDNN
                 if (res != cudnnStatus.Success) throw new CudaDNNException(res);
             }
         }
+
+        /// <summary>
+        /// This function allows the user to specify the number of groups to be used in the associated convolution.
+        /// </summary>
+        public cudnnReorderType ConvolutionReorderType
+        {
+            get
+            {
+                cudnnReorderType type = 0;
+                res = CudaDNNNativeMethods.cudnnGetConvolutionReorderType(_desc, ref type);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionReorderType", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+                return type;
+            }
+            set
+            {
+                res = CudaDNNNativeMethods.cudnnSetConvolutionReorderType(_desc, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetConvolutionReorderType", res));
+                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            }
+        }
     }
 }

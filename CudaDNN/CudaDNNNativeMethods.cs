@@ -1138,7 +1138,7 @@ namespace ManagedCuda.CudaDNN
                                         CUdeviceptr y,
                                         int requestedAlgoCount,
                                         ref int returnedAlgoCount,
-                                        ref cudnnConvolutionFwdAlgoPerf      perfResults,
+                                        cudnnConvolutionFwdAlgoPerf[]      perfResults,
                                         CUdeviceptr workSpace,
                                         SizeT                              workSpaceSizeInBytes );
 
@@ -1537,7 +1537,7 @@ namespace ManagedCuda.CudaDNN
                                         CUdeviceptr dw,
                                         int requestedAlgoCount,
                                         ref int returnedAlgoCount,
-                                        ref cudnnConvolutionBwdFilterAlgoPerf perfResults,
+                                        cudnnConvolutionBwdFilterAlgoPerf[] perfResults,
                                         CUdeviceptr workSpace,
                                         SizeT                               workSpaceSizeInBytes );
 
@@ -3465,7 +3465,7 @@ namespace ManagedCuda.CudaDNN
                                          cudnnTensorDescriptor dyDesc,
                                          CUdeviceptr dy,
                                          CUdeviceptr grid,
-                                         CUdeviceptr betaDgrid,
+                                         ref float betaDgrid,
                                          CUdeviceptr dgrid);
 
 		/// <summary>
@@ -3500,7 +3500,7 @@ namespace ManagedCuda.CudaDNN
                                          cudnnTensorDescriptor dyDesc,
                                          CUdeviceptr dy,
                                          CUdeviceptr grid,
-                                         CUdeviceptr betaDgrid,
+                                         ref double betaDgrid,
                                          CUdeviceptr dgrid);
 
         /// <summary>
@@ -4623,6 +4623,628 @@ namespace ManagedCuda.CudaDNN
                                         ref MessageMask mask,
                                         ref IntPtr udata,
                                         ref cudnnCallback fptr);
+
+
+
+
+
+
+
+        /** Create a destination descriptor for cudnnTransformTensor */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnInitTransformDest(
+            cudnnTensorTransformDescriptor transformDesc,
+            cudnnTensorDescriptor srcDesc, cudnnTensorDescriptor destDesc,
+            ref SizeT destSizeInBytes);
+
+        /** Create an empty tensor transform descriptor */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateTensorTransformDescriptor(
+            ref cudnnTensorTransformDescriptor transformDesc);
+
+        /** Initialize a previously created tensor transform descriptor. */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetTensorTransformDescriptor(
+            cudnnTensorTransformDescriptor transformDesc, uint nbDims,
+            cudnnTensorFormat destFormat, int[] padBeforeA,
+            int[] padAfterA, uint[] foldA,
+            cudnnFoldingDirection direction);
+
+        /**
+		 * Retrieves the values stored in a previously initialized tensor transform
+		 * descriptor.
+		 */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetTensorTransformDescriptor(
+            cudnnTensorTransformDescriptor transformDesc, uint nbDimsRequested,
+            ref cudnnTensorFormat destFormat, int[] padBeforeA, int[] padAfterA,
+            uint[] foldA, ref cudnnFoldingDirection direction);
+
+        /**
+		 * Destroys a previously created tensor transform descriptor.
+		 */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyTensorTransformDescriptor(
+            cudnnTensorTransformDescriptor transformDesc);
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnTransformTensorEx(
+            cudnnHandle handle, cudnnTensorTransformDescriptor transDesc,
+            ref float alpha, cudnnTensorDescriptor srcDesc,
+            CUdeviceptr srcData, ref float beta,
+            cudnnTensorDescriptor destDesc, CUdeviceptr destData);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnTransformTensorEx(
+            cudnnHandle handle, cudnnTensorTransformDescriptor transDesc,
+            ref double alpha, cudnnTensorDescriptor srcDesc,
+            CUdeviceptr srcData, ref double beta,
+            cudnnTensorDescriptor destDesc, CUdeviceptr destData);
+
+        /* Helper function to calculate folding descriptors  for dgrad */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetFoldedConvBackwardDataDescriptors(
+            cudnnHandle handle, cudnnFilterDescriptor filterDesc,
+            cudnnTensorDescriptor diffDesc,
+            cudnnConvolutionDescriptor convDesc,
+            cudnnTensorDescriptor gradDesc,
+            cudnnTensorFormat transformFormat,
+            cudnnFilterDescriptor foldedFilterDesc,
+            cudnnTensorDescriptor paddedDiffDesc,
+            cudnnConvolutionDescriptor foldedConvDesc,
+            cudnnTensorDescriptor foldedGradDesc,
+            cudnnTensorTransformDescriptor filterFoldTransDesc,
+            cudnnTensorTransformDescriptor diffPadTransDesc,
+            cudnnTensorTransformDescriptor gradFoldTransDesc,
+            cudnnTensorTransformDescriptor gradUnfoldTransDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetFilterSizeInBytes(
+            cudnnFilterDescriptor filterDesc, ref SizeT size);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnTransformFilter(
+            cudnnHandle handle, cudnnTensorTransformDescriptor transDesc,
+            ref float alpha, cudnnFilterDescriptor srcDesc,
+            CUdeviceptr srcData, ref float beta,
+            cudnnFilterDescriptor destDesc, CUdeviceptr destData);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnTransformFilter(
+            cudnnHandle handle, cudnnTensorTransformDescriptor transDesc,
+            ref double alpha, cudnnFilterDescriptor srcDesc,
+            CUdeviceptr srcData, ref double beta,
+            cudnnFilterDescriptor destDesc, CUdeviceptr destData);
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnReorderFilterAndBias(
+            cudnnHandle handle, cudnnFilterDescriptor filterDesc,
+            cudnnReorderType reorderType, CUdeviceptr filterData,
+            CUdeviceptr reorderedFilterData, int reorderBias, CUdeviceptr biasData,
+            CUdeviceptr reorderedBiasData);
+
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetConvolutionReorderType(
+            cudnnConvolutionDescriptor convDesc, cudnnReorderType reorderType);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetConvolutionReorderType(
+            cudnnConvolutionDescriptor convDesc, ref cudnnReorderType reorderType);
+
+
+
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetBatchNormalizationForwardTrainingExWorkspaceSize(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            cudnnTensorDescriptor xDesc, cudnnTensorDescriptor zDesc,
+            cudnnTensorDescriptor yDesc,
+            cudnnTensorDescriptor bnScaleBiasMeanVarDesc,
+            cudnnActivationDescriptor activationDesc, ref SizeT sizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetBatchNormalizationBackwardExWorkspaceSize(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            cudnnTensorDescriptor xDesc, cudnnTensorDescriptor yDesc,
+            cudnnTensorDescriptor dyDesc, cudnnTensorDescriptor dzDesc,
+            cudnnTensorDescriptor dxDesc,
+            cudnnTensorDescriptor dBnScaleBiasDesc,
+            cudnnActivationDescriptor activationDesc, ref SizeT sizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetBatchNormalizationTrainingExReserveSpaceSize(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            cudnnActivationDescriptor activationDesc,
+            cudnnTensorDescriptor xDesc, ref SizeT sizeInBytes);
+
+
+
+
+
+        /* Computes y = relu(BN(x) + z). Also accumulates moving averages of mean and
+		 * inverse variances */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationForwardTrainingEx(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+
+            ref float alpha, /* alpha[0] = result blend factor */
+            ref float beta,  /* beta[0] = dest layer blend factor */
+
+            cudnnTensorDescriptor xDesc, CUdeviceptr xData,
+            cudnnTensorDescriptor zDesc, CUdeviceptr zData,
+            cudnnTensorDescriptor yDesc, CUdeviceptr yData,
+
+            cudnnTensorDescriptor bnScaleBiasMeanVarDesc, CUdeviceptr bnScale,
+            CUdeviceptr bnBias,
+
+            double exponentialAverageFactor, CUdeviceptr resultRunningMean,
+            CUdeviceptr resultRunningVariance,
+
+            /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and
+			   backward functions. */
+            double epsilon,
+
+            /* Optionally save intermediate results from the forward pass here
+			   - can be reused to speed up backward pass. NULL if unused */
+            CUdeviceptr resultSaveMean, CUdeviceptr resultSaveInvVariance,
+
+            cudnnActivationDescriptor activationDesc, CUdeviceptr workspace,
+            SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+        /* Computes y = relu(BN(x) + z). Also accumulates moving averages of mean and
+		 * inverse variances */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationForwardTrainingEx(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+
+            ref double alpha, /* alpha[0] = result blend factor */
+            ref double beta,  /* beta[0] = dest layer blend factor */
+
+            cudnnTensorDescriptor xDesc, CUdeviceptr xData,
+            cudnnTensorDescriptor zDesc, CUdeviceptr zData,
+            cudnnTensorDescriptor yDesc, CUdeviceptr yData,
+
+            cudnnTensorDescriptor bnScaleBiasMeanVarDesc, CUdeviceptr bnScale,
+            CUdeviceptr bnBias,
+
+            double exponentialAverageFactor, CUdeviceptr resultRunningMean,
+            CUdeviceptr resultRunningVariance,
+
+            /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and
+			   backward functions. */
+            double epsilon,
+
+            /* Optionally save intermediate results from the forward pass here
+			   - can be reused to speed up backward pass. NULL if unused */
+            CUdeviceptr resultSaveMean, CUdeviceptr resultSaveInvVariance,
+
+            cudnnActivationDescriptor activationDesc, CUdeviceptr workspace,
+            SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+
+
+
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationBackwardEx(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+
+            ref float alphaDataDiff, ref float betaDataDiff,
+            ref float alphaParamDiff, ref float betaParamDiff,
+            cudnnTensorDescriptor xDesc, CUdeviceptr xData,
+            cudnnTensorDescriptor yDesc, CUdeviceptr yData,
+            cudnnTensorDescriptor dyDesc, CUdeviceptr dyData,
+            cudnnTensorDescriptor dzDesc, CUdeviceptr dzData,
+            cudnnTensorDescriptor dxDesc, CUdeviceptr dxData,
+
+            /* Shared tensor desc for the 4 tensors below */
+            cudnnTensorDescriptor dBnScaleBiasDesc, CUdeviceptr bnScaleData,
+            CUdeviceptr bnBiasData, /* needed if there is activation */
+            CUdeviceptr dBnScaleData, CUdeviceptr dBnBiasData,
+            double epsilon, /* Same epsilon as forward pass */
+
+            /* Optionally cached intermediate results from
+			   forward pass */
+            CUdeviceptr savedMean, CUdeviceptr savedInvVariance,
+            cudnnActivationDescriptor activationDesc, CUdeviceptr workSpace,
+            SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnBatchNormalizationBackwardEx(
+            cudnnHandle handle, cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+
+            ref double alphaDataDiff, ref double betaDataDiff,
+            ref double alphaParamDiff, ref double betaParamDiff,
+            cudnnTensorDescriptor xDesc, CUdeviceptr xData,
+            cudnnTensorDescriptor yDesc, CUdeviceptr yData,
+            cudnnTensorDescriptor dyDesc, CUdeviceptr dyData,
+            cudnnTensorDescriptor dzDesc, CUdeviceptr dzData,
+            cudnnTensorDescriptor dxDesc, CUdeviceptr dxData,
+
+            /* Shared tensor desc for the 4 tensors below */
+            cudnnTensorDescriptor dBnScaleBiasDesc, CUdeviceptr bnScaleData,
+            CUdeviceptr bnBiasData, /* needed if there is activation */
+            CUdeviceptr dBnScaleData, CUdeviceptr dBnBiasData,
+            double epsilon, /* Same epsilon as forward pass */
+
+            /* Optionally cached intermediate results from
+			   forward pass */
+            CUdeviceptr savedMean, CUdeviceptr savedInvVariance,
+            cudnnActivationDescriptor activationDesc, CUdeviceptr workSpace,
+            SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+
+
+
+
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNBiasMode(cudnnRNNDescriptor rnnDesc,
+                                              cudnnRNNBiasMode biasMode);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNBiasMode(cudnnRNNDescriptor rnnDesc,
+                                              ref cudnnRNNBiasMode biasMode);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNSetClip(cudnnHandle handle,
+                                          cudnnRNNDescriptor rnnDesc,
+                                          cudnnRNNClipMode clipMode,
+                                          cudnnNanPropagation clipNanOpt,
+                                          double lclip, double rclip);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNGetClip(cudnnHandle handle,
+                                          cudnnRNNDescriptor rnnDesc,
+                                          ref cudnnRNNClipMode clipMode,
+                                          ref cudnnNanPropagation clipNanOpt,
+                                          ref double lclip, ref double rclip);
+
+
+
+
+
+
+        /* RNN EX API */
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNPaddingMode(
+            cudnnRNNDescriptor rnnDesc, cudnnRNNPaddingMode paddingMode);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNPaddingMode(
+            cudnnRNNDescriptor rnnDesc, ref cudnnRNNPaddingMode paddingMode);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateRNNDataDescriptor(ref cudnnRNNDataDescriptor rnnDataDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyRNNDataDescriptor(cudnnRNNDataDescriptor rnnDataDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, cudnnDataType dataType,
+            cudnnRNNDataLayout layout, int maxSeqLength, int batchSize,
+            int vectorSize,
+            int[] seqLengthArray, /* length of each sequence in the batch */
+            ref float paddingFill); /* symbol for filling padding position in output */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, cudnnDataType dataType,
+            cudnnRNNDataLayout layout, int maxSeqLength, int batchSize,
+            int vectorSize,
+            int[] seqLengthArray, /* length of each sequence in the batch */
+            ref double paddingFill); /* symbol for filling padding position in output */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, cudnnDataType dataType,
+            cudnnRNNDataLayout layout, int maxSeqLength, int batchSize,
+            int vectorSize,
+            int[] seqLengthArray, /* length of each sequence in the batch */
+            IntPtr paddingFill); /* symbol for filling padding position in output */
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, ref cudnnDataType dataType,
+            ref cudnnRNNDataLayout layout, ref int maxSeqLength, ref int batchSize,
+            ref int vectorSize, int arrayLengthRequested, int[] seqLengthArray,
+            ref float paddingFill);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, ref cudnnDataType dataType,
+            ref cudnnRNNDataLayout layout, ref int maxSeqLength, ref int batchSize,
+            ref int vectorSize, int arrayLengthRequested, int[] seqLengthArray,
+            ref double paddingFill);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetRNNDataDescriptor(
+            cudnnRNNDataDescriptor rnnDataDesc, ref cudnnDataType dataType,
+            ref cudnnRNNDataLayout layout, ref int maxSeqLength, ref int batchSize,
+            ref int vectorSize, int arrayLengthRequested, int[] seqLengthArray,
+            IntPtr paddingFill);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNForwardTrainingEx(
+            cudnnHandle handle, cudnnRNNDescriptor rnnDesc,
+            cudnnRNNDataDescriptor xDesc, CUdeviceptr x,
+            cudnnTensorDescriptor hxDesc, CUdeviceptr hx,
+            cudnnTensorDescriptor cxDesc, CUdeviceptr cx,
+            cudnnFilterDescriptor wDesc, CUdeviceptr w,
+            cudnnRNNDataDescriptor yDesc, CUdeviceptr y,
+            cudnnTensorDescriptor hyDesc, CUdeviceptr hy,
+            cudnnTensorDescriptor cyDesc, CUdeviceptr cy,
+            cudnnRNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CUdeviceptr keys,                     /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CUdeviceptr cAttn,                          /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CUdeviceptr iAttn,                          /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CUdeviceptr queries,                        /* reserved, should pass NULL */
+            CUdeviceptr workSpace, SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNForwardInferenceEx(
+            cudnnHandle handle, cudnnRNNDescriptor rnnDesc,
+            cudnnRNNDataDescriptor xDesc, CUdeviceptr x,
+            cudnnTensorDescriptor hxDesc, CUdeviceptr hx,
+            cudnnTensorDescriptor cxDesc, CUdeviceptr cx,
+            cudnnFilterDescriptor wDesc, CUdeviceptr w,
+            cudnnRNNDataDescriptor yDesc, CUdeviceptr y,
+            cudnnTensorDescriptor hyDesc, CUdeviceptr hy,
+            cudnnTensorDescriptor cyDesc, CUdeviceptr cy,
+            cudnnRNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CUdeviceptr keys,                     /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CUdeviceptr cAttn,                          /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CUdeviceptr iAttn,                          /* reserved, should pass NULL */
+            cudnnRNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CUdeviceptr queries,                        /* reserved, should pass NULL */
+            CUdeviceptr workSpace, SizeT workSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNBackwardDataEx(
+            cudnnHandle handle, cudnnRNNDescriptor rnnDesc,
+            cudnnRNNDataDescriptor yDesc, CUdeviceptr y,
+            cudnnRNNDataDescriptor dyDesc, CUdeviceptr dy,
+            cudnnRNNDataDescriptor dcDesc, /* reserved, should pass NULL */
+            CUdeviceptr dcAttn,                    /* reserved, should pass NULL */
+            cudnnTensorDescriptor dhyDesc, CUdeviceptr dhy,
+            cudnnTensorDescriptor dcyDesc, CUdeviceptr dcy,
+            cudnnFilterDescriptor wDesc, CUdeviceptr w,
+            cudnnTensorDescriptor hxDesc, CUdeviceptr hx,
+            cudnnTensorDescriptor cxDesc, CUdeviceptr cx,
+            cudnnRNNDataDescriptor dxDesc, CUdeviceptr dx,
+            cudnnTensorDescriptor dhxDesc, CUdeviceptr dhx,
+            cudnnTensorDescriptor dcxDesc, CUdeviceptr dcx,
+            cudnnRNNDataDescriptor dkDesc, /* reserved, should pass NULL */
+            CUdeviceptr dkeys,                           /* reserved, should pass NULL */
+            CUdeviceptr workSpace, SizeT workSpaceSizeInBytes, CUdeviceptr reserveSpace,
+            SizeT reserveSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnRNNBackwardWeightsEx(
+    cudnnHandle handle, cudnnRNNDescriptor rnnDesc,
+    cudnnRNNDataDescriptor xDesc, CUdeviceptr x,
+    cudnnTensorDescriptor hxDesc, CUdeviceptr hx,
+    cudnnRNNDataDescriptor yDesc, CUdeviceptr y, CUdeviceptr workSpace,
+    SizeT workSpaceSizeInBytes, cudnnFilterDescriptor dwDesc, CUdeviceptr dw,
+    CUdeviceptr reserveSpace, SizeT reserveSpaceSizeInBytes);
+
+
+
+
+
+
+        /* Sequence data descriptor */
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateSeqDataDescriptor(ref cudnnSeqDataDescriptor seqDataDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroySeqDataDescriptor(cudnnSeqDataDescriptor seqDataDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, cudnnDataType dataType, int nbDims,
+            int[] dimA, cudnnSeqDataAxis[] axes,
+            SizeT seqLengthArraySize, int[] seqLengthArray, ref float paddingFill);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, cudnnDataType dataType, int nbDims,
+            int[] dimA, cudnnSeqDataAxis[] axes,
+            SizeT seqLengthArraySize, int[] seqLengthArray, ref double paddingFill);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, cudnnDataType dataType, int nbDims,
+            int[] dimA, cudnnSeqDataAxis[] axes,
+            SizeT seqLengthArraySize, int[] seqLengthArray, IntPtr paddingFill);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, ref cudnnDataType dataType,
+            ref int nbDims, int nbDimsRequested, int[] dimA, cudnnSeqDataAxis[] axes,
+            ref SizeT seqLengthArraySize, SizeT seqLengthSizeRequested,
+            int[] seqLengthArray, ref float paddingFill);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, ref cudnnDataType dataType,
+            ref int nbDims, int nbDimsRequested, int[] dimA, cudnnSeqDataAxis[] axes,
+            ref SizeT seqLengthArraySize, SizeT seqLengthSizeRequested,
+            int[] seqLengthArray, ref double paddingFill);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetSeqDataDescriptor(
+            cudnnSeqDataDescriptor seqDataDesc, ref cudnnDataType dataType,
+            ref int nbDims, int nbDimsRequested, int[] dimA, cudnnSeqDataAxis[] axes,
+            ref SizeT seqLengthArraySize, SizeT seqLengthSizeRequested,
+            int[] seqLengthArray, IntPtr paddingFill);
+
+
+        /* Multihead Attention */
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateAttnDescriptor(ref cudnnAttnDescriptor attnDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyAttnDescriptor(cudnnAttnDescriptor attnDesc);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetAttnDescriptor(
+            cudnnAttnDescriptor attnDesc, uint attnMode, int nHeads,
+            double smScaler, cudnnDataType dataType, cudnnDataType computePrec,
+            cudnnMathType mathType, cudnnDropoutDescriptor attnDropoutDesc,
+            cudnnDropoutDescriptor postDropoutDesc, int qSize, int kSize, int vSize,
+            int qProjSize, int kProjSize, int vProjSize, int oProjSize,
+            int qoMaxSeqLength, int kvMaxSeqLength, int maxBatchSize, int maxBeamSize);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetAttnDescriptor(
+            cudnnAttnDescriptor attnDesc, ref uint attnMode, ref int nHeads,
+            ref double smScaler, ref cudnnDataType dataType, ref cudnnDataType computePrec,
+            ref cudnnMathType mathType, ref cudnnDropoutDescriptor attnDropoutDesc,
+            ref cudnnDropoutDescriptor postDropoutDesc, ref int qSize, ref int kSize,
+            ref int vSize, ref int qProjSize, ref int kProjSize, ref int vProjSize, ref int oProjSize,
+            ref int qoMaxSeqLength, ref int kvMaxSeqLength, ref int maxBatchSize,
+            ref int maxBeamSize);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetMultiHeadAttnBuffers(
+            cudnnHandle handle, cudnnAttnDescriptor attnDesc,
+            ref SizeT weightSizeInBytes, ref SizeT workSpaceSizeInBytes,
+            ref SizeT reserveSpaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetMultiHeadAttnWeights(
+            cudnnHandle handle, cudnnAttnDescriptor attnDesc,
+            cudnnMultiHeadAttnWeightKind wKind, SizeT weightSizeInBytes,
+            CUdeviceptr weights, cudnnTensorDescriptor wDesc, ref CUdeviceptr wAddr);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnMultiHeadAttnForward(
+            cudnnHandle handle, cudnnAttnDescriptor attnDesc, int currIdx,
+            int[] loWinIdx, int[] hiWinIdx, CUdeviceptr devSeqLengthsQO,
+            CUdeviceptr devSeqLengthsKV, cudnnSeqDataDescriptor qDesc,
+            CUdeviceptr queries, CUdeviceptr residuals,
+            cudnnSeqDataDescriptor kDesc, CUdeviceptr keys,
+            cudnnSeqDataDescriptor vDesc, CUdeviceptr values,
+            cudnnSeqDataDescriptor oDesc, CUdeviceptr out_, SizeT weightSizeInBytes,
+            CUdeviceptr weights, SizeT workSpaceSizeInBytes, CUdeviceptr workSpace,
+            SizeT reserveSpaceSizeInBytes, CUdeviceptr reserveSpace);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnMultiHeadAttnBackwardData(
+            cudnnHandle handle, cudnnAttnDescriptor attnDesc,
+            int[] loWinIdx, int[] hiWinIdx, CUdeviceptr devSeqLengthsDQDO,
+            CUdeviceptr devSeqLengthsDKDV, cudnnSeqDataDescriptor doDesc,
+            CUdeviceptr dout, cudnnSeqDataDescriptor dqDesc, CUdeviceptr dqueries,
+            CUdeviceptr queries, cudnnSeqDataDescriptor dkDesc, CUdeviceptr dkeys,
+            CUdeviceptr keys, cudnnSeqDataDescriptor dvDesc, CUdeviceptr dvalues,
+            CUdeviceptr values, SizeT weightSizeInBytes, CUdeviceptr weights,
+            SizeT workSpaceSizeInBytes, CUdeviceptr workSpace,
+            SizeT reserveSpaceSizeInBytes, CUdeviceptr reserveSpace);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnMultiHeadAttnBackwardWeights(
+            cudnnHandle handle, cudnnAttnDescriptor attnDesc,
+            cudnnWgradMode addGrad, cudnnSeqDataDescriptor qDesc,
+            CUdeviceptr queries, cudnnSeqDataDescriptor kDesc, CUdeviceptr keys,
+            cudnnSeqDataDescriptor vDesc, CUdeviceptr values,
+            cudnnSeqDataDescriptor doDesc, CUdeviceptr dout,
+            SizeT weightSizeInBytes, CUdeviceptr weights, CUdeviceptr dweights,
+            SizeT workSpaceSizeInBytes, CUdeviceptr workSpace,
+            SizeT reserveSpaceSizeInBytes, CUdeviceptr reserveSpace);
+
+
+
+        /* CTC LOSS */
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetCTCLossDescriptorEx(
+            cudnnCTCLossDescriptor ctcLossDesc, cudnnDataType compType,
+            cudnnLossNormalizationMode normMode, cudnnNanPropagation gradMode);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetCTCLossDescriptorEx(
+            cudnnCTCLossDescriptor ctcLossDesc, ref cudnnDataType compType,
+            ref cudnnLossNormalizationMode normMode, ref cudnnNanPropagation gradMode);
+
+
+
+
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateFusedOpsConstParamPack(
+            ref cudnnFusedOpsConstParamPack constPack, cudnnFusedOps ops);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyFusedOpsConstParamPack(cudnnFusedOpsConstParamPack constPack);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetFusedOpsConstParamPackAttribute(
+            cudnnFusedOpsConstParamPack constPack,
+            cudnnFusedOpsConstParamLabel paramLabel, IntPtr param);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetFusedOpsConstParamPackAttribute(
+            cudnnFusedOpsConstParamPack constPack,
+            cudnnFusedOpsConstParamLabel paramLabel, IntPtr param, ref int isNULL);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateFusedOpsVariantParamPack(
+            ref cudnnFusedOpsVariantParamPack varPack, cudnnFusedOps ops);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyFusedOpsVariantParamPack(cudnnFusedOpsVariantParamPack varPack);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetFusedOpsVariantParamPackAttribute(
+            cudnnFusedOpsVariantParamPack varPack,
+            cudnnFusedOpsVariantParamLabel paramLabel, IntPtr ptr);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnSetFusedOpsVariantParamPackAttribute(
+            cudnnFusedOpsVariantParamPack varPack,
+            cudnnFusedOpsVariantParamLabel paramLabel, CUdeviceptr ptr);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetFusedOpsVariantParamPackAttribute(
+            cudnnFusedOpsVariantParamPack varPack,
+            cudnnFusedOpsVariantParamLabel paramLabel, IntPtr ptr);
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnGetFusedOpsVariantParamPackAttribute(
+            cudnnFusedOpsVariantParamPack varPack,
+            cudnnFusedOpsVariantParamLabel paramLabel, CUdeviceptr ptr);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnCreateFusedOpsPlan(ref cudnnFusedOpsPlan plan,
+                                                  cudnnFusedOps ops);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnDestroyFusedOpsPlan(cudnnFusedOpsPlan plan);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnMakeFusedOpsPlan(cudnnHandle handle, cudnnFusedOpsPlan plan,
+                      cudnnFusedOpsConstParamPack constPack,
+                      ref SizeT workspaceSizeInBytes);
+
+        [DllImport(CUDNN_API_DLL_NAME)]
+        public static extern cudnnStatus cudnnFusedOpsExecute(cudnnHandle handle, cudnnFusedOpsPlan plan,
+                     cudnnFusedOpsVariantParamPack varPack);
+
+
 
 
     }

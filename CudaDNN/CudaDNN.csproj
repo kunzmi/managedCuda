@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivationDescriptor.cs" />
+    <Compile Include="AlgorithmDescriptor.cs" />
+    <Compile Include="AlgorithmPerformances.cs" />
+    <Compile Include="AttnDescriptor.cs" />
     <Compile Include="ConvolutionDescriptor.cs" />
     <Compile Include="CTCLossDescriptor.cs" />
     <Compile Include="CudaDNNContext.cs" />
@@ -56,15 +59,21 @@
     <Compile Include="CudaDNNTypes.cs" />
     <Compile Include="DropoutDescriptor.cs" />
     <Compile Include="FilterDescriptor.cs" />
+    <Compile Include="FusedOpsConstParamPack.cs" />
+    <Compile Include="FusedOpsPlan.cs" />
+    <Compile Include="FusedOpsVariantParamPack.cs" />
     <Compile Include="LRNDescriptor.cs" />
     <Compile Include="OpTensorDescriptor.cs" />
     <Compile Include="PersistentRNNPlan.cs" />
     <Compile Include="PoolingDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReduceTensorDescriptor.cs" />
+    <Compile Include="RNNDataDescriptor.cs" />
     <Compile Include="RNNDescriptor.cs" />
+    <Compile Include="SeqDataDescriptor.cs" />
     <Compile Include="SpatialTransformerDescriptor.cs" />
     <Compile Include="TensorDescriptor.cs" />
+    <Compile Include="TensorTransformDescriptor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -164,7 +164,7 @@ namespace ManagedCuda.CudaDNN
         /// <param name="xDesc">A fully packed tensor descriptor describing the input to one recurrent iteration.</param>
         /// <param name="sizeInBytes">Minimum amount of GPU memory needed as parameter space to be able to execute an RNN with the specified descriptor and input tensors.</param>
         /// <param name="dataType">The data type of the parameters.</param>
-        public void cudnnGetRNNParamsSize(
+        public void GetRNNParamsSize(
                                                  TensorDescriptor xDesc,
                                                  ref SizeT sizeInBytes,
                                                  cudnnDataType dataType   )
@@ -1037,27 +1037,620 @@ namespace ManagedCuda.CudaDNN
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
 
-
+        /// <summary>
+        /// The math type specified in a given RNN descriptor.
+        /// </summary>
+        /// <param name="type"></param>
+        public void SetRNNMatrixMathType(cudnnMathType type)
+        {
+            res = CudaDNNNativeMethods.cudnnSetRNNMatrixMathType(_desc, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNMatrixMathType", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
         /// <summary>
         /// The math type specified in a given RNN descriptor.
         /// </summary>
-        public cudnnMathType MathType
+        public cudnnMathType GetRNNMatrixMathType()
         {
-            //get
-            //{
-            //    cudnnMathType mathType = new cudnnMathType();
-            //    res = CudaDNNNativeMethods.cudnnGetConvolutionMathType(_desc, ref mathType);
-            //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetConvolutionMathType", res));
-            //    if (res != cudnnStatus.Success) throw new CudaDNNException(res);
-            //    return mathType;
-            //}
-            set
-            {
-                res = CudaDNNNativeMethods.cudnnSetRNNMatrixMathType(_desc, value);
-                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNMatrixMathType", res));
-                if (res != cudnnStatus.Success) throw new CudaDNNException(res);
-            }
+            cudnnMathType type = new cudnnMathType();
+            res = CudaDNNNativeMethods.cudnnGetRNNMatrixMathType(_desc, ref type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNMatrixMathType", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return type;
         }
+
+
+
+        /// <summary>
+        /// The cudnnSetRNNProjectionLayers() function should be called after cudnnSetRNNDescriptor() to enable the "recurrent" and/or "output" projection in a recursive neural network
+        /// </summary>
+        /// <param name="recProjSize">The size of the LSTM cell output after the “recurrent” projection. This value should not be larger than hiddenSize programmed via cudnnSetRNNDescriptor().</param>
+        /// <param name="outProjSize"> This parameter should be zero. </param>
+        public void SetRNNProjectionLayers(int recProjSize, int outProjSize)
+        {
+            res = CudaDNNNativeMethods.cudnnSetRNNProjectionLayers(_handle, _desc, recProjSize, outProjSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNProjectionLayers", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        /// <summary>
+        /// This function retrieves the current RNN “projection” parameters. By default the projection feature is disabled so invoking this function immediately after cudnnSetRNNDescriptor() will yield recProjSize equal to hiddenSize and outProjSize set to zero. The cudnnSetRNNProjectionLayers() method enables the RNN projection. 
+        /// </summary>
+        /// <param name="recProjSize"></param>
+        /// <param name="outProjSize"></param>
+        /// <returns></returns>
+        public void GetRNNProjectionLayers( ref int recProjSize, ref int outProjSize)
+        {
+            res = CudaDNNNativeMethods.cudnnGetRNNProjectionLayers(_handle, _desc, ref recProjSize, ref outProjSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNProjectionLayers", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetRNNAlgorithmDescriptor(AlgorithmDescriptor algoDesc)
+        {
+            res = CudaDNNNativeMethods.cudnnSetRNNAlgorithmDescriptor(_handle, _desc, algoDesc.Desc);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNAlgorithmDescriptor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetRNNDescriptor(
+                        ref int hiddenSize,
+                        ref int numLayers,
+                        ref DropoutDescriptor dropoutDesc,
+                        ref cudnnRNNInputMode inputMode,
+                        ref cudnnDirectionMode direction,
+                        ref cudnnRNNMode mode,
+                        ref cudnnRNNAlgo algo,
+                        ref cudnnDataType dataType)
+        {
+            cudnnDropoutDescriptor dropOut = new cudnnDropoutDescriptor();
+            res = CudaDNNNativeMethods.cudnnGetRNNDescriptor(_handle, _desc, ref hiddenSize,
+                        ref numLayers,
+                        ref dropOut,
+                        ref inputMode,
+                        ref direction,
+                        ref mode,
+                        ref algo,
+                        ref dataType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNAlgorithmDescriptor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            dropoutDesc = new DropoutDescriptor(_handle, dropOut);
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int GetRNNForwardInferenceAlgorithmMaxCount()
+        {
+            int ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNForwardInferenceAlgorithmMaxCount(_handle, _desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNForwardInferenceAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int GetRNNForwardTrainingAlgorithmMaxCount()
+        {
+            int ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNForwardTrainingAlgorithmMaxCount(_handle, _desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNForwardTrainingAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int GetRNNBackwardDataAlgorithmMaxCount()
+        {
+            int ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNBackwardDataAlgorithmMaxCount(_handle, _desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNBackwardDataAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int cudnnGetRNNBackwardWeightsAlgorithmMaxCount()
+        {
+            int ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNBackwardWeightsAlgorithmMaxCount(_handle, _desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNBackwardWeightsAlgorithmMaxCount", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardInference, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNForwardInferenceAlgorithmEx(
+                                                    int seqLength,
+                                                    TensorDescriptor[] xDesc,
+                                                    CudaDeviceVariable<float> x,
+                                                    TensorDescriptor hxDesc,
+                                                    CudaDeviceVariable<float> hx,
+                                                    TensorDescriptor cxDesc,
+                                                    CudaDeviceVariable<float> cx,
+                                                    FilterDescriptor wDesc,
+                                                    CudaDeviceVariable<float> w,
+                                                    TensorDescriptor[] yDesc,
+                                                    CudaDeviceVariable<float> y,
+                                                    TensorDescriptor hyDesc,
+                                                    CudaDeviceVariable<float> hy,
+                                                    TensorDescriptor cyDesc,
+                                                    CudaDeviceVariable<float> cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    CudaDeviceVariable<byte> workspace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNForwardInferenceAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer, 
+                wDesc.Desc, w.DevicePointer, _yDesc, y.DevicePointer, hyDesc.Desc, hy.DevicePointer, cyDesc.Desc, cy.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp, 
+                workspace.DevicePointer, workspace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardFilterAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardTraining, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNForwardTrainingAlgorithmEx(
+                                                    int seqLength,
+                                                    TensorDescriptor[] xDesc,
+                                                    CudaDeviceVariable<float> x,
+                                                    TensorDescriptor hxDesc,
+                                                    CudaDeviceVariable<float> hx,
+                                                    TensorDescriptor cxDesc,
+                                                    CudaDeviceVariable<float> cx,
+                                                    FilterDescriptor wDesc,
+                                                    CudaDeviceVariable<float> w,
+                                                    TensorDescriptor[] yDesc,
+                                                    CudaDeviceVariable<float> y,
+                                                    TensorDescriptor hyDesc,
+                                                    CudaDeviceVariable<float> hy,
+                                                    TensorDescriptor cyDesc,
+                                                    CudaDeviceVariable<float> cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    CudaDeviceVariable<byte> workspace,
+                                                    CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNForwardTrainingAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer, _yDesc, y.DevicePointer, hyDesc.Desc, hy.DevicePointer, cyDesc.Desc, cy.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp,
+                workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNForwardTrainingAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNBackwardDataAlgorithmEx(
+                                                int seqLength,
+                                                TensorDescriptor[] yDesc,
+                                                CudaDeviceVariable<float> y,
+                                                TensorDescriptor[] dyDesc,
+                                                CudaDeviceVariable<float> dy,
+                                                TensorDescriptor dhyDesc,
+                                                CudaDeviceVariable<float> dhy,
+                                                TensorDescriptor dcyDesc,
+                                                CudaDeviceVariable<float> dcy,
+                                                FilterDescriptor wDesc,
+                                                CudaDeviceVariable<float> w,
+                                                TensorDescriptor hxDesc,
+                                                CudaDeviceVariable<float> hx,
+                                                TensorDescriptor cxDesc,
+                                                CudaDeviceVariable<float> cx,
+                                                TensorDescriptor[] dxDesc,
+                                                CudaDeviceVariable<float> dx,
+                                                TensorDescriptor dhxDesc,
+                                                CudaDeviceVariable<float> dhx,
+                                                TensorDescriptor dcxDesc,
+                                                CudaDeviceVariable<float> dcx,
+                                                float findIntensity,
+                                                int requestedAlgoCount,
+                                                CudaDeviceVariable<byte> workspace,
+                                                CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            cudnnTensorDescriptor[] _dyDesc = new cudnnTensorDescriptor[dyDesc.Length];
+            cudnnTensorDescriptor[] _dxDesc = new cudnnTensorDescriptor[dxDesc.Length];
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+            for (int i = 0; i < dyDesc.Length; i++)
+            {
+                _dyDesc[i] = dyDesc[i].Desc;
+            }
+            for (int i = 0; i < dxDesc.Length; i++)
+            {
+                _dxDesc[i] = dxDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNBackwardDataAlgorithmEx(_handle, _desc, seqLength, _yDesc, y.DevicePointer, _dyDesc, dy.DevicePointer, dhyDesc.Desc, dhy.DevicePointer,
+                dcyDesc.Desc, dcy.DevicePointer, wDesc.Desc, w.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer, _dxDesc, dx.DevicePointer, dhxDesc.Desc, dhx.DevicePointer, 
+                dcxDesc.Desc, dcx.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp, workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNBackwardDataAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNBackwardWeightsAlgorithmEx(
+                                                   int seqLength,
+                                                   TensorDescriptor[] xDesc,
+                                                   CudaDeviceVariable<float> x,
+                                                   TensorDescriptor hxDesc,
+                                                   CudaDeviceVariable<float> hx,
+                                                   TensorDescriptor[] yDesc,
+                                                   CudaDeviceVariable<float> y,
+                                                   float findIntensity,
+                                                   int requestedAlgoCount,
+                                                   CudaDeviceVariable<byte> workspace,
+                                                   FilterDescriptor dwDesc,
+                                                   CudaDeviceVariable<float> dw,
+                                                   CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNBackwardWeightsAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer, 
+                _yDesc, y.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp,
+                workspace.DevicePointer, workspace.SizeInBytes, dwDesc.Desc, dw.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNBackwardWeightsAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardInference, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNForwardInferenceAlgorithmEx(
+                                                    int seqLength,
+                                                    TensorDescriptor[] xDesc,
+                                                    CudaDeviceVariable<double> x,
+                                                    TensorDescriptor hxDesc,
+                                                    CudaDeviceVariable<double> hx,
+                                                    TensorDescriptor cxDesc,
+                                                    CudaDeviceVariable<double> cx,
+                                                    FilterDescriptor wDesc,
+                                                    CudaDeviceVariable<double> w,
+                                                    TensorDescriptor[] yDesc,
+                                                    CudaDeviceVariable<double> y,
+                                                    TensorDescriptor hyDesc,
+                                                    CudaDeviceVariable<double> hy,
+                                                    TensorDescriptor cyDesc,
+                                                    CudaDeviceVariable<double> cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    CudaDeviceVariable<byte> workspace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNForwardInferenceAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer, _yDesc, y.DevicePointer, hyDesc.Desc, hy.DevicePointer, cyDesc.Desc, cy.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp,
+                workspace.DevicePointer, workspace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardFilterAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnRNNForwardTraining, using user-allocated GPU memory, and outputs performance metrics to a user-allocated array of cudnnAlgorithmPerformance_t. These metrics are written in sorted fashion where the first element has the lowest compute time. 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNForwardTrainingAlgorithmEx(
+                                                    int seqLength,
+                                                    TensorDescriptor[] xDesc,
+                                                    CudaDeviceVariable<double> x,
+                                                    TensorDescriptor hxDesc,
+                                                    CudaDeviceVariable<double> hx,
+                                                    TensorDescriptor cxDesc,
+                                                    CudaDeviceVariable<double> cx,
+                                                    FilterDescriptor wDesc,
+                                                    CudaDeviceVariable<double> w,
+                                                    TensorDescriptor[] yDesc,
+                                                    CudaDeviceVariable<double> y,
+                                                    TensorDescriptor hyDesc,
+                                                    CudaDeviceVariable<double> hy,
+                                                    TensorDescriptor cyDesc,
+                                                    CudaDeviceVariable<double> cy,
+                                                    float findIntensity,
+                                                    int requestedAlgoCount,
+                                                    CudaDeviceVariable<byte> workspace,
+                                                    CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNForwardTrainingAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer, _yDesc, y.DevicePointer, hyDesc.Desc, hy.DevicePointer, cyDesc.Desc, cy.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp,
+                workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNForwardTrainingAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNBackwardDataAlgorithmEx(
+                                                int seqLength,
+                                                TensorDescriptor[] yDesc,
+                                                CudaDeviceVariable<double> y,
+                                                TensorDescriptor[] dyDesc,
+                                                CudaDeviceVariable<double> dy,
+                                                TensorDescriptor dhyDesc,
+                                                CudaDeviceVariable<double> dhy,
+                                                TensorDescriptor dcyDesc,
+                                                CudaDeviceVariable<double> dcy,
+                                                FilterDescriptor wDesc,
+                                                CudaDeviceVariable<double> w,
+                                                TensorDescriptor hxDesc,
+                                                CudaDeviceVariable<double> hx,
+                                                TensorDescriptor cxDesc,
+                                                CudaDeviceVariable<double> cx,
+                                                TensorDescriptor[] dxDesc,
+                                                CudaDeviceVariable<double> dx,
+                                                TensorDescriptor dhxDesc,
+                                                CudaDeviceVariable<double> dhx,
+                                                TensorDescriptor dcxDesc,
+                                                CudaDeviceVariable<double> dcx,
+                                                float findIntensity,
+                                                int requestedAlgoCount,
+                                                CudaDeviceVariable<byte> workspace,
+                                                CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            cudnnTensorDescriptor[] _dyDesc = new cudnnTensorDescriptor[dyDesc.Length];
+            cudnnTensorDescriptor[] _dxDesc = new cudnnTensorDescriptor[dxDesc.Length];
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+            for (int i = 0; i < dyDesc.Length; i++)
+            {
+                _dyDesc[i] = dyDesc[i].Desc;
+            }
+            for (int i = 0; i < dxDesc.Length; i++)
+            {
+                _dxDesc[i] = dxDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNBackwardDataAlgorithmEx(_handle, _desc, seqLength, _yDesc, y.DevicePointer, _dyDesc, dy.DevicePointer, dhyDesc.Desc, dhy.DevicePointer,
+                dcyDesc.Desc, dcy.DevicePointer, wDesc.Desc, w.DevicePointer, hxDesc.Desc, hx.DevicePointer, cxDesc.Desc, cx.DevicePointer, _dxDesc, dx.DevicePointer, dhxDesc.Desc, dhx.DevicePointer,
+                dcxDesc.Desc, dcx.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp, workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNBackwardDataAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnAlgorithmPerformance[] cudnnFindRNNBackwardWeightsAlgorithmEx(
+                                                   int seqLength,
+                                                   TensorDescriptor[] xDesc,
+                                                   CudaDeviceVariable<double> x,
+                                                   TensorDescriptor hxDesc,
+                                                   CudaDeviceVariable<double> hx,
+                                                   TensorDescriptor[] yDesc,
+                                                   CudaDeviceVariable<double> y,
+                                                   float findIntensity,
+                                                   int requestedAlgoCount,
+                                                   CudaDeviceVariable<byte> workspace,
+                                                   FilterDescriptor dwDesc,
+                                                   CudaDeviceVariable<double> dw,
+                                                   CudaDeviceVariable<byte> reserveSpace)
+        {
+            cudnnTensorDescriptor[] _xDesc = new cudnnTensorDescriptor[xDesc.Length];
+            cudnnTensorDescriptor[] _yDesc = new cudnnTensorDescriptor[yDesc.Length];
+            for (int i = 0; i < xDesc.Length; i++)
+            {
+                _xDesc[i] = xDesc[i].Desc;
+            }
+            for (int i = 0; i < yDesc.Length; i++)
+            {
+                _yDesc[i] = yDesc[i].Desc;
+            }
+
+            cudnnAlgorithmPerformance[] temp = new cudnnAlgorithmPerformance[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindRNNBackwardWeightsAlgorithmEx(_handle, _desc, seqLength, _xDesc, x.DevicePointer, hxDesc.Desc, hx.DevicePointer,
+                _yDesc, y.DevicePointer, findIntensity, requestedAlgoCount, ref returnedAlgoCount, temp,
+                workspace.DevicePointer, workspace.SizeInBytes, dwDesc.Desc, dw.DevicePointer, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindRNNBackwardWeightsAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnAlgorithmPerformance[] perfResults = new cudnnAlgorithmPerformance[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetRNNBiasMode(cudnnRNNBiasMode biasMode)
+        {
+            res = CudaDNNNativeMethods.cudnnSetRNNBiasMode(_desc, biasMode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNBiasMode", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnRNNBiasMode GetRNNBiasMode()
+        {
+            cudnnRNNBiasMode ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNBiasMode(_desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNBiasMode", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetClip(cudnnRNNClipMode clipMode, cudnnNanPropagation clipNanOpt, double lclip, double rclip)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNSetClip(_handle, _desc, clipMode, clipNanOpt, lclip, rclip);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNSetClip", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetClip(ref cudnnRNNClipMode clipMode, ref cudnnNanPropagation clipNanOpt, ref double lclip, ref double rclip)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNGetClip(_handle, _desc, ref clipMode, ref clipNanOpt, ref lclip, ref rclip);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNGetClip", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetRNNPaddingMode(cudnnRNNPaddingMode paddingMode)
+        {
+            res = CudaDNNNativeMethods.cudnnSetRNNPaddingMode(_desc, paddingMode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetRNNPaddingMode", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnRNNPaddingMode GetRNNPaddingMode()
+        {
+            cudnnRNNPaddingMode ret = 0;
+            res = CudaDNNNativeMethods.cudnnGetRNNPaddingMode(_desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetRNNPaddingMode", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
     }
 }

@@ -1000,6 +1000,93 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutBackward", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+
+
+
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnConvolutionForward, using 
+        /// user-allocated GPU memory, and outputs performance metrics to a user-allocated array of 
+        /// cudnnConvolutionFwdAlgoPerf_t. These metrics are written in sorted fashion where the first 
+        /// element has the lowest compute time. The workspace size should be the largest workspace you 
+        /// can spare in device memory; the size of this workspace will determine the availablity of 
+        /// the convolution algorithms.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor xDesc.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor yDesc. The content of this tensor will be overwritten with arbitary values.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="workSpace">Data pointer to GPU memory that is a necessary workspace for some algorithms. The size of this workspace will determine the availability of algorithms. A nil pointer is considered a workSpace of 0 bytes.</param>
+        public cudnnConvolutionFwdAlgoPerf[] FindConvolutionForwardAlgorithmEx(
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<float> x,
+                                        FilterDescriptor wDesc,
+                                        CudaDeviceVariable<float> w,
+                                        ConvolutionDescriptor convDesc,
+                                        TensorDescriptor yDesc,
+                                        CudaDeviceVariable<float> y,
+                                        CudaDeviceVariable<byte> workSpace,
+                                        int requestedAlgoCount)
+        {
+            cudnnConvolutionFwdAlgoPerf[] temp = new cudnnConvolutionFwdAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindConvolutionForwardAlgorithmEx(_handle, xDesc.Desc, x.DevicePointer, wDesc.Desc, w.DevicePointer, convDesc.Desc, yDesc.Desc, y.DevicePointer,
+                requestedAlgoCount, ref returnedAlgoCount, temp, workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionForwardAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnConvolutionFwdAlgoPerf[] perfResults = new cudnnConvolutionFwdAlgoPerf[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms for cudnnConvolutionBackwardFilter, 
+        /// using user-allocated GPU memory, and outputs performance metrics to a 
+        /// user-allocated array of cudnnConvolutionBwdFilterAlgoPerf_t. These metrics are 
+        /// written in sorted fashion where the first element has the lowest compute time. The 
+        /// workspace size should be the largest workspace you can spare in device memory; the 
+        /// size of this workspace will determine the availablity of convolution algorithms.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor. </param>
+        /// <param name="x">Data pointer to GPU memory associated with the filter descriptor xDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor dyDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="dw">Data pointer to GPU memory associated with the filter descriptor dwDesc.The content of this tensor will be overwritten with arbitary values.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="workSpace">Data pointer to GPU memory that is a necessary workspace for some algorithms. The size of this workspace will determine the availabilty of algorithms. A nil pointer is considered a workSpace of 0 bytes.</param>
+        public cudnnConvolutionBwdFilterAlgoPerf[] cudnnFindConvolutionBackwardFilterAlgorithmEx(
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<float> x,
+                                        TensorDescriptor dyDesc,
+                                        CudaDeviceVariable<float> dy,
+                                        ConvolutionDescriptor convDesc,
+                                        FilterDescriptor dwDesc,
+                                        CudaDeviceVariable<float> dw,
+                                        int requestedAlgoCount,
+                                        CudaDeviceVariable<byte> workSpace)
+        {
+            cudnnConvolutionBwdFilterAlgoPerf[] temp = new cudnnConvolutionBwdFilterAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindConvolutionBackwardFilterAlgorithmEx(_handle, xDesc.Desc, x.DevicePointer, dyDesc.Desc, dy.DevicePointer, convDesc.Desc, dwDesc.Desc, 
+                dw.DevicePointer, requestedAlgoCount, ref returnedAlgoCount, temp, workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardFilterAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnConvolutionBwdFilterAlgoPerf[] perfResults = new cudnnConvolutionBwdFilterAlgoPerf[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
         #endregion
 
         #region doubles
@@ -1870,6 +1957,93 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDropoutBackward", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+
+
+
+
+
+        /// <summary>
+        /// This function attempts all available cuDNN algorithms for cudnnConvolutionForward, using 
+        /// user-allocated GPU memory, and outputs performance metrics to a user-allocated array of 
+        /// cudnnConvolutionFwdAlgoPerf_t. These metrics are written in sorted fashion where the first 
+        /// element has the lowest compute time. The workspace size should be the largest workspace you 
+        /// can spare in device memory; the size of this workspace will determine the availablity of 
+        /// the convolution algorithms.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor.</param>
+        /// <param name="x">Data pointer to GPU memory associated with the tensor descriptor xDesc.</param>
+        /// <param name="wDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="w">Data pointer to GPU memory associated with the filter descriptor wDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="yDesc">Handle to the previously initialized output tensor descriptor.</param>
+        /// <param name="y">Data pointer to GPU memory associated with the tensor descriptor yDesc. The content of this tensor will be overwritten with arbitary values.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="workSpace">Data pointer to GPU memory that is a necessary workspace for some algorithms. The size of this workspace will determine the availability of algorithms. A nil pointer is considered a workSpace of 0 bytes.</param>
+        public cudnnConvolutionFwdAlgoPerf[] FindConvolutionForwardAlgorithmEx(
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<double> x,
+                                        FilterDescriptor wDesc,
+                                        CudaDeviceVariable<double> w,
+                                        ConvolutionDescriptor convDesc,
+                                        TensorDescriptor yDesc,
+                                        CudaDeviceVariable<double> y,
+                                        CudaDeviceVariable<byte> workSpace,
+                                        int requestedAlgoCount)
+        {
+            cudnnConvolutionFwdAlgoPerf[] temp = new cudnnConvolutionFwdAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindConvolutionForwardAlgorithmEx(_handle, xDesc.Desc, x.DevicePointer, wDesc.Desc, w.DevicePointer, convDesc.Desc, yDesc.Desc, y.DevicePointer,
+                requestedAlgoCount, ref returnedAlgoCount, temp, workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionForwardAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnConvolutionFwdAlgoPerf[] perfResults = new cudnnConvolutionFwdAlgoPerf[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
+        /// <summary>
+        /// This function attempts all cuDNN algorithms for cudnnConvolutionBackwardFilter, 
+        /// using user-allocated GPU memory, and outputs performance metrics to a 
+        /// user-allocated array of cudnnConvolutionBwdFilterAlgoPerf_t. These metrics are 
+        /// written in sorted fashion where the first element has the lowest compute time. The 
+        /// workspace size should be the largest workspace you can spare in device memory; the 
+        /// size of this workspace will determine the availablity of convolution algorithms.
+        /// </summary>
+        /// <param name="xDesc">Handle to the previously initialized input tensor descriptor. </param>
+        /// <param name="x">Data pointer to GPU memory associated with the filter descriptor xDesc.</param>
+        /// <param name="dyDesc">Handle to the previously initialized input differential tensor descriptor.</param>
+        /// <param name="dy">Data pointer to GPU memory associated with the tensor descriptor dyDesc.</param>
+        /// <param name="convDesc">Previously initialized convolution descriptor.</param>
+        /// <param name="dwDesc">Handle to a previously initialized filter descriptor.</param>
+        /// <param name="dw">Data pointer to GPU memory associated with the filter descriptor dwDesc.The content of this tensor will be overwritten with arbitary values.</param>
+        /// <param name="requestedAlgoCount">The maximum number of elements to be stored in perfResults.</param>
+        /// <param name="workSpace">Data pointer to GPU memory that is a necessary workspace for some algorithms. The size of this workspace will determine the availabilty of algorithms. A nil pointer is considered a workSpace of 0 bytes.</param>
+        public cudnnConvolutionBwdFilterAlgoPerf[] cudnnFindConvolutionBackwardFilterAlgorithmEx(
+                                        TensorDescriptor xDesc,
+                                        CudaDeviceVariable<double> x,
+                                        TensorDescriptor dyDesc,
+                                        CudaDeviceVariable<double> dy,
+                                        ConvolutionDescriptor convDesc,
+                                        FilterDescriptor dwDesc,
+                                        CudaDeviceVariable<double> dw,
+                                        int requestedAlgoCount,
+                                        CudaDeviceVariable<byte> workSpace)
+        {
+            cudnnConvolutionBwdFilterAlgoPerf[] temp = new cudnnConvolutionBwdFilterAlgoPerf[requestedAlgoCount];
+            int returnedAlgoCount = 0;
+            res = CudaDNNNativeMethods.cudnnFindConvolutionBackwardFilterAlgorithmEx(_handle, xDesc.Desc, x.DevicePointer, dyDesc.Desc, dy.DevicePointer, convDesc.Desc, dwDesc.Desc,
+                dw.DevicePointer, requestedAlgoCount, ref returnedAlgoCount, temp, workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFindConvolutionBackwardFilterAlgorithmEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            if (returnedAlgoCount <= 0) return null;
+
+            cudnnConvolutionBwdFilterAlgoPerf[] perfResults = new cudnnConvolutionBwdFilterAlgoPerf[returnedAlgoCount];
+            Array.Copy(temp, perfResults, returnedAlgoCount);
+            return perfResults;
+        }
+
         #endregion
 
         #region Type independent
@@ -2452,5 +2626,689 @@ namespace ManagedCuda.CudaDNN
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
         #endregion
+
+
+
+        public void TransformTensorEx(TensorTransformDescriptor transDesc,
+            float alpha, TensorDescriptor srcDesc,
+            CudaDeviceVariable<float> srcData, float beta,
+            TensorDescriptor destDesc, CudaDeviceVariable<float> destData)
+        {
+            res = CudaDNNNativeMethods.cudnnTransformTensorEx(_handle, transDesc.Desc, ref alpha, srcDesc.Desc,
+                srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnTransformTensorEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void TransformTensorEx(TensorTransformDescriptor transDesc,
+            double alpha, TensorDescriptor srcDesc,
+            CudaDeviceVariable<double> srcData, double beta,
+            TensorDescriptor destDesc, CudaDeviceVariable<double> destData)
+        {
+            res = CudaDNNNativeMethods.cudnnTransformTensorEx(_handle, transDesc.Desc, ref alpha, srcDesc.Desc,
+                srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnTransformTensorEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        /// <summary>
+        /// Helper function to calculate folding descriptors  for dgrad
+        /// </summary>
+        public void GetFoldedConvBackwardDataDescriptors(FilterDescriptor filterDesc,
+            TensorDescriptor diffDesc,
+            ConvolutionDescriptor convDesc,
+            TensorDescriptor gradDesc,
+            cudnnTensorFormat transformFormat,
+            FilterDescriptor foldedFilterDesc,
+            TensorDescriptor paddedDiffDesc,
+            ConvolutionDescriptor foldedConvDesc,
+            TensorDescriptor foldedGradDesc,
+            TensorTransformDescriptor filterFoldTransDesc,
+            TensorTransformDescriptor diffPadTransDesc,
+            TensorTransformDescriptor gradFoldTransDesc,
+            TensorTransformDescriptor gradUnfoldTransDesc)
+        {
+            res = CudaDNNNativeMethods.cudnnGetFoldedConvBackwardDataDescriptors(_handle, 
+                filterDesc.Desc,
+                diffDesc.Desc,
+                convDesc.Desc,
+                gradDesc.Desc,
+                transformFormat,
+                foldedFilterDesc.Desc,
+                paddedDiffDesc.Desc,
+                foldedConvDesc.Desc,
+                foldedGradDesc.Desc,
+                filterFoldTransDesc.Desc,
+                diffPadTransDesc.Desc,
+                gradFoldTransDesc.Desc,
+                gradUnfoldTransDesc.Desc);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetFoldedConvBackwardDataDescriptors", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        public void TransformFilter(
+            TensorTransformDescriptor transDesc,
+            float alpha, FilterDescriptor srcDesc,
+            CudaDeviceVariable<float> srcData, float beta,
+            FilterDescriptor destDesc, CudaDeviceVariable<float> destData)
+        {
+            res = CudaDNNNativeMethods.cudnnTransformFilter(_handle, transDesc.Desc,
+                ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnTransformFilter", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        public void TransformFilter(
+            TensorTransformDescriptor transDesc,
+            double alpha, FilterDescriptor srcDesc,
+            CudaDeviceVariable<double> srcData, double beta,
+            FilterDescriptor destDesc, CudaDeviceVariable<double> destData)
+        {
+            res = CudaDNNNativeMethods.cudnnTransformFilter(_handle, transDesc.Desc,
+                ref alpha, srcDesc.Desc, srcData.DevicePointer, ref beta, destDesc.Desc, destData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnTransformFilter", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+        public void ReorderFilterAndBias(
+            FilterDescriptor filterDesc,
+            cudnnReorderType reorderType, CudaDeviceVariable<float> filterData,
+            CudaDeviceVariable<float> reorderedFilterData, int reorderBias, CudaDeviceVariable<float> biasData,
+            CudaDeviceVariable<float> reorderedBiasData)
+        {
+            res = CudaDNNNativeMethods.cudnnReorderFilterAndBias(_handle, filterDesc.Desc, reorderType, filterData.DevicePointer, 
+                reorderedFilterData.DevicePointer, reorderBias, biasData.DevicePointer, reorderedBiasData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnReorderFilterAndBias", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void ReorderFilterAndBias(
+            FilterDescriptor filterDesc,
+            cudnnReorderType reorderType, CudaDeviceVariable<double> filterData,
+            CudaDeviceVariable<double> reorderedFilterData, int reorderBias, CudaDeviceVariable<double> biasData,
+            CudaDeviceVariable<double> reorderedBiasData)
+        {
+            res = CudaDNNNativeMethods.cudnnReorderFilterAndBias(_handle, filterDesc.Desc, reorderType, filterData.DevicePointer,
+                reorderedFilterData.DevicePointer, reorderBias, biasData.DevicePointer, reorderedBiasData.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnReorderFilterAndBias", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        public SizeT GetBatchNormalizationForwardTrainingExWorkspaceSize(
+            cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            TensorDescriptor xDesc, TensorDescriptor zDesc,
+            TensorDescriptor yDesc,
+            TensorDescriptor bnScaleBiasMeanVarDesc,
+            ActivationDescriptor activationDesc)
+        {
+            SizeT ret = new SizeT();
+            res = CudaDNNNativeMethods.cudnnGetBatchNormalizationForwardTrainingExWorkspaceSize(_handle, mode, bnOps, xDesc.Desc, zDesc.Desc, yDesc.Desc, bnScaleBiasMeanVarDesc.Desc, activationDesc.Desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetBatchNormalizationForwardTrainingExWorkspaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+        public SizeT GetBatchNormalizationBackwardExWorkspaceSize(
+            cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            TensorDescriptor xDesc, TensorDescriptor yDesc,
+            TensorDescriptor dyDesc, TensorDescriptor dzDesc,
+            TensorDescriptor dxDesc,
+            TensorDescriptor dBnScaleBiasDesc,
+            ActivationDescriptor activationDesc)
+        {
+            SizeT ret = new SizeT();
+            res = CudaDNNNativeMethods.cudnnGetBatchNormalizationBackwardExWorkspaceSize(_handle, mode, bnOps, xDesc.Desc, yDesc.Desc, dyDesc.Desc, 
+                dzDesc.Desc, dxDesc.Desc, dBnScaleBiasDesc.Desc, activationDesc.Desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetBatchNormalizationBackwardExWorkspaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+        public SizeT GetBatchNormalizationTrainingExReserveSpaceSize(
+            cudnnBatchNormMode mode, cudnnBatchNormOps bnOps, ActivationDescriptor activationDesc, TensorDescriptor xDesc)
+        {
+            SizeT ret = new SizeT();
+            res = CudaDNNNativeMethods.cudnnGetBatchNormalizationTrainingExReserveSpaceSize(_handle, mode, bnOps, activationDesc.Desc, xDesc.Desc, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetBatchNormalizationTrainingExReserveSpaceSize", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return ret;
+        }
+
+
+
+
+        /// <summary>
+        /// Computes y = relu(BN(x) + z). Also accumulates moving averages of mean and inverse variances
+        /// </summary>
+        public void BatchNormalizationForwardTrainingEx(cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            float alpha, /* alpha[0] = result blend factor */
+            float beta,  /* beta[0] = dest layer blend factor */
+            TensorDescriptor xDesc, CudaDeviceVariable<float> xData,
+            TensorDescriptor zDesc, CudaDeviceVariable<float> zData,
+            TensorDescriptor yDesc, CudaDeviceVariable<float> yData,
+            TensorDescriptor bnScaleBiasMeanVarDesc, CudaDeviceVariable<float> bnScale,
+            CudaDeviceVariable<float> bnBias,
+            double exponentialAverageFactor, CudaDeviceVariable<float> resultRunningMean,
+            CudaDeviceVariable<float> resultRunningVariance,
+            /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and
+			   backward functions. */
+            double epsilon,
+            /* Optionally save intermediate results from the forward pass here
+			   - can be reused to speed up backward pass. NULL if unused */
+            CudaDeviceVariable<float> resultSaveMean, CudaDeviceVariable<float> resultSaveInvVariance,
+            ActivationDescriptor activationDesc, CudaDeviceVariable<byte> workspace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardTrainingEx(_handle, mode, bnOps, ref alpha, ref beta,
+            xDesc.Desc, xData.DevicePointer, zDesc.Desc, zData.DevicePointer, yDesc.Desc, yData.DevicePointer,
+            bnScaleBiasMeanVarDesc.Desc, bnScale.DevicePointer, bnBias.DevicePointer, exponentialAverageFactor, resultRunningMean.DevicePointer,
+            resultRunningVariance.DevicePointer, epsilon, resultSaveMean.DevicePointer, resultSaveInvVariance.DevicePointer,
+            activationDesc.Desc, workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationForwardTrainingEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        /// <summary>
+        /// Computes y = relu(BN(x) + z). Also accumulates moving averages of mean and inverse variances
+        /// </summary>
+        public void BatchNormalizationForwardTrainingEx(cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            double alpha, /* alpha[0] = result blend factor */
+            double beta,  /* beta[0] = dest layer blend factor */
+            TensorDescriptor xDesc, CudaDeviceVariable<double> xData,
+            TensorDescriptor zDesc, CudaDeviceVariable<double> zData,
+            TensorDescriptor yDesc, CudaDeviceVariable<double> yData,
+            TensorDescriptor bnScaleBiasMeanVarDesc, CudaDeviceVariable<double> bnScale,
+            CudaDeviceVariable<double> bnBias,
+            double exponentialAverageFactor, CudaDeviceVariable<double> resultRunningMean,
+            CudaDeviceVariable<double> resultRunningVariance,
+            /* Has to be >= CUDNN_BN_MIN_EPSILON. Should be the same in forward and
+			   backward functions. */
+            double epsilon,
+            /* Optionally save intermediate results from the forward pass here
+			   - can be reused to speed up backward pass. NULL if unused */
+            CudaDeviceVariable<double> resultSaveMean, CudaDeviceVariable<double> resultSaveInvVariance,
+            ActivationDescriptor activationDesc, CudaDeviceVariable<byte> workspace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationForwardTrainingEx(_handle, mode, bnOps, ref alpha, ref beta,
+            xDesc.Desc, xData.DevicePointer, zDesc.Desc, zData.DevicePointer, yDesc.Desc, yData.DevicePointer,
+            bnScaleBiasMeanVarDesc.Desc, bnScale.DevicePointer, bnBias.DevicePointer, exponentialAverageFactor, resultRunningMean.DevicePointer,
+            resultRunningVariance.DevicePointer, epsilon, resultSaveMean.DevicePointer, resultSaveInvVariance.DevicePointer,
+            activationDesc.Desc, workspace.DevicePointer, workspace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationForwardTrainingEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+
+
+        public void BatchNormalizationBackwardEx(cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            float alphaDataDiff, float betaDataDiff,
+            float alphaParamDiff, float betaParamDiff,
+            TensorDescriptor xDesc, CudaDeviceVariable<float> xData,
+            TensorDescriptor yDesc, CudaDeviceVariable<float> yData,
+            TensorDescriptor dyDesc, CudaDeviceVariable<float> dyData,
+            TensorDescriptor dzDesc, CudaDeviceVariable<float> dzData,
+            TensorDescriptor dxDesc, CudaDeviceVariable<float> dxData,
+            /* Shared tensor desc for the 4 tensors below */
+            TensorDescriptor dBnScaleBiasDesc, CudaDeviceVariable<float> bnScaleData,
+            CudaDeviceVariable<float> bnBiasData, /* needed if there is activation */
+            CudaDeviceVariable<float> dBnScaleData, CudaDeviceVariable<float> dBnBiasData,
+            double epsilon, /* Same epsilon as forward pass */
+            /* Optionally cached intermediate results from
+			   forward pass */
+            CudaDeviceVariable<float> savedMean, CudaDeviceVariable<float> savedInvVariance,
+            ActivationDescriptor activationDesc, CudaDeviceVariable<float> workSpace,
+            CudaDeviceVariable<float> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationBackwardEx(_handle, mode, bnOps, ref alphaDataDiff, ref betaDataDiff,
+            ref alphaParamDiff, ref betaParamDiff,
+            xDesc.Desc, xData.DevicePointer,
+            yDesc.Desc, yData.DevicePointer,
+            dyDesc.Desc, dyData.DevicePointer,
+            dzDesc.Desc, dzData.DevicePointer,
+            dxDesc.Desc, dxData.DevicePointer,
+            dBnScaleBiasDesc.Desc, bnScaleData.DevicePointer,
+            bnBiasData.DevicePointer,
+            dBnScaleData.DevicePointer, dBnBiasData.DevicePointer,
+            epsilon,
+            savedMean.DevicePointer, savedInvVariance.DevicePointer,
+            activationDesc.Desc, workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationBackwardEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+        public void BatchNormalizationBackwardEx(cudnnBatchNormMode mode, cudnnBatchNormOps bnOps,
+            double alphaDataDiff, double betaDataDiff,
+            double alphaParamDiff, double betaParamDiff,
+            TensorDescriptor xDesc, CudaDeviceVariable<double> xData,
+            TensorDescriptor yDesc, CudaDeviceVariable<double> yData,
+            TensorDescriptor dyDesc, CudaDeviceVariable<double> dyData,
+            TensorDescriptor dzDesc, CudaDeviceVariable<double> dzData,
+            TensorDescriptor dxDesc, CudaDeviceVariable<double> dxData,
+            /* Shared tensor desc for the 4 tensors below */
+            TensorDescriptor dBnScaleBiasDesc, CudaDeviceVariable<double> bnScaleData,
+            CudaDeviceVariable<double> bnBiasData, /* needed if there is activation */
+            CudaDeviceVariable<double> dBnScaleData, CudaDeviceVariable<double> dBnBiasData,
+            double epsilon, /* Same epsilon as forward pass */
+            /* Optionally cached intermediate results from
+			   forward pass */
+            CudaDeviceVariable<double> savedMean, CudaDeviceVariable<double> savedInvVariance,
+            ActivationDescriptor activationDesc, CudaDeviceVariable<double> workSpace,
+            CudaDeviceVariable<double> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnBatchNormalizationBackwardEx(_handle, mode, bnOps, ref alphaDataDiff, ref betaDataDiff,
+            ref alphaParamDiff, ref betaParamDiff,
+            xDesc.Desc, xData.DevicePointer,
+            yDesc.Desc, yData.DevicePointer,
+            dyDesc.Desc, dyData.DevicePointer,
+            dzDesc.Desc, dzData.DevicePointer,
+            dxDesc.Desc, dxData.DevicePointer,
+            dBnScaleBiasDesc.Desc, bnScaleData.DevicePointer,
+            bnBiasData.DevicePointer,
+            dBnScaleData.DevicePointer, dBnBiasData.DevicePointer,
+            epsilon,
+            savedMean.DevicePointer, savedInvVariance.DevicePointer,
+            activationDesc.Desc, workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnBatchNormalizationBackwardEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+
+
+
+
+        public void RNNForwardTrainingEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<float> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<float> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<float> cx,
+            FilterDescriptor wDesc, CudaDeviceVariable<float> w,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<float> y,
+            TensorDescriptor hyDesc, CudaDeviceVariable<float> hy,
+            TensorDescriptor cyDesc, CudaDeviceVariable<float> cy,
+            RNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> keys,        /* reserved, should pass NULL */
+            RNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> cAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> iAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> queries,     /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNForwardTrainingEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                yDesc.Desc, y.DevicePointer,
+                hyDesc.Desc, hy.DevicePointer,
+                cyDesc.Desc, cy.DevicePointer,
+                kDesc.Desc,
+                keys.DevicePointer,
+                cDesc.Desc,
+                cAttn.DevicePointer,
+                iDesc.Desc,
+                iAttn.DevicePointer,
+                qDesc.Desc,
+                queries.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNForwardTrainingEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void RNNForwardTrainingEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<double> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<double> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<double> cx,
+            FilterDescriptor wDesc, CudaDeviceVariable<double> w,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<double> y,
+            TensorDescriptor hyDesc, CudaDeviceVariable<double> hy,
+            TensorDescriptor cyDesc, CudaDeviceVariable<double> cy,
+            RNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> keys,        /* reserved, should pass NULL */
+            RNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> cAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> iAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> queries,     /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNForwardTrainingEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                yDesc.Desc, y.DevicePointer,
+                hyDesc.Desc, hy.DevicePointer,
+                cyDesc.Desc, cy.DevicePointer,
+                kDesc.Desc,
+                keys.DevicePointer,
+                cDesc.Desc,
+                cAttn.DevicePointer,
+                iDesc.Desc,
+                iAttn.DevicePointer,
+                qDesc.Desc,
+                queries.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNForwardTrainingEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        public void RNNForwardInferenceEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<float> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<float> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<float> cx,
+            FilterDescriptor wDesc, CudaDeviceVariable<float> w,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<float> y,
+            TensorDescriptor hyDesc, CudaDeviceVariable<float> hy,
+            TensorDescriptor cyDesc, CudaDeviceVariable<float> cy,
+            RNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> keys,        /* reserved, should pass NULL */
+            RNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> cAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> iAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> queries,     /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNForwardInferenceEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                yDesc.Desc, y.DevicePointer,
+                hyDesc.Desc, hy.DevicePointer,
+                cyDesc.Desc, cy.DevicePointer,
+                kDesc.Desc,
+                keys.DevicePointer,
+                cDesc.Desc,
+                cAttn.DevicePointer,
+                iDesc.Desc,
+                iAttn.DevicePointer,
+                qDesc.Desc,
+                queries.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNForwardInferenceEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void RNNForwardInferenceEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<double> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<double> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<double> cx,
+            FilterDescriptor wDesc, CudaDeviceVariable<double> w,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<double> y,
+            TensorDescriptor hyDesc, CudaDeviceVariable<double> hy,
+            TensorDescriptor cyDesc, CudaDeviceVariable<double> cy,
+            RNNDataDescriptor kDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> keys,        /* reserved, should pass NULL */
+            RNNDataDescriptor cDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> cAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor iDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> iAttn,       /* reserved, should pass NULL */
+            RNNDataDescriptor qDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> queries,     /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNForwardInferenceEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                yDesc.Desc, y.DevicePointer,
+                hyDesc.Desc, hy.DevicePointer,
+                cyDesc.Desc, cy.DevicePointer,
+                kDesc.Desc,
+                keys.DevicePointer,
+                cDesc.Desc,
+                cAttn.DevicePointer,
+                iDesc.Desc,
+                iAttn.DevicePointer,
+                qDesc.Desc,
+                queries.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNForwardInferenceEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        public void RNNBackwardDataEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<float> y,
+            RNNDataDescriptor dyDesc, CudaDeviceVariable<float> dy,
+            RNNDataDescriptor dcDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> dcAttn,                    /* reserved, should pass NULL */
+            TensorDescriptor dhyDesc, CudaDeviceVariable<float> dhy,
+            TensorDescriptor dcyDesc, CudaDeviceVariable<float> dcy,
+            FilterDescriptor wDesc, CudaDeviceVariable<float> w,
+            TensorDescriptor hxDesc, CudaDeviceVariable<float> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<float> cx,
+            RNNDataDescriptor dxDesc, CudaDeviceVariable<float> dx,
+            TensorDescriptor dhxDesc, CudaDeviceVariable<float> dhx,
+            TensorDescriptor dcxDesc, CudaDeviceVariable<float> dcx,
+            RNNDataDescriptor dkDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<float> dkeys,                           /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNBackwardDataEx(_handle, rnnDesc.Desc,
+                yDesc.Desc, y.DevicePointer,
+                dyDesc.Desc, dy.DevicePointer,
+                dcDesc.Desc,
+                dcAttn.DevicePointer,
+                dhyDesc.Desc, dhy.DevicePointer,
+                dcyDesc.Desc, dcy.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                dxDesc.Desc, dx.DevicePointer,
+                dhxDesc.Desc, dhx.DevicePointer,
+                dcxDesc.Desc, dcx.DevicePointer,
+                dkDesc.Desc,
+                dkeys.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNBackwardDataEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void RNNBackwardDataEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<double> y,
+            RNNDataDescriptor dyDesc, CudaDeviceVariable<double> dy,
+            RNNDataDescriptor dcDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> dcAttn,                    /* reserved, should pass NULL */
+            TensorDescriptor dhyDesc, CudaDeviceVariable<double> dhy,
+            TensorDescriptor dcyDesc, CudaDeviceVariable<double> dcy,
+            FilterDescriptor wDesc, CudaDeviceVariable<double> w,
+            TensorDescriptor hxDesc, CudaDeviceVariable<double> hx,
+            TensorDescriptor cxDesc, CudaDeviceVariable<double> cx,
+            RNNDataDescriptor dxDesc, CudaDeviceVariable<double> dx,
+            TensorDescriptor dhxDesc, CudaDeviceVariable<double> dhx,
+            TensorDescriptor dcxDesc, CudaDeviceVariable<double> dcx,
+            RNNDataDescriptor dkDesc, /* reserved, should pass NULL */
+            CudaDeviceVariable<double> dkeys,                           /* reserved, should pass NULL */
+            CudaDeviceVariable<byte> workSpace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNBackwardDataEx(_handle, rnnDesc.Desc,
+                yDesc.Desc, y.DevicePointer,
+                dyDesc.Desc, dy.DevicePointer,
+                dcDesc.Desc,
+                dcAttn.DevicePointer,
+                dhyDesc.Desc, dhy.DevicePointer,
+                dcyDesc.Desc, dcy.DevicePointer,
+                wDesc.Desc, w.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                cxDesc.Desc, cx.DevicePointer,
+                dxDesc.Desc, dx.DevicePointer,
+                dhxDesc.Desc, dhx.DevicePointer,
+                dcxDesc.Desc, dcx.DevicePointer,
+                dkDesc.Desc,
+                dkeys.DevicePointer,
+                workSpace.DevicePointer, workSpace.SizeInBytes, reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNBackwardDataEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+
+
+        public void RNNBackwardDataEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<float> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<float> hx,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<float> y, CudaDeviceVariable<byte> workSpace,
+            FilterDescriptor dwDesc, CudaDeviceVariable<float> dw,
+            CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNBackwardWeightsEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                yDesc.Desc, y.DevicePointer, workSpace.DevicePointer,
+                workSpace.SizeInBytes, dwDesc.Desc, dw.DevicePointer,
+                reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNBackwardWeightsEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        public void RNNBackwardDataEx(RNNDescriptor rnnDesc,
+            RNNDataDescriptor xDesc, CudaDeviceVariable<double> x,
+            TensorDescriptor hxDesc, CudaDeviceVariable<double> hx,
+            RNNDataDescriptor yDesc, CudaDeviceVariable<double> y, CudaDeviceVariable<byte> workSpace,
+            FilterDescriptor dwDesc, CudaDeviceVariable<double> dw,
+            CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnRNNBackwardWeightsEx(_handle, rnnDesc.Desc,
+                xDesc.Desc, x.DevicePointer,
+                hxDesc.Desc, hx.DevicePointer,
+                yDesc.Desc, y.DevicePointer, workSpace.DevicePointer,
+                workSpace.SizeInBytes, dwDesc.Desc, dw.DevicePointer,
+                reserveSpace.DevicePointer, reserveSpace.SizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnRNNBackwardWeightsEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+
+        public void GetMultiHeadAttnBuffers(AttnDescriptor attnDesc,
+            ref SizeT weightSizeInBytes, ref SizeT workSpaceSizeInBytes,
+            ref SizeT reserveSpaceSizeInBytes)
+        {
+            res = CudaDNNNativeMethods.cudnnGetMultiHeadAttnBuffers(_handle, attnDesc.Desc,
+            ref weightSizeInBytes, ref workSpaceSizeInBytes,
+            ref reserveSpaceSizeInBytes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetMultiHeadAttnBuffers", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        public void GetMultiHeadAttnWeights(AttnDescriptor attnDesc,
+            cudnnMultiHeadAttnWeightKind wKind, CudaDeviceVariable<float> weights, TensorDescriptor wDesc, ref CUdeviceptr wAddr)
+        {
+            res = CudaDNNNativeMethods.cudnnGetMultiHeadAttnWeights(_handle, attnDesc.Desc,
+            wKind, weights.SizeInBytes,
+            weights.DevicePointer, wDesc.Desc, ref wAddr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetMultiHeadAttnWeights", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        public void GetMultiHeadAttnWeights(AttnDescriptor attnDesc,
+            cudnnMultiHeadAttnWeightKind wKind, CudaDeviceVariable<double> weights, TensorDescriptor wDesc, ref CUdeviceptr wAddr)
+        {
+            res = CudaDNNNativeMethods.cudnnGetMultiHeadAttnWeights(_handle, attnDesc.Desc,
+            wKind, weights.SizeInBytes,
+            weights.DevicePointer, wDesc.Desc, ref wAddr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetMultiHeadAttnWeights", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+
+        public void MultiHeadAttnForward(AttnDescriptor attnDesc,
+            int currIdx,
+            int[] loWinIdx, int[] hiWinIdx, CudaDeviceVariable<int> devSeqLengthsQO,
+            CudaDeviceVariable<int> devSeqLengthsKV, SeqDataDescriptor qDesc,
+            CudaDeviceVariable<float> queries, CudaDeviceVariable<float> residuals,
+            SeqDataDescriptor kDesc, CudaDeviceVariable<float> keys,
+            SeqDataDescriptor vDesc, CudaDeviceVariable<float> values,
+            SeqDataDescriptor oDesc, CudaDeviceVariable<float> out_, 
+            CudaDeviceVariable<float> weights, CudaDeviceVariable<byte> workSpace,
+            CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnMultiHeadAttnForward(_handle, attnDesc.Desc,
+            currIdx,
+            loWinIdx, hiWinIdx, devSeqLengthsQO.DevicePointer,
+            devSeqLengthsKV.DevicePointer, qDesc.Desc,
+            queries.DevicePointer, residuals.DevicePointer,
+            kDesc.Desc, keys.DevicePointer,
+            vDesc.Desc, values.DevicePointer,
+            oDesc.Desc, out_.DevicePointer, weights.SizeInBytes,
+            weights.DevicePointer, workSpace.SizeInBytes, workSpace.DevicePointer,
+            reserveSpace.SizeInBytes, reserveSpace.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnMultiHeadAttnForward", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+
+        public void MultiHeadAttnBackwardData(AttnDescriptor attnDesc,
+            int[] loWinIdx, int[] hiWinIdx, CudaDeviceVariable<int> devSeqLengthsDQDO,
+            CudaDeviceVariable<int> devSeqLengthsDKDV, SeqDataDescriptor doDesc,
+            CudaDeviceVariable<float> dout, SeqDataDescriptor dqDesc, CudaDeviceVariable<float> dqueries,
+            CudaDeviceVariable<float> queries, SeqDataDescriptor dkDesc, CudaDeviceVariable<float> dkeys,
+            CudaDeviceVariable<float> keys, SeqDataDescriptor dvDesc, CudaDeviceVariable<float> dvalues,
+            CudaDeviceVariable<float> values,
+            CudaDeviceVariable<float> weights, CudaDeviceVariable<byte> workSpace,
+            CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnMultiHeadAttnBackwardData(_handle, attnDesc.Desc,
+            loWinIdx, hiWinIdx, devSeqLengthsDQDO.DevicePointer,
+            devSeqLengthsDKDV.DevicePointer, doDesc.Desc,
+            dout.DevicePointer, dqDesc.Desc, dqueries.DevicePointer,
+            queries.DevicePointer, dkDesc.Desc, dkeys.DevicePointer,
+            keys.DevicePointer, dvDesc.Desc, dvalues.DevicePointer,
+            values.DevicePointer, weights.SizeInBytes,
+            weights.DevicePointer, workSpace.SizeInBytes, workSpace.DevicePointer,
+            reserveSpace.SizeInBytes, reserveSpace.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnMultiHeadAttnBackwardData", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        public void MultiHeadAttnBackwardWeights(AttnDescriptor attnDesc,
+            cudnnWgradMode addGrad, SeqDataDescriptor qDesc,
+            CudaDeviceVariable<float> queries, SeqDataDescriptor kDesc, CudaDeviceVariable<float> keys,
+            SeqDataDescriptor vDesc, CudaDeviceVariable<float> values,
+            SeqDataDescriptor doDesc, CudaDeviceVariable<float> dout,
+            CudaDeviceVariable<float> weights, CudaDeviceVariable<float> dweights,
+            CudaDeviceVariable<byte> workSpace, CudaDeviceVariable<byte> reserveSpace)
+        {
+            res = CudaDNNNativeMethods.cudnnMultiHeadAttnBackwardWeights(_handle, attnDesc.Desc,
+            addGrad, qDesc.Desc,
+            queries.DevicePointer, kDesc.Desc, keys.DevicePointer,
+            vDesc.Desc, values.DevicePointer,
+            doDesc.Desc, dout.DevicePointer,
+            weights.SizeInBytes, weights.DevicePointer, dweights.DevicePointer,
+            workSpace.SizeInBytes, workSpace.DevicePointer, reserveSpace.SizeInBytes, reserveSpace.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnMultiHeadAttnBackwardWeights", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+
+        public SizeT MakeFusedOpsPlan(FusedOpsPlan plan, FusedOpsConstParamPack constPack)
+        {
+            SizeT size = new SizeT();
+            res = CudaDNNNativeMethods.cudnnMakeFusedOpsPlan(_handle, plan.Plan, constPack.Pack, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnMultiHeadAttnBackwardWeights", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return size;
+        }
+        public void FusedOpsExecute(FusedOpsPlan plan, FusedOpsVariantParamPack varPack)
+        {
+            res = CudaDNNNativeMethods.cudnnFusedOpsExecute(_handle, plan.Plan, varPack.Pack);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnFusedOpsExecute", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
     }
 }

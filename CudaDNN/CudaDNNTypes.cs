@@ -59,8 +59,29 @@ namespace ManagedCuda.CudaDNN
 		/// <summary>
 		/// MinEpsilon = 1e-5
 		/// </summary>
-        public const double MinEpsilon = 1e-5;
+        public const double MinEpsilon = 0.0;
     }
+
+    /// <summary>
+    /// Constant values for SEQDATA
+    /// </summary>
+    public struct SeqDataConstants
+    {
+        /// <summary>
+        /// dimension count
+        /// </summary>
+        public const int DimCount = 4;
+    }
+
+
+    public struct ATTNConstants
+    {
+        /// <summary>
+        /// Number of attention weight/bias tensors
+        /// </summary>
+        public const int WKindCount = 8;
+    }
+
 
     /// <summary>
     /// 
@@ -239,6 +260,7 @@ namespace ManagedCuda.CudaDNN
     /// <summary>
     /// 
     /// </summary>
+	[StructLayout(LayoutKind.Sequential)]
     public struct cudnnDebug
     {
         /// <summary>
@@ -482,6 +504,71 @@ namespace ManagedCuda.CudaDNN
     {
         private IntPtr Pointer;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnTensorTransformDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnSeqDataDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnAttnDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnFusedOpsConstParamPack
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnFusedOpsVariantParamPack
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnFusedOpsPlan
+    {
+        private IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cudnnRNNDataDescriptor
+    {
+        private IntPtr Pointer;
+    }
+
+
     #endregion
 
     #region enums
@@ -625,6 +712,8 @@ namespace ManagedCuda.CudaDNN
         /// is only supported with tensor format CUDNN_TENSOR_NCHW_VECT_C.
         /// </summary>
         UInt8x4 = 7,
+
+        Int8x32 = 8,
     }
 
     /// <summary>
@@ -1447,7 +1536,9 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// 
         /// </summary>
-        TensorOP = 1
+        TensorOP = 1,
+
+        TensorOPAllowConversion = 2,
     }
 
     /// <summary>
@@ -1505,8 +1596,469 @@ namespace ManagedCuda.CudaDNN
         /// <summary>
         /// 
         /// </summary>
-        Info = 1 << (int)cudnnSeverity.Info        
+        Info = 1 << (int)cudnnSeverity.Info
     }
 
+    /// <summary>
+    /// CUDNN Reorder
+    /// </summary>
+    public enum cudnnReorderType
+    {
+        Default = 0,
+        No = 1,
+    }
+
+    /// <summary>
+    /// Fold/unfold transforms
+    /// </summary>
+    public enum cudnnFoldingDirection
+    {
+        Fold = 0,
+        Unfold = 1,
+    }
+
+
+    public enum cudnnBatchNormOps
+    {
+        /// <summary>
+        /// do batch normalization only
+        /// </summary>
+        BatchNormalization = 0,
+        /// <summary>
+        /// do batchNorm, then activation
+        /// </summary>
+        BatchNormalizationActivation = 1,
+        /// <summary>
+        /// do batchNorm, then elemWiseAdd, then activation
+        /// </summary>
+        BatchNormalizationAddActivation = 2, 
+    }
+
+
+    public enum cudnnRNNBiasMode
+    {
+        /// <summary>
+        /// rnn cell formulas do not use biases
+        /// </summary>
+        NoBias = 0, 
+        /// <summary>
+        /// rnn cell formulas use one input bias in input GEMM
+        /// </summary>
+        SingleInpBias = 1, 
+        /// <summary>
+        /// default, rnn cell formulas use two bias vectors
+        /// </summary>
+        DoubleBias = 2,
+        /// <summary>
+        /// rnn cell formulas use one recurrent bias in recurrent GEMM
+        /// </summary>
+        SingleRecBias = 3
+    }
+
+    public enum cudnnRNNClipMode
+    {
+        /// <summary>
+        /// disables LSTM cell clipping
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// enables LSTM cell clipping
+        /// </summary>
+        MinMax = 1, 
+    }
+
+    public enum cudnnRNNDataLayout
+    {
+        /// <summary>
+        /// padded, outer stride from one time-step to the next
+        /// </summary>
+        SeqMajorUnpacked = 0,
+        /// <summary>
+        /// sequence length sorted and packed as in basic RNN api
+        /// </summary>
+        SeqMajorPacked = 1, 
+        /// <summary>
+        /// padded, outer stride from one batch to the next
+        /// </summary>
+        BatchMajorUnpacked = 2, 
+    }
+
+    public enum cudnnRNNPaddingMode
+    {
+        Disabled = 0,
+        Enabled = 1,
+    }
+
+    /// <summary>
+    /// Sequence data descriptor
+    /// </summary>
+    public enum cudnnSeqDataAxis
+    {
+        /// <summary>
+        /// index in time
+        /// </summary>
+        Time = 0,
+        /// <summary>
+        /// index in batch
+        /// </summary>
+        Batch = 1,
+        /// <summary>
+        /// index in beam
+        /// </summary>
+        Beam = 2,
+        /// <summary>
+        /// index in vector
+        /// </summary>
+        Vect = 3
+    }
+
+    /// <summary>
+    /// Multi-head attention modes set in attention descriptor
+    /// </summary>
+    [Flags]
+    public enum MultiHeadAttentionModes : uint
+    {
+        /// <summary>
+        /// multiple Q-s map to a single (K,V) set when beam size > 1
+        /// </summary>
+        QuerymapAllToOne = 0, 
+        /// <summary>
+        /// multiple Q-s map to multiple (K,V) sets when beam size > 1
+        /// </summary>
+        QuerymapOneToOne = (1 << 0),
+        /// <summary>
+        /// no biases in attention input and output projections
+        /// </summary>
+        DisableProjBiases = 0, 
+        /// <summary>
+        /// use biases in attention input and output projections
+        /// </summary>
+        EnableProjBiases = (1 << 1)
+    }
+
+    public enum cudnnMultiHeadAttnWeightKind
+    {
+        /// <summary>
+        /// input projection weights for 'queries'
+        /// </summary>
+        QWeights = 0,
+        /// <summary>
+        /// input projection weights for 'keys'
+        /// </summary>
+        KWeights = 1,
+        /// <summary>
+        /// input projection weights for 'values'
+        /// </summary>
+        VWeights = 2,
+        /// <summary>
+        /// output projection weights
+        /// </summary>
+        OWeights = 3,
+        /// <summary>
+        /// input projection bias tensor for 'queries'
+        /// </summary>
+        QBiases = 4,
+        /// <summary>
+        /// input projection bias for 'keys'
+        /// </summary>
+        KBiases = 5,
+        /// <summary>
+        /// input projection bias for 'values'
+        /// </summary>
+        VBiases = 6,
+        /// <summary>
+        /// output projection biases
+        /// </summary>
+        OBiases = 7,
+    }
+
+
+    public enum cudnnWgradMode
+    {
+        /// <summary>
+        /// add partial gradients to wgrad output buffers
+        /// </summary>
+        Add = 0,
+        /// <summary>
+        /// write partial gradients to wgrad output buffers
+        /// </summary>
+        Set = 1,
+    }
+
+    /// <summary>
+    /// Input normalization mode for loss function
+    /// </summary>
+    public enum cudnnLossNormalizationMode
+    {
+        None = 0,
+        SoftMax = 1,
+    }
+
+
+    public enum cudnnFusedOps
+    {
+        /// <summary>
+        /// Input normalization mode for loss function<para/>
+        /// each op in [ ] can be disabled by passing NULL ptr <para/>
+        /// [per channel scale], [per channel bias], [activation], convolution, [generate BN stats]
+        /// </summary>
+        ScaleBiasActivationConvBNStats = 0,
+        /// <summary>
+        /// [per channel scale], [per channel bias], [activation], convolutionBackwardWeights
+        /// </summary>
+        ScaleBiasActivationWGrad = 1,
+        /// <summary>
+        /// utility for BN training in BN-conv fusion <para/>
+        /// computes the equivalent scale and bias from ySum ySqSum and learned scale, bias <para/>
+        /// optionally update running stats and generate saved stats 
+        /// </summary>
+        BNFinalizeStatisticsTraining = 2,
+        /// <summary>
+        /// utility for BN inference in BN-conv fusion <para/>
+        /// computes the equivalent scale and bias from learned running stats and learned scale, bias 
+        /// </summary>
+        BNFinalizeStatisticsInference = 3,
+        /// <summary>
+        /// reserved for future use: convolution, [per channel scale], [per channel bias], [residual add], [activation]
+        /// </summary>        
+        ConvScaleBiasAddActivation = 4,
+        /// <summary>
+        /// reserved for future use: [per channel scale], [per channel bias], [residual add],  activation, bitmask 
+        /// </summary>        
+        ScaleBiasAddActivationGenBitmask = 5,
+        /// <summary>
+        /// reserved for future use
+        /// </summary>         
+        DeactivationForkDBatchNorm = 6,
+    }
+
+    public enum cudnnFusedOpsConstParamLabel
+    {
+        /// <summary>
+        /// set XDESC: pass previously initialized cudnnTensorDescriptor_t <para/>
+        /// get XDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        XDesc = 0,
+        /// <summary>
+        /// set/get XDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        XDataPlaceholder = 1,
+        /// <summary>
+        /// set/get BN_MODE: pass cudnnBatchNormMode_t*
+        /// </summary>
+        BN_Mode = 2,
+        /// <summary>
+        /// set BN_EQSCALEBIAS_DESC: pass previously initialized cudnnTensorDescriptor_t <para/>
+        /// get BN_EQSCALEBIAS_DESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        BN_EQScaleBiasDesc = 3,
+        /// <summary>
+        /// set/get BN_EQSCALE_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_EQScalePlaceholder = 4,
+        /// <summary>
+        /// set/get BN_EQBIAS_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_EQBiasPlaceholder = 5,
+        /// <summary>
+        /// set ACTIVATION_DESC: pass previously initialized cudnnActivationDescriptor_t <para/>
+        /// get ACTIVATION_DESC: pass previously created cudnnActivationDescriptor_t
+        /// </summary>
+        ActivationDesc = 6,
+        /// <summary>
+        /// set CONV_DESC: pass previously initialized cudnnConvolutionDescriptor_t<para/>
+        /// get CONV_DESC: pass previously created cudnnConvolutionDescriptor_t
+        /// </summary>
+        ConvDesc = 7,
+        /// <summary>
+        /// set WDESC: pass previously initialized cudnnFilterDescriptor_t<para/>
+        /// get WDESC: pass previously created cudnnFilterDescriptor_t
+        /// </summary>
+        WDesc = 8,
+        /// <summary>
+        /// set/get WDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        WDataPlaceholder = 9,
+        /// <summary>
+        /// set DWDESC: pass previously initialized cudnnFilterDescriptor_t<para/>
+        /// get DWDESC: pass previously created cudnnFilterDescriptor_t
+        /// </summary>
+        DWDesc = 10,
+        /// <summary>
+        /// set/get DWDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        DWDataPlaceholder = 11,
+        /// <summary>
+        /// set YDESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get YDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        YDesc = 12,
+        /// <summary>
+        /// set/get YDATA_Placeholder: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        YDataPlaceholder = 13,
+        /// <summary>
+        /// set DYDESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get DYDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        DYDesc = 14,
+        /// <summary>
+        /// set/get DYDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        DYDataPlaceholder = 15,
+        /// <summary>
+        /// set YSTATS_DESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get YSTATS_DESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        YStatsDesc = 16,
+        /// <summary>
+        /// set/get YSUM_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        YSumPlaceholder = 17,
+        /// <summary>
+        /// set/get YSQSUM_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        YSQSumPlaceholder = 18,
+        /// <summary>
+        /// set BN_SCALEBIAS_MEANVAR_DESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get BN_SCALEBIAS_MEANVAR_DESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        BNScaleBiasMeanVarDesc = 19,
+        /// <summary>
+        /// set/get BN_SCALE_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNScalePlaceholder = 20,
+        /// <summary>
+        /// set/get BN_BIAS_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNBiasPlaceholder = 21,
+        /// <summary>
+        /// set/get BN_SAVED_MEAN_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNSavedMeanPlaceholder = 22,
+        /// <summary>
+        /// set/get BN_SAVED_INVSTD_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNSavedInvStdPlaceholder = 23,
+        /// <summary>
+        /// set/get BN_RUNNING_MEAN_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNRunningMeanPlaceholder = 24,
+        /// <summary>
+        /// set/get BN_RUNNING_VAR_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BNRunningVarPlaceholder = 25,
+        /// <summary>
+        /// set ZDESC: pass previously initialized cudnnTensorDescriptor_t <para/>
+        /// get ZDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        ZDesc = 26,
+        /// <summary>
+        /// set/get ZDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        ZDataPlaceholder = 27,
+        /// <summary>
+        /// set BN_Z_EQSCALEBIAS_DESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get BN_Z_EQSCALEBIAS_DESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        BN_Z_EQScaleBiasDesc = 28,
+        /// <summary>
+        /// set/get BN_Z_EQSCALE_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_Z_EQScalePlaceholder = 29,
+        /// <summary>
+        /// set/get BN_Z_EQBIAS_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_Z_EQBiasPlaceholder = 30,
+        /// <summary>
+        /// set ACTIVATION_BITMASK_DESC: pass previously initialized cudnnTensorDescriptor_t <para/>
+        /// get ACTIVATION_BITMASK_DESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        ActivationBitmaskDesc = 31,
+        /// <summary>
+        /// set/get ACTIVATION_BITMASK_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        ActivationBitmaskPlaceholder = 32,
+        /// <summary>
+        /// set DXDESC: pass previously initialized cudnnTensorDescriptor_t <para/>
+        /// get DXDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        DXDesc = 33,
+        /// <summary>
+        /// set/get DXDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        DXDataPlaceholder = 34,
+        /// <summary>
+        /// set DZDESC: pass previously initialized cudnnTensorDescriptor_t<para/>
+        /// get DZDESC: pass previously created cudnnTensorDescriptor_t
+        /// </summary>
+        DZDesc = 35,
+        /// <summary>
+        /// set/get DZDATA_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        DZDataPlaceholder = 36,
+        /// <summary>
+        /// set/get BN_DSCALE_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_DScalePlaceholder = 37,
+        /// <summary>
+        /// set/get BN_DBIAS_PLACEHOLDER: pass cudnnFusedOpsPointerPlaceHolder_t*
+        /// </summary>
+        BN_DBiasPlaceholder = 38,
+    }
+
+    public enum cudnnFusedOpsPointerPlaceHolder
+    {
+        Null = 0,
+        ElemAligned = 1,
+        _16B_Aligned = 2,
+    }
+    public enum cudnnFusedOpsVariantParamLabel
+    {
+        /// <summary>
+        /// set: pass void* pointing to dev memory<para/>
+        /// get: pass void** pointing to host memory
+        /// </summary>
+        XData = 0,
+        BN_EQScale = 1,
+        BN_EQBias = 2,
+        WData = 3,
+        DWData = 4,
+        YData = 5,
+        DYData = 6,
+        YSum = 7,
+        YSQSum = 8,
+        Workspace = 9,
+        BN_Scalse = 10,
+        BN_Bias = 11,
+        BN_SavedMean = 12,
+        BN_SavedInvStd = 13,
+        BN_RunningMean = 14,
+        BN_RunningVar = 15,
+        ZData = 16,
+        BN_Z_EQScale = 17,
+        BN_Z_EQBias = 18,
+        ActivationBitmask = 19,
+        DXData = 20,
+        DZData = 21,
+        BN_DScale = 22,
+        BN_DBias = 23,
+        /// <summary>
+        /// set/get: pass size_t* pointing to host memory
+        /// </summary>
+        ScalarSizeTWorkspaceSizeInBytes = 100,
+        /// <summary>
+        /// set/get: pass int64_t* pointing to host memory
+        /// </summary>
+        ScalarInt64T_BN_AccumulationCount = 101,
+        /// <summary>
+        /// set/get: pass double* pointing to host memory
+        /// </summary>
+        ScalarBN_ExpAvgFactor = 102,
+        /// <summary>
+        /// set/get: pass double* pointing to host memory
+        /// </summary>
+        ScalarDoubleBN_Epsilon = 103,
+    }
     #endregion
 }

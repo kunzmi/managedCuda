@@ -107,6 +107,17 @@ namespace ManagedCuda.CudaDNN
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetCTCLossDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudnnDataType GetCTCLossDescriptor()
+        {
+            cudnnDataType dataType = new cudnnDataType();
+            res = CudaDNNNativeMethods.cudnnGetCTCLossDescriptor(_desc, ref dataType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetCTCLossDescriptor", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+            return dataType;
+        }
 
 
         /// <summary>
@@ -207,6 +218,24 @@ namespace ManagedCuda.CudaDNN
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetCTCLossDescriptorEx(cudnnDataType compType, cudnnLossNormalizationMode normMode, cudnnNanPropagation gradMode)
+        {
+            res = CudaDNNNativeMethods.cudnnSetCTCLossDescriptorEx(_desc, compType, normMode, gradMode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnSetCTCLossDescriptorEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetCTCLossDescriptorEx(ref cudnnDataType compType, ref cudnnLossNormalizationMode normMode, ref cudnnNanPropagation gradMode)
+        {
+            res = CudaDNNNativeMethods.cudnnGetCTCLossDescriptorEx(_desc, ref compType, ref normMode, ref gradMode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnGetCTCLossDescriptorEx", res));
+            if (res != cudnnStatus.Success) throw new CudaDNNException(res);
+        }
 
     }
 }

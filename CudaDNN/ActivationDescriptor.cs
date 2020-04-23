@@ -42,7 +42,7 @@ namespace ManagedCuda.CudaDNN
         {
             _desc = new cudnnActivationDescriptor();
             res = CudaDNNNativeMethods.cudnnCreateActivationDescriptor(ref _desc);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnCreateTensorDescriptor", res));
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnCreateActivationDescriptor", res));
             if (res != cudnnStatus.Success) throw new CudaDNNException(res);
         }
 
@@ -75,7 +75,7 @@ namespace ManagedCuda.CudaDNN
             {
                 //Ignore if failing
                 res = CudaDNNNativeMethods.cudnnDestroyActivationDescriptor(_desc);
-                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDestroyTensorDescriptor", res));
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cudnnDestroyActivationDescriptor", res));
                 disposed = true;
             }
             if (!fDisposing && !disposed)
