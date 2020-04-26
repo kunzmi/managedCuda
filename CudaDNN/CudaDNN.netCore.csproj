@@ -17,7 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="GlobalAssemblyInfo.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
