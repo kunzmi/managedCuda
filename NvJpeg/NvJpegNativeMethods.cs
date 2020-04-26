@@ -35,6 +35,29 @@ namespace ManagedCuda.NvJpeg
     {
         internal const string NVJPEG_API_DLL_NAME = "nvjpeg64_10";
 
+#if (NETCOREAPP)
+        internal const string NVJPEG_API_DLL_NAME_LINUX = "nvjpeg";
+
+        static NvJpegNativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(NvJpegNativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == NVJPEG_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    NativeLibrary.TryLoad(NVJPEG_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+#endif
 
 
         /// <summary>

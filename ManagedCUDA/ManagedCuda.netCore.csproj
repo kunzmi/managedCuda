@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\GlobalAssemblyInfo.proj" />
+  
+  <PropertyGroup>
+    <AssemblyTitle>ManagedCuda</AssemblyTitle>
+    <AssemblyProduct>ManagedCuda</AssemblyProduct>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>J:\ManagedCuda\managedCuda.netCore\ManagedCUDA\ManagedCuda.netCore.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ManagedCUDAKey.snk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="CudaManagedMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaManagedMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Update="CudaPageLockedHostMemory2DFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemory2DFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Update="CudaPageLockedHostMemory3DFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemory3DFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Update="CudaPageLockedHostMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaPageLockedHostMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+    <None Update="CudaRegisteredHostMemoryFixedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CudaRegisteredHostMemoryFixedTypes.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CudaManagedMemoryFixedTypes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CudaManagedMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CudaPageLockedHostMemory2DFixedTypes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CudaPageLockedHostMemory2DFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CudaPageLockedHostMemory3DFixedTypes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CudaPageLockedHostMemory3DFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CudaPageLockedHostMemoryFixedTypes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CudaPageLockedHostMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CudaRegisteredHostMemoryFixedTypes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CudaRegisteredHostMemoryFixedTypes.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

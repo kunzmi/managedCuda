@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using System.Security.Permissions;
+using System.Runtime.CompilerServices;
 
 namespace ManagedCuda
 {
@@ -39,12 +40,42 @@ namespace ManagedCuda
 		internal const string CUDA_OBSOLET_5_0 = "Don't use this CUDA API call with CUDA version >= 5.0.";
 		internal const string CUDA_OBSOLET_9_2 = "Don't use this CUDA API call with CUDA version >= 9.2.";
 
-		//Per thread default stream appendices
+#if (NETCOREAPP)
+        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
+
+        static DriverAPINativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(DriverAPINativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        internal static void Init()
+        { 
+            //Need that to have the constructor called before any library call.
+        }
+#endif
+
+        //Per thread default stream appendices
 #if _PerThreadDefaultStream
 		internal const string CUDA_PTDS = "_ptds";
 		internal const string CUDA_PTSZ = "_ptsz";
 #else
-		internal const string CUDA_PTDS = "";
+        internal const string CUDA_PTDS = "";
 		internal const string CUDA_PTSZ = "";
 #endif
 
@@ -86,6 +117,13 @@ namespace ManagedCuda
         /// </summary>
         public static class DeviceManagement
         {
+#if (NETCOREAPP)
+            static DeviceManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
             /// <summary>
             /// Returns in <c>device</c> a device handle given an ordinal in the range [0, <see cref="cuDeviceGetCount"/>-1].
             /// </summary>
@@ -374,6 +412,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class ContextManagement
         {
+#if (NETCOREAPP)
+            static ContextManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Creates a new CUDA context and associates it with the calling thread. The <c>flags</c> parameter is described in <see cref="CUCtxFlags"/>. The
 			/// context is created with a usage count of 1 and the caller of <see cref="cuCtxCreate_v2"/> must call <see cref="cuCtxDestroy"/> or <see cref="cuCtxDetach"/>
@@ -792,6 +836,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class ModuleManagement
         {
+#if (NETCOREAPP)
+            static ModuleManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Takes a filename <c>fname</c> and loads the corresponding module <c>module</c> into the current context. The CUDA driver API
             /// does not attempt to lazily allocate the resources needed by a module; if the memory for functions and data (constant
@@ -1014,6 +1064,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class MemoryManagement
         {
+#if (NETCOREAPP)
+            static MemoryManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Returns in <c>free</c> and <c>total</c> respectively, the free and total amount of memory available for allocation by the 
             /// CUDA context, in bytes.
@@ -1721,6 +1777,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class SynchronousMemcpy_v2
         {
+#if (NETCOREAPP)
+            static SynchronousMemcpy_v2()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             //New memcpy functions in CUDA 4.0 for unified addressing
             /// <summary>
             /// Copies data between two pointers. <para/>
@@ -6010,6 +6072,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class AsynchronousMemcpy_v2
         {
+#if (NETCOREAPP)
+            static AsynchronousMemcpy_v2()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             //New memcpy functions in CUDA 4.0 for unified addressing
             /// <summary>
             /// Copies data between two pointers. 
@@ -6203,6 +6271,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class Memset
         {
+#if (NETCOREAPP)
+            static Memset()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Sets the memory range of <c>N</c> 8-bit values to the specified value <c>b</c>.
             /// </summary>
@@ -6296,6 +6370,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class MemsetAsync
         {
+#if (NETCOREAPP)
+            static MemsetAsync()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Sets the memory range of <c>N</c> 8-bit values to the specified value <c>b</c>.
             /// </summary>
@@ -6395,6 +6475,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class FunctionManagement
         {
+#if (NETCOREAPP)
+            static FunctionManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Specifies the <c>x</c>, <c>y</c>, and <c>z</c> dimensions of the thread blocks that are created when the kernel given by <c>hfunc</c> is launched.
             /// </summary>
@@ -6527,7 +6613,13 @@ namespace ManagedCuda
         /// </summary>
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class ArrayManagement
-        {            
+        {
+#if (NETCOREAPP)
+            static ArrayManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Creates a CUDA array according to the <see cref="CUDAArrayDescriptor"/> structure <c>pAllocateArray</c> and returns a
             /// handle to the new CUDA array in <c>pHandle</c>.
@@ -6636,6 +6728,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class TextureReferenceManagement
         {
+#if (NETCOREAPP)
+            static TextureReferenceManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Creates a texture reference and returns its handle in <c>pTexRef</c>. Once created, the application must call <see cref="cuTexRefSetArray"/>
 			/// or <see cref="cuTexRefSetAddress_v2"/> to associate the reference with allocated memory. Other texture reference functions
@@ -7007,6 +7105,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class SurfaceReferenceManagement
         {
+#if (NETCOREAPP)
+            static SurfaceReferenceManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Sets the CUDA array <c>hArray</c> to be read and written by the surface reference <c>hSurfRef</c>. Any previous CUDA array
             /// state associated with the surface reference is superseded by this function. Flags must be set to <see cref="CUSurfRefSetFlags.None"/>. The 
@@ -7043,6 +7147,12 @@ namespace ManagedCuda
         [Obsolete(CUDA_OBSOLET_9_2)]
         public static class ParameterManagement
         {
+#if (NETCOREAPP)
+            static ParameterManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Sets through <c>numbytes</c> the total size in bytes needed by the function parameters of the kernel corresponding to
             /// <c>hfunc</c>.
@@ -8614,6 +8724,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class Launch
         {
+#if (NETCOREAPP)
+            static Launch()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Invokes the kernel <c>f</c> on a 1 x 1 x 1 grid of blocks. The block contains the number of threads specified by a previous
             /// call to <see cref="FunctionManagement.cuFuncSetBlockShape"/>.
@@ -8921,6 +9037,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class Events
         {
+#if (NETCOREAPP)
+            static Events()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Creates an event <c>phEvent</c> with the flags specified via <c>Flags</c>. See <see cref="CUEventFlags"/>
             /// </summary>
@@ -9140,6 +9262,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class Streams
         {
+#if (NETCOREAPP)
+            static Streams()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Creates a stream and returns a handle in <c>phStream</c>. The <c>Flags</c> argument
 			/// determines behaviors of the stream. Valid values for <c>Flags</c> are:
@@ -9507,6 +9635,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class GraphicsInterop
         {
+#if (NETCOREAPP)
+            static GraphicsInterop()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Unregisters the graphics resource <c>resource</c> so it is not accessible by CUDA unless registered again.
             /// If resource is invalid then <see cref="CUResult.ErrorInvalidHandle"/> is returned.
@@ -9674,6 +9808,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class ExportTables
         {
+#if (NETCOREAPP)
+            static ExportTables()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// No description found in the CUDA reference manual...
             /// </summary>
@@ -9692,6 +9832,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class Limits
         {
+#if (NETCOREAPP)
+            static Limits()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Setting <c>limit</c> to <c>value</c> is a request by the application to update the current limit maintained by the context. The
             /// driver is free to modify the requested value to meet h/w requirements (this could be clamping to minimum or maximum
@@ -9782,6 +9928,12 @@ namespace ManagedCuda
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class CudaPeerAccess
         {
+#if (NETCOREAPP)
+            static CudaPeerAccess()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif      
             /// <summary>
             /// Returns in <c>canAccessPeer</c> a value of 1 if contexts on <c>dev</c> are capable of
             /// directly accessing memory from contexts on <c>peerDev</c> and 0 otherwise.
@@ -9861,22 +10013,28 @@ namespace ManagedCuda
 		/// Texture object management functions.
 		/// </summary>
 		public static class TextureObjects
-		{ 
-			/// <summary>
-			/// Creates a texture object and returns it in <c>pTexObject</c>. <c>pResDesc</c> describes
-			/// the data to texture from. <c>pTexDesc</c> describes how the data should be sampled.
-			/// <c>pResViewDesc</c> is an optional argument that specifies an alternate format for
-			/// the data described by <c>pResDesc</c>, and also describes the subresource region
-			/// to restrict access to when texturing. <c>pResViewDesc</c> can only be specified if
-			/// the type of resource is a CUDA array or a CUDA mipmapped array.
-			/// </summary>
-			/// <param name="pTexObject">Texture object to create</param>
-			/// <param name="pResDesc">Resource descriptor</param>
-			/// <param name="pTexDesc">Texture descriptor</param>
-			/// <param name="pResViewDesc">Resource view descriptor</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+        {
+#if (NETCOREAPP)
+            static TextureObjects()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+            /// <summary>
+            /// Creates a texture object and returns it in <c>pTexObject</c>. <c>pResDesc</c> describes
+            /// the data to texture from. <c>pTexDesc</c> describes how the data should be sampled.
+            /// <c>pResViewDesc</c> is an optional argument that specifies an alternate format for
+            /// the data described by <c>pResDesc</c>, and also describes the subresource region
+            /// to restrict access to when texturing. <c>pResViewDesc</c> can only be specified if
+            /// the type of resource is a CUDA array or a CUDA mipmapped array.
+            /// </summary>
+            /// <param name="pTexObject">Texture object to create</param>
+            /// <param name="pResDesc">Resource descriptor</param>
+            /// <param name="pTexDesc">Texture descriptor</param>
+            /// <param name="pResViewDesc">Resource view descriptor</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuTexObjectCreate(ref CUtexObject pTexObject, ref CudaResourceDesc pResDesc, ref CudaTextureDescriptor pTexDesc, ref CudaResourceViewDesc pResViewDesc);
 			
 			/// <summary>
@@ -9944,18 +10102,24 @@ namespace ManagedCuda
 		/// Surface object management functions.
 		/// </summary>
 		public static class SurfaceObjects
-		{
-			/// <summary>
-			/// Creates a surface object and returns it in <c>pSurfObject</c>. <c>pResDesc</c> describes
-			/// the data to perform surface load/stores on. ::CUDA_RESOURCE_DESC::resType must be 
-			/// ::CU_RESOURCE_TYPE_ARRAY and  ::CUDA_RESOURCE_DESC::res::array::hArray
-			/// must be set to a valid CUDA array handle. ::CUDA_RESOURCE_DESC::flags must be set to zero.
-			/// </summary>
-			/// <param name="pSurfObject">Surface object to create</param>
-			/// <param name="pResDesc">Resource descriptor</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+        {
+#if (NETCOREAPP)
+            static SurfaceObjects()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+            /// <summary>
+            /// Creates a surface object and returns it in <c>pSurfObject</c>. <c>pResDesc</c> describes
+            /// the data to perform surface load/stores on. ::CUDA_RESOURCE_DESC::resType must be 
+            /// ::CU_RESOURCE_TYPE_ARRAY and  ::CUDA_RESOURCE_DESC::res::array::hArray
+            /// must be set to a valid CUDA array handle. ::CUDA_RESOURCE_DESC::flags must be set to zero.
+            /// </summary>
+            /// <param name="pSurfObject">Surface object to create</param>
+            /// <param name="pResDesc">Resource descriptor</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuSurfObjectCreate(ref CUsurfObject pSurfObject, ref CudaResourceDesc pResDesc);
 			
 			/// <summary>
@@ -9987,26 +10151,32 @@ namespace ManagedCuda
 		/// driver application programming interface.
 		/// </summary>
 		public static class Profiling
-		{
-			/// <summary>
-			/// Initialize the profiling.<para/>
-			/// Using this API user can initialize the CUDA profiler by specifying
-			/// the configuration file, output file and output file format. This
-			/// API is generally used to profile different set of counters by
-			/// looping the kernel launch. The <c>configFile</c> parameter can be used
-			/// to select profiling options including profiler counters. Refer to
-			/// the "Compute Command Line Profiler User Guide" for supported
-			/// profiler options and counters.<para/>
-			/// Limitation: The CUDA profiler cannot be initialized with this API
-			/// if another profiling tool is already active, as indicated by the
-			/// <see cref="CUResult.ErrorProfilerDisabled"/> return code.
-			/// </summary>
-			/// <param name="configFile">Name of the config file that lists the counters/options for profiling.</param>
-			/// <param name="outputFile">Name of the outputFile where the profiling results will be stored.</param>
-			/// <param name="outputMode">outputMode</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorProfilerDisabled"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+        {
+#if (NETCOREAPP)
+            static Profiling()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+            /// <summary>
+            /// Initialize the profiling.<para/>
+            /// Using this API user can initialize the CUDA profiler by specifying
+            /// the configuration file, output file and output file format. This
+            /// API is generally used to profile different set of counters by
+            /// looping the kernel launch. The <c>configFile</c> parameter can be used
+            /// to select profiling options including profiler counters. Refer to
+            /// the "Compute Command Line Profiler User Guide" for supported
+            /// profiler options and counters.<para/>
+            /// Limitation: The CUDA profiler cannot be initialized with this API
+            /// if another profiling tool is already active, as indicated by the
+            /// <see cref="CUResult.ErrorProfilerDisabled"/> return code.
+            /// </summary>
+            /// <param name="configFile">Name of the config file that lists the counters/options for profiling.</param>
+            /// <param name="outputFile">Name of the outputFile where the profiling results will be stored.</param>
+            /// <param name="outputMode">outputMode</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorProfilerDisabled"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuProfilerInitialize(string configFile, string outputFile, CUoutputMode outputMode);
 
 			/// <summary>
@@ -10044,18 +10214,24 @@ namespace ManagedCuda
 		/// driver application programming interface.
 		/// </summary>
 		public static class ErrorHandling
-		{
-			/// <summary>
-			/// Gets the string description of an error code.<para/>
-			/// Sets <c>pStr</c> to the address of a NULL-terminated string description
-			/// of the error code <c>error</c>.
-			/// If the error code is not recognized, <see cref="CUResult.ErrorInvalidValue"/>
-			/// will be returned and <c>pStr</c> will be set to the NULL address
-			/// </summary>
-			/// <param name="error">Error code to convert to string.</param>
-			/// <param name="pStr">Address of the string pointer.</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+        {
+#if (NETCOREAPP)
+            static ErrorHandling()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+            /// <summary>
+            /// Gets the string description of an error code.<para/>
+            /// Sets <c>pStr</c> to the address of a NULL-terminated string description
+            /// of the error code <c>error</c>.
+            /// If the error code is not recognized, <see cref="CUResult.ErrorInvalidValue"/>
+            /// will be returned and <c>pStr</c> will be set to the NULL address
+            /// </summary>
+            /// <param name="error">Error code to convert to string.</param>
+            /// <param name="pStr">Address of the string pointer.</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuGetErrorString(CUResult error, ref IntPtr pStr);
 
 
@@ -10082,18 +10258,24 @@ namespace ManagedCuda
 		/// driver application programming interface.
 		/// </summary>
 		public static class Occupancy
-		{
-			/// <summary>
-			/// Returns in numBlocks the number of the maximum active blocks per
-			/// streaming multiprocessor.
-			/// </summary>
-			/// <param name="numBlocks">Returned occupancy</param>
-			/// <param name="func">Kernel for which occupancy is calulated</param>
-			/// <param name="blockSize">Block size the kernel is intended to be launched with</param>
-			/// <param name="dynamicSMemSize">Per-block dynamic shared memory usage intended, in bytes</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorUnknown"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+        {
+#if (NETCOREAPP)
+            static Occupancy()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+            /// <summary>
+            /// Returns in numBlocks the number of the maximum active blocks per
+            /// streaming multiprocessor.
+            /// </summary>
+            /// <param name="numBlocks">Returned occupancy</param>
+            /// <param name="func">Kernel for which occupancy is calulated</param>
+            /// <param name="blockSize">Block size the kernel is intended to be launched with</param>
+            /// <param name="dynamicSMemSize">Per-block dynamic shared memory usage intended, in bytes</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorUnknown"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuOccupancyMaxActiveBlocksPerMultiprocessor(ref int numBlocks, CUfunction func, int blockSize, SizeT dynamicSMemSize);
 
 			/// <summary>
@@ -10204,6 +10386,12 @@ namespace ManagedCuda
         /// </summary>
         public static class ExternResources
         {
+#if (NETCOREAPP)
+            static ExternResources()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Imports an external memory object<para/>
             /// Imports an externally allocated memory object and returns a handle to that in \p extMem_out.
@@ -10306,6 +10494,12 @@ namespace ManagedCuda
         /// </summary>
         public static class GraphManagment
         {
+#if (NETCOREAPP)
+            static GraphManagment()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Creates a graph<para/>
             /// Creates an empty graph, which is returned via \p phGraph.

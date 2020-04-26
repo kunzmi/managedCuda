@@ -36,6 +36,31 @@ namespace ManagedCuda.CudaBlas
         //32bit is no more supported, only 64 bit...
 		internal const string CUBLAS_API_DLL_NAME = "cublas64_10";
 
+
+#if (NETCOREAPP)
+		internal const string CUBLAS_API_DLL_NAME_LINUX = "cublas";
+
+		static CudaBlasNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(CudaBlasNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == CUBLAS_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(CUBLAS_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+#endif
+
 		#region Basics
 		/// <summary>
 		/// </summary>

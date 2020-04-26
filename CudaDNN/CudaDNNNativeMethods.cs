@@ -33,12 +33,37 @@ namespace ManagedCuda.CudaDNN
 	public static class CudaDNNNativeMethods
 	{
 		internal const string CUDNN_API_DLL_NAME = "cudnn64_7.dll";
-		/// <summary>
-		/// Gives the version of the wrapped api
-		/// </summary>
-		public static Version Version
+
+#if (NETCOREAPP)
+        internal const string CUDNN_API_DLL_NAME_LINUX = "libcudnn.so.7";
+
+        static CudaDNNNativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(CudaDNNNativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDNN_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    NativeLibrary.TryLoad(CUDNN_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+#endif
+
+        /// <summary>
+        /// Gives the version of the wrapped api
+        /// </summary>
+        public static Version Version
 		{
-			get { return new Version(7, 0, 5); }
+			get { return new Version(7, 6, 5); }
 		}
 
 		[DllImport(CUDNN_API_DLL_NAME, EntryPoint = "cudnnGetVersion")]

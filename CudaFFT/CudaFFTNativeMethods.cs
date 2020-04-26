@@ -35,6 +35,29 @@ namespace ManagedCuda.CudaFFT
 	{        
 		internal const string CUFFT_API_DLL_NAME = "cufft64_10";
 
+#if (NETCOREAPP)
+		internal const string CUFFT_API_DLL_NAME_LINUX = "cufft";
+
+		static CudaFFTNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(CudaFFTNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == CUFFT_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(CUFFT_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+#endif
 
 		/// <summary>
 		/// Creates a 1D FFT plan configuration for a specified signal size and data

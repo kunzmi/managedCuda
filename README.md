@@ -14,7 +14,9 @@ For this it includes:
 - Wrapper for graphics interop with DirectX and OpenGL, respectively SlimDX and OpenTK 
 - CUDA vector types like int2, float3 etc. with ToString() methods and operators (+, –, *, /) 
 - Define your own types: CudaDeviceVariable accepts any user defined type if it is a value type, i.e. a struct in C# 
-- Includes most CUDA libraries: CUFFT, CURAND, CUSPARSE, CUBLAS, NPP, NvJPEG and NVRTC
+- Includes CUDA libraries: CUFFT, CURAND, CUSPARSE, CUBLAS, CUSOLVER, NPP, NvJPEG and NVRTC
+- Compatibility for .net Framework and .net Core >3.x.
+- Native Linux support for .net Core 3.x: Automatically switches the native library names.
 - Access device memory directly per element using [] operator:
 ```
 CudaDeviceVariable<float> devVar = new CudaDeviceVariable<float>(64);
@@ -70,5 +72,5 @@ buffer.Dispose();
 b.Dispose();
 a.Dispose();
 ```
-- Compiles for .net 2.0 and .net 4.0 (default), runs also on mono and Linux. 
+
 - The new feature 'per thread default stream' is available as a compiler directive of the managedCuda main library: Compile the library with the option "_PerThreadDefaultStream" to enable it.

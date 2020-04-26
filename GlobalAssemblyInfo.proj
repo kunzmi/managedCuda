@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Michael Kunz</Authors> 
+    <Company>Michael Kunz</Company> 
+    <Copyright>Copyright © Michael Kunz 2020</Copyright>
+	
+    <Version>10.0.39</Version>
+    <AssemblyVersion>10.0.39</AssemblyVersion> 
+    <FileVersion>10.0.39</FileVersion> 
+  </PropertyGroup> 
+</Project>
+

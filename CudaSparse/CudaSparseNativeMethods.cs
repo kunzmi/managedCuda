@@ -35,7 +35,31 @@ namespace ManagedCuda.CudaSparse
 	/// </summary>
 	public static class CudaSparseNativeMethods
 	{
-		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_100";
+		internal const string CUSPARSE_API_DLL_NAME = "cusparse64_10";
+
+#if (NETCOREAPP)
+		internal const string CUSPARSE_API_DLL_NAME_LINUX = "cusparse";
+
+		static CudaSparseNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(CudaSparseNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == CUSPARSE_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(CUSPARSE_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+#endif
 
 		#region CUSPARSE initialization and managment routines
 		/// <summary/>

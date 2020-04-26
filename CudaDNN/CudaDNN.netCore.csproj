@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyTitle>CudaDNN for ManagedCuda</AssemblyTitle>
+    <AssemblyProduct>CudaDNN for ManagedCuda</AssemblyProduct>
+    <Authors>Michael Kunz</Authors>
+    <Company>Michael Kunz</Company>
+    <Copyright>Copyright © Michael Kunz 2020</Copyright>
+
+    <Version>7.6.5</Version>
+    <AssemblyVersion>7.6.5</AssemblyVersion>
+    <FileVersion>7.6.5</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="GlobalAssemblyInfo.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--ProjectReference Include="..\ManagedCUDA\ManagedCuda.netCore.csproj" >
+    </ProjectReference-->
+    <Reference Include="$(SolutionDir)ManagedCUDA\bin\$(Configuration)\$(TargetFramework)\ManagedCuda.netCore.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>

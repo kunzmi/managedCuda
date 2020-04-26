@@ -33,7 +33,31 @@ namespace ManagedCuda.NVRTC
 	public static class NVRTCNativeMethods
 	{
 		internal const string NVRTC_API_DLL_NAME = "nvrtc64_102_0";
-		
+
+#if (NETCOREAPP)
+		internal const string NVRTC_API_DLL_NAME_LINUX = "nvrtc";
+
+		static NVRTCNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(NVRTCNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == NVRTC_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(NVRTC_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+#endif
+
 		[DllImport(NVRTC_API_DLL_NAME, EntryPoint="nvrtcGetErrorString")]
         internal static extern IntPtr nvrtcGetErrorStringInternal(nvrtcResult result);
 

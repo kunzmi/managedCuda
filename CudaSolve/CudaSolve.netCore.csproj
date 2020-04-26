@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\GlobalAssemblyInfo.proj" />
+
+  <PropertyGroup>
+    <AssemblyTitle>CudaSolve for ManagedCuda</AssemblyTitle>
+    <AssemblyProduct>CudaSolve for ManagedCuda</AssemblyProduct>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CudaBlas\CudaBlas.netCore.csproj" />
+    <ProjectReference Include="..\CudaSparse\CudaSparse.netCore.csproj" />
+    <ProjectReference Include="..\ManagedCUDA\ManagedCuda.netCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaDNN", "CudaDNN\CudaDNN.csproj", "{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|NuGet_x64 = Debug|NuGet_x64
+		Debug|x64 = Debug|x64
+		Release|NuGet_x64 = Release|NuGet_x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|NuGet_x64.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|x64.ActiveCfg = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Debug|x64.Build.0 = Debug|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|NuGet_x64.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|x64.ActiveCfg = Release|x64
+		{CC7EF2DB-3CE2-4621-9B65-26DF3AD045BB}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C35AA91D-233A-4178-8D03-F8F247325538}
+	EndGlobalSection
+EndGlobal

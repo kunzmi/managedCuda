@@ -36,6 +36,29 @@ namespace ManagedCuda.CudaRand
 	{
 		internal const string CURAND_API_DLL_NAME = "curand64_10";
 
+#if (NETCOREAPP)
+		internal const string CURAND_API_DLL_NAME_LINUX = "curand";
+
+		static CudaRandNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(CudaRandNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == CURAND_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(CURAND_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+#endif
 
 		/// <summary>
 		/// Creates a new random number generator of type rng_type and returns it in ref generator.

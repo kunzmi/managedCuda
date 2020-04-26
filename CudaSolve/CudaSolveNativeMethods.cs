@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Text;
+using System.Runtime.CompilerServices;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
@@ -35,16 +36,48 @@ namespace ManagedCuda.CudaSolve
 	/// <summary/>
 	public static class CudaSolveNativeMethods
 	{
-#if _x64
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_80.dll";
-#else
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver32_80.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_10.dll";
+
+#if (NETCOREAPP)
+		internal const string CUSOLVE_API_DLL_NAME_LINUX = "cusolver";
+
+		static CudaSolveNativeMethods()
+		{
+			NativeLibrary.SetDllImportResolver(typeof(CudaSolveNativeMethods).Assembly, ImportResolver);
+		}
+
+		private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+		{
+			IntPtr libHandle = IntPtr.Zero;
+
+			if (libraryName == CUSOLVE_API_DLL_NAME)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				{
+					NativeLibrary.TryLoad(CUSOLVE_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+				}
+			}
+			//On Windows, use the default library name
+			return libHandle;
+		}
+
+		[MethodImpl(MethodImplOptions.NoOptimization)]
+		internal static void Init()
+		{
+			//Need that to have the constructor called before any library call.
+		}
 #endif
 		/// <summary>
 		/// The cuSolverDN library was designed to solve dense linear systems of the form Ax=B
 		/// </summary>
 		public static class Dense
 		{
+#if (NETCOREAPP)
+			static Dense()
+			{
+				CudaSolveNativeMethods.Init();
+			}
+#endif
 			#region Init
 			/// <summary>
 			/// This function initializes the cuSolverDN library and creates a handle on the cuSolverDN
@@ -4889,6 +4922,12 @@ namespace ManagedCuda.CudaSolve
 		/// </summary>
 		public static class Sparse
 		{
+#if (NETCOREAPP)
+			static Sparse()
+			{
+				CudaSolveNativeMethods.Init();
+			}
+#endif
 			#region Init
 			/// <summary>
 			/// This function initializes the cuSolverSP library and creates a handle on the cuSolver
@@ -6050,6 +6089,12 @@ namespace ManagedCuda.CudaSolve
 		/// </summary>
 		public static class Refactorization
 		{
+#if (NETCOREAPP)
+			static Refactorization()
+			{
+				CudaSolveNativeMethods.Init();
+			}
+#endif
 			#region Init
 			/// <summary>
 			/// This routine initializes the cuSolverRF library. It allocates required resources and must be called prior to any other cuSolverRF library routine.
