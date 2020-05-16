@@ -7,12 +7,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;netstandard2.1</TargetFrameworks>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DocumentationFile>J:\ManagedCuda\managedCuda.netCore\NPP\NPP.netCore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
