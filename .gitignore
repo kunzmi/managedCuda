@@ -52,3 +52,18 @@ Temporary Items
 # Files containing private data
 NuGetPackage.ps1
 NuGetPush.ps1
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options directory
+.vs/
