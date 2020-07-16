@@ -76,7 +76,7 @@ namespace ManagedCuda.CudaSolve
 			{
 				//Ignore if failing
 				res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsDestroy(_params);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverSpDestroyCsrqrInfo", res));
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsDestroy", res));
 				disposed = true;
 			}
 			if (!fDisposing && !disposed)
@@ -95,9 +95,9 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public void SetTol(cudaDataType data_type, double val)
+		public void SetTol(double val)
 		{
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetTol(_params, data_type, val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetTol(_params, val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsSetTol", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -105,9 +105,9 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public void SetTolInner(cudaDataType data_type, double val)
+		public void SetTolInner(double val)
 		{
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetTolInner(_params, data_type, val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetTolInner(_params, val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsSetTolInner", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -115,7 +115,7 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public void SetSolverPrecisions(cudaDataType solver_main_precision, cudaDataType solver_lowest_precision)
+		public void SetSolverPrecisions(cusolverPrecType solver_main_precision, cusolverPrecType solver_lowest_precision)
 		{
 			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetSolverPrecisions(_params, solver_main_precision, solver_lowest_precision);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsSetSolverPrecisions", res));
@@ -155,30 +155,6 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public int GetNiters()
-		{
-			int val = 0;
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsGetNiters(_params, ref val);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsGetNiters", res));
-			if (res != cusolverStatus.Success)
-				throw new CudaSolveException(res);
-			return val;
-		}
-
-		/// <summary>
-		/// </summary>
-		public int GetOuterNiters()
-		{
-			int val = 0;
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsGetOuterNiters(_params, ref val);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsGetOuterNiters", res));
-			if (res != cusolverStatus.Success)
-				throw new CudaSolveException(res);
-			return val;
-		}
-
-		/// <summary>
-		/// </summary>
 		public int GetMaxIters()
 		{
 			int val = 0;
@@ -191,7 +167,7 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public void SetSolverMainPrecision(cudaDataType solver_main_precision)
+		public void SetSolverMainPrecision(cusolverPrecType solver_main_precision)
 		{
 			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetSolverMainPrecision(_params, solver_main_precision);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsSetSolverMainPrecision", res));
@@ -201,10 +177,30 @@ namespace ManagedCuda.CudaSolve
 
 		/// <summary>
 		/// </summary>
-		public void SetSolverLowestPrecision(cudaDataType solver_main_precision)
+		public void SetSolverLowestPrecision(cusolverPrecType solver_main_precision)
 		{
 			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsSetSolverLowestPrecision(_params, solver_main_precision);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsSetSolverLowestPrecision", res));
+			if (res != cusolverStatus.Success)
+				throw new CudaSolveException(res);
+		}
+
+		/// <summary>
+		/// </summary>
+		public void EnableFallback()
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsEnableFallback(_params);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsEnableFallback", res));
+			if (res != cusolverStatus.Success)
+				throw new CudaSolveException(res);
+		}
+
+		/// <summary>
+		/// </summary>
+		public void DisableFallback()
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSParamsDisableFallback(_params);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSParamsDisableFallback", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
 		}

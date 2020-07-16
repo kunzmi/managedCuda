@@ -461,5 +461,60 @@ namespace ManagedCuda.NPP
 			return pNewNumber;
 		}
 		#endregion
+
+		#region new in Cuda 11
+
+
+		/// <summary>
+		/// label markers image generation with fixed destination ROI applied to all images in the batch.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer device memory pointer to the list of device memory source image descriptors, oSize element is ignored.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void LabelMarkersUFBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
+							  NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
+		{
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkersUFBatch_32u_C1R_Ctx(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI, eNorm, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFBatch_32u_C1R_Ctx", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// label markers image generation with per image destination ROI.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer device memory pointer to the list of device memory source image descriptors, oSize element is ignored.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
+		/// <param name="oMaxSizeROI">maximum ROI width and height of ALL images in the batch.</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void LabelMarkersUFBatch_Advanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
+							  NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
+		{
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI, eNorm, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFBatch_32u_C1R_Advanced_Ctx", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+
+		/// <summary>
+		/// 1 channel 32-bit unsigned integer in place connected region marker label renumbering for output from nppiLabelMarkersUF functions only with numbering sparseness elimination.<para/>
+		/// Note that the image in this function must be allocated with cudaMalloc() and NOT cudaMallocPitch(). <para/>
+		/// Also the pitch MUST be set to oSizeROI.width * sizeof(Npp32u).  And the image pointer and oSizeROI values MUST match those used when nppiLabelMarkersUF was called.<para/>
+		/// </summary>
+		/// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding CompressMarkerLabelsGetBufferSize call.</param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		/// <returns>the maximum renumbered marker label ID will be returned.</returns>
+		public int CompressMarkerLabelsUF(int nStartingNumber, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+		{
+			int pNewNumber = 0;
+			status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiCompressMarkerLabelsUF_32u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nStartingNumber, ref pNewNumber, pBuffer.DevicePointer, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabelsUF_32u_C1IR_Ctx", status));
+			NPPException.CheckNppStatus(status, this);
+			return pNewNumber;
+		}
+		#endregion
 	}
 }

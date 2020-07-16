@@ -154,13 +154,17 @@ namespace ManagedCuda.CudaRand
 		/// </summary>
 		PseudoBest = 100,
 		/// <summary>
-		/// Specific default 4096 thread sequence for pseudorandom results.
+		/// Specific default thread sequence for pseudorandom results, same as PseudoBest
 		/// </summary>
 		PseudoDefault = 101,
 		/// <summary>
 		/// Specific seeding pattern for fast lower quality pseudorandom results.
 		/// </summary>
 		PseudoSeeded = 102,
+		/// <summary>
+		/// Specific legacy sequence for pseudorandom results, guaranteed to remain the same for all cuRAND release
+		/// </summary>
+		PseudoLegacy = 103,
 		/// <summary>
 		/// Specific n-dimensional ordering for quasirandom results.
 		/// </summary>

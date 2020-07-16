@@ -34,7 +34,7 @@ namespace ManagedCuda.CudaBlas
 	public static class CudaBlasNativeMethods
 	{
         //32bit is no more supported, only 64 bit...
-		internal const string CUBLAS_API_DLL_NAME = "cublas64_10";
+		internal const string CUBLAS_API_DLL_NAME = "cublas64_11";
 
 
 #if (NETCOREAPP)
@@ -3430,7 +3430,7 @@ namespace ManagedCuda.CudaBlas
                                                       CUdeviceptr C,
                                                       cudaDataType Ctype,
                                                       int ldc,
-                                                      cudaDataType computeType,
+                                                      ComputeType computeType,
                                                       GemmAlgo algo); 
 		/// <summary>
 		/// </summary>
@@ -3452,7 +3452,7 @@ namespace ManagedCuda.CudaBlas
                                                       CUdeviceptr C,
                                                       cudaDataType Ctype,
                                                       int ldc,
-                                                      cudaDataType computeType,
+													  ComputeType computeType,
                                                       GemmAlgo algo); 
  
 		/* IO in Int8 complex/cuComplex, computation in cuComplex */                                                      
@@ -5311,7 +5311,7 @@ namespace ManagedCuda.CudaBlas
                                                       cudaDataType Ctype,
                                                       int ldc,
                                                       int batchCount,
-                                                      cudaDataType computeType,
+                                                      ComputeType computeType,
                                                       GemmAlgo algo);
 
         /// <summary>
@@ -5338,7 +5338,7 @@ namespace ManagedCuda.CudaBlas
                                                                  int ldc,
                                                                  long strideC,
                                                                  int batchCount,
-                                                                 cudaDataType computeType,
+																 ComputeType computeType,
                                                                  GemmAlgo algo);
 
 

@@ -127,5 +127,14 @@ namespace ManagedCuda.NvJpeg
 		}
 
 
+		// works only with the hardware decoder backend
+		public void SetScaleFactor(nvjpegScaleFactor scale_factor)
+		{
+			res = NvJpegNativeMethods.nvjpegDecodeParamsSetScaleFactor(_params, scale_factor);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegDecodeParamsSetScaleFactor", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+		}
+
 	}
 }

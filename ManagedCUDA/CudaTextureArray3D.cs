@@ -31,6 +31,7 @@ namespace ManagedCuda
     /// <summary>
     /// CudaArrayTexture3D
     /// </summary>
+	[Obsolete("Texture and surface references are deprecated since CUDA 11")]
     public class CudaTextureArray3D : IDisposable
     {
         CUtexref _texref;

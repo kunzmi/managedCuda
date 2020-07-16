@@ -6549,5 +6549,64 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, pBatchList);
 		}
 		#endregion
+
+		#region New in Cuda 11
+
+		/// <summary>
+		/// label markers image generation with fixed destination ROI applied to all images in the batch.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer device memory pointer to the list of device memory source image descriptors, oSize element is ignored.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
+		/// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void LabelMarkersUFBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
+							  NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
+		{
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkersUFBatch_8u32u_C1R_Ctx(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oSizeROI, eNorm, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFBatch_8u32u_C1R_Ctx", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// label markers image generation with per image destination ROI.
+		/// </summary>
+		/// <param name="pSrcBatchList">source_batch_images_pointer device memory pointer to the list of device memory source image descriptors, oSize element is ignored.</param>
+		/// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
+		/// <param name="oMaxSizeROI">maximum ROI width and height of ALL images in the batch.</param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void LabelMarkersUFBatch_Advanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
+							  NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
+		{
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx(pSrcBatchList.DevicePointer, pDstBatchList.DevicePointer, pSrcBatchList.Size, oMaxSizeROI, eNorm, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersUFBatch_8u32u_C1R_Advanced_Ctx", status));
+			NPPException.CheckNppStatus(status, pSrcBatchList);
+		}
+
+		/// <summary>
+		/// 1 channel 8-bit unsigned integer in place image watershed segmentation generation.
+		/// </summary>
+		/// <param name="pMarkerLabels">Device memory pointer to optionally output the corresponding marker labels image, set to NULL if no maker labels image output is desired. </param>
+		/// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
+		/// <param name="eSegmentBoundaryType">Type of segment boundaries, if any, to be added to output image. </param>
+		/// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding SegmentWatershedGetBufferSize call.</param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public void SegmentWatershed(NPPImage_32uC1 pMarkerLabels, NppiNorm eNorm, NppiWatershedSegmentBoundaryType eSegmentBoundaryType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+		{
+			CUdeviceptr ptrMarker = new CUdeviceptr();
+			int markerPitch = 0;
+			if (pMarkerLabels != null)
+			{
+				ptrMarker = pMarkerLabels.DevicePointerRoi;
+				markerPitch = pMarkerLabels.Pitch;
+			}
+
+			status = NPPNativeMethods_Ctx.NPPi.WatershedSegmentation.nppiSegmentWatershed_8u_C1IR_Ctx(_devPtrRoi, _pitch, ptrMarker, markerPitch, eNorm, eSegmentBoundaryType, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSegmentWatershed_8u_C1IR_Ctx", status));
+			NPPException.CheckNppStatus(status, this);
+		}
+
+		#endregion
 	}
 }

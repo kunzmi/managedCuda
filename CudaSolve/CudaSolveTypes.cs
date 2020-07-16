@@ -113,11 +113,18 @@ namespace ManagedCuda.CudaSolve
 		InvalidLicense=11,
 		CUSOLVER_STATUS_IRS_PARAMS_NOT_INITIALIZED = 12,
 		CUSOLVER_STATUS_IRS_PARAMS_INVALID = 13,
-		CUSOLVER_STATUS_IRS_INTERNAL_ERROR = 14,
-		CUSOLVER_STATUS_IRS_NOT_SUPPORTED = 15,
-		CUSOLVER_STATUS_IRS_OUT_OF_RANGE = 16,
-		CUSOLVER_STATUS_IRS_NRHS_NOT_SUPPORTED_FOR_REFINE_GMRES = 17,
-		CUSOLVER_STATUS_IRS_INFOS_NOT_INITIALIZED = 18
+
+		CUSOLVER_STATUS_IRS_PARAMS_INVALID_PREC = 14,
+		CUSOLVER_STATUS_IRS_PARAMS_INVALID_REFINE = 15,
+		CUSOLVER_STATUS_IRS_PARAMS_INVALID_MAXITER = 16,
+		CUSOLVER_STATUS_IRS_INTERNAL_ERROR = 20,
+		CUSOLVER_STATUS_IRS_NOT_SUPPORTED = 21,
+		CUSOLVER_STATUS_IRS_OUT_OF_RANGE = 22,
+		CUSOLVER_STATUS_IRS_NRHS_NOT_SUPPORTED_FOR_REFINE_GMRES = 23,
+		CUSOLVER_STATUS_IRS_INFOS_NOT_INITIALIZED = 25,
+		CUSOLVER_STATUS_IRS_INFOS_NOT_DESTROYED = 26,
+		CUSOLVER_STATUS_IRS_MATRIX_SINGULAR = 30,
+		CUSOLVER_STATUS_INVALID_WORKSPACE = 31
 	}
 
 
@@ -176,11 +183,52 @@ namespace ManagedCuda.CudaSolve
 		Classical_GMRES = 1103,
 		GMRES = 1104,
 		GMRES_GMRES = 1105,
+		GMRES_NOPCOND = 1106,
 
-		PrecDD = 1300,
-		PrecSS = 1301,
-		PrecSHT = 1302,
+		PrecDD = 1150,
+		PrecSS = 1151,
+		PrecSHT = 1152,
 	}
+
+	public enum cusolverPrecType
+	{
+		CUSOLVER_R_8I = 1201,
+		CUSOLVER_R_8U = 1202,
+		CUSOLVER_R_64F = 1203,
+		CUSOLVER_R_32F = 1204,
+		CUSOLVER_R_16F = 1205,
+		CUSOLVER_R_16BF = 1206,
+		CUSOLVER_R_TF32 = 1207,
+		CUSOLVER_R_AP = 1208,
+		CUSOLVER_C_8I = 1211,
+		CUSOLVER_C_8U = 1212,
+		CUSOLVER_C_64F = 1213,
+		CUSOLVER_C_32F = 1214,
+		CUSOLVER_C_16F = 1215,
+		CUSOLVER_C_16BF = 1216,
+		CUSOLVER_C_TF32 = 1217,
+		CUSOLVER_C_AP = 1218,
+	}
+
+	public enum cusolverAlgMode
+	{
+		CUSOLVER_ALG_0 = 0,  /* default algorithm */
+		CUSOLVER_ALG_1 = 1
+	}
+
+
+	public enum cusolverStorevMode
+	{
+		CUBLAS_STOREV_COLUMNWISE = 0,
+		CUBLAS_STOREV_ROWWISE = 1
+	}
+
+	public enum cusolverDirectMode
+	{
+		CUBLAS_DIRECT_FORWARD = 0,
+		CUBLAS_DIRECT_BACKWARD = 1
+	}
+
 	#endregion
 
 	#region Dense
@@ -246,8 +294,23 @@ namespace ManagedCuda.CudaSolve
 		/// </summary>
 		public IntPtr Pointer;
 	}
-	
 
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cusolverDnParams
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Pointer;
+	}
+
+	public enum cusolverDnFunction
+	{
+		CUSOLVERDN_GETRF = 0
+	}
 	#endregion
 
 	#region Sparse
@@ -373,10 +436,10 @@ namespace ManagedCuda.CudaSolve
 	/// </summary>
 	public enum TriangularSolve
 	{
-		/// <summary>
-		/// algorithm 0.
-		/// </summary>
-		Alg0 = 0,
+		///// <summary>
+		///// algorithm 0.
+		///// </summary>
+		//Alg0 = 0,
 		/// <summary>
 		/// algorithm 1. (default)
 		/// </summary>

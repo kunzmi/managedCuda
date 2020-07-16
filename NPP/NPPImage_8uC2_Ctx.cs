@@ -982,29 +982,45 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, null);
         }
 
-        /// <summary>
-        /// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed RGB 709 HDTV full color conversion.
-        /// </summary>
-        /// <param name="src0">Source image (Channel 0)</param>
-        /// <param name="src1">Source image (Channel 1)</param>
-        /// <param name="dest">Destination image</param>
+		/// <summary>
+		/// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed RGB 709 HDTV full color conversion. Note that HDTV conversion assumes full color range of 0 - 255, use CSC version for limited range color.
+		/// </summary>
+		/// <param name="src0">Source image (Channel 0)</param>
+		/// <param name="src1">Source image (Channel 1)</param>
+		/// <param name="dest">Destination image</param>
 		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public static void NV12ToRGB_709HDTV(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
+		public static void NV12ToRGB_709HDTV(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
             NppStatus status = NPPNativeMethods_Ctx.NPPi.NV12ToRGB.nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToRGB_709HDTV_8u_P2C3R_Ctx", status));
             NPPException.CheckNppStatus(status, null);
-        }
+		}
 
-        /// <summary>
-        /// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed BGR color conversion.
-        /// </summary>
-        /// <param name="src0">Source image (Channel 0)</param>
-        /// <param name="src1">Source image (Channel 1)</param>
-        /// <param name="dest">Destination image</param>
+		/// <summary>
+		/// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit
+		/// unsigned packed RGB 709 CSC color conversion. Note that HDTV conversion assumes full color range of 0 - 255, use CSC version for limited range color.
+		/// </summary>
+		/// <param name="src0">Source image (Channel 0)</param>
+		/// <param name="src1">Source image (Channel 1)</param>
+		/// <param name="dest">Destination image</param>
 		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public static void NV12ToBGR(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
+		public static void NV12ToRGB_709CSC(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
+		{
+			CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.NV12ToRGB.nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToRGB_709CSC_8u_P2C3R_Ctx", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed BGR color conversion.
+		/// </summary>
+		/// <param name="src0">Source image (Channel 0)</param>
+		/// <param name="src1">Source image (Channel 1)</param>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void NV12ToBGR(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
             NppStatus status = NPPNativeMethods_Ctx.NPPi.NV12ToBGR.nppiNV12ToBGR_8u_P2C3R_Ctx(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nppStreamCtx);
@@ -1012,20 +1028,36 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, null);
         }
 
-        /// <summary>
-        /// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed BGR 709 HDTV full color conversion.
-        /// </summary>
-        /// <param name="src0">Source image (Channel 0)</param>
-        /// <param name="src1">Source image (Channel 1)</param>
-        /// <param name="dest">Destination image</param>
+		/// <summary>
+		/// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit unsigned packed BGR 709 HDTV full color conversion. Note that HDTV conversion assumes full color range of 0 - 255, use CSC version for limited range color.
+		/// </summary>
+		/// <param name="src0">Source image (Channel 0)</param>
+		/// <param name="src1">Source image (Channel 1)</param>
+		/// <param name="dest">Destination image</param>
 		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public static void NV12ToBGR_709HDTV(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
+		public static void NV12ToBGR_709HDTV(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
             NppStatus status = NPPNativeMethods_Ctx.NPPi.NV12ToBGR.nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToBGR_709HDTV_8u_P2C3R_Ctx", status));
             NPPException.CheckNppStatus(status, null);
-        }
-        #endregion
-    }
+		}
+
+		/// <summary>
+		/// 2 channel 8-bit unsigned planar NV12 to 3 channel 8-bit
+		/// unsigned packed RGB 709 CSC color conversion.Note that HDTV conversion assumes full color range of 0 - 255, use CSC version for limited range color.
+		/// </summary>
+		/// <param name="src0">Source image (Channel 0)</param>
+		/// <param name="src1">Source image (Channel 1)</param>
+		/// <param name="dest">Destination image</param>
+		/// <param name="nppStreamCtx">NPP stream context.</param>
+		public static void NV12ToBGR_709CSC(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC3 dest, NppStreamContext nppStreamCtx)
+		{
+			CUdeviceptr[] src = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer };
+			NppStatus status = NPPNativeMethods_Ctx.NPPi.NV12ToBGR.nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx(src, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nppStreamCtx);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToBGR_709CSC_8u_P2C3R_Ctx", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+		#endregion
+	}
 }

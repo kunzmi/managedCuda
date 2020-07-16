@@ -186,6 +186,15 @@ namespace ManagedCuda.NvJpeg
 				throw new NvJpegException(res);
 		}
 
+		// takes parsed jpeg as input and performs decoding
+		public void DecodeJpeg(DecodeParams param, JpegStream stream, ref nvjpegImage destination, CudaStream cudastream)
+		{
+			res = NvJpegNativeMethods.nvjpegDecodeJpeg(_nvJpeg.Handle, _decoder.Decoder, _state, stream.Stream, ref destination, param.Params, cudastream.Stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegDecodeJpeg", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+		}
+
 		// starts decoding on host and save decode parameters to the state
 		public void DecodeJpegHost(DecodeParams param, JpegStream stream)
 		{

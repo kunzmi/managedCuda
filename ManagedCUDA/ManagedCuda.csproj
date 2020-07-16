@@ -61,6 +61,7 @@
     <Compile Include="CudaArray1D.cs" />
     <Compile Include="CudaArray2D.cs" />
     <Compile Include="CudaArray3D.cs" />
+    <Compile Include="CudaDataTypeTranslator.cs" />
     <Compile Include="CudaEvent.cs" />
     <Compile Include="CudaGraph.cs" />
     <Compile Include="CudaGraphExec.cs" />

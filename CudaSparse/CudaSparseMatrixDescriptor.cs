@@ -70,7 +70,7 @@ namespace ManagedCuda.CudaSparse
         /// <summary>
         /// Creates a new CudaSparseMatrixDescriptor
         /// </summary>
-        public CudaSparseMatrixDescriptor(cusparseMatrixType matrixType, cusparseFillMode fillMode, cusparseDiagType diagType, cusparseIndexBase indexBase)
+        public CudaSparseMatrixDescriptor(cusparseMatrixType matrixType, cusparseFillMode fillMode, cusparseDiagType diagType, IndexBase indexBase)
         {
             _descr = new cusparseMatDescr();
             res = CudaSparseNativeMethods.cusparseCreateMatDescr(ref _descr);
@@ -194,7 +194,7 @@ namespace ManagedCuda.CudaSparse
 		/// Sets matrix index base
 		/// </summary>
 		/// <param name="indexBase"></param>
-		public void SetMatIndexBase(cusparseIndexBase indexBase)
+		public void SetMatIndexBase(IndexBase indexBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSetMatIndexBase(_descr, indexBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatIndexBase", res));
@@ -206,9 +206,9 @@ namespace ManagedCuda.CudaSparse
 		/// Returns matrix index base.
 		/// </summary>
 		/// <returns></returns>
-		public cusparseIndexBase GetMatIndexBase()
+		public IndexBase GetMatIndexBase()
 		{
-			cusparseIndexBase indexBase = CudaSparseNativeMethods.cusparseGetMatIndexBase(_descr);
+			IndexBase indexBase = CudaSparseNativeMethods.cusparseGetMatIndexBase(_descr);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatIndexBase", res));
 			return indexBase;
 		}

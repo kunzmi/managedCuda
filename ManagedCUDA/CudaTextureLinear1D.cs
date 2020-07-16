@@ -31,6 +31,7 @@ namespace ManagedCuda
     /// <summary>
     /// CudaLinearTexture1D
     /// </summary>
+	[Obsolete("Texture and surface references are deprecated since CUDA 11")]
     public class CudaTextureLinear1D<T> : IDisposable where T : struct
     {
         CUtexref _texref;

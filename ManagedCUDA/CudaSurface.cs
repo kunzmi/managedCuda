@@ -31,6 +31,7 @@ namespace ManagedCuda
 	/// <summary>
 	/// CudaSurface3D
 	/// </summary>
+	[Obsolete("Texture and surface references are deprecated since CUDA 11")]
 	public class CudaSurface : IDisposable
 	{
 		CUsurfref _surfref;

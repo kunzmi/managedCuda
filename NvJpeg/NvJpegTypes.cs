@@ -33,6 +33,10 @@ namespace ManagedCuda.NvJpeg
         /// </summary>
         public const int MaxComponent = 4;
         public const int NVJPEG_FLAGS_DEFAULT = 0;
+        /// <summary>
+        /// use this to disable pipelining for hardware decoder backend
+        /// </summary>
+        public const int NVJPEG_FLAGS_HW_DECODE_NO_PIPELINE = 1;
     }
 
     /// <summary>
@@ -175,11 +179,14 @@ namespace ManagedCuda.NvJpeg
         /// </summary>
         Hybrid = 1,
         /// <summary>
-        /// nvjpegDecodeBatched will use GPU decoding for baseline JPEG images with 
-        /// interleaved scan when batch size is bigger than 100, batched multi phase APIs 
-        /// will use CPU Huffman decode. All Single Image APIs will use GPU assisted huffman decode
+        /// uses GPU assisted Huffman decode. nvjpegDecodeBatched will use GPU decoding for baseline JPEG bitstreams with
+        /// interleaved scan when batch size is bigger than 100
         /// </summary>
         GPUHybrid = 2,
+        /// <summary>
+        /// supports baseline JPEG bitstream with single scan. 410 and 411 sub-samplings are not supported
+        /// </summary>
+        Hardware = 3
     }
 
 
@@ -190,7 +197,31 @@ namespace ManagedCuda.NvJpeg
     {
         Unknown = 0x0,
         BaselineDCT = 0xc0,
+        ExtendedSequentialDCTHuffman = 0xc1,
         ProgressiveDCTHuffman = 0xc2
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum nvjpegScaleFactor
+    {
+        /// <summary>
+        /// decoded output is not scaled 
+        /// </summary>
+        Scale_None = 0,
+        /// <summary>
+        /// decoded output width and height is scaled by a factor of 1/2
+        /// </summary>
+        Scale_1_by_2 = 1, 
+        /// <summary>
+        /// decoded output width and height is scaled by a factor of 1/4
+        /// </summary>
+        Scale_1_by_4 = 2,
+        /// <summary>
+        /// decoded output width and height is scaled by a factor of 1/8
+        /// </summary>
+        Scale_1_by_8 = 3,  
     }
 
     /// <summary>
@@ -223,12 +254,12 @@ namespace ManagedCuda.NvJpeg
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.MaxComponent)]
         public CUdeviceptr[] channel;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.MaxComponent)]
-        public int[] pitch;
+        public SizeT[] pitch;
 
         public nvjpegImage(CUdeviceptr aDevPtr, int aPitch)
         {
             channel = new CUdeviceptr[Constants.MaxComponent];
-            pitch = new int[Constants.MaxComponent];
+            pitch = new SizeT[Constants.MaxComponent];
 
             channel[0] = aDevPtr;
             pitch[0] = aPitch;
@@ -241,7 +272,7 @@ namespace ManagedCuda.NvJpeg
             }
 
             channel = new CUdeviceptr[Constants.MaxComponent];
-            pitch = new int[Constants.MaxComponent];
+            pitch = new SizeT[Constants.MaxComponent];
 
             for (int i = 0; i < aDevPtr.Length; i++)
             {

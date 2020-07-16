@@ -112,6 +112,22 @@ namespace ManagedCuda.NvJpeg
 			if (res != nvjpegStatus.Success)
 				throw new NvJpegException(res);
 		}
+		public void ParseHeader(IntPtr data, SizeT length)
+		{
+			res = NvJpegNativeMethods.nvjpegJpegStreamParseHeader(_nvJpeg.Handle, data, length, _stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegJpegStreamParseHeader", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+		}
+		public void ParseHeader(byte[] data)
+		{
+			res = NvJpegNativeMethods.nvjpegJpegStreamParseHeader(_nvJpeg.Handle, data, data.Length, _stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegJpegStreamParseHeader", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+		}
+
+
 
 		public nvjpegJpegEncoding JpegEncoding
 		{
@@ -222,6 +238,19 @@ namespace ManagedCuda.NvJpeg
 					heights[i] = value;
 				}
 				return heights;
+			}
+		}
+		public bool DecodeBatchedSupported
+		{
+			get
+			{
+				int batchSupported = 0;
+
+				res = NvJpegNativeMethods.nvjpegDecodeBatchedSupported(_nvJpeg.Handle, _stream, ref batchSupported);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegDecodeBatchedSupported", res));
+				if (res != nvjpegStatus.Success)
+					throw new NvJpegException(res);
+				return batchSupported > 0;
 			}
 		}
 

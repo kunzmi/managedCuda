@@ -33,7 +33,7 @@ namespace ManagedCuda.NvJpeg
     /// </summary>
     public class NvJpegNativeMethods
     {
-        internal const string NVJPEG_API_DLL_NAME = "nvjpeg64_10";
+        internal const string NVJPEG_API_DLL_NAME = "nvjpeg64_11";
 
 #if (NETCOREAPP)
         internal const string NVJPEG_API_DLL_NAME_LINUX = "nvjpeg";
@@ -518,6 +518,25 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
 		/// </summary>
 		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamParseHeader(
+            nvjpegHandle handle,
+            IntPtr data,
+            SizeT length,
+            nvjpegJpegStream jpeg_stream);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamParseHeader(
+            nvjpegHandle handle,
+            byte[] data,
+            SizeT length,
+            nvjpegJpegStream jpeg_stream);
+
+
+        /// <summary>
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegJpegStreamGetJpegEncoding(
             nvjpegJpegStream jpeg_stream,
             ref nvjpegJpegEncoding jpeg_encoding);
@@ -601,16 +620,24 @@ namespace ManagedCuda.NvJpeg
             nvjpegDecodeParams decode_params,
             int allow_cmyk);
 
+        /// <summary>
+        /// works only with the hardware decoder backend
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeParamsSetScaleFactor(
+            nvjpegDecodeParams decode_params,
+            nvjpegScaleFactor scale_factor);
+
         ///////////////////////////////////////////////////////////////////////////////////
         // Decoder helper functions //
         ///////////////////////////////////////////////////////////////////////////////////
 
 
-        
+
         /// <summary>
         /// creates decoder implementation
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegDecoderCreate(nvjpegHandle nvjpeg_handle,
             nvjpegBackend implementation,
             ref nvjpegJpegDecoder decoder_handle);
@@ -631,11 +658,18 @@ namespace ManagedCuda.NvJpeg
             nvjpegDecodeParams decode_params,
             ref int is_supported);
 
-         
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedSupported(nvjpegHandle handle,
+            nvjpegJpegStream jpeg_stream,
+            ref int is_supported);
+
         /// <summary>
         /// creates decoder state 
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegDecoderStateCreate(nvjpegHandle nvjpeg_handle,
             nvjpegJpegDecoder decoder_handle,
             ref nvjpegJpegState decoder_state);
@@ -643,7 +677,21 @@ namespace ManagedCuda.NvJpeg
         ///////////////////////////////////////////////////////////////////////////////////
         // Decode functions //
         ///////////////////////////////////////////////////////////////////////////////////
-        
+
+        /// <summary>
+        /// takes parsed jpeg as input and performs decoding
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeJpeg(
+            nvjpegHandle handle,
+            nvjpegJpegDecoder decoder,
+            nvjpegJpegState decoder_state,
+            nvjpegJpegStream jpeg_bitstream,
+            ref nvjpegImage destination,
+            nvjpegDecodeParams decode_params,
+            CUstream stream);
+
+
         /// <summary>
         /// starts decoding on host and save decode parameters to the state
 		/// </summary>

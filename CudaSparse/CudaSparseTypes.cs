@@ -94,7 +94,11 @@ namespace ManagedCuda.CudaSparse
 		/// <summary>
 		/// 
 		/// </summary>
-		NotSupported = 10
+		NotSupported = 10,
+		/// <summary>
+		/// 
+		/// </summary>
+		InsufficientResources = 11
 	}
 
 	/// <summary>
@@ -192,7 +196,7 @@ namespace ManagedCuda.CudaSparse
 	/// <summary>
 	/// This type indicates if the base of the matrix indices is zero or one.
 	/// </summary>
-	public enum cusparseIndexBase
+	public enum IndexBase
 	{
 		/// <summary>
 		/// the base index is zero.
@@ -239,36 +243,7 @@ namespace ManagedCuda.CudaSparse
 		Column = 1
 	}
 
-	/// <summary>
-	/// This type indicates how to perform the partitioning of the matrix into regular (ELL) and
-	/// irregular (COO) parts of the HYB format.<para/>
-	/// The partitioning is performed during the conversion of the matrix from a dense or sparse
-	/// format into the HYB format and is governed by the following rules. When
-	/// CUSPARSE_HYB_PARTITION_AUTO is selected, the CUSPARSE library automatically decides
-	/// how much data to put into the regular and irregular parts of the HYB format. When
-	/// CUSPARSE_HYB_PARTITION_USER is selected, the width of the regular part of the HYB
-	/// format should be specified by the caller. When CUSPARSE_HYB_PARTITION_MAX is selected,
-	/// the width of the regular part of the HYB format equals to the maximum number of
-	/// non-zero elements per row, in other words, the entire matrix is stored in the regular part of
-	/// the HYB format.<para/>
-	/// The default is to let the library automatically decide how to split the data.
-	/// </summary>
-	public enum cusparseHybPartition
-	{
-		/// <summary>
-		/// the automatic partitioning is selected (default).
-		/// </summary>
-		Auto = 0,
-		/// <summary>
-		/// the user specified treshold is used.
-		/// </summary>
-		User = 1,
-		/// <summary>
-		/// the data is stored in ELL format.
-		/// </summary>
-		Max = 2
-	}
-
+	
 	/// <summary>
 	/// used in csrsv2, csric02, and csrilu02
 	/// </summary>
@@ -320,13 +295,9 @@ namespace ManagedCuda.CudaSparse
 	public enum cusparseAlgMode
 	{
 		/// <summary>
-		/// default, naive
-		/// </summary>
-		ALG0 = 0,
-		/// <summary>
 		/// merge path
 		/// </summary>
-		ALG1 = 1
+		MergePath = 1
 	}
 
 	/// <summary>
@@ -342,6 +313,112 @@ namespace ManagedCuda.CudaSparse
 		/// low memory requirement, non-deterministic
 		/// </summary>
 		CSR2CSC_ALG2 = 2 
+	}
+
+	/// <summary>
+	/// Index type
+	/// </summary>
+	public enum IndexType
+	{
+		/// <summary>
+		/// 16-bit unsigned integer for matrix/vector indices
+		/// </summary>
+		Index16U = 1,
+		/// <summary>
+		/// 32-bit signed integer for matrix/vector indices
+		/// </summary>
+		Index32I = 2,
+		/// <summary>
+		/// 64-bit signed integer for matrix/vector indices
+		/// </summary>
+		Index64I = 3 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum Format
+	{
+		/// <summary>
+		/// Compressed Sparse Row (CSR)
+		/// </summary>
+		CSR = 1,
+		/// <summary>
+		/// Compressed Sparse Column (CSC)
+		/// </summary>
+		CSC = 2, 
+		/// <summary>
+		/// Coordinate (COO) - Structure of Arrays
+		/// </summary>
+		COO = 3, 
+		/// <summary>
+		/// Coordinate (COO) - Array of Structures
+		/// </summary>
+		COO_AOS = 4, 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum Order
+	{
+		/// <summary>
+		/// Column-Major Order - Matrix memory layout
+		/// </summary>
+		Col = 1, 
+		/// <summary>
+		/// Row-Major Order - Matrix memory layout
+		/// </summary>
+		Row = 2 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum SpMVAlg
+	{
+		/// <summary/>
+		CUSPARSE_MV_ALG_DEFAULT = 0,
+		/// <summary/>
+		CUSPARSE_COOMV_ALG = 1,
+		/// <summary/>
+		CUSPARSE_CSRMV_ALG1 = 2,
+		/// <summary/>
+		CUSPARSE_CSRMV_ALG2 = 3
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum SpMMAlg
+	{
+		/// <summary/>
+		CUSPARSE_MM_ALG_DEFAULT = 0,
+		/// <summary>
+		/// non-deterministc results
+		/// </summary>
+		CUSPARSE_COOMM_ALG1 = 1,
+		/// <summary>
+		/// deterministic results 
+		/// </summary>
+		CUSPARSE_COOMM_ALG2 = 2, 
+		/// <summary>
+		/// non-deterministc results, for large matrices
+		/// </summary>
+		CUSPARSE_COOMM_ALG3 = 3, 
+		/// <summary/>
+		CUSPARSE_CSRMM_ALG1 = 4,
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseSpGEMMAlg
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Default = 0
 	}
 
 	#endregion
@@ -371,18 +448,7 @@ namespace ManagedCuda.CudaSparse
 		public IntPtr Handle;
 	}
 
-	/// <summary>
-	/// Opaque structure holding the sparse triangular solve information
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
-	public struct cusparseSolveAnalysisInfo
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public IntPtr Handle;
-	}
-
+	
 	/// <summary>
 	/// Opaque structure holding the sparse triangular solve information
 	/// </summary>
@@ -479,17 +545,6 @@ namespace ManagedCuda.CudaSparse
 		public IntPtr Handle;
 	}
 
-	/// <summary>
-	/// Opaque structure holding the hybrid (HYB) storage information
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
-	public struct cusparseHybMat
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public IntPtr Handle;
-	}
 
 	/// <summary>
 	/// Opaque structure holding sparse gemm information
@@ -533,6 +588,62 @@ namespace ManagedCuda.CudaSparse
     [StructLayout(LayoutKind.Sequential)]
 	public struct pruneInfo
     {
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+	public struct cusparseSpVecDescr
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cusparseDnVecDescr
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cusparseSpMatDescr
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cusparseDnMatDescr
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Handle;
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct cusparseSpGEMMDescr
+	{
 		/// <summary>
 		/// 
 		/// </summary>

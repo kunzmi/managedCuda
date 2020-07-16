@@ -5943,6 +5943,42 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			props.HandleTypeWin32KMTHandleSupported = handleTypeWin32KMTHandleSupported > 0;
 
+			int maxBlocksPerMultiProcessor = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maxBlocksPerMultiProcessor, CUDeviceAttribute.MaxBlocksPerMultiProcessor, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.MaxBlocksPerMultiProcessor = maxBlocksPerMultiProcessor;
+
+			int genericCompressionSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref genericCompressionSupported, CUDeviceAttribute.GenericCompressionSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.GenericCompressionSupported = genericCompressionSupported > 0;
+
+			int maxPersistingL2CacheSize = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maxPersistingL2CacheSize, CUDeviceAttribute.MaxPersistingL2CacheSize, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.MaxPersistingL2CacheSize = maxPersistingL2CacheSize;
+
+			int maxAccessPolicyWindowSize = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maxAccessPolicyWindowSize, CUDeviceAttribute.MaxAccessPolicyWindowSize, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.MaxAccessPolicyWindowSize = maxAccessPolicyWindowSize;
+
+			int gPUDirectRDMAWithCudaVMMSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref gPUDirectRDMAWithCudaVMMSupported, CUDeviceAttribute.GPUDirectRDMAWithCudaVMMSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.GPUDirectRDMAWithCudaVMMSupported = gPUDirectRDMAWithCudaVMMSupported > 0;
+
+			int reservedSharedMemoryPerBlock = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref reservedSharedMemoryPerBlock, CUDeviceAttribute.ReservedSharedMemoryPerBlock, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.ReservedSharedMemoryPerBlock = reservedSharedMemoryPerBlock;
+
 			return props;
 		}
 
@@ -6029,6 +6065,20 @@ namespace ManagedCuda
 			CUResult res;
 			res = DriverAPINativeMethods.Profiling.cuProfilerStop();
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuProfilerStop", res));
+			if (res != CUResult.Success)
+				throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Resets all persisting lines in cache to normal status.<para/>
+		/// CtxResetPersistingL2Cache Resets all persisting lines in cache to normal
+		/// status. Takes effect on function return.
+		/// </summary>
+		public static void CtxResetPersistingL2Cache()
+		{
+			CUResult res;
+			res = DriverAPINativeMethods.ContextManagement.cuCtxResetPersistingL2Cache();
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxResetPersistingL2Cache", res));
 			if (res != CUResult.Success)
 				throw new CudaException(res);
 		}

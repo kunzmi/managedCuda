@@ -32,18 +32,16 @@ namespace ManagedCuda.CudaSolve
 	public class IRSInfos : IDisposable
 	{
 		private cusolverDnIRSInfos _infos;
-		private IRSParams _params;
 		private cusolverStatus res;
 		private bool disposed;
 
 		#region Contructors
 		/// <summary>
 		/// </summary>
-		internal IRSInfos(IRSParams aParams)
+		public IRSInfos()
 		{
-			_params = aParams;
 			_infos = new cusolverDnIRSInfos();
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosCreate(aParams.Params, ref _infos);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosCreate(ref _infos);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosCreate", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -77,7 +75,7 @@ namespace ManagedCuda.CudaSolve
 			if (fDisposing && !disposed)
 			{
 				//Ignore if failing
-				res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosDestroy(_params.Params, _infos);
+				res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosDestroy(_infos);
 				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosDestroy", res));
 				disposed = true;
 			}
@@ -99,7 +97,7 @@ namespace ManagedCuda.CudaSolve
 		public int GetNiters()
 		{
 			int val = 0;
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetNiters(_params.Params, _infos, ref val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetNiters(_infos, ref val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosGetNiters", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -111,7 +109,7 @@ namespace ManagedCuda.CudaSolve
 		public int GetOuterNiters()
 		{
 			int val = 0;
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetOuterNiters(_params.Params, _infos, ref val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetOuterNiters(_infos, ref val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosGetOuterNiters", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -123,7 +121,7 @@ namespace ManagedCuda.CudaSolve
 		public int GetMaxIters()
 		{
 			int val = 0;
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetMaxIters(_params.Params, _infos, ref val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetMaxIters(_infos, ref val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosGetMaxIters", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -134,7 +132,7 @@ namespace ManagedCuda.CudaSolve
 		/// </summary>
 		public void RequestResidual()
 		{
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosRequestResidual(_params.Params, _infos);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosRequestResidual(_infos);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosRequestResidual", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);
@@ -145,7 +143,7 @@ namespace ManagedCuda.CudaSolve
 		public IntPtr GetResidualHistory()
 		{
 			IntPtr val = new IntPtr();
-			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetResidualHistory(_params.Params, _infos, ref val);
+			res = CudaSolveNativeMethods.Dense.cusolverDnIRSInfosGetResidualHistory(_infos, ref val);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnIRSInfosGetResidualHistory", res));
 			if (res != cusolverStatus.Success)
 				throw new CudaSolveException(res);

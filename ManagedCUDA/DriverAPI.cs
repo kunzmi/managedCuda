@@ -36,9 +36,8 @@ namespace ManagedCuda
     public static class DriverAPINativeMethods
     {
 		internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
-		internal const string CUDA_OBSOLET_4_0 = "Don't use this CUDA API call with CUDA version >= 4.0.";
-		internal const string CUDA_OBSOLET_5_0 = "Don't use this CUDA API call with CUDA version >= 5.0.";
 		internal const string CUDA_OBSOLET_9_2 = "Don't use this CUDA API call with CUDA version >= 9.2.";
+		internal const string CUDA_OBSOLET_11 = "Don't use this CUDA API call with CUDA version >= 11";
 
 #if (NETCOREAPP)
         internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
@@ -84,7 +83,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(10, 2); }
+            get { return new Version(11, 0); }
         }
 
         #region Initialization
@@ -183,20 +182,6 @@ namespace ManagedCuda
 
 
             /// <summary>
-            /// Returns in <c>major</c> and <c>minor</c> the major and minor revision numbers that define the compute capability of the
-            ///device <c>dev</c>.
-            /// </summary>
-            /// <param name="major">Major revision number</param>
-            /// <param name="minor">Minor revision number</param>
-            /// <param name="dev">Device handle</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			[Obsolete(CUDA_OBSOLET_5_0)]
-            public static extern CUResult cuDeviceComputeCapability(ref int major, ref int minor, CUdevice dev);
-
-            /// <summary>
             /// Returns in <c>bytes</c> the total amount of memory available on the device <c>dev</c> in bytes.
             /// </summary>
             /// <param name="bytes">Returned memory available on device in bytes</param>
@@ -207,17 +192,6 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceTotalMem_v2(ref SizeT bytes, CUdevice dev);
 
-            /// <summary>
-            /// Returns in <c>prop</c> the (basic) properties of device <c>dev</c>. See <see cref="CUDeviceProperties"/>.
-            /// </summary>
-            /// <param name="prop">Returned properties of device</param>
-            /// <param name="dev">Device to get properties for</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			[Obsolete(CUDA_OBSOLET_5_0)]
-            public static extern CUResult cuDeviceGetProperties(ref CUDeviceProperties prop, CUdevice dev);
 
             /// <summary>
             /// Returns in <c>pi</c> the integer value of the attribute <c>attrib</c> on device <c>dev</c>. See <see cref="CUDeviceAttribute"/>.
@@ -420,9 +394,9 @@ namespace ManagedCuda
 #endif
             /// <summary>
             /// Creates a new CUDA context and associates it with the calling thread. The <c>flags</c> parameter is described in <see cref="CUCtxFlags"/>. The
-			/// context is created with a usage count of 1 and the caller of <see cref="cuCtxCreate_v2"/> must call <see cref="cuCtxDestroy"/> or <see cref="cuCtxDetach"/>
+			/// context is created with a usage count of 1 and the caller of <see cref="cuCtxCreate_v2"/> must call <see cref="cuCtxDestroy_v2"/> or <see cref="cuCtxDetach"/>
             /// when done using the context. If a context is already current to the thread, it is supplanted by the newly created context
-            /// and may be restored by a subsequent call to <see cref="cuCtxPopCurrent"/>.
+            /// and may be restored by a subsequent call to <see cref="cuCtxPopCurrent_v2"/>.
             /// </summary>
             /// <param name="pctx">Returned context handle of the new context</param>
             /// <param name="flags">Context creation flags. See <see cref="CUCtxFlags"/></param>
@@ -432,19 +406,6 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxCreate_v2(ref CUcontext pctx, CUCtxFlags flags, CUdevice dev);
-
-            /// <summary>
-            /// Destroys the CUDA context specified by <c>ctx</c>. If the context usage count is not equal to 1, or the context is current
-            /// to any CPU thread other than the current one, this function fails. Floating contexts (detached from a CPU thread via
-            /// <see cref="cuCtxPopCurrent"/>) may be destroyed by this function.
-            /// </summary>
-            /// <param name="ctx">Context to destroy</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuCtxDestroy(CUcontext ctx);
 
             /// <summary>
             /// Destroys the CUDA context specified by <c>ctx</c>. The context <c>ctx</c> will be destroyed regardless of how many threads it is current to.
@@ -491,22 +452,8 @@ namespace ManagedCuda
             /// <summary>
             /// Pushes the given context <c>ctx</c> onto the CPU thread’s stack of current contexts. The specified context becomes the
             /// CPU thread’s current context, so all CUDA functions that operate on the current context are affected.<para/>
-            /// The previous current context may be made current again by calling <see cref="cuCtxDestroy"/> or <see cref="cuCtxPopCurrent"/>.<para/>
-            /// The context must be "floating," i.e. not attached to any thread. Contexts are made to float by calling <see cref="cuCtxPopCurrent"/>.
-            /// </summary>
-            /// <param name="ctx">Floating context to attach</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuCtxPushCurrent([In] CUcontext ctx);
-
-            /// <summary>
-            /// Pushes the given context <c>ctx</c> onto the CPU thread’s stack of current contexts. The specified context becomes the
-            /// CPU thread’s current context, so all CUDA functions that operate on the current context are affected.<para/>
-            /// The previous current context may be made current again by calling <see cref="cuCtxDestroy"/> or <see cref="cuCtxPopCurrent"/>.<para/>
-            /// The context must be "floating," i.e. not attached to any thread. Contexts are made to float by calling <see cref="cuCtxPopCurrent"/>.
+            /// The previous current context may be made current again by calling <see cref="cuCtxDestroy_v2"/> or <see cref="cuCtxPopCurrent_v2"/>.<para/>
+            /// The context must be "floating," i.e. not attached to any thread. Contexts are made to float by calling <see cref="cuCtxPopCurrent_v2"/>.
             /// </summary>
             /// <param name="ctx">Floating context to attach</param>
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
@@ -519,28 +466,10 @@ namespace ManagedCuda
             /// Pops the current CUDA context from the CPU thread. The CUDA context must have a usage count of 1. CUDA contexts
             /// have a usage count of 1 upon creation; the usage count may be incremented with <see cref="cuCtxAttach"/> and decremented
             /// with <see cref="cuCtxDetach"/>.<para/>
-            /// If successful, <see cref="cuCtxPopCurrent"/> passes back the old context handle in <c>pctx</c>. That context may then be made current
-            /// to a different CPU thread by calling <see cref="cuCtxPushCurrent"/>.<para/>
-            /// Floating contexts may be destroyed by calling <see cref="cuCtxDestroy"/>.<para/>
-			/// If a context was current to the CPU thread before <see cref="cuCtxCreate_v2"/> or <see cref="cuCtxPushCurrent"/> was called, this function makes
-            /// that context current to the CPU thread again.
-            /// </summary>
-            /// <param name="pctx">Returned new context handle</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuCtxPopCurrent(ref  CUcontext pctx);
-
-            /// <summary>
-            /// Pops the current CUDA context from the CPU thread. The CUDA context must have a usage count of 1. CUDA contexts
-            /// have a usage count of 1 upon creation; the usage count may be incremented with <see cref="cuCtxAttach"/> and decremented
-            /// with <see cref="cuCtxDetach"/>.<para/>
-            /// If successful, <see cref="cuCtxPopCurrent"/> passes back the old context handle in <c>pctx</c>. That context may then be made current
-            /// to a different CPU thread by calling <see cref="cuCtxPushCurrent"/>.<para/>
-            /// Floating contexts may be destroyed by calling <see cref="cuCtxDestroy"/>.<para/>
-			/// If a context was current to the CPU thread before <see cref="cuCtxCreate_v2"/> or <see cref="cuCtxPushCurrent"/> was called, this function makes
+            /// If successful, <see cref="cuCtxPopCurrent_v2"/> passes back the old context handle in <c>pctx</c>. That context may then be made current
+            /// to a different CPU thread by calling <see cref="cuCtxPushCurrent_v2"/>.<para/>
+            /// Floating contexts may be destroyed by calling <see cref="cuCtxDestroy_v2"/>.<para/>
+			/// If a context was current to the CPU thread before <see cref="cuCtxCreate_v2"/> or <see cref="cuCtxPushCurrent_v2"/> was called, this function makes
             /// that context current to the CPU thread again.
             /// </summary>
             /// <param name="pctx">Returned new context handle</param>
@@ -726,13 +655,21 @@ namespace ManagedCuda
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuCtxGetStreamPriorityRange(ref int leastPriority, ref int greatestPriority);
 
-			/// <summary>
-			/// Returns the flags for the current context<para/>
-			/// Returns in \p *flags the flags of the current context. See ::cuCtxCreate for flag values.
-			/// </summary>
-			/// <param name="flags">Pointer to store flags of current context</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Resets all persisting lines in cache to normal status.<para/>
+            /// ::cuCtxResetPersistingL2Cache Resets all persisting lines in cache to normal
+            /// status.Takes effect on function return.
+            /// </summary>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxResetPersistingL2Cache();
+
+            /// <summary>
+            /// Returns the flags for the current context<para/>
+            /// Returns in \p *flags the flags of the current context. See ::cuCtxCreate for flag values.
+            /// </summary>
+            /// <param name="flags">Pointer to store flags of current context</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuCtxGetFlags(ref CUCtxFlags flags);
 
 
@@ -762,7 +699,7 @@ namespace ManagedCuda
 			/// <param name="pctx">Returned context handle of the new context</param>
 			/// <param name="dev">Device for which primary context is requested</param>
 			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
 			public static extern CUResult cuDevicePrimaryCtxRetain(ref CUcontext pctx, CUdevice dev);
 
 			/// <summary>
@@ -776,7 +713,7 @@ namespace ManagedCuda
 			/// </summary>
 			/// <param name="dev">Device which primary context is released</param>
 			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxRelease_v2")]
 			public static extern CUResult cuDevicePrimaryCtxRelease(CUdevice dev);
 
 			/// <summary>
@@ -823,7 +760,7 @@ namespace ManagedCuda
 			/// </summary>
 			/// <param name="dev">Device for which primary context is destroyed</param>
 			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxReset_v2")]
 			public static extern CUResult cuDevicePrimaryCtxReset(CUdevice dev);
 			#endregion
 		}
@@ -1766,6 +1703,20 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemGetAllocationPropertiesFromHandle(ref CUmemAllocationProp prop, CUmemGenericAllocationHandle handle);
 
+
+            /// <summary>
+            /// Given an address \p addr, returns the allocation handle of the backing memory allocation.<para/>
+            /// The handle is guaranteed to be the same handle value used to map the memory. If the address
+            /// requested is not mapped, the function will fail.The returned handle must be released with
+            /// corresponding number of calls to::cuMemRelease.<para/>
+            /// <para/>
+            /// The address \p addr, can be any address in a range previously mapped
+            /// by::cuMemMap, and not necessarily the start address.
+            /// </summary>
+            /// <param name="handle">CUDA Memory handle for the backing memory allocation.</param>
+            /// <param name="addr">Memory address to query, that has been mapped previously.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemRetainAllocationHandle(ref CUmemGenericAllocationHandle handle, IntPtr addr);
         }
         #endregion
 
@@ -6604,6 +6555,19 @@ namespace ManagedCuda
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config);
 
+            /// <summary>
+            /// Returns a module handle<para/>
+            /// Returns in \p *hmod the handle of the module that function \p hfunc
+            /// is located in. The lifetime of the module corresponds to the lifetime of
+            /// the context it was loaded in or until the module is explicitly unloaded.<para/>
+            /// The CUDA runtime manages its own modules loaded into the primary context.
+            /// If the handle returned by this API refers to a module loaded by the CUDA runtime,
+            /// calling ::cuModuleUnload() on that module will result in undefined behavior.
+            /// </summary>
+            /// <param name="hmod"></param>
+            /// <param name="hfunc"></param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncGetModule(ref CUmodule hmod, CUfunction hfunc);
         }
         #endregion
 
@@ -6738,8 +6702,7 @@ namespace ManagedCuda
             /// Creates a texture reference and returns its handle in <c>pTexRef</c>. Once created, the application must call <see cref="cuTexRefSetArray"/>
 			/// or <see cref="cuTexRefSetAddress_v2"/> to associate the reference with allocated memory. Other texture reference functions
             /// are used to specify the format and interpretation (addressing, filtering, etc.) to be used when the memory is read
-            /// through this texture reference. To associate the texture reference with a texture ordinal for a given function, the
-            /// application should call <see cref="ParameterManagement.cuParamSetTexRef"/>.
+            /// through this texture reference.
             /// </summary>
             /// <param name="pTexRef">Returned texture reference</param>
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
@@ -6772,6 +6735,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, CUTexRefSetArrayFlags Flags);
 			
 			/// <summary>
@@ -6787,7 +6751,8 @@ namespace ManagedCuda
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
 			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, CUTexRefSetArrayFlags Flags);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, CUTexRefSetArrayFlags Flags);
 
             /// <summary>
             /// Binds a linear address range to the texture reference <c>hTexRef</c>. Any previous address or CUDA array state associated
@@ -6807,6 +6772,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetAddress_v2(ref SizeT ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, SizeT bytes);
 
             /// <summary>
@@ -6827,6 +6793,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetAddress2D_v2(CUtexref hTexRef, ref CUDAArrayDescriptor desc, CUdeviceptr dptr, SizeT Pitch);
            
             /// <summary>
@@ -6841,6 +6808,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetFormat( CUtexref hTexRef, CUArrayFormat fmt, int NumPackedComponents );
             
             /// <summary>
@@ -6856,6 +6824,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetAddressMode( CUtexref hTexRef, int dim, CUAddressMode am );
             
             /// <summary>
@@ -6868,6 +6837,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetFilterMode( CUtexref hTexRef, CUFilterMode fm );
 
             /// <summary>
@@ -6879,6 +6849,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetFlags(CUtexref hTexRef, CUTexRefSetFlags Flags);
 
             /// <summary>
@@ -6891,6 +6862,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetAddress( ref CUdeviceptr pdptr, CUtexref hTexRef );
             
             /// <summary>
@@ -6903,6 +6875,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetArray( ref CUarray phArray, CUtexref hTexRef );
 
 			/// <summary>
@@ -6915,7 +6888,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetMipmappedArray(ref CUmipmappedArray phMipmappedArray, CUtexref hTexRef);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetMipmappedArray(ref CUmipmappedArray phMipmappedArray, CUtexref hTexRef);
 			
             /// <summary>
             /// Returns in <c>pam</c> the addressing mode corresponding to the dimension <c>dim</c> of the texture reference <c>hTexRef</c>. Currently,
@@ -6928,6 +6902,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetAddressMode( ref CUAddressMode pam, CUtexref hTexRef, int dim );
 
             /// <summary>
@@ -6939,6 +6914,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetFilterMode( ref CUFilterMode pfm, CUtexref hTexRef );
 
             /// <summary>
@@ -6952,6 +6928,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetFormat( ref CUArrayFormat pFormat, ref int pNumChannels, CUtexref hTexRef );
 
             /// <summary>
@@ -6963,6 +6940,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetFlags(ref CUTexRefSetFlags pFlags, CUtexref hTexRef);
 
 			/// <summary>
@@ -6973,7 +6951,8 @@ namespace ManagedCuda
 			/// <param name="hTexRef">Texture reference</param>
 			/// <returns></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetMipmapFilterMode(ref CUFilterMode pfm, CUtexref hTexRef);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetMipmapFilterMode(ref CUFilterMode pfm, CUtexref hTexRef);
 			
 			/// <summary>
 			/// Returns the mipmap level bias in <c>pBias</c> that's added to the specified mipmap
@@ -6984,7 +6963,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetMipmapLevelBias(ref float pbias, CUtexref hTexRef);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetMipmapLevelBias(ref float pbias, CUtexref hTexRef);
 			
 			/// <summary>
 			/// Returns the min/max mipmap level clamps in <c>pminMipmapLevelClamp</c> and <c>pmaxMipmapLevelClamp</c>
@@ -6996,7 +6976,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetMipmapLevelClamp(ref float pminMipmapLevelClamp, ref float pmaxMipmapLevelClamp, CUtexref hTexRef);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetMipmapLevelClamp(ref float pminMipmapLevelClamp, ref float pmaxMipmapLevelClamp, CUtexref hTexRef);
 			
 			/// <summary>
 			/// Returns the maximum aniostropy in <c>pmaxAniso</c> that's used when reading memory through
@@ -7007,7 +6988,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetMaxAnisotropy(ref int pmaxAniso, CUtexref hTexRef);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetMaxAnisotropy(ref int pmaxAniso, CUtexref hTexRef);
 
 			/// <summary>
 			/// Specifies the mipmap filtering mode <c>fm</c> to be used when reading memory through
@@ -7019,7 +7001,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUFilterMode fm);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUFilterMode fm);
 			
 			/// <summary>
 			/// Specifies the mipmap level bias <c>bias</c> to be added to the specified mipmap level when 
@@ -7031,7 +7014,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias);
 			
 			/// <summary>
 			/// Specifies the min/max mipmap level clamps, <c>minMipmapLevelClamp</c> and <c>maxMipmapLevelClamp</c>
@@ -7045,7 +7029,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp);
 			
 			/// <summary>
 			/// Specifies the maximum aniostropy <c>maxAniso</c> to be used when reading memory through
@@ -7057,7 +7042,8 @@ namespace ManagedCuda
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, uint maxAniso);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, uint maxAniso);
 
 			
 			/// <summary>
@@ -7077,7 +7063,8 @@ namespace ManagedCuda
 			/// <param name="hTexRef">Texture reference</param>
 			/// <param name="pBorderColor">RGBA color</param>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefSetBorderColor(CUtexref hTexRef, [In, Out] float[] pBorderColor);
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefSetBorderColor(CUtexref hTexRef, [In, Out] float[] pBorderColor);
 
 			/// <summary>
 			/// Gets the border color used by a texture reference<para/>
@@ -7094,7 +7081,8 @@ namespace ManagedCuda
 			/// <param name="hTexRef">Texture reference</param>
 			/// <returns></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexRefGetBorderColor([In, Out] float[] pBorderColor, CUtexref hTexRef); 
+            [Obsolete(CUDA_OBSOLET_11)]
+            public static extern CUResult cuTexRefGetBorderColor([In, Out] float[] pBorderColor, CUtexref hTexRef); 
         }
         #endregion
 
@@ -7124,6 +7112,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, CUSurfRefSetFlags Flags);
 
             /// <summary>
@@ -7136,1584 +7125,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuSurfRefGetArray( ref CUarray phArray, CUsurfref hSurfRef );
-        }
-        #endregion
-
-        #region Parameter management
-        /// <summary>
-        /// Combines all kernel / function parameter management API calls
-        /// </summary>
-        [Obsolete(CUDA_OBSOLET_9_2)]
-        public static class ParameterManagement
-        {
-#if (NETCOREAPP)
-            static ParameterManagement()
-            {
-                DriverAPINativeMethods.Init();
-            }
-#endif      
-            /// <summary>
-            /// Sets through <c>numbytes</c> the total size in bytes needed by the function parameters of the kernel corresponding to
-            /// <c>hfunc</c>.
-            /// </summary>
-            /// <param name="hfunc">Kernel to set parameter size for</param>
-            /// <param name="numbytes">Size of parameter list in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetSize([In] CUfunction hfunc, [In] uint numbytes);
-            
-            /// <summary>
-            /// Sets an integer parameter that will be specified the next time the kernel corresponding to <c>hfunc</c> will be invoked.
-            /// <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add parameter to</param>
-            /// <param name="offset">Offset to add parameter to argument list</param>
-            /// <param name="value">Value of parameter</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSeti([In] CUfunction hfunc, [In] int offset, [In] uint value);
-
-            /// <summary>
-            /// Sets a floating-point parameter that will be specified the next time the kernel corresponding to <c>hfunc</c> will be invoked.
-            /// <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add parameter to</param>
-            /// <param name="offset">Offset to add parameter to argument list</param>
-            /// <param name="value">Value of parameter</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetf([In] CUfunction hfunc, [In] int offset, [In] float value);
-
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] IntPtr ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref byte ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref sbyte ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ushort ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref short ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uint ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref int ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ulong ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref long ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref float ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref double ptr, [In] uint numbytes);
-
-            #region VectorTypes
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref dim3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref char1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref char2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref char3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref char4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uchar1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uchar2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uchar3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uchar4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref short1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref short2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref short3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref short4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ushort1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ushort2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ushort3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ushort4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref int1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref int2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref int3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref int4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uint1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uint2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uint3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref uint4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref long1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref long2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref long3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref long4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ulong1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ulong2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ulong3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref ulong4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref float1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref float2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref float3 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref float4 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref double1 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref double2 ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref cuDoubleComplex ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref cuDoubleReal ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref cuFloatComplex ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] ref cuFloatReal ptr, [In] uint numbytes);
-            #endregion
-
-            #region VectorTypesArrays
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] dim3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] char1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] char2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] char3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] char4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uchar1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uchar2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uchar3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uchar4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] short1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] short2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] short3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] short4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ushort1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ushort2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ushort3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ushort4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] int1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] int2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] int3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] int4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uint1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uint2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uint3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uint4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] long1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] long2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] long3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] long4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ulong1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ulong2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ulong3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ulong4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] float1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] float2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] float3[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] float4[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] double1[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] double2[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] cuDoubleComplex[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] cuDoubleReal[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] cuFloatComplex[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] cuFloatReal[] ptr, uint numbytes);
-            #endregion
-
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] byte[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] sbyte[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ushort[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] short[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] uint[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] int[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv(CUfunction hfunc, int offset, [In] ulong[] ptr, uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] long[] ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] float[] ptr, [In] uint numbytes);
-            /// <summary>
-            /// Copies an arbitrary amount of data (specified in <c>numbytes</c>) from <c>ptr</c> into the parameter space of the kernel corresponding
-            /// to <c>hfunc</c>. <c>offset</c> is a byte offset.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add data to</param>
-            /// <param name="offset">Offset to add data to argument list</param>
-            /// <param name="ptr">Pointer to arbitrary data</param>
-            /// <param name="numbytes">Size of data to copy in bytes</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuParamSetv([In] CUfunction hfunc, [In] int offset, [In] double[] ptr, [In] uint numbytes);
-            
-            /// <summary>
-            /// Makes the CUDA array or linear memory bound to the texture reference <c>hTexRef</c> available to a device program as a
-            /// texture. In this version of CUDA, the texture-reference must be obtained via <see cref="ModuleManagement.cuModuleGetTexRef"/> and the <c>texunit</c>
-            /// parameter must be set to <see cref="CUParameterTexRef.Default"/>.
-            /// </summary>
-            /// <param name="hfunc">Kernel to add texture-reference to</param>
-            /// <param name="texunit">Texture unit (must be <see cref="CUParameterTexRef.Default"/>)</param>
-            /// <param name="hTexRef">Texture-reference to add to argument list</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete("cuParamSetTexRef() has been deprecated in CUDA Toolkit 3.2 since this API entry provided no functionality.")]
-            public static extern CUResult cuParamSetTexRef([In] CUfunction hfunc, [In] CUParameterTexRef texunit, [In] CUtexref hTexRef);
         }
         #endregion
 
@@ -9093,22 +7506,11 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuEventSynchronize( CUevent hEvent );
-           
-            /// <summary>
-            /// Destroys the event specified by <c>event</c>.
-            /// </summary>
-            /// <param name="hEvent">Event to destroy</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult cuEventDestroy( CUevent hEvent );
-           
+                      
             /// <summary>
             /// Destroys the event specified by <c>event</c>.<para/>
             /// In the case that <c>hEvent</c> has been recorded but has not yet been completed
-            /// when <see cref="cuEventDestroy"/> is called, the function will return immediately and 
+            /// when <see cref="cuEventDestroy_v2"/> is called, the function will return immediately and 
             /// the resources associated with <c>hEvent</c> will be released automatically once
             /// the device has completed <c>hEvent</c>.
             /// </summary>
@@ -9306,22 +7708,12 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamSynchronize" + CUDA_PTSZ)]
             public static extern CUResult  cuStreamSynchronize( CUstream hStream );
-            
-            /// <summary>
-            /// Destroys the stream specified by hStream.
-            /// </summary>
-            /// <param name="hStream">Stream to destroy</param>
-            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            [Obsolete(CUDA_OBSOLET_4_0)]
-            public static extern CUResult  cuStreamDestroy( CUstream hStream );           
+                      
             
             /// <summary>
             /// Destroys the stream specified by hStream.<para/>
             /// In the case that the device is still doing work in the stream <c>hStream</c>
-            /// when <see cref="cuStreamDestroy"/> is called, the function will return immediately 
+            /// when <see cref="cuStreamDestroy_v2"/> is called, the function will return immediately 
             /// and the resources associated with <c>hStream</c> will be released automatically 
             /// once the device has completed all work in <c>hStream</c>.
             /// </summary>
@@ -9330,8 +7722,45 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult  cuStreamDestroy_v2( CUstream hStream );           
+            public static extern CUResult  cuStreamDestroy_v2( CUstream hStream );
+
+
+            /// <summary>
+            /// Copies attributes from source stream to destination stream<para/>
+            /// Copies attributes from source stream \p src to destination stream \p dst.<para/>
+            /// Both streams must have the same context.
+            /// </summary>
+            /// <param name="dst">Destination stream</param>
+            /// <param name="src">Source stream</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamCopyAttributes" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamCopyAttributes(CUstream dst, CUstream src);
+
+
+            /// <summary>
+            /// Queries stream attribute.<para/>
+            /// Queries attribute \p attr from \p hStream and stores it in corresponding member of \p value_out.
+            /// </summary>
+            /// <param name="hStream"></param>
+            /// <param name="attr"></param>
+            /// <param name="value_out"></param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetAttribute" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, ref CUstreamAttrValue value_out);
             
+
+            /// <summary>
+            /// Sets stream attribute.<para/>
+            /// Sets attribute \p attr on \p hStream from corresponding attribute of
+            /// value.The updated attribute will be applied to subsequent work
+            /// submitted to the stream. It will not affect previously submitted work.
+            /// </summary>
+            /// <param name="hStream"></param>
+            /// <param name="attr"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamSetAttribute" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, ref CUstreamAttrValue value);
+
+
             /// <summary>
             /// Make a compute stream wait on an event<para/>
             /// Makes all future work submitted to <c>hStream</c>  wait until <c>hEvent</c>
@@ -9340,7 +7769,7 @@ namespace ManagedCuda
             /// <para/>
             /// The stream <c>hStream</c> will wait only for the completion of the most recent
             /// host call to <see cref="Events.cuEventRecord"/> on <c>hEvent</c>. Once this call has returned,
-            /// any functions (including <see cref="Events.cuEventRecord"/> and <see cref="Events.cuEventDestroy"/> may be
+            /// any functions (including <see cref="Events.cuEventRecord"/> and <see cref="Events.cuEventDestroy_v2"/> may be
             /// called on <c>hEvent</c> again, and the subsequent calls will not have any
             /// effect on <c>hStream</c>.
             /// <para/>
@@ -9358,7 +7787,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitEvent" + CUDA_PTSZ)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitEvent" + CUDA_PTSZ)]
             public static extern CUResult  cuStreamWaitEvent(CUstream hStream, CUevent hEvent, uint Flags);
 
 			/// <summary>
@@ -10375,6 +8804,16 @@ namespace ManagedCuda
 			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
 			public static extern CUResult cuOccupancyMaxPotentialBlockSizeWithFlags(ref int minGridSize, ref int blockSize, CUfunction func, del_CUoccupancyB2DSize blockSizeToDynamicSMemSize, SizeT dynamicSMemSize, int blockSizeLimit, CUoccupancy_flags flags);
 
+            /// <summary>
+            /// Returns dynamic shared memory available per block when launching \p numBlocks blocks on SM <para/>
+            /// Returns in \p *dynamicSmemSize the maximum size of dynamic shared memory to allow \p numBlocks blocks per SM. 
+            /// </summary>
+            /// <param name="dynamicSmemSize">Returned maximum dynamic shared memory</param>
+            /// <param name="func">Kernel function for which occupancy is calculated</param>
+            /// <param name="numBlocks">Number of blocks to fit on SM </param>
+            /// <param name="blockSize">Size of the blocks</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuOccupancyAvailableDynamicSMemPerBlock(ref SizeT dynamicSmemSize, CUfunction func, int numBlocks, int blockSize);
 
         }
         #endregion
@@ -10880,7 +9319,7 @@ namespace ManagedCuda
             /// <param name="phErrorNode">In case of an instantiation error, this may be modified to indicate a node contributing to the error</param>
             /// <param name="logBuffer">A character buffer to store diagnostic messages</param>
             /// <param name="bufferSize">Size of the log buffer in bytes</param>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphInstantiate_v2")]
             public static extern CUResult cuGraphInstantiate(ref CUgraphExec phGraphExec, CUgraph hGraph, ref CUgraphNode phErrorNode, [In, Out] byte[] logBuffer, SizeT bufferSize);
 
             
@@ -11052,6 +9491,37 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, ref CUgraphNode hErrorNode_out, ref CUgraphExecUpdateResult updateResult_out);
 
+
+            /// <summary>
+            /// Copies attributes from source node to destination node.<para/>
+            /// Copies attributes from source node \p src to destination node \p dst. Both node must have the same context.
+            /// </summary>
+            /// <param name="dst">Destination node</param>
+            /// <param name="src">Source node</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src);
+            
+            /// <summary>
+            /// Queries node attribute.<para/>
+            /// Queries attribute \p attr from node \p hNode and stores it in corresponding member of \p value_out.
+            /// </summary>
+            /// <param name="hNode"></param>
+            /// <param name="attr"></param>
+            /// <param name="value_out"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, ref CUkernelNodeAttrValue value_out);
+
+            /// <summary>
+            /// Sets node attribute.<para/>
+            /// Sets attribute \p attr on node \p hNode from corresponding attribute of value.
+            /// </summary>
+            /// <param name="hNode"></param>
+            /// <param name="attr"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, ref CUkernelNodeAttrValue value);
         }
         #endregion
 

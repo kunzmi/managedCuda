@@ -3110,6 +3110,35 @@ namespace ManagedCuda
 				throw new CudaException(res);
 			return occupancy;
 		}
+
+
+
+		/// <summary>
+		/// Returns dynamic shared memory available per block when launching \p numBlocks blocks on SM <para/>
+		/// Returns in \p *dynamicSmemSize the maximum size of dynamic shared memory to allow \p numBlocks blocks per SM. 
+		/// </summary>
+		/// <param name="numBlocks">Number of blocks to fit on SM </param>
+		/// <param name="blockSize">Size of the blocks</param>
+		public int GetOccupancyAvailableDynamicSMemPerBlock(int numBlocks = 0, int blockSize = 0)
+		{
+			CUResult res;
+			SizeT dynamicSMemSize = new SizeT();
+
+			if (numBlocks == 0)
+			{
+				numBlocks = (int)(_gridDim.x * _gridDim.y * _gridDim.z);
+			}
+			if (blockSize == 0)
+			{
+				blockSize = (int)(_blockDim.x * _blockDim.y * _blockDim.z);
+			}
+
+			res = DriverAPINativeMethods.Occupancy.cuOccupancyAvailableDynamicSMemPerBlock(ref dynamicSMemSize, _function, numBlocks, blockSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuOccupancyAvailableDynamicSMemPerBlock", res));
+			if (res != CUResult.Success)
+				throw new CudaException(res);
+			return dynamicSMemSize;
+		}
 		#endregion
 
 

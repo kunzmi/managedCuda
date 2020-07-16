@@ -55,6 +55,7 @@
     <Compile Include="GesvdjInfo.cs" />
     <Compile Include="IRSInfos.cs" />
     <Compile Include="IRSParams.cs" />
+    <Compile Include="Params.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Refactorization.cs" />
     <Compile Include="SyevjInfo.cs" />

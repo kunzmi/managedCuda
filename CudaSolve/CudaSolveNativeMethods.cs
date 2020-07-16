@@ -2725,110 +2725,80 @@ namespace ManagedCuda.CudaSolve
 			// IRS helper function API
 			// =============================================================================
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsCreate(
-						ref cusolverDnIRSParams params_ptr);
+			public static extern cusolverStatus cusolverDnIRSParamsCreate(ref cusolverDnIRSParams params_ptr);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsDestroy(
-						cusolverDnIRSParams parameters );
+			public static extern cusolverStatus cusolverDnIRSParamsDestroy(cusolverDnIRSParams parameters );
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetTol(
-						cusolverDnIRSParams parameters,
-						cudaDataType data_type,
-						double val);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetRefinementSolver(
+			cusolverDnIRSParams parameters, cusolverIRSRefinement refinement_solver);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetTolInner(
-						cusolverDnIRSParams parameters,
-						cudaDataType data_type,
-						double val);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetSolverMainPrecision(
+			cusolverDnIRSParams parameters, cusolverPrecType solver_main_precision);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetSolverPrecisions(
-						cusolverDnIRSParams parameters,
-						cudaDataType solver_main_precision,
-						cudaDataType solver_lowest_precision);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetSolverLowestPrecision(
+			cusolverDnIRSParams parameters, cusolverPrecType solver_lowest_precision);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetRefinementSolver(
-						cusolverDnIRSParams parameters,
-						cusolverIRSRefinement refinement_solver);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetSolverPrecisions(
+			cusolverDnIRSParams parameters, cusolverPrecType solver_main_precision, cusolverPrecType solver_lowest_precision);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetMaxIters(
-						cusolverDnIRSParams parameters,
-						int maxiters);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetTol(cusolverDnIRSParams parameters, double val);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetMaxItersInner(
-						cusolverDnIRSParams parameters,
-						int maxiters_inner);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetTolInner(cusolverDnIRSParams parameters, double val);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsGetNiters(
-						cusolverDnIRSParams parameters,
-						ref int niters);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetMaxIters(cusolverDnIRSParams parameters, int maxiters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsGetOuterNiters(
-						cusolverDnIRSParams parameters,
-						ref int outer_niters);
+			public static extern cusolverStatus	cusolverDnIRSParamsSetMaxItersInner(cusolverDnIRSParams parameters, int maxiters_inner);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsGetMaxIters(
-						cusolverDnIRSParams parameters,
-						ref int maxiters);
+			public static extern cusolverStatus	cusolverDnIRSParamsGetMaxIters(cusolverDnIRSParams parameters, ref int maxiters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetSolverMainPrecision(
-						cusolverDnIRSParams parameters,
-						cudaDataType solver_main_precision);
+			public static extern cusolverStatus cusolverDnIRSParamsEnableFallback(cusolverDnIRSParams parameters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
-			public static extern cusolverStatus cusolverDnIRSParamsSetSolverLowestPrecision(
-						cusolverDnIRSParams parameters,
-						cudaDataType solver_lowest_precision);
+			public static extern cusolverStatus cusolverDnIRSParamsDisableFallback(cusolverDnIRSParams parameters);
 
 			#endregion
 			#region cusolverDnIRSInfos prototypes
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosDestroy(
-					cusolverDnIRSParams parameters,
 					cusolverDnIRSInfos infos);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosCreate(
-					cusolverDnIRSParams parameters,
 					ref cusolverDnIRSInfos infos_ptr);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosGetNiters(
-						cusolverDnIRSParams parameters,
 						cusolverDnIRSInfos infos,
 						ref int niters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosGetOuterNiters(
-						cusolverDnIRSParams parameters,
 						cusolverDnIRSInfos infos,
 						ref int outer_niters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosGetMaxIters(
-						cusolverDnIRSParams parameters,
 						cusolverDnIRSInfos infos,
 						ref int maxiters);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosRequestResidual(
-					cusolverDnIRSParams parameters,
 					cusolverDnIRSInfos infos);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSInfosGetResidualHistory(
-						cusolverDnIRSParams parameters,
 						cusolverDnIRSInfos infos,
 						ref IntPtr residual_history);
 
@@ -2877,6 +2847,31 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr d_info);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZEgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZYgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnCCgesv(
 					cusolverDnHandle handle,
 					int n, int nrhs,
@@ -2889,7 +2884,33 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr d_info);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCEgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnCKgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCYgesv(
 					cusolverDnHandle handle,
 					int n, int nrhs,
 					CUdeviceptr dA, int ldda,
@@ -2936,6 +2957,31 @@ namespace ManagedCuda.CudaSolve
 					ref int iter,
 					CUdeviceptr d_info);
 
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDBgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDXgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnSSgesv(
 					cusolverDnHandle handle,
@@ -2959,12 +3005,37 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr dWorkspace, SizeT lwork_bytes,
 					ref int iter,
 					CUdeviceptr d_info);
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSBgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSXgesv(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
 			/*******************************************************************************/
 
 			#endregion
 			#region [ZZ,ZC, ZK, CC, CK, DD, DS, DH, SS, SH,]gesv_bufferSize users API Prototypes
 
-			
+
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnZZgesv_bufferSize(
@@ -2997,6 +3068,26 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZEgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZYgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnCCgesv_bufferSize(
 					cusolverDnHandle handle,
 					int n, int nrhs,
@@ -3008,6 +3099,28 @@ namespace ManagedCuda.CudaSolve
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnCKgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCEgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCYgesv_bufferSize(
 					cusolverDnHandle handle,
 					int n, int nrhs,
 					CUdeviceptr dA, int ldda,
@@ -3046,6 +3159,27 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr dX, int lddx,
 					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
 
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDBgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDXgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
 			[DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnSSgesv_bufferSize(
 					cusolverDnHandle handle,
@@ -3065,25 +3199,486 @@ namespace ManagedCuda.CudaSolve
 					CUdeviceptr dB, int lddb,
 					CUdeviceptr dX, int lddx,
 					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSBgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSXgesv_bufferSize(
+					cusolverDnHandle handle,
+					int n, int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dipiv,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
 			/*******************************************************************************/
 
 
 			#endregion
-			#region expert users API for IRS Prototypes
 
+			#region gels users API
 			/*******************************************************************************//*
-			 * 
-			 * */
+			 * [ZZ, ZC, ZK, ZE, ZY, CC, CK, CE, CY, DD, DS, DH, DB, DX, SS, SH, SB, SX]gels 
+			 * users API Prototypes */
 			/*******************************************************************************/
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZZgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZCgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZKgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZEgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZYgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCCgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCKgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCEgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCYgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDDgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDSgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDHgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDBgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDXgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSSgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSHgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSBgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSXgels(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int iter,
+					CUdeviceptr d_info);
+			/*******************************************************************************/
+
+			/*******************************************************************************//*
+			 * [ZZ, ZC, ZK, ZE, ZY, CC, CK, CE, CY, DD, DS, DH, DB, DX, SS, SH, SB, SX]gels_bufferSize 
+			 * API prototypes */
+			/*******************************************************************************/
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZZgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZCgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZKgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZEgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnZYgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCCgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCKgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCEgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCYgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDDgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDSgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDHgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDBgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDXgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSSgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSHgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSBgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSXgels_bufferSize(
+					cusolverDnHandle handle,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, ref SizeT lwork_bytes);
+            #endregion
+            #region expert users API for IRS Prototypes
+
+            /*******************************************************************************//*
+			 * 
+			 * */
+            /*******************************************************************************/
+            [DllImport(CUSOLVE_API_DLL_NAME)]
 			public static extern cusolverStatus cusolverDnIRSXgesv(
 					cusolverDnHandle handle,
 					cusolverDnIRSParams gesv_irs_parameters,
 					cusolverDnIRSInfos gesv_irs_infos,
-					cudaDataType inout_data_type,
 					int n, int nrhs,
 					CUdeviceptr dA, int ldda,
-					CUdeviceptr dipiv,
 					CUdeviceptr dB, int lddb,
 					CUdeviceptr dX, int lddx,
 					CUdeviceptr dWorkspace, SizeT lwork_bytes,
@@ -3098,6 +3693,31 @@ namespace ManagedCuda.CudaSolve
 					ref SizeT lwork_bytes);
 
 
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnIRSXgels(
+					cusolverDnHandle handle,
+					cusolverDnIRSParams gels_irs_params,
+					cusolverDnIRSInfos gels_irs_infos,
+					int m,
+					int n,
+					int nrhs,
+					CUdeviceptr dA, int ldda,
+					CUdeviceptr dB, int lddb,
+					CUdeviceptr dX, int lddx,
+					CUdeviceptr dWorkspace, SizeT lwork_bytes,
+					ref int niters,
+					CUdeviceptr d_info);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnIRSXgels_bufferSize(
+					cusolverDnHandle handle,
+					cusolverDnIRSParams parameters,
+					int m,
+					int n,
+					int nrhs,
+					ref SizeT lwork_bytes);
 
 
 			#endregion
@@ -4912,15 +5532,246 @@ namespace ManagedCuda.CudaSolve
 				CUdeviceptr d_info,
 				double[] h_R_nrmF,
 				int batchSize);
- 
+
+			#endregion
+
+			#region 64-bit API for POTRF
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnCreateParams(
+				ref cusolverDnParams parameters);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnDestroyParams(
+				cusolverDnParams parameters);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSetAdvOptions(
+				cusolverDnParams parameters,
+				cusolverDnFunction function,
+				cusolverAlgMode algo);
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnPotrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytes );
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnPotrf(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				CUdeviceptr pBuffer,
+				SizeT workspaceInBytes,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region 64-bit API for POTRS 
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnPotrs(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				long nrhs,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeB,
+
+				CUdeviceptr B,
+				long ldb,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region 64-bit API for GEQRF 
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnGeqrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeTau,
+
+				CUdeviceptr tau,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytes );
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnGeqrf(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeTau,
+				CUdeviceptr tau,
+				cudaDataType computeType,
+				CUdeviceptr pBuffer,
+				SizeT workspaceInBytes,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region 64-bit API for GETRF
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnGetrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytes );
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnGetrf(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				CUdeviceptr ipiv,
+				cudaDataType computeType,
+				CUdeviceptr pBuffer,
+				SizeT workspaceInBytes,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region 64-bit API for GETRS
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnGetrs(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				Operation trans,
+				long n,
+				long nrhs,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				CUdeviceptr ipiv,
+				cudaDataType dataTypeB,
+				CUdeviceptr B,
+				long ldb,
+				CUdeviceptr info );
+
+			#endregion
+
+			#region 64-bit API for SYEVD
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSyevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytes);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSyevd(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				CUdeviceptr pBuffer,
+				SizeT workspaceInBytes,
+				CUdeviceptr info);
+
+			#endregion
+
+			#region 64-bit API for SYEVDX 
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSyevdx_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				cusolverEigRange range,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				IntPtr vl,
+				IntPtr vu,
+				long il,
+				long iu,
+				ref long h_meig,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytes);
+
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnSyevdx(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				cusolverEigRange range,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				IntPtr vl,
+				IntPtr vu,
+				long il,
+				long iu,
+				ref long meig64,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				CUdeviceptr pBuffer,
+				SizeT workspaceInBytes,
+				CUdeviceptr info);
 			#endregion
 		}
 
-		/// <summary>
-		/// The cuSolverSP library was mainly designed to a solve sparse linear system AxB and the least-squares problem
-		/// x = argmin||A*z-b||
-		/// </summary>
-		public static class Sparse
+        /// <summary>
+        /// The cuSolverSP library was mainly designed to a solve sparse linear system AxB and the least-squares problem
+        /// x = argmin||A*z-b||
+        /// </summary>
+        public static class Sparse
 		{
 #if (NETCOREAPP)
 			static Sparse()

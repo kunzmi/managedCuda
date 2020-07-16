@@ -133,6 +133,14 @@ namespace ManagedCuda
 		private bool _handleTypePosixFileDescriptorSupported;
 		private bool _handleTypeWin32HandleSupported;
 		private bool _handleTypeWin32KMTHandleSupported;
+		private int _maxBlocksPerMultiProcessor;
+		private bool _genericCompressionSupported;
+		private int _maxPersistingL2CacheSize;
+		private int _maxAccessPolicyWindowSize;
+		private bool _GPUDirectRDMAWithCudaVMMSupported;
+		private int _reservedSharedMemoryPerBlock;
+
+
 
 		// Properties
 		/// <summary>
@@ -1045,6 +1053,55 @@ namespace ManagedCuda
 		{
 			get { return this._handleTypeWin32KMTHandleSupported; }
 			internal set { this._handleTypeWin32KMTHandleSupported = value; }
+		}
+
+		/// <summary>
+		/// Maximum number of blocks per multiprocessor
+		/// </summary>
+		public int MaxBlocksPerMultiProcessor
+		{
+			get { return this._maxBlocksPerMultiProcessor; }
+			internal set { this._maxBlocksPerMultiProcessor = value; }
+		}
+		/// <summary>
+		/// Device supports compression of memory
+		/// </summary>
+		public bool GenericCompressionSupported
+		{
+			get { return this._genericCompressionSupported; }
+			internal set { this._genericCompressionSupported = value; }
+		}
+		/// <summary>
+		/// Device's maximum L2 persisting lines capacity setting in bytes
+		/// </summary>
+		public int MaxPersistingL2CacheSize
+		{
+			get { return this._maxPersistingL2CacheSize; }
+			internal set { this._maxPersistingL2CacheSize = value; }
+		}
+		/// <summary>
+		/// The maximum value of CUaccessPolicyWindow::num_bytes.
+		/// </summary>
+		public int MaxAccessPolicyWindowSize
+		{
+			get { return this._maxAccessPolicyWindowSize; }
+			internal set { this._maxAccessPolicyWindowSize = value; }
+		}
+		/// <summary>
+		/// Device supports specifying the GPUDirect RDMA flag with ::cuMemCreate
+		/// </summary>
+		public bool GPUDirectRDMAWithCudaVMMSupported
+		{
+			get { return this._GPUDirectRDMAWithCudaVMMSupported; }
+			internal set { this._GPUDirectRDMAWithCudaVMMSupported = value; }
+		}
+		/// <summary>
+		/// Shared memory reserved by CUDA driver per block in bytes
+		/// </summary>
+		public int ReservedSharedMemoryPerBlock
+		{
+			get { return this._reservedSharedMemoryPerBlock; }
+			internal set { this._reservedSharedMemoryPerBlock = value; }
 		}
 	}
 }

@@ -24,6 +24,7 @@ using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaSparse
 {
@@ -163,33 +164,6 @@ namespace ManagedCuda.CudaSparse
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 		}
-		
-
-		/// <summary>
-		/// This function returns the number of levels and the assignment of rows into the levels
-		/// computed by either the csrsv_analysis, csrsm_analysis or hybsv_analysis routines.
-		/// </summary>
-		/// <param name="info">the pointer to the solve and analysis structure.</param>
-		/// <param name="nLevels">number of levels.</param>
-		/// <param name="levelPtr">integer array of nlevels+1 elements that contains
-		/// the start of every level and the end of the last
-		/// level plus one.</param>
-		/// <param name="levelIdx">integer array of m (number of rows in the matrix)
-		/// elements that contains the row indices belonging
-		/// to every level.</param>
-		public void GetLevelInfo(CudaSparseSolveAnalysisInfo info, out int nLevels, out CudaDeviceVariable<int> levelPtr, out CudaDeviceVariable<int> levelIdx)
-		{
-			nLevels = 0;
-			CUdeviceptr levelptr = new CUdeviceptr();
-			CUdeviceptr levelidx = new CUdeviceptr();
-			res = CudaSparseNativeMethods.cusparseGetLevelInfo(_handle, info.SolveAnalysisInfo, ref nLevels, ref levelptr, ref levelidx);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetLevelInfo", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-
-			levelPtr = new CudaDeviceVariable<int>(levelptr, false);
-			levelIdx = new CudaDeviceVariable<int>(levelidx, false);
-		}
 
 		#endregion
 
@@ -202,7 +176,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(float alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, cusparseIndexBase idxBase)
+		public void Axpyi(float alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSaxpyi", res));
@@ -217,7 +191,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(double alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, cusparseIndexBase idxBase)
+		public void Axpyi(double alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDaxpyi", res));
@@ -232,7 +206,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase)
+		public void Axpyi(cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCaxpyi", res));
@@ -247,7 +221,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase)
+		public void Axpyi(cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZaxpyi", res));
@@ -263,7 +237,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, cusparseIndexBase idxBase)
+		public void Axpyi(CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSaxpyi", res));
@@ -278,7 +252,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, cusparseIndexBase idxBase)
+		public void Axpyi(CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDaxpyi", res));
@@ -293,7 +267,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase)
+		public void Axpyi(CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCaxpyi", res));
@@ -308,202 +282,13 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Axpyi(CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase)
+		public void Axpyi(CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZaxpyi", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 		}
-
-
-
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, ref float result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseSdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, ref double result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseDdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, ref cuFloatComplex result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseCdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, ref cuDoubleComplex result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseZdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, CudaDeviceVariable<float> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseSdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, CudaDeviceVariable<double> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseDdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseCdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of a sparse vector x and a dense vector y
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Doti(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseZdoti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZdoti", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-		/// <summary>
-		/// dot product of complex conjugate of a sparse vector x and a dense vector y.
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Dotci(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, ref cuFloatComplex result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseCdotci(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCdotci", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of complex conjugate of a sparse vector x and a dense vector y.
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Dotci(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, ref cuDoubleComplex result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseZdotci(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref result, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZdotci", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// dot product of complex conjugate of a sparse vector x and a dense vector y.
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Dotci(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseCdotci(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCdotci", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// dot product of complex conjugate of a sparse vector x and a dense vector y.
-		/// </summary>
-		/// <param name="xVal">vector with nnz non-zero values of vector x.</param>
-		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="y">vector in dense format.</param>
-		/// <param name="result">pointer to the location of the result in the device or host memory.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Dotci(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> result, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseZdotci(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, result.DevicePointer, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZdotci", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
 
 
 		/// <summary>
@@ -513,7 +298,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthr(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthr(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgthr", res));
@@ -527,7 +312,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthr(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthr(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgthr", res));
@@ -541,7 +326,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthr(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthr(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgthr", res));
@@ -555,7 +340,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthr(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthr(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgthr", res));
@@ -571,7 +356,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthrz(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthrz(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgthrz", res));
@@ -585,7 +370,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthrz(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthrz(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgthrz", res));
@@ -599,7 +384,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthrz(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthrz(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgthrz", res));
@@ -613,7 +398,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Gthrz(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, cusparseIndexBase idxBase)
+		public void Gthrz(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgthrz", res));
@@ -630,7 +415,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Sctr(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, cusparseIndexBase idxBase)
+		public void Sctr(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSsctr", res));
@@ -644,7 +429,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Sctr(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, cusparseIndexBase idxBase)
+		public void Sctr(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDsctr", res));
@@ -658,7 +443,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Sctr(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase)
+		public void Sctr(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCsctr", res));
@@ -672,7 +457,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Sctr(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase)
+		public void Sctr(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZsctr", res));
@@ -691,7 +476,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Roti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, float c, float s, cusparseIndexBase idxBase)
+		public void Roti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, float c, float s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref c, ref s, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSroti", res));
@@ -707,7 +492,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Roti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, double c, double s, cusparseIndexBase idxBase)
+		public void Roti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, double c, double s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref c, ref s, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDroti", res));
@@ -723,7 +508,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Roti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, CudaDeviceVariable<float> c, CudaDeviceVariable<float> s, cusparseIndexBase idxBase)
+		public void Roti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, CudaDeviceVariable<float> c, CudaDeviceVariable<float> s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, c.DevicePointer, s.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSroti", res));
@@ -739,7 +524,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Roti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, CudaDeviceVariable<double> c, CudaDeviceVariable<double> s, cusparseIndexBase idxBase)
+		public void Roti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, CudaDeviceVariable<double> c, CudaDeviceVariable<double> s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, c.DevicePointer, s.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDroti", res));
@@ -752,231 +537,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> x, float beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> x, double beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> x, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> x, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> x, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> x, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// Using a Merge Path load-balancing implementation.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void CsrmvMP(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmv_mp(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmv_mp", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 		/// <summary>
@@ -999,7 +559,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, float alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, 
-			float beta, CudaDeviceVariable<float> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			float beta, CudaDeviceVariable<float> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseSgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgemvi", res));
@@ -1026,7 +586,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, double alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
-			double beta, CudaDeviceVariable<double> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			double beta, CudaDeviceVariable<double> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseDgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgemvi", res));
@@ -1053,7 +613,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
-			cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseCgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgemvi", res));
@@ -1080,7 +640,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
-			cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseZgemvi(_handle, transA, m, n, ref alpha, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, ref beta, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgemvi", res));
@@ -1107,7 +667,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd,
-			CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseSgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgemvi", res));
@@ -1134,7 +694,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
-			CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseDgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgemvi", res));
@@ -1161,7 +721,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
-			CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseCgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgemvi", res));
@@ -1188,7 +748,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
 		/// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
 		public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
-			CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y, cusparseIndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
+			CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
 		{
 			res = CudaSparseNativeMethods.cusparseZgemvi(_handle, transA, m, n, alpha.DevicePointer, A.DevicePointer, lda, nnz, xVal.DevicePointer, xInd.DevicePointer, beta.DevicePointer, y.DevicePointer, idxBase, pBuffer.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgemvi", res));
@@ -1266,838 +826,10 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> x, float beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmv(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> x, double beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> x, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> x, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> x, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmv(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> x, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
-		/// and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. 
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="x">vector of n elements if op(A) = A, and m elements if op(A) =
-		/// AT or op(A) = AH.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements if op(A) = A and n elements if op(A) = AT or op(A) = AH.</param>
-		public void Csrmv(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmv(_handle, transA, m, n, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, float alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<float> x, float beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseShybmv(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, double alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<double> x, double beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDhybmv(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuFloatComplex> x, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseChybmv(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuDoubleComplex> x, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZhybmv(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, x.DevicePointer, ref beta, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<float> x, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseShybmv(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<double> x, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDhybmv(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseChybmv(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="x">vector of n elements.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
-		/// <param name="y">vector of m elements.</param>
-		public void Hybmv(cusparseOperation transA, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZhybmv(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhybmv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsvAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsv_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsv_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsvAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsv_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsv_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsvAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsv_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsv_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsvAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsv_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsv_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsv_solve(_handle, transA, m, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsv_solve(_handle, transA, m, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsv_solve(_handle, transA, m, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsv_solve(_handle, transA, m, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsv_solve(_handle, transA, m, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsv_solve(_handle, transA, m, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsv_solve(_handle, transA, m, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in CSR storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal 
-		/// types CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void CsrsvSolve(cusparseOperation transA, int m, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsv_solve(_handle, transA, m, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 
 
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <typeparam name="T">data type: float, double, cuFloatComplex or cuDoubleComplex</typeparam>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type 
-		/// CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		public void HybsvAnalysis<T>(cusparseOperation transA, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info) where T : struct
-		{
-			Type t = typeof(T);
-			if (t == typeof(float))
-			{
-				res = CudaSparseNativeMethods.cusparseShybsv_analysis(_handle, transA, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShybsv_analysis", res));
-			}
-			else if (t == typeof(double))
-			{
-				res = CudaSparseNativeMethods.cusparseDhybsv_analysis(_handle, transA, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhybsv_analysis", res));
-			}
-			else if (t == typeof(cuFloatComplex))
-			{
-				res = CudaSparseNativeMethods.cusparseChybsv_analysis(_handle, transA, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChybsv_analysis", res));
-			}
-			else if (t == typeof(cuDoubleComplex))
-			{
-				res = CudaSparseNativeMethods.cusparseZhybsv_analysis(_handle, transA, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhybsv_analysis", res));
-			}
-			else
-				throw new CudaSparseException("The type '" + t.Name + "' is not supported in HybsvAnalysis.");
-
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, float alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseShybsv_solve(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, double alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDhybsv_solve(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseChybsv_solve(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZhybsv_solve(_handle, transA, ref alpha, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, CudaDeviceVariable<float> y)
-		{
-			res = CudaSparseNativeMethods.cusparseShybsv_solve(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, CudaDeviceVariable<double> y)
-		{
-			res = CudaSparseNativeMethods.cusparseDhybsv_solve(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseChybsv_solve(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * y = alpha * x, 
-		/// where A is a sparse matrix in HYB storage format, x and y are dense vectors.
-		/// </summary>
-		/// <param name="transA">the operation op(A) (currently only op(A) = A is supported).</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal type CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase
-		/// (that should be passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side vector of size m.</param>
-		/// <param name="y">solution vector of size m.</param>
-		public void HybsvSolve(cusparseOperation transA, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> y)
-		{
-			res = CudaSparseNativeMethods.cusparseZhybsv_solve(_handle, transA, alpha.DevicePointer, descrA.Descriptor, hybA.HybMat, info.SolveAnalysisInfo, x.DevicePointer, y.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhybsv_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 
@@ -3137,608 +1869,8 @@ namespace ManagedCuda.CudaSparse
 		#endregion
 
 
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> B, int ldb, float beta, CudaDeviceVariable<float> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> B, int ldb, double beta, CudaDeviceVariable<double> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Matrix-matrix multiplication C = alpha * op(A) * B  + beta * C, where A is a sparse matrix, B and C are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of sparse matrix A.</param>
-		/// <param name="n">number of columns of dense matrices B and C.</param>
-		/// <param name="k">number of columns of sparse matrix A.</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix types 
-		/// are CUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_SYMMETRIC, and CUSPARSE_MATRIX_TYPE_HERMITIAN. Also, the
-		/// supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="B">array of dimensions (ldb, n).</param>
-		/// <param name="ldb">leading dimension of B. It must be at least max (1, k) if op(A) = A, and at least max (1, m) otherwise.</param>
-		/// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
-		/// <param name="C">array of dimensions (ldc, n).</param>
-		/// <param name="ldc">leading dimension of C. It must be at least max (1, m) if op(A) = A and at least max (1, k) otherwise.</param>
-		public void Csrmm(cusparseOperation transA, int m, int n, int k, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmm(_handle, transA, m, n, k, (int)csrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		#region ref host
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							ref float alpha, cusparseMatDescr descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, 
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> B, int ldb, ref float beta, CudaDeviceVariable<float> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmm2(_handle, transa, transb, m, n, k, nnz, ref alpha, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							ref double alpha, cusparseMatDescr descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> B, int ldb, ref double beta, CudaDeviceVariable<double> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmm2(_handle, transa, transb, m, n, k, nnz, ref alpha, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							ref cuFloatComplex alpha, cusparseMatDescr descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, ref cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmm2(_handle, transa, transb, m, n, k, nnz, ref alpha, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							ref cuDoubleComplex alpha, cusparseMatDescr descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, ref cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmm2(_handle, transa, transb, m, n, k, nnz, ref alpha, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		#endregion
-
-		#region ref device
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							CudaDeviceVariable<float> alpha, cusparseMatDescr descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrmm2(_handle, transa, transb, m, n, k, nnz, alpha.DevicePointer, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							CudaDeviceVariable<double> alpha, cusparseMatDescr descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrmm2(_handle, transa, transb, m, n, k, nnz, alpha.DevicePointer, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							CudaDeviceVariable<cuFloatComplex> alpha, cusparseMatDescr descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrmm2(_handle, transa, transb, m, n, k, nnz, alpha.DevicePointer, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary/>
-		public void Csrmm2(cusparseOperation transa, cusparseOperation transb, int m, int n, int k, int nnz,
-							CudaDeviceVariable<cuDoubleComplex> alpha, cusparseMatDescr descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
-							CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrmm2(_handle, transa, transb, m, n, k, nnz, alpha.DevicePointer, descrA, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, B.DevicePointer, ldb, beta.DevicePointer, C.DevicePointer, ldc);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrmm2", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		#endregion
 
 
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsmAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsm_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsm_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsmAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsm_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsm_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsmAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsm_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsm_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure filled with information collected during the analysis phase (that should be passed to the solve phase unchanged).</param>
-		public void CsrsmAnalysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsm_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsm_analysis", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, int ldx, CudaDeviceVariable<float> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsm_solve(_handle, transA, m, n, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, int ldx, CudaDeviceVariable<double> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsm_solve(_handle, transA, m, n, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, int ldx, CudaDeviceVariable<cuFloatComplex> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsm_solve(_handle, transA, m, n, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, int ldx, CudaDeviceVariable<cuDoubleComplex> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsm_solve(_handle, transA, m, n, ref alpha, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<float> x, int ldx, CudaDeviceVariable<float> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrsm_solve(_handle, transA, m, n, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<double> x, int ldx, CudaDeviceVariable<double> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrsm_solve(_handle, transA, m, n, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuFloatComplex> x, int ldx, CudaDeviceVariable<cuFloatComplex> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrsm_solve(_handle, transA, m, n, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of triangular linear system op(A) * Y = alpha * X, with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
-		/// format, X and Y are dense and usually tall matrices.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="n">number of columns of matrix X and Y .</param>
-		/// <param name="alpha">scalar used for multiplication.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_TRIANGULAR and diagonal types 
-		/// CUSPARSE_DIAG_TYPE_UNIT and CUSPARSE_DIAG_TYPE_NON_UNIT.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
-		/// Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged).</param>
-		/// <param name="x">right-hand-side array of dimensions (ldx, n).</param>
-		/// <param name="ldx">leading dimension of X (that is >= max(1;m)).</param>
-		/// <param name="y">solution array of dimensions (ldy, n).</param>
-		/// <param name="ldy">leading dimension of Y (that is >= max(1;m)).</param>
-		public void CsrsmSolve(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info, CudaDeviceVariable<cuDoubleComplex> x, int ldx, CudaDeviceVariable<cuDoubleComplex> y, int ldy)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrsm_solve(_handle, transA, m, n, alpha.DevicePointer, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo, x.DevicePointer, ldx, y.DevicePointer, ldy);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrsm_solve", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 
@@ -4708,134 +2840,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// This function computes the incomplete-LU factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ LU<para/>
-		/// where A is m*n sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that the diagonal of lower triangular factor L is unitary and need not be stored.
-		/// Therefore the input matrix is ovewritten with the resulting lower and upper triangular
-		/// factor L and U, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csrilu0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrilu0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrilu0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-LU factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ LU<para/>
-		/// where A is m*n sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that the diagonal of lower triangular factor L is unitary and need not be stored.
-		/// Therefore the input matrix is ovewritten with the resulting lower and upper triangular
-		/// factor L and U, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csrilu0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrilu0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrilu0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-LU factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ LU<para/>
-		/// where A is m*n sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that the diagonal of lower triangular factor L is unitary and need not be stored.
-		/// Therefore the input matrix is ovewritten with the resulting lower and upper triangular
-		/// factor L and U, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csrilu0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrilu0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrilu0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-LU factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ LU<para/>
-		/// where A is m*n sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that the diagonal of lower triangular factor L is unitary and need not be stored.
-		/// Therefore the input matrix is ovewritten with the resulting lower and upper triangular
-		/// factor L and U, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csrilu0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrilu0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrilu0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 		/// <summary>
 		/// The user can use a boost value to replace a numerical value in incomplete LU
@@ -5836,130 +3840,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// This function computes the incomplete-Cholesky factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ R'R<para/>
-		/// where A is m*n Hermitian/symmetric positive definite sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that only a lower or upper Hermitian/symmetric part of the matrix A is actually
-		/// stored. It is overwritten by the lower or upper triangular factor R' or R, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csric0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseScsric0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsric0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-Cholesky factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ R'R<para/>
-		/// where A is m*n Hermitian/symmetric positive definite sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that only a lower or upper Hermitian/symmetric part of the matrix A is actually
-		/// stored. It is overwritten by the lower or upper triangular factor R' or R, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csric0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsric0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsric0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-Cholesky factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ R'R<para/>
-		/// where A is m*n Hermitian/symmetric positive definite sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that only a lower or upper Hermitian/symmetric part of the matrix A is actually
-		/// stored. It is overwritten by the lower or upper triangular factor R' or R, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csric0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsric0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsric0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function computes the incomplete-Cholesky factorization with 0 fill-in and no pivoting <para/>
-		/// op(A) ≈ R'R<para/>
-		/// where A is m*n Hermitian/symmetric positive definite sparse matrix (that is defined in CSR storage format by the three arrays csrValM,
-		/// csrRowPtrA and csrColIndA). <para/>
-		/// Notice that only a lower or upper Hermitian/symmetric part of the matrix A is actually
-		/// stored. It is overwritten by the lower or upper triangular factor R' or R, respectively.<para/>
-		/// A call to this routine must be preceeded by a call to the csrsv_analysis routine.
-		/// This function requires some extra storage. It is executed asynchronously with respect to
-		/// the host and it may return control to the application on the host before the result is ready.
-		/// </summary>
-		/// <param name="trans">the operation op(A).</param>
-		/// <param name="m">number of rows and columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-		/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases
-		/// are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column
-		/// indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="csrValA_ValM">array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) non-zero
-		/// elements of matrix A.</param>
-		/// <param name="info">structure with information collected during the analysis phase (that
-		/// should have been passed to the solve phase unchanged).</param>
-		public void Csric0(cusparseOperation trans, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA_ValM, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseSolveAnalysisInfo info)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsric0(_handle, trans, m, descrA.Descriptor, csrValA_ValM.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.SolveAnalysisInfo);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsric0", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 
@@ -6630,84 +4510,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
-		/// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="n">number of right-hand-sides, columns of matrix B.</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
-		/// linear system. The first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
-		/// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
-		/// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
-		public void Gtsv(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseSgtsv(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
-		/// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="n">number of right-hand-sides, columns of matrix B.</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
-		/// linear system. The first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
-		/// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
-		/// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
-		public void Gtsv(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseDgtsv(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
-		/// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="n">number of right-hand-sides, columns of matrix B.</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
-		/// linear system. The first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
-		/// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
-		/// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
-		public void Gtsv(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseCgtsv(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of tridiagonal linear system A * B = B, with multiple right-hand-sides. The coefficient matrix A is 
-		/// composed of lower (dl), main (d) and upper (du) diagonals, and the right-hand-sides B are overwritten with the solution.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="n">number of right-hand-sides, columns of matrix B.</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal
-		/// linear system. The first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The last element of each upper diagonal must be zero.</param>
-		/// <param name="B">dense right-hand-side array of dimensions (ldb, m).</param>
-		/// <param name="ldb">leading dimension of B (that is >= max(1;m)).</param>
-		public void Gtsv(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseZgtsv(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-        }
-
-
 
 
 
@@ -6887,49 +4689,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-        /* Description: Solution of tridiagonal linear system A * B = B, 
-	   with multiple right-hand-sides. The coefficient matrix A is 
-	   composed of lower (dl), main (d) and upper (du) diagonals, and 
-	   the right-hand-sides B are overwritten with the solution. 
-	   These routines do not use pivoting, using a combination of PCR and CR algorithm */
-        /// <summary/>
-        public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseSgtsv_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsv_nopivot", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseDgtsv_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsv_nopivot", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseCgtsv_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsv_nopivot", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Gtsv_nopivot(int m, int n, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
-		{
-			res = CudaSparseNativeMethods.cusparseZgtsv_nopivot(_handle, m, n, dl.DevicePointer, d.DevicePointer, du.DevicePointer, B.DevicePointer, ldb);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsv_nopivot", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-        }
 
 
 
@@ -7028,105 +4787,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-
-
-
-        /// <summary>
-        /// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
-        /// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
-        /// right-hand-sides x are also separated by a batchStride.
-        /// </summary>
-        /// <param name="m">the size of the linear system (must be >= 3).</param>
-        /// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
-        /// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
-        /// Also, the first element of each lower diagonal must be zero.</param>
-        /// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
-        /// linear system starts at location d + batchStride * i in memory.</param>
-        /// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
-        /// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
-        /// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
-        /// to the ith linear system starts at location x + batchStride * i in memory.</param>
-        /// <param name="batchCount">Number of systems to solve.</param>
-        /// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
-        public void GtsvStridedBatch(int m, CudaDeviceVariable<float> dl, CudaDeviceVariable<float> d, CudaDeviceVariable<float> du, CudaDeviceVariable<float> x, int batchCount, int batchStride)
-		{
-			res = CudaSparseNativeMethods.cusparseSgtsvStridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSgtsvStridedBatch", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
-		/// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
-		/// right-hand-sides x are also separated by a batchStride.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
-		/// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
-		/// Also, the first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
-		/// linear system starts at location d + batchStride * i in memory.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
-		/// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
-		/// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
-		/// to the ith linear system starts at location x + batchStride * i in memory.</param>
-		/// <param name="batchCount">Number of systems to solve.</param>
-		/// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
-		public void GtsvStridedBatch(int m, CudaDeviceVariable<double> dl, CudaDeviceVariable<double> d, CudaDeviceVariable<double> du, CudaDeviceVariable<double> x, int batchCount, int batchStride)
-		{
-			res = CudaSparseNativeMethods.cusparseDgtsvStridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDgtsvStridedBatch", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
-		/// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
-		/// right-hand-sides x are also separated by a batchStride.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
-		/// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
-		/// Also, the first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
-		/// linear system starts at location d + batchStride * i in memory.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
-		/// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
-		/// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
-		/// to the ith linear system starts at location x + batchStride * i in memory.</param>
-		/// <param name="batchCount">Number of systems to solve.</param>
-		/// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
-		public void GtsvStridedBatch(int m, CudaDeviceVariable<cuFloatComplex> dl, CudaDeviceVariable<cuFloatComplex> d, CudaDeviceVariable<cuFloatComplex> du, CudaDeviceVariable<cuFloatComplex> x, int batchCount, int batchStride)
-		{
-			res = CudaSparseNativeMethods.cusparseCgtsvStridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCgtsvStridedBatch", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// Solution of a set of tridiagonal linear systems A * x = x, each with a single right-hand-side. The coefficient 
-		/// matrices A are composed of lower (dl), main (d) and upper (du) diagonals and stored separated by a batchStride, while the 
-		/// right-hand-sides x are also separated by a batchStride.
-		/// </summary>
-		/// <param name="m">the size of the linear system (must be >= 3).</param>
-		/// <param name="dl">dense array containing the lower diagonal of the tri-diagonal 
-		/// linear system. The lower diagonal dl(i) that corresponds to the ith linear system starts at location dl + batchStride * i in memory.
-		/// Also, the first element of each lower diagonal must be zero.</param>
-		/// <param name="d">dense array containing the main diagonal of the tri-diagonal linear system. The main diagonal d(i) that corresponds to the ith
-		/// linear system starts at location d + batchStride * i in memory.</param>
-		/// <param name="du">dense array containing the upper diagonal of the tri-diagonal linear system. The upper diagonal du(i) that corresponds to the ith
-		/// linear system starts at location du + batchStride * i in memory. Also, the last element of each upper diagonal must be zero.</param>
-		/// <param name="x">dense array that contains the right-hand-side of the tridiagonal linear system. The right-hand-side x(i) that corresponds 
-		/// to the ith linear system starts at location x + batchStride * i in memory.</param>
-		/// <param name="batchCount">Number of systems to solve.</param>
-		/// <param name="batchStride">stride (number of elements) that separates the vectors of every system (must be at least m).</param>
-		public void GtsvStridedBatch(int m, CudaDeviceVariable<cuDoubleComplex> dl, CudaDeviceVariable<cuDoubleComplex> d, CudaDeviceVariable<cuDoubleComplex> du, CudaDeviceVariable<cuDoubleComplex> x, int batchCount, int batchStride)
-		{
-			res = CudaSparseNativeMethods.cusparseZgtsvStridedBatch(_handle, m, dl.DevicePointer, d.DevicePointer, du.DevicePointer, x.DevicePointer, batchCount, batchStride);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZgtsvStridedBatch", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-        }
 
 
 
@@ -8292,7 +5952,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="m">number of rows of matrix A.</param>
 		/// <param name="csrRowPtr">Output: integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Xcoo2csr(CudaDeviceVariable<int> cooRowInd, int m, CudaDeviceVariable<int> csrRowPtr, cusparseIndexBase idxBase)
+		public void Xcoo2csr(CudaDeviceVariable<int> cooRowInd, int m, CudaDeviceVariable<int> csrRowPtr, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseXcoo2csr(_handle, cooRowInd.DevicePointer, (int)cooRowInd.Size, m, csrRowPtr.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcoo2csr", res));
@@ -8308,7 +5968,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="m">number of rows of matrix A.</param>
 		/// <param name="cooRowInd">integer array of nnz uncompressed row indices. Length of cooRowInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
-		public void Xcsr2coo(CudaDeviceVariable<int> csrRowPtr, int m, CudaDeviceVariable<int> cooRowInd, cusparseIndexBase idxBase)
+		public void Xcsr2coo(CudaDeviceVariable<int> csrRowPtr, int m, CudaDeviceVariable<int> cooRowInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseXcoo2csr(_handle, csrRowPtr.DevicePointer, (int)cooRowInd.Size, m, cooRowInd.DevicePointer, idxBase);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcoo2csr", res));
@@ -8318,331 +5978,8 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		/// <summary>
-		/// This routine converts a matrix from CSR to CSC sparse storage format. The resulting matrix can be re-interpreted as a transpose of the original matrix in CSR storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="csrVal">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtr">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColInd">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. Length of csrColInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="cscVal">Output: array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) nonzero elements of matrix A. It is only filled-in if copyValues is set
-		/// to CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="cscRowInd">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="cscColPtr">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
-		/// <param name="copyValues">CUSPARSE_ACTION_SYMBOLIC or CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Csr2csc(int m, int n, CudaDeviceVariable<float> csrVal, CudaDeviceVariable<int> csrRowPtr, CudaDeviceVariable<int> csrColInd, CudaDeviceVariable<float> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseScsr2csc(_handle, m, n, (int)csrColInd.Size, csrVal.DevicePointer, csrRowPtr.DevicePointer, csrColInd.DevicePointer, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer, copyValues, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsr2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a matrix from CSR to CSC sparse storage format. The resulting matrix can be re-interpreted as a transpose of the original matrix in CSR storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="csrVal">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtr">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColInd">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. Length of csrColInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="cscVal">Output: array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) nonzero elements of matrix A. It is only filled-in if copyValues is set
-		/// to CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="cscRowInd">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="cscColPtr">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
-		/// <param name="copyValues">CUSPARSE_ACTION_SYMBOLIC or CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Csr2csc(int m, int n, CudaDeviceVariable<double> csrVal, CudaDeviceVariable<int> csrRowPtr, CudaDeviceVariable<int> csrColInd, CudaDeviceVariable<double> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsr2csc(_handle, m, n, (int)csrColInd.Size, csrVal.DevicePointer, csrRowPtr.DevicePointer, csrColInd.DevicePointer, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer, copyValues, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsr2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a matrix from CSR to CSC sparse storage format. The resulting matrix can be re-interpreted as a transpose of the original matrix in CSR storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="csrVal">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtr">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColInd">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. Length of csrColInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="cscVal">Output: array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) nonzero elements of matrix A. It is only filled-in if copyValues is set
-		/// to CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="cscRowInd">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="cscColPtr">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
-		/// <param name="copyValues">CUSPARSE_ACTION_SYMBOLIC or CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Csr2csc(int m, int n, CudaDeviceVariable<cuFloatComplex> csrVal, CudaDeviceVariable<int> csrRowPtr, CudaDeviceVariable<int> csrColInd, CudaDeviceVariable<cuFloatComplex> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsr2csc(_handle, m, n, (int)csrColInd.Size, csrVal.DevicePointer, csrRowPtr.DevicePointer, csrColInd.DevicePointer, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer, copyValues, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsr2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a matrix from CSR to CSC sparse storage format. The resulting matrix can be re-interpreted as a transpose of the original matrix in CSR storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="csrVal">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtr">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColInd">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A. Length of csrColInd gives the number nzz passed to CUSPARSE.</param>
-		/// <param name="cscVal">Output: array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) nonzero elements of matrix A. It is only filled-in if copyValues is set
-		/// to CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="cscRowInd">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="cscColPtr">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
-		/// <param name="copyValues">CUSPARSE_ACTION_SYMBOLIC or CUSPARSE_ACTION_NUMERIC.</param>
-		/// <param name="idxBase">Index base.</param>
-		public void Csr2csc(int m, int n, CudaDeviceVariable<cuDoubleComplex> csrVal, CudaDeviceVariable<int> csrRowPtr, CudaDeviceVariable<int> csrColInd, CudaDeviceVariable<cuDoubleComplex> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr, cusparseAction copyValues, cusparseIndexBase idxBase)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsr2csc(_handle, m, n, (int)csrColInd.Size, csrVal.DevicePointer, csrRowPtr.DevicePointer, csrColInd.DevicePointer, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer, copyValues, idxBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsr2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
-
-		/// <summary>
-		/// This routine converts a dense matrix to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of the dense matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="A">array of dimensions (lda, n).</param>
-		/// <param name="lda">leading dimension of dense array A.</param>
-		/// <param name="nnzPerRow">array of size m containing the number of non-zero elements per row.</param>
-		/// <param name="hybA">Output: the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which
-		/// should be less than maximum number of non-zeros per row and is only required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Dense2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseSdense2hyb(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSdense2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a dense matrix to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of the dense matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="A">array of dimensions (lda, n).</param>
-		/// <param name="lda">leading dimension of dense array A.</param>
-		/// <param name="nnzPerRow">array of size m containing the number of non-zero elements per row.</param>
-		/// <param name="hybA">Output: the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which
-		/// should be less than maximum number of non-zeros per row and is only required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Dense2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseDdense2hyb(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDdense2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a dense matrix to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of the dense matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="A">array of dimensions (lda, n).</param>
-		/// <param name="lda">leading dimension of dense array A.</param>
-		/// <param name="nnzPerRow">array of size m containing the number of non-zero elements per row.</param>
-		/// <param name="hybA">Output: the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which
-		/// should be less than maximum number of non-zeros per row and is only required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Dense2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseCdense2hyb(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCdense2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a dense matrix to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of the dense matrix A. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="A">array of dimensions (lda, n).</param>
-		/// <param name="lda">leading dimension of dense array A.</param>
-		/// <param name="nnzPerRow">array of size m containing the number of non-zero elements per row.</param>
-		/// <param name="hybA">Output: the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which
-		/// should be less than maximum number of non-zeros per row and is only required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Dense2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseZdense2hyb(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZdense2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-		/// <summary>
-		/// This routine converts a sparse matrix in HYB storage format to a dense matrix.
-		/// </summary>
-		/// <param name="descrA">the descriptor of the matrix A in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="A">array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
-		/// <param name="lda">the matrix A in HYB storage format.</param>
-		public void Hyb2dense(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<float> A, int lda)
-		{
-			res = CudaSparseNativeMethods.cusparseShyb2dense(_handle, descrA.Descriptor, hybA.HybMat, A.DevicePointer, lda);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShyb2dense", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in HYB storage format to a dense matrix.
-		/// </summary>
-		/// <param name="descrA">the descriptor of the matrix A in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="A">array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
-		/// <param name="lda">the matrix A in HYB storage format.</param>
-		public void Hyb2dense(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<double> A, int lda)
-		{
-			res = CudaSparseNativeMethods.cusparseDhyb2dense(_handle, descrA.Descriptor, hybA.HybMat, A.DevicePointer, lda);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhyb2dense", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in HYB storage format to a dense matrix.
-		/// </summary>
-		/// <param name="descrA">the descriptor of the matrix A in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="A">array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
-		/// <param name="lda">the matrix A in HYB storage format.</param>
-		public void Hyb2dense(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuFloatComplex> A, int lda)
-		{
-			res = CudaSparseNativeMethods.cusparseChyb2dense(_handle, descrA.Descriptor, hybA.HybMat, A.DevicePointer, lda);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChyb2dense", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in HYB storage format to a dense matrix.
-		/// </summary>
-		/// <param name="descrA">the descriptor of the matrix A in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="A">array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
-		/// <param name="lda">the matrix A in HYB storage format.</param>
-		public void Hyb2dense(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuDoubleComplex> A, int lda)
-		{
-			res = CudaSparseNativeMethods.cusparseZhyb2dense(_handle, descrA.Descriptor, hybA.HybMat, A.DevicePointer, lda);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhyb2dense", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-		/// <summary>
-		/// This routine converts a sparse matrix in CSR storage format to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A in CSR format. The supported matrix type 
-		/// is CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which should be less than maximum number of non-zeros per row and is only
-		/// required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Csr2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseScsr2hyb(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsr2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in CSR storage format to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A in CSR format. The supported matrix type 
-		/// is CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which should be less than maximum number of non-zeros per row and is only
-		/// required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Csr2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsr2hyb(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsr2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in CSR storage format to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A in CSR format. The supported matrix type 
-		/// is CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which should be less than maximum number of non-zeros per row and is only
-		/// required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Csr2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsr2hyb(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsr2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This routine converts a sparse matrix in CSR storage format to a sparse matrix in HYB storage format.
-		/// </summary>
-		/// <param name="m">number of rows of matrix A.</param>
-		/// <param name="n">number of columns of matrix A.</param>
-		/// <param name="descrA">the descriptor of matrix A in CSR format. The supported matrix type 
-		/// is CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
-		/// <param name="csrValA">array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
-		/// <param name="hybA">the matrix A in HYB storage format.</param>
-		/// <param name="userEllWidth">width of the regular (ELL) part of the matrix in HYB format, which should be less than maximum number of non-zeros per row and is only
-		/// required if partitionType == CUSPARSE_HYB_PARTITION_USER.</param>
-		/// <param name="partitionType">partitioning method to be used in the conversion (please refer to cusparseHybPartition_t on page 15 for details).</param>
-		public void Csr2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsr2hyb(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsr2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
         #region new in Cuda 9.2
@@ -9435,229 +6772,7 @@ namespace ManagedCuda.CudaSparse
         #endregion
 
         #region Sparse Level 4 routines
-        /// <summary>
-        /// This function performs following matrix-matrix operation<para/>
-        /// C = op(A) * op(B) <para/>
-        /// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-        /// storage format by the three arrays csrValA|csrValB|csrValC,
-        /// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-        /// respectively. <para/>
-        /// Only support devices of compute capability 2.0 or above.
-        /// </summary>
-        /// <param name="transA">the operation op(A).</param>
-        /// <param name="transB">the operation op(B).</param>
-        /// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-        /// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-        /// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-        /// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-        /// MATRIX_TYPE_GENERAL only.</param>
-        /// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-        /// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-        /// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-        /// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-        /// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-        /// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-        /// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-        /// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-        /// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-        /// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-        /// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-        /// <param name="nnzTotalDevHostPtr"></param>
-        public void CsrgemmNnz(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> nnzTotalDevHostPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseXcsrgemmNnz(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcsrgemmNnz", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = op(A) * op(B) <para/>
-		/// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-		/// storage format by the three arrays csrValA|csrValB|csrValC,
-		/// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-		/// respectively. <para/>
-		/// Only support devices of compute capability 2.0 or above.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="transB">the operation op(B).</param>
-		/// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-		/// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-		/// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="nnzTotalDevHostPtr"></param>
-		public void CsrgemmNnz(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, ref int nnzTotalDevHostPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseXcsrgemmNnz(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, ref nnzTotalDevHostPtr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcsrgemmNnz", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = op(A) * op(B) <para/>
-		/// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-		/// storage format by the three arrays csrValA|csrValB|csrValC,
-		/// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-		/// respectively. <para/>
-		/// Only support devices of compute capability 2.0 or above.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="transB">the operation op(B).</param>
-		/// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-		/// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-		/// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgemm(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<float> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrgemm(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgemm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = op(A) * op(B) <para/>
-		/// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-		/// storage format by the three arrays csrValA|csrValB|csrValC,
-		/// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-		/// respectively. <para/>
-		/// Only support devices of compute capability 2.0 or above.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="transB">the operation op(B).</param>
-		/// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-		/// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-		/// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgemm(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<double> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrgemm(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgemm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = op(A) * op(B) <para/>
-		/// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-		/// storage format by the three arrays csrValA|csrValB|csrValC,
-		/// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-		/// respectively. <para/>
-		/// Only support devices of compute capability 2.0 or above.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="transB">the operation op(B).</param>
-		/// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-		/// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-		/// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgemm(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuFloatComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrgemm(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgemm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = op(A) * op(B) <para/>
-		/// where op(A), op(B) and C are m x k, k x n, and m x n sparse matrices (defined in CSR
-		/// storage format by the three arrays csrValA|csrValB|csrValC,
-		/// csrRowPtrA|csrRowPtrB|csrRowPtrC, and csrColIndA|csrColIndB|csrcolIndC)
-		/// respectively. <para/>
-		/// Only support devices of compute capability 2.0 or above.
-		/// </summary>
-		/// <param name="transA">the operation op(A).</param>
-		/// <param name="transB">the operation op(B).</param>
-		/// <param name="m">number of rows of sparse matrix op(A) and C.</param>
-		/// <param name="n">number of columns of sparse matrix op(B) and C.</param>
-		/// <param name="k">number of columns/rows of sparse matrix op(A) / op(B).</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of ~m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~m = m if transA == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~m = k.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of ~k + 1 elements that contains the start of every row
-		/// and the end of the last row plus one. ~k = k if transB == CUSPARSE_
-		/// OPERATION_NON_TRANSPOSE, otherwise ~k = n.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgemm(cusparseOperation transA, cusparseOperation transB, int m, int n, int k, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuDoubleComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrgemm(_handle, transA, transB, m, n, k, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgemm", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
+        
 
 		/// <summary>
 		/// This function performs following matrix-matrix operation:<para/>
@@ -9692,7 +6807,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseScsrgemm2_bufferSizeExt(_handle, m, n, k, ref alpha, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, ref beta, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9731,7 +6846,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseDcsrgemm2_bufferSizeExt(_handle, m, n, k, ref alpha, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, ref beta, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9770,7 +6885,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseCcsrgemm2_bufferSizeExt(_handle, m, n, k, ref alpha, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, ref beta, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9809,7 +6924,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseZcsrgemm2_bufferSizeExt(_handle, m, n, k, ref alpha, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, ref beta, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9849,7 +6964,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseScsrgemm2_bufferSizeExt(_handle, m, n, k, alpha.DevicePointer, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, beta.DevicePointer, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9888,7 +7003,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseDcsrgemm2_bufferSizeExt(_handle, m, n, k, alpha.DevicePointer, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, beta.DevicePointer, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9927,7 +7042,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseCcsrgemm2_bufferSizeExt(_handle, m, n, k, alpha.DevicePointer, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, beta.DevicePointer, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -9966,7 +7081,7 @@ namespace ManagedCuda.CudaSparse
 			SizeT size = 0;
 			res = CudaSparseNativeMethods.cusparseZcsrgemm2_bufferSizeExt(_handle, m, n, k, alpha.DevicePointer, descrA.Descriptor, nnzA, csrSortedRowPtrA.DevicePointer, csrSortedColIndA.DevicePointer,
 				descrB.Descriptor, nnzB, csrSortedRowPtrB.DevicePointer, csrSortedColIndB.DevicePointer, beta.DevicePointer, descrD.Descriptor, nnzD, csrSortedRowPtrD.DevicePointer, csrSortedColIndD.DevicePointer, info.Csrgemm2Info, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgemm2_bufferSizeExt(", res));
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgemm2_bufferSizeExt", res));
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);
 			return size;
@@ -10434,358 +7549,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="nnzTotalDevHostPtr"></param>
-		public void CsrgeamNnz(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> nnzTotalDevHostPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseXcsrgeamNnz(_handle, m, n, descrA.Descriptor, (int)csrColIndA.Size, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcsrgeamNnz", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="nnzTotalDevHostPtr"></param>
-		public void CsrgeamNnz(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, ref int nnzTotalDevHostPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseXcsrgeamNnz(_handle, m, n, descrA.Descriptor, (int)csrColIndA.Size, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrRowPtrC.DevicePointer, ref nnzTotalDevHostPtr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseXcsrgeamNnz", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, float beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<float> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrgeam(_handle, m, n, ref alpha, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref beta, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, double beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<double> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrgeam(_handle, m, n, ref alpha, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref beta, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, cuFloatComplex beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuFloatComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrgeam(_handle, m, n, ref alpha, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref beta, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, cuDoubleComplex beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuDoubleComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrgeam(_handle, m, n, ref alpha, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, ref beta, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<float> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseScsrgeam(_handle, m, n, alpha.DevicePointer, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, beta.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<double> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsrgeam(_handle, m, n, alpha.DevicePointer, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, beta.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuFloatComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsrgeam(_handle, m, n, alpha.DevicePointer, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, beta.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/// <summary>
-		/// This function performs following matrix-matrix operation<para/>
-		/// C = alpha * A + beta * B <para/>
-		/// where A, B and C are m x n sparse matrices (defined in CSR storage format by the three
-		/// arrays csrValA|csrValB|csrValC, csrRowPtrA|csrRowPtrB|csrRowPtrC, and
-		/// csrColIndA|csrColIndB|csrcolIndC respectively), and alpha and beta are scalars. Since A and
-		/// B have different sparsity patterns, CUSPARSE adopts two-step approach to complete
-		/// sparse matrix C.
-		/// </summary>
-		/// <param name="m">number of rows of sparse matrix A,B,C.</param>
-		/// <param name="n">number of columns of sparse matrix A,B,C.</param>
-		/// <param name="alpha">scalar used for multiplication.</param> 
-		/// <param name="descrA">the descriptor of matrix A. The supported matrix type is CUSPARSE_
-		/// MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValA">array of nnzA non-zero elements of matrix A.</param>
-		/// <param name="csrRowPtrA">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnzA column indices of the non-zero elements of matrix A. Length of csrColIndA gives the number nzzA passed to CUSPARSE.</param>
-		/// <param name="beta">scalar used for multiplication.</param>
-		/// <param name="descrB">the descriptor of matrix B. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValB">array of nnzB non-zero elements of matrix B.</param>
-		/// <param name="csrRowPtrB">integer array of m + 1 elements that contains the start of every row
-		/// and the end of the last row plus one.</param>
-		/// <param name="csrColIndB">integer array of nnzB column indices of the non-zero elements of matrix B. Length of csrColIndB gives the number nzzB passed to CUSPARSE.</param>
-		/// <param name="descrC">the descriptor of matrix C. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL only.</param>
-		/// <param name="csrValC">array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) non-zero elements of matrix C.</param>
-		/// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
-		/// <param name="csrColIndC">integer array of nnzC (= csrRowPtrC(m) - csrRowPtrC(0)) column indices of the non-zero elements of matrix C.</param>
-		public void Csrgeam(int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> beta, CudaSparseMatrixDescriptor descrB, CudaDeviceVariable<cuDoubleComplex> csrValB, CudaDeviceVariable<int> csrRowPtrB, CudaDeviceVariable<int> csrColIndB, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsrgeam(_handle, m, n, alpha.DevicePointer, descrA.Descriptor, (int)csrColIndA.Size, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, beta.DevicePointer, descrB.Descriptor, (int)csrColIndB.Size, csrValB.DevicePointer, csrRowPtrB.DevicePointer, csrColIndB.DevicePointer, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsrgeam", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
 
 
 
@@ -11734,176 +8497,6 @@ namespace ManagedCuda.CudaSparse
 
 
 
-		
-		/* Description: This routine converts a sparse matrix in HYB storage format
-		   to a sparse matrix in CSR storage format. */
-		/// <summary>
-		/// This function converts a sparse matrix in HYB format into a sparse matrix in CSR format.<para/>
-		/// This function requires some amount of temporary storage. It is executed asynchronously
-		/// with respect to the host and it may return control to the application on the host before
-		/// the result is ready.
-		/// </summary>
-		/// <param name="descrA">the descriptor of matrix in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format</param>
-		/// <param name="csrValA">array of nnz csrRowPtrA(m) csrRowPtrA(0) non-zero elements of matrix A</param>
-		/// <param name="csrRowPtrA">integer array of m+1 elements that contains the start of every column and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz csrRowPtrA(m) csrRowPtrA(0) column indices of the nonzero elements of matrix .</param>
-		public void Hyb2csr(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
-		{
-			res = CudaSparseNativeMethods.cusparseShyb2csr(_handle, descrA.Descriptor, hybA.HybMat, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShyb2csr", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function converts a sparse matrix in HYB format into a sparse matrix in CSR format.<para/>
-		/// This function requires some amount of temporary storage. It is executed asynchronously
-		/// with respect to the host and it may return control to the application on the host before
-		/// the result is ready.
-		/// </summary>
-		/// <param name="descrA">the descriptor of matrix in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format</param>
-		/// <param name="csrValA">array of nnz csrRowPtrA(m) csrRowPtrA(0) non-zero elements of matrix A</param>
-		/// <param name="csrRowPtrA">integer array of m+1 elements that contains the start of every column and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz csrRowPtrA(m) csrRowPtrA(0) column indices of the nonzero elements of matrix .</param>
-		public void Hyb2csr(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
-		{
-			res = CudaSparseNativeMethods.cusparseDhyb2csr(_handle, descrA.Descriptor, hybA.HybMat, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhyb2csr", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function converts a sparse matrix in HYB format into a sparse matrix in CSR format.<para/>
-		/// This function requires some amount of temporary storage. It is executed asynchronously
-		/// with respect to the host and it may return control to the application on the host before
-		/// the result is ready.
-		/// </summary>
-		/// <param name="descrA">the descriptor of matrix in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format</param>
-		/// <param name="csrValA">array of nnz csrRowPtrA(m) csrRowPtrA(0) non-zero elements of matrix A</param>
-		/// <param name="csrRowPtrA">integer array of m+1 elements that contains the start of every column and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz csrRowPtrA(m) csrRowPtrA(0) column indices of the nonzero elements of matrix .</param>
-		public void Hyb2csr(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
-		{
-			res = CudaSparseNativeMethods.cusparseChyb2csr(_handle, descrA.Descriptor, hybA.HybMat, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChyb2csr", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-		/// <summary>
-		/// This function converts a sparse matrix in HYB format into a sparse matrix in CSR format.<para/>
-		/// This function requires some amount of temporary storage. It is executed asynchronously
-		/// with respect to the host and it may return control to the application on the host before
-		/// the result is ready.
-		/// </summary>
-		/// <param name="descrA">the descriptor of matrix in Hyb format. The supported matrix type is CUSPARSE_MATRIX_TYPE_GENERAL.</param>
-		/// <param name="hybA">the matrix A in HYB storage format</param>
-		/// <param name="csrValA">array of nnz csrRowPtrA(m) csrRowPtrA(0) non-zero elements of matrix A</param>
-		/// <param name="csrRowPtrA">integer array of m+1 elements that contains the start of every column and the end of the last row plus one.</param>
-		/// <param name="csrColIndA">integer array of nnz csrRowPtrA(m) csrRowPtrA(0) column indices of the nonzero elements of matrix .</param>
-		public void Hyb2csr(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
-		{
-			res = CudaSparseNativeMethods.cusparseZhyb2csr(_handle, descrA.Descriptor, hybA.HybMat, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhyb2csr", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-
-
-
-		/// <summary/>
-		public void Csc2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA,
-							CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseScsc2hyb(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScsc2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Csc2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA,
-							CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseDcsc2hyb(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDcsc2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Csc2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA,
-							CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseCcsc2hyb(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCcsc2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Csc2hyb(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA,
-							CudaSparseHybMat hybA, int userEllWidth, cusparseHybPartition partitionType)
-		{
-			res = CudaSparseNativeMethods.cusparseZcsc2hyb(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, hybA.HybMat, userEllWidth, partitionType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZcsc2hyb", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-		/* Description: This routine converts a sparse matrix in HYB storage format
-		   to a sparse matrix in CSC storage format. */
-
-		/// <summary/>
-		public void Hyb2csc(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<float> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseShyb2csc(_handle, descrA.Descriptor, hybA.HybMat, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseShyb2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Hyb2csc(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<double> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseDhyb2csc(_handle, descrA.Descriptor, hybA.HybMat, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDhyb2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Hyb2csc(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuFloatComplex> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseChyb2csc(_handle, descrA.Descriptor, hybA.HybMat, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseChyb2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-		/// <summary/>
-		public void Hyb2csc(CudaSparseMatrixDescriptor descrA, CudaSparseHybMat hybA, CudaDeviceVariable<cuDoubleComplex> cscVal, CudaDeviceVariable<int> cscRowInd, CudaDeviceVariable<int> cscColPtr)
-		{
-			res = CudaSparseNativeMethods.cusparseZhyb2csc(_handle, descrA.Descriptor, hybA.HybMat, cscVal.DevicePointer, cscRowInd.DevicePointer, cscColPtr.DevicePointer);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseZhyb2csc", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
-
-
-
-
-
 
 
 
@@ -12532,7 +9125,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsc_bufferSizeExt.</param>
 		public void Gebsr2gebsc(int mb, int nb, int nnzb, CudaDeviceVariable<float> bsrVal, CudaDeviceVariable<int> bsrRowPtr, CudaDeviceVariable<int> bsrColInd,
 								int rowBlockDim, int colBlockDim, CudaDeviceVariable<float> bscVal, CudaDeviceVariable<int> bscRowInd, CudaDeviceVariable<int> bscColPtr,
-								cusparseAction copyValues, cusparseIndexBase baseIdx, CudaDeviceVariable<byte> buffer)
+								cusparseAction copyValues, IndexBase baseIdx, CudaDeviceVariable<byte> buffer)
 		{
 			res = CudaSparseNativeMethods.cusparseSgebsr2gebsc(_handle, mb, nb, nnzb, bsrVal.DevicePointer, bsrRowPtr.DevicePointer, bsrColInd.DevicePointer, rowBlockDim, colBlockDim, bscVal.DevicePointer,
 				bscRowInd.DevicePointer, bscColPtr.DevicePointer, copyValues, baseIdx, buffer.DevicePointer);
@@ -12566,7 +9159,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsc_bufferSizeExt.</param>
 		public void Gebsr2gebsc(int mb, int nb, int nnzb, CudaDeviceVariable<double> bsrVal, CudaDeviceVariable<int> bsrRowPtr, CudaDeviceVariable<int> bsrColInd,
 								int rowBlockDim, int colBlockDim, CudaDeviceVariable<double> bscVal, CudaDeviceVariable<int> bscRowInd, CudaDeviceVariable<int> bscColPtr,
-								cusparseAction copyValues, cusparseIndexBase baseIdx, CudaDeviceVariable<byte> buffer)
+								cusparseAction copyValues, IndexBase baseIdx, CudaDeviceVariable<byte> buffer)
 		{
 			res = CudaSparseNativeMethods.cusparseDgebsr2gebsc(_handle, mb, nb, nnzb, bsrVal.DevicePointer, bsrRowPtr.DevicePointer, bsrColInd.DevicePointer, rowBlockDim, colBlockDim, bscVal.DevicePointer,
 				bscRowInd.DevicePointer, bscColPtr.DevicePointer, copyValues, baseIdx, buffer.DevicePointer);
@@ -12601,7 +9194,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsc_bufferSizeExt.</param>
 		public void Gebsr2gebsc(int mb, int nb, int nnzb, CudaDeviceVariable<cuFloatComplex> bsrVal, CudaDeviceVariable<int> bsrRowPtr, CudaDeviceVariable<int> bsrColInd,
 								int rowBlockDim, int colBlockDim, CudaDeviceVariable<cuFloatComplex> bscVal, CudaDeviceVariable<int> bscRowInd, CudaDeviceVariable<int> bscColPtr,
-								cusparseAction copyValues, cusparseIndexBase baseIdx, CudaDeviceVariable<byte> buffer)
+								cusparseAction copyValues, IndexBase baseIdx, CudaDeviceVariable<byte> buffer)
 		{
 			res = CudaSparseNativeMethods.cusparseCgebsr2gebsc(_handle, mb, nb, nnzb, bsrVal.DevicePointer, bsrRowPtr.DevicePointer, bsrColInd.DevicePointer, rowBlockDim, colBlockDim, bscVal.DevicePointer,
 				bscRowInd.DevicePointer, bscColPtr.DevicePointer, copyValues, baseIdx, buffer.DevicePointer);
@@ -12636,7 +9229,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsc_bufferSizeExt.</param>
 		public void Gebsr2gebsc(int mb, int nb, int nnzb, CudaDeviceVariable<cuDoubleComplex> bsrVal, CudaDeviceVariable<int> bsrRowPtr, CudaDeviceVariable<int> bsrColInd,
 								int rowBlockDim, int colBlockDim, CudaDeviceVariable<cuDoubleComplex> bscVal, CudaDeviceVariable<int> bscRowInd, CudaDeviceVariable<int> bscColPtr,
-								cusparseAction copyValues, cusparseIndexBase baseIdx, CudaDeviceVariable<byte> buffer)
+								cusparseAction copyValues, IndexBase baseIdx, CudaDeviceVariable<byte> buffer)
 		{
 			res = CudaSparseNativeMethods.cusparseZgebsr2gebsc(_handle, mb, nb, nnzb, bsrVal.DevicePointer, bsrRowPtr.DevicePointer, bsrColInd.DevicePointer, rowBlockDim, colBlockDim, bscVal.DevicePointer,
 				bscRowInd.DevicePointer, bscColPtr.DevicePointer, copyValues, baseIdx, buffer.DevicePointer);
@@ -15554,16 +12147,465 @@ namespace ManagedCuda.CudaSparse
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
         }
-        #endregion
+		#endregion
 
 
 
-        #endregion
+		#endregion
 
-        /// <summary>
-        /// Returns the wrapped cusparseContext handle
-        /// </summary>
-        public cusparseContext Handle
+		#region Generic API
+
+		#region Vector Vector
+		public SizeT VV_bufferSize<indexT, dataTIn, dataTCompute>(cusparseOperation opX, SparseVector<indexT, dataTIn> vecX,
+			DenseVector<dataTIn> vecY, CudaDeviceVariable<dataTCompute> result) 
+			where indexT : struct where dataTIn : struct where dataTCompute : struct
+		{
+			SizeT size = 0;
+			res = CudaSparseNativeMethods.cusparseSpVV_bufferSize(_handle, opX, vecX.Descr, vecY.Descr, result.DevicePointer, CudaDataTypeTranslator.GetType(typeof(dataTCompute)), ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpVV_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public SizeT VV_bufferSize<indexT, dataTIn, dataTCompute>(cusparseOperation opX, SparseVector<indexT, dataTIn> vecX,
+			DenseVector<dataTIn> vecY, ref dataTCompute result)
+			where indexT : struct where dataTIn : struct where dataTCompute : struct
+		{
+			SizeT size = 0;
+			IntPtr ptr = IntPtr.Zero;
+			try
+			{
+
+				ptr = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTCompute)));
+				//Marshal.StructureToPtr(result, ptr, false);
+				res = CudaSparseNativeMethods.cusparseSpVV_bufferSize(_handle, opX, vecX.Descr, vecY.Descr, ptr, CudaDataTypeTranslator.GetType(typeof(dataTCompute)), ref size);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpVV_bufferSize", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptr);
+			}
+			return size;
+		}
+		public void VV<indexT, dataTIn, dataTCompute>(cusparseOperation opX, SparseVector<indexT, dataTIn> vecX,
+			DenseVector<dataTIn> vecY, CudaDeviceVariable<dataTCompute> result, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTIn : struct where dataTCompute : struct
+		{
+			res = CudaSparseNativeMethods.cusparseSpVV(_handle, opX, vecX.Descr, vecY.Descr, result.DevicePointer, CudaDataTypeTranslator.GetType(typeof(dataTCompute)), buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpVV", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void VV<indexT, dataTIn, dataTCompute>(cusparseOperation opX, SparseVector<indexT, dataTIn> vecX,
+			DenseVector<dataTIn> vecY, ref dataTCompute result, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTIn : struct where dataTCompute : struct
+		{
+			IntPtr ptr = IntPtr.Zero;
+			try
+			{
+
+				ptr = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTCompute)));
+				//Marshal.StructureToPtr(result, ptr, false);
+				res = CudaSparseNativeMethods.cusparseSpVV(_handle, opX, vecX.Descr, vecY.Descr, ptr, CudaDataTypeTranslator.GetType(typeof(dataTCompute)), buffer.DevicePointer);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpVV", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptr);
+			}
+		}
+		#endregion
+
+		#region Matrix Vector
+		public SizeT MV_bufferSize<indexT, dataTAX, dataTY>(cusparseOperation opA, CudaDeviceVariable<dataTAX> alpha, SparseMatrix<indexT, dataTAX> matA,
+			DenseVector<dataTAX> vecX, CudaDeviceVariable<dataTY> beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg)
+			where indexT : struct where dataTAX : struct where dataTY : struct
+		{
+			SizeT size = 0;
+			res = CudaSparseNativeMethods.cusparseSpMV_bufferSize(_handle, opA, alpha.DevicePointer, matA.Descr, vecX.Descr, beta.DevicePointer, vecY.Descr, computeType, alg, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public SizeT MV_bufferSize<indexT, dataTAX, dataTY>(cusparseOperation opA, dataTAX alpha, SparseMatrix<indexT, dataTAX> matA,
+			DenseVector<dataTAX> vecX, dataTY beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg)
+			where indexT : struct where dataTAX : struct where dataTY : struct
+		{
+			SizeT size = 0;
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAX)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTY)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpMV_bufferSize(_handle, opA, ptrAlpha, matA.Descr, vecX.Descr, ptrBeta, vecY.Descr, computeType, alg, ref size);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV_bufferSize", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+			return size;
+		}
+		public void MV<indexT, dataTAX, dataTY>(cusparseOperation opA, CudaDeviceVariable<dataTAX> alpha, SparseMatrix<indexT, dataTAX> matA,
+			DenseVector<dataTAX> vecX, CudaDeviceVariable<dataTY> beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTAX : struct where dataTY : struct
+		{
+			res = CudaSparseNativeMethods.cusparseSpMV(_handle, opA, alpha.DevicePointer, matA.Descr, vecX.Descr, beta.DevicePointer, vecY.Descr, computeType, alg, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void MV<indexT, dataTAX, dataTY>(cusparseOperation opA, dataTAX alpha, SparseMatrix<indexT, dataTAX> matA,
+			DenseVector<dataTAX> vecX, dataTY beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTAX : struct where dataTY : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAX)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTY)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpMV(_handle, opA, ptrAlpha, matA.Descr, vecX.Descr, ptrBeta, vecY.Descr, computeType, alg, buffer.DevicePointer);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+		}
+		#endregion
+
+		#region Matrix Matrix
+		public SizeT MM_bufferSize<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTAB> alpha, SparseMatrix<indexT, dataTAB> matA,
+			DenseMatrix<dataTAB> matB, CudaDeviceVariable<dataTC> beta, DenseMatrix<dataTC> matC, cudaDataType computeType, SpMMAlg alg)
+			where indexT : struct where dataTAB : struct where dataTC : struct
+		{
+			SizeT size = 0;
+			res = CudaSparseNativeMethods.cusparseSpMM_bufferSize(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMM_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public SizeT MM_bufferSize<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, dataTAB alpha, SparseMatrix<indexT, dataTAB> matA,
+			DenseMatrix<dataTAB> matB, dataTC beta, DenseMatrix<dataTC> matC, cudaDataType computeType, SpMMAlg alg)
+			where indexT : struct where dataTAB : struct where dataTC : struct
+		{
+			SizeT size = 0;
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAB)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTC)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpMM_bufferSize(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, ref size);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMM_bufferSize", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+			return size;
+		}
+		public void MM<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTAB> alpha, SparseMatrix<indexT, dataTAB> matA,
+			DenseMatrix<dataTAB> matB, CudaDeviceVariable<dataTC> beta, DenseMatrix<dataTC> matC, cudaDataType computeType, SpMMAlg alg, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTAB : struct where dataTC : struct
+		{
+			res = CudaSparseNativeMethods.cusparseSpMM(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMM", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void MM<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, dataTAB alpha, SparseMatrix<indexT, dataTAB> matA,
+			DenseMatrix<dataTAB> matB, dataTC beta, DenseMatrix<dataTC> matC, cudaDataType computeType, SpMMAlg alg, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTAB : struct where dataTC : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAB)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTC)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpMM(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, buffer.DevicePointer);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMM", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+		}
+		#endregion
+
+		#region SpGeMM
+
+		public SizeT SpGEMM_workEstimation<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, CudaDeviceVariable<dataT> beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataT : struct
+		{
+			SizeT size = 0;
+			CUdeviceptr bufferPtr = new CUdeviceptr();
+			if (buffer != null)
+			{
+				size = buffer.SizeInBytes;
+				bufferPtr = buffer.DevicePointer;
+			}
+
+
+			res = CudaSparseNativeMethods.cusparseSpGEMM_workEstimation(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, spgemmDescr.Descr, ref size, bufferPtr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_workEstimation", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public SizeT SpGEMM_compute<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, CudaDeviceVariable<dataT> beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataT : struct
+		{
+			SizeT size = 0;
+			CUdeviceptr bufferPtr = new CUdeviceptr();
+			if (buffer != null)
+			{
+				size = buffer.SizeInBytes;
+				bufferPtr = buffer.DevicePointer;
+			}
+
+
+			res = CudaSparseNativeMethods.cusparseSpGEMM_compute(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, spgemmDescr.Descr, ref size, bufferPtr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_compute", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public void SpGEMM_copy<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, CudaDeviceVariable<dataT> beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
+			where indexT : struct where dataT : struct
+		{
+			res = CudaSparseNativeMethods.cusparseSpGEMM_copy(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, spgemmDescr.Descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_copy", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+
+		public SizeT SpGEMM_workEstimation<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, dataT beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataT : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			SizeT size = 0;
+			CUdeviceptr bufferPtr = new CUdeviceptr();
+			if (buffer != null)
+			{
+				size = buffer.SizeInBytes;
+				bufferPtr = buffer.DevicePointer;
+			}
+
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpGEMM_workEstimation(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, spgemmDescr.Descr, ref size, bufferPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_workEstimation", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+			return size;
+		}
+
+		public SizeT SpGEMM_compute<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, dataT beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataT : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			SizeT size = 0;
+			CUdeviceptr bufferPtr = new CUdeviceptr();
+			if (buffer != null)
+			{
+				size = buffer.SizeInBytes;
+				bufferPtr = buffer.DevicePointer;
+			}
+
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpGEMM_compute(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, spgemmDescr.Descr, ref size, bufferPtr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_compute", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+			return size;
+		}
+
+		public void SpGEMM_copy<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+			SparseMatrix<indexT, dataT> matB, dataT beta, SparseMatrix<indexT, dataT> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
+			where indexT : struct where dataT : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseSpGEMM_copy(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, spgemmDescr.Descr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMM_copy", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+		}
+
+		#endregion
+
+		#region GeMM
+
+
+		public SizeT ConstrainedGeMM_bufferSize<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTABC> alpha, DenseMatrix<dataTABC> matA,
+			DenseMatrix<dataTABC> matB, CudaDeviceVariable<dataTABC> beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType)
+			where indexT : struct where dataTABC : struct
+		{
+			SizeT size = 0;
+			res = CudaSparseNativeMethods.cusparseConstrainedGeMM_bufferSize(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstrainedGeMM_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return size;
+		}
+
+		public SizeT ConstrainedGeMM_bufferSize<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, dataTABC alpha, DenseMatrix<dataTABC> matA,
+			DenseMatrix<dataTABC> matB, dataTABC beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType)
+			where indexT : struct where dataTABC : struct
+		{
+			SizeT size = 0;
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTABC)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTABC)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseConstrainedGeMM_bufferSize(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType,  ref size);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstrainedGeMM_bufferSize", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+			return size;
+		}
+		public void ConstrainedGeMM<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTABC> alpha, DenseMatrix<dataTABC> matA,
+			DenseMatrix<dataTABC> matB, CudaDeviceVariable<dataTABC> beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTABC : struct
+		{
+			res = CudaSparseNativeMethods.cusparseConstrainedGeMM(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstrainedGeMM", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void ConstrainedGeMM<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, dataTABC alpha, DenseMatrix<dataTABC> matA,
+			DenseMatrix<dataTABC> matB, dataTABC beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType, CudaDeviceVariable<byte> buffer)
+			where indexT : struct where dataTABC : struct
+		{
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTABC)));
+				ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTABC)));
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseConstrainedGeMM(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, buffer.DevicePointer);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstrainedGeMM", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				//result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+				Marshal.FreeHGlobal(ptrAlpha);
+				Marshal.FreeHGlobal(ptrBeta);
+			}
+		}
+
+		#endregion
+
+		#endregion
+
+		/// <summary>
+		/// Returns the wrapped cusparseContext handle
+		/// </summary>
+		public cusparseContext Handle
 		{
 			get { return _handle; }
 		}

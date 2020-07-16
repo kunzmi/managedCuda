@@ -347,8 +347,76 @@ namespace ManagedCuda.CudaBlas
         DefaultMath = 0,
         /// <summary>
         /// </summary>
-        TensorOpMath = 1
-    }
+		[Obsolete("deprecated, same effect as using CUBLAS_COMPUTE_32F_FAST_16F, will be removed in a future release")]
+        TensorOpMath = 1,
+		/// <summary>
+		/// same as using matching _PEDANTIC compute type when using cublas routine calls or cublasEx() calls with cudaDataType as compute type
+		/// </summary>
+		PedanticMath = 2,
+		/// <summary>
+		/// allow accelerating single precision routines using TF32 tensor cores
+		/// </summary>
+		TF32TensorOpMath = 3,
+		/// <summary>
+		/// flag to force any reductons to use the accumulator type and not output type in case of mixed precision routines with lower size output type
+		/// </summary>
+		DisallowReducedPrecisionReduction = 16
+	}
+
+	/// <summary>
+	/// Enum for compute type<para/>
+	/// - default types provide best available performance using all available hardware features
+	///   and guarantee internal storage precision with at least the same precision and range;<para/>
+	/// - _PEDANTIC types ensure standard arithmetic and exact specified internal storage format;<para/>
+	/// - _FAST types allow for some loss of precision to enable higher throughput arithmetic.
+	/// </summary>
+	public enum ComputeType
+	{
+		/// <summary>
+		/// half - default
+		/// </summary>
+		Compute16F = 64, 
+		/// <summary>
+		/// half - pedantic
+		/// </summary>
+		Compute16FPedantic = 65, 
+		/// <summary>
+		/// float - default
+		/// </summary>
+		Compute32F = 68, 
+		/// <summary>
+		/// float - pedantic
+		/// </summary>
+		Compute32FPedantic = 69, 
+		/// <summary>
+		/// float - fast, allows down-converting inputs to half or TF32
+		/// </summary>
+		Compute32FFast16F = 74, 
+		/// <summary>
+		/// float - fast, allows down-converting inputs to bfloat16 or TF32
+		/// </summary>
+		Compute32FFast16BF = 75, 
+		/// <summary>
+		/// float - fast, allows down-converting inputs to TF32
+		/// </summary>
+		Compute32FFastTF32 = 77, 
+		/// <summary>
+		/// double - default
+		/// </summary>
+		Compute64F = 70, 
+		/// <summary>
+		/// double - pedantic
+		/// </summary>
+		Compute64FPedantic = 71, 
+		/// <summary>
+		/// signed 32-bit int - default
+		/// </summary>
+		Compute32I = 72, 
+		/// <summary>
+		/// signed 32-bit int - pedantic
+		/// </summary>
+		Compute32IPedantic = 73, 
+	}
 
     /// <summary>
     /// The cublasDataType_t type is an enumerant to specify the data precision. It is used

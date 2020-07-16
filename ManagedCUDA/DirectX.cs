@@ -81,7 +81,7 @@ namespace ManagedCuda
             /// If <c>pCudaDevice</c> is non-NULL then the <see cref="CUdevice"/> on which this CUDA context was created will be returned in
             /// <c>pCudaDevice</c>.
             /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
             /// is destroyed or encounters an error.
             /// </summary>
             /// <param name="pCtx">Returned newly created CUDA context</param>
@@ -93,13 +93,13 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint="cuD3D9CtxCreate_v2")]
             public static extern CUResult cuD3D9CtxCreate(ref CUcontext pCtx, ref CUdevice pCudaDevice, CUCtxFlags Flags, IntPtr pD3DDevice);
-            
+
             /// <summary>
             /// Creates a new CUDA context, enables interoperability for that context with the Direct3D device <c>pD3DDevice</c>, and
             /// associates the created CUDA context with the calling thread. The created <see cref="CUcontext"/> will be returned in <c>pCtx</c>.
             /// Direct3D resources from this device may be registered and mapped through the lifetime of this CUDA context.
             /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
             /// is destroyed or encounters an error.
             /// </summary>
             /// <param name="pCtx">Returned newly created CUDA context</param>
@@ -226,7 +226,7 @@ namespace ManagedCuda
             /// If <c>pCudaDevice</c> is non-NULL then the <see cref="CUdevice"/> on which this CUDA context was created will be returned in
             /// <c>pCudaDevice</c>.
             /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
             /// is destroyed or encounters an error.
             /// </summary>
             /// <param name="pCtx">Returned newly created CUDA context</param>
@@ -245,7 +245,7 @@ namespace ManagedCuda
             /// associates the created CUDA context with the calling thread. The created <see cref="CUcontext"/> will be returned in <c>pCtx</c>.
             /// Direct3D resources from this device may be registered and mapped through the lifetime of this CUDA context.
             /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+            /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
             /// is destroyed or encounters an error.
             /// </summary>
             /// <param name="pCtx">Returned newly created CUDA context</param>
@@ -357,7 +357,7 @@ namespace ManagedCuda
         /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
         [DllImport(CUDA_DRIVER_API_DLL_NAME)]
         public static extern CUResult cuD3D11GetDevices(ref int pCudaDeviceCount, [Out] CUdevice[] pCudaDevices, uint cudaDeviceCount, IntPtr pD3D11Device, CUd3dXDeviceList deviceList);
-           
+
         /// <summary>
         /// Creates a new CUDA context, enables interoperability for that context with the Direct3D device <c>pD3DDevice</c>, and
         /// associates the created CUDA context with the calling thread. The created <see cref="CUcontext"/> will be returned in <c>pCtx</c>.
@@ -365,12 +365,12 @@ namespace ManagedCuda
         /// If <c>pCudaDevice</c> is non-NULL then the <see cref="CUdevice"/> on which this CUDA context was created will be returned in
         /// <c>pCudaDevice</c>.
         /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-        /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+        /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
         /// is destroyed or encounters an error.
         /// </summary>
         /// <param name="pCtx">Returned newly created CUDA context</param>
         /// <param name="pCudaDevice">Returned pointer to the device on which the context was created</param>
-		/// <param name="Flags">Context creation flags (see <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxCreate_v2"/> for details)</param>
+        /// <param name="Flags">Context creation flags (see <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxCreate_v2"/> for details)</param>
         /// <param name="pD3DDevice">Direct3D device to create interoperability context with</param>
         /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
         /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>.
@@ -383,7 +383,7 @@ namespace ManagedCuda
         /// associates the created CUDA context with the calling thread. The created <see cref="CUcontext"/> will be returned in <c>pCtx</c>.
         /// Direct3D resources from this device may be registered and mapped through the lifetime of this CUDA context.
         /// On success, this call will increase the internal reference count on <c>pD3DDevice</c>. This reference count will be decremented
-        /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>. This context will cease to function if <c>pD3DDevice</c>
+        /// upon destruction of this context through <see cref="ManagedCuda.DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>. This context will cease to function if <c>pD3DDevice</c>
         /// is destroyed or encounters an error.
         /// </summary>
         /// <param name="pCtx">Returned newly created CUDA context</param>

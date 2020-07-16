@@ -396,6 +396,24 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		public IntPtr Pointer;
+
+		/// <summary>
+		/// Returns a module handle<para/>
+		/// Returns in \p *hmod the handle of the module that function \p hfunc
+		/// is located in. The lifetime of the module corresponds to the lifetime of
+		/// the context it was loaded in or until the module is explicitly unloaded.<para/>
+		/// The CUDA runtime manages its own modules loaded into the primary context.
+		/// If the handle returned by this API refers to a module loaded by the CUDA runtime,
+		/// calling ::cuModuleUnload() on that module will result in undefined behavior.
+		/// </summary>
+		public CUmodule GetModule()
+		{
+			CUmodule temp = new CUmodule();
+			CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncGetModule(ref temp, this);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetModule", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			return temp;
+		}
 	}
 
 	/// <summary>
@@ -582,6 +600,152 @@ namespace ManagedCuda.BasicTypes
 	public struct half
 	{
 		ushort x;
+
+		public half(float f)
+		{
+			x = __float2half(f).x;
+		}
+
+		public half(double d)
+		{
+			x = __double2half(d).x;
+		}
+
+		public half(half h16)
+		{
+			x = h16.x;
+		}
+
+		private static ushort __internal_float2half(float f, ref uint sign, ref uint remainder)
+		{
+			float[] ftemp = new float[] { f };
+			uint[] x = new uint[1];
+			uint u = 0;
+			uint result = 0;
+			Buffer.BlockCopy(ftemp, 0, x, 0, sizeof(float));
+
+			u = (x[0] & 0x7fffffffU);
+			sign = ((x[0] >> 16) & 0x8000U);
+			// NaN/+Inf/-Inf
+			if (u >= 0x7f800000U)
+			{
+				remainder = 0U;
+				result = ((u == 0x7f800000U) ? (sign | 0x7c00U) : 0x7fffU);
+			}
+			else if (u > 0x477fefffU)
+			{ // Overflows
+				remainder = 0x80000000U;
+				result = (sign | 0x7bffU);
+			}
+			else if (u >= 0x38800000U)
+			{ // Normal numbers
+				remainder = u << 19;
+				u -= 0x38000000U;
+				result = (sign | (u >> 13));
+			}
+			else if (u < 0x33000001U)
+			{ // +0/-0
+				remainder = u;
+				result = sign;
+			}
+			else
+			{ // Denormal numbers
+				uint exponent = u >> 23;
+				uint shift = 0x7eU - exponent;
+				uint mantissa = (u & 0x7fffffU);
+				mantissa |= 0x800000U;
+				remainder = mantissa << (32 - (int)shift);
+				result = (sign | (mantissa >> (int)shift));
+			}
+			return (ushort)(result);
+		}
+
+		private static half __double2half(double x)
+		{
+			// Perform rounding to 11 bits of precision, convert value
+			// to float and call existing float to half conversion.
+			// By pre-rounding to 11 bits we avoid additional rounding
+			// in float to half conversion.
+			ulong absx;
+			ulong[] ux = new ulong[1];
+			double[] xa = new double[] { x };
+			Buffer.BlockCopy(xa, 0, ux, 0, sizeof(double));
+
+			absx = (ux[0] & 0x7fffffffffffffffUL);
+			if ((absx >= 0x40f0000000000000UL) || (absx <= 0x3e60000000000000UL))
+			{
+				// |x| >= 2^16 or NaN or |x| <= 2^(-25)
+				// double-rounding is not a problem
+				return __float2half((float)x);
+			}
+
+			// here 2^(-25) < |x| < 2^16
+			// prepare shifter value such that x + shifter
+			// done in double precision performs round-to-nearest-even
+			// and (x + shifter) - shifter results in x rounded to
+			// 11 bits of precision. Shifter needs to have exponent of
+			// x plus 53 - 11 = 42 and a leading bit in mantissa to guard
+			// against negative values.
+			// So need to have |x| capped to avoid overflow in exponent.
+			// For inputs that are smaller than half precision minnorm
+			// we prepare fixed shifter exponent.
+			ulong shifterBits = ux[0] & 0x7ff0000000000000UL;
+			if (absx >= 0x3f10000000000000UL)
+			{   // |x| >= 2^(-14)
+				// add 42 to exponent bits
+				shifterBits += 42ul << 52;
+			}
+
+			else
+			{   // 2^(-25) < |x| < 2^(-14), potentially results in denormal
+				// set exponent bits to 42 - 14 + bias
+				shifterBits = ((42ul - 14 + 1023) << 52);
+			}
+			// set leading mantissa bit to protect against negative inputs
+			shifterBits |= 1ul << 51;
+			ulong[] shifterBitsArr = new ulong[] { shifterBits };
+			double[] shifter = new double[1];
+
+			Buffer.BlockCopy(shifterBitsArr, 0, shifter, 0, sizeof(double)); 
+
+			double xShiftRound = x + shifter[0];
+			double[] xShiftRoundArr = new double[] { xShiftRound };
+
+			// Prevent the compiler from optimizing away x + shifter - shifter
+			// by doing intermediate memcopy and harmless bitwize operation
+			ulong[] xShiftRoundBits = new ulong[1];
+
+			Buffer.BlockCopy(xShiftRoundArr, 0, xShiftRoundBits, 0, sizeof(double));
+
+			// the value is positive, so this operation doesn't change anything
+			xShiftRoundBits[0] &= 0x7ffffffffffffffful;
+
+			Buffer.BlockCopy(xShiftRoundBits, 0, xShiftRoundArr, 0, sizeof(double));
+
+			double xRounded = xShiftRound - shifter[0];
+			float xRndFlt = (float)xRounded;
+			half res = __float2half(xRndFlt);
+			return res;
+		}
+
+		private static half __float2half(float a)
+		{
+			half r = new half();
+			uint sign = 0;
+			uint remainder = 0;
+			r.x = __internal_float2half(a, ref sign, ref remainder);
+			if ((remainder > 0x80000000U) || ((remainder == 0x80000000U) && ((r.x & 0x1U) != 0U)))
+			{
+				r.x++;
+			}
+
+			return r;
+		}
+
+		public override string ToString()
+		{
+			return x.ToString();
+		}
 	}
 
 	/// <summary>
@@ -593,8 +757,103 @@ namespace ManagedCuda.BasicTypes
 		uint x;
 	}
 
+	/// <summary>
+	/// bfloat16 floating point
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct bfloat16
+	{
+		ushort x;
 
-    /// <summary>
+		public bfloat16(float f)
+		{
+			x = __float2bfloat16(f).x;
+		}
+
+		public bfloat16(double d)
+		{
+			x = __double2bfloat16(d).x;
+		}
+
+		public bfloat16(bfloat16 bf16)
+		{
+			x = bf16.x;
+		}
+
+		private static ushort __internal_float2bfloat16(float f, ref uint sign, ref uint remainder)
+		{
+			uint[] x = new uint[1];
+			float[] ftemp = new float[] { f };
+			Buffer.BlockCopy(ftemp, 0, x, 0, sizeof(float));
+
+			if ((x[0] & 0x7fffffffU) > 0x7f800000U)
+			{
+				sign = 0U;
+				remainder = 0U;
+				return 0x7fff;
+			}
+			sign = x[0] >> 31;
+			remainder = x[0] << 16;
+			return (ushort)(x[0] >> 16);
+		}
+
+		private static bfloat16 __double2bfloat16(double x)
+		{
+			float[] f = new float[] { (float)x };
+			double d = (double)f[0];
+			uint[] u = new uint[1];
+
+			Buffer.BlockCopy(f, 0, u, 0, sizeof(float));
+
+			if ((x > 0.0) && (d > x))
+			{
+				u[0]--;
+			}
+			if ((x < 0.0) && (d < x))
+			{
+				u[0]--;
+			}
+			if ((d != x) && (x == x))
+			{
+				u[0] |= 1U;
+			}
+
+			Buffer.BlockCopy(u, 0, f, 0, sizeof(float));
+
+			return __float2bfloat16(f[0]);
+		}
+
+		private static bfloat16 __float2bfloat16(float a)
+		{
+			bfloat16 r = new bfloat16();
+			uint sign = 0;
+			uint remainder = 0;
+			r.x = __internal_float2bfloat16(a, ref sign, ref remainder);
+			if ((remainder > 0x80000000U) || ((remainder == 0x80000000U) && ((r.x & 0x1U) != 0U))) 
+			{
+				r.x++;
+			}
+
+			return r;
+		}
+
+		public override string ToString()
+		{
+			return x.ToString();
+		}
+	}
+
+	/// <summary>
+	/// two bfloat16 floating point (x,y)
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct bfloat162
+	{
+		uint x;
+	}
+
+
+	/// <summary>
 	/// CUDA external memory
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
@@ -808,8 +1067,48 @@ namespace ManagedCuda.BasicTypes
 
             return null;
         }
-        #endregion
-    }
+
+
+		/// <summary>
+		/// Copies attributes from source node to destination node.<para/>
+		/// Copies attributes from source node \p src to destination node \p dst. Both node must have the same context.
+		/// </summary>
+		/// <param name="dst">Destination node</param>
+		public void cuGraphKernelNodeCopyAttributes(CUgraphNode dst)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphKernelNodeCopyAttributes(dst, this);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphKernelNodeCopyAttributes", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Queries node attribute.<para/>
+		/// Queries attribute \p attr from node \p hNode and stores it in corresponding member of \p value_out.
+		/// </summary>
+		/// <param name="attr"></param>
+		public CUkernelNodeAttrValue GetAttribute(CUkernelNodeAttrID attr)
+		{
+			CUkernelNodeAttrValue value = new CUkernelNodeAttrValue();
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphKernelNodeGetAttribute(this, attr, ref value);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphKernelNodeGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			return value;
+		}
+
+		/// <summary>
+		/// Sets node attribute.<para/>
+		/// Sets attribute \p attr on node \p hNode from corresponding attribute of value.
+		/// </summary>
+		/// <param name="attr"></param>
+		/// <param name="value"></param>
+		public void SetAttribute(CUkernelNodeAttrID attr, CUkernelNodeAttrValue value)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphKernelNodeSetAttribute(this, attr, ref value);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphKernelNodeSetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+		#endregion
+	}
 
     /// <summary>
     /// CUDA executable graph
@@ -3855,6 +4154,27 @@ namespace ManagedCuda.BasicTypes
 	}
 
 	/// <summary>
+	/// Additional allocation hint for requesting compressible memory.
+	/// Compressed memory allows higher bandwidth, but may cause
+	/// compression resource thrashing, and compressed memory may not be
+	/// mappeable on all devices.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct allocFlags
+	{
+		/// <summary/>
+		public CUmemAllocationCompType compressionType;
+		/// <summary/>
+		public byte gpuDirectRDMACapable;
+		byte reserved0; 
+		byte reserved1; 
+		byte reserved2;
+		byte reserved3;
+		byte reserved4;
+		byte reserved5;
+}
+
+	/// <summary>
 	/// Specifies the allocation properties for a allocation.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
@@ -3880,9 +4200,9 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		public IntPtr win32HandleMetaData;
 		/// <summary>
-		/// Reserved for future use, must be zero
+		/// allocFlags
 		/// </summary>
-		public ulong reserved;
+		public allocFlags allocFlags;
 	}
 
 
@@ -3902,6 +4222,78 @@ namespace ManagedCuda.BasicTypes
 		public CUmemAccess_flags flags;
 	}
 
+	/// <summary>
+	/// Specifies an access policy for a window, a contiguous extent of memory
+	/// beginning at base_ptr and ending at base_ptr + num_bytes.<para/>
+	/// num_bytes is limited by CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE.<para/>
+	/// Partition into many segments and assign segments such that:<para/>
+	/// sum of "hit segments" / window == approx.ratio.<para/>
+	/// sum of "miss segments" / window == approx 1-ratio.<para/>
+	/// Segments and ratio specifications are fitted to the capabilities of
+	/// the architecture.<para/>
+	/// Accesses in a hit segment apply the hitProp access policy.<para/>
+	/// Accesses in a miss segment apply the missProp access policy.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUaccessPolicyWindow
+	{
+		/// <summary>
+		/// Starting address of the access policy window. CUDA driver may align it.
+		/// </summary>
+		public IntPtr base_ptr;  
+		/// <summary>
+		/// Size in bytes of the window policy. CUDA driver may restrict the maximum size and alignment.
+		/// </summary>
+		public SizeT num_bytes; 
+		/// <summary>
+		/// hitRatio specifies percentage of lines assigned hitProp, rest are assigned missProp.
+		/// </summary>
+		public float hitRatio;  
+		/// <summary>
+		/// ::CUaccessProperty set for hit.
+		/// </summary>
+		public CUaccessProperty hitProp; 
+		/// <summary>
+		/// ::CUaccessProperty set for miss. Must be either NORMAL or STREAMING
+		/// </summary>
+		public CUaccessProperty missProp;
+	}
+
+	/// <summary>
+	/// Graph attributes union, used with ::cuKernelNodeSetAttribute/::cuKernelNodeGetAttribute
+	/// </summary>
+	[StructLayout(LayoutKind.Explicit)]
+	public struct CUkernelNodeAttrValue
+	{
+		/// <summary>
+		/// Attribute ::CUaccessPolicyWindow.
+		/// </summary>
+		[FieldOffset(0)]
+		public CUaccessPolicyWindow accessPolicyWindow;
+		/// <summary>
+		/// Nonzero indicates a cooperative kernel (see ::cuLaunchCooperativeKernel).
+		/// </summary>
+		[FieldOffset(0)]
+		public int cooperative;                          
+	}
+
+	/// <summary>
+	/// Stream attributes union, used with ::cuStreamSetAttribute/::cuStreamGetAttribute
+	/// </summary>
+	[StructLayout(LayoutKind.Explicit)]
+	public struct CUstreamAttrValue
+	{
+		/// <summary>
+		/// Attribute ::CUaccessPolicyWindow.
+		/// </summary>
+		[FieldOffset(0)]
+		public CUaccessPolicyWindow accessPolicyWindow; 
+		/// <summary>
+		/// Value for ::CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY.
+		/// </summary>
+		[FieldOffset(0)]
+		public CUsynchronizationPolicy syncPolicy;
+	}
     #endregion
 
     #region Enums
@@ -4518,7 +4910,31 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Device supports exporting memory to a Win32 KMT handle with ::cuMemExportToShareableHandle, if requested ::cuMemCreate
 		/// </summary>
-		HandleTypeWin32KMTHandleSupported = 105, 
+		HandleTypeWin32KMTHandleSupported = 105,
+		/// <summary>
+		/// Maximum number of blocks per multiprocessor
+		/// </summary>
+		MaxBlocksPerMultiProcessor = 106, 
+		/// <summary>
+		/// Device supports compression of memory
+		/// </summary>
+		GenericCompressionSupported = 107,
+		/// <summary>
+		/// Device's maximum L2 persisting lines capacity setting in bytes
+		/// </summary>
+		MaxPersistingL2CacheSize = 108,
+		/// <summary>
+		/// The maximum value of CUaccessPolicyWindow::num_bytes.
+		/// </summary>
+		MaxAccessPolicyWindowSize = 109,  
+		/// <summary>
+		/// Device supports specifying the GPUDirect RDMA flag with ::cuMemCreate
+		/// </summary>
+		GPUDirectRDMAWithCudaVMMSupported = 110, 
+		/// <summary>
+		/// Shared memory reserved by CUDA driver per block in bytes
+		/// </summary>
+		ReservedSharedMemoryPerBlock = 111,        
 
 
 		/// <summary>
@@ -4913,8 +5329,13 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Compute device class 7.5.
 		/// </summary>
-		Compute_75 = 75
-    }
+		Compute_75 = 75,
+
+		/// <summary>
+		/// Compute device class 8.0.
+		/// </summary>
+		Compute_80 = 80
+	}
 
 	/// <summary>
 	/// Online compilation optimization levels
@@ -5071,8 +5492,12 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// A value between 0 and 128 that indicates the maximum fetch granularity of L2 (in Bytes). This is a hint
         /// </summary>
-        MaxL2FetchGranularity = 0x05
+        MaxL2FetchGranularity = 0x05,
 
+		/// <summary>
+		/// A size in bytes for L2 persisting lines cache size
+		/// </summary>
+		PersistingL2CacheSize = 0x06
     }
 
     /// <summary>
@@ -5397,7 +5822,7 @@ namespace ManagedCuda.BasicTypes
 
 		/// <summary>
 		/// This error indicates that the context current to the calling thread
-		/// has been destroyed using <see cref="DriverAPINativeMethods.ContextManagement.cuCtxDestroy"/>, or is a primary context which
+		/// has been destroyed using <see cref="DriverAPINativeMethods.ContextManagement.cuCtxDestroy_v2"/>, or is a primary context which
 		/// has not yet been initialized. 
 		/// </summary>
 		ErrorContextIsDestroyed = 709,
@@ -5748,7 +6173,12 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Bitmask of allowed ::CUmemAllocationHandleType for this allocation
 		/// </summary>
-		AllowedHandleTypes = 14       
+		AllowedHandleTypes = 14,
+		
+		/// <summary>
+		/// 1 if the memory this pointer is referencing can be used with the GPUDirect RDMA API
+		/// </summary>
+		IsGPUDirectRDMACapable = 15 
 
 	}
 
@@ -6075,7 +6505,82 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// 8 bit complex as a pair of signed integers
 		/// </summary>
-		CUDA_C_8U= 9
+		CUDA_C_8U= 9,
+
+		/// <summary>
+		/// real as a nv_bfloat16
+		/// </summary>
+		CUDA_R_16BF = 14, 
+		/// <summary>
+		/// complex as a pair of nv_bfloat16 numbers
+		/// </summary>
+		CUDA_C_16BF = 15,
+		/// <summary>
+		/// real as a signed 4-bit int
+		/// </summary>
+		CUDA_R_4I = 16, 
+		/// <summary>
+		/// complex as a pair of signed 4-bit int numbers
+		/// </summary>
+		CUDA_C_4I = 17, 
+		/// <summary>
+		/// real as a unsigned 4-bit int
+		/// </summary>
+		CUDA_R_4U = 18, 
+		/// <summary>
+		/// complex as a pair of unsigned 4-bit int numbers
+		/// </summary>
+		CUDA_C_4U = 19, 
+		/// <summary>
+		/// real as a signed 16-bit int 
+		/// </summary>
+		CUDA_R_16I = 20, 
+		/// <summary>
+		/// complex as a pair of signed 16-bit int numbers
+		/// </summary>
+		CUDA_C_16I = 21, 
+		/// <summary>
+		/// real as a unsigned 16-bit int
+		/// </summary>
+		CUDA_R_16U = 22, 
+		/// <summary>
+		/// complex as a pair of unsigned 16-bit int numbers
+		/// </summary>
+		CUDA_C_16U = 23, 
+		/// <summary>
+		/// real as a signed 32-bit int
+		/// </summary>
+		CUDA_R_32I = 10,
+		/// <summary>
+		/// complex as a pair of signed 32-bit int numbers
+		/// </summary>
+		CUDA_C_32I = 11, 
+		/// <summary>
+		/// real as a unsigned 32-bit int
+		/// </summary>
+		CUDA_R_32U = 12, 
+		/// <summary>
+		/// complex as a pair of unsigned 32-bit int numbers
+		/// </summary>
+		CUDA_C_32U = 13, 
+		/// <summary>
+		/// real as a signed 64-bit int
+		/// </summary>
+		CUDA_R_64I = 24,
+		/// <summary>
+		/// complex as a pair of signed 64-bit int numbers 
+		/// </summary>
+		CUDA_C_64I = 25, 
+		/// <summary>
+		/// real as a unsigned 64-bit int
+		/// </summary>
+		CUDA_R_64U = 26, 
+		/// <summary>
+		/// complex as a pair of unsigned 64-bit int numbers
+		/// </summary>
+		CUDA_C_64U = 27  
+
+
 	} 
 
 
@@ -6379,6 +6884,84 @@ namespace ManagedCuda.BasicTypes
 		ErrorNotSupported = 0x6  
 	}
 
+	/// <summary>
+	/// Specifies performance hint with ::CUaccessPolicyWindow for hitProp and missProp members
+	/// </summary>
+	public enum CUaccessProperty
+	{
+		/// <summary>
+		/// Normal cache persistence.
+		/// </summary>
+		Normal = 0,
+		/// <summary>
+		/// Streaming access is less likely to persit from cache.
+		/// </summary>
+		Streaming = 1,
+		/// <summary>
+		/// Persisting access is more likely to persist in cache.
+		/// </summary>
+		Persisting = 2 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum CUsynchronizationPolicy
+	{
+		/// <summary/>
+		Auto = 1,
+		/// <summary/>
+		Spin = 2,
+		/// <summary/>
+		Yield = 3,
+		/// <summary/>
+		BlockingSync = 4
+	}
+
+	/// <summary>
+	/// Graph kernel node Attributes 
+	/// </summary>
+	public enum CUkernelNodeAttrID
+	{
+		/// <summary>
+		/// Identifier for ::CUkernelNodeAttrValue::accessPolicyWindow.
+		/// </summary>
+		AccessPolicyWindow = 1,
+		/// <summary>
+		/// Allows a kernel node to be cooperative (see ::cuLaunchCooperativeKernel).
+		/// </summary>
+		Cooperative = 2 
+	}
+	
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum CUstreamAttrID
+	{
+		/// <summary>
+		/// Identifier for ::CUstreamAttrValue::accessPolicyWindow.
+		/// </summary>
+		AccessPolicyWindow = 1, 
+		/// <summary>
+		/// ::CUsynchronizationPolicy for work queued up in this stream
+		/// </summary>
+		SynchronizationPolicy = 3
+	}
+
+	/// <summary>
+	/// Specifies compression attribute for an allocation.
+	/// </summary>
+	public enum CUmemAllocationCompType : byte
+	{
+		/// <summary>
+		/// Allocating non-compressible memory
+		/// </summary>
+		None = 0x0,
+		/// <summary>
+		/// Allocating  compressible memory
+		/// </summary>
+		Generic = 0x1
+	}
 	#endregion
 
 	#region Enums (Flags)
@@ -6464,7 +7047,12 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Perform sRGB -> linear conversion during texture read.
 		/// </summary>
-		sRGB = 0x10
+		sRGB = 0x10,
+
+		/// <summary>
+		/// Disable any trilinear filtering optimizations.
+		/// </summary>
+		DisableTrilinearOptimization = 0x20
 	}
 
 	/// <summary>

@@ -31,6 +31,7 @@ namespace ManagedCuda
 	/// <summary>
 	/// Provides methods to bind texture references to kernels
 	/// </summary>
+	[Obsolete("Texture and surface references are deprecated since CUDA 11")]
 	public static class CudaTexture
 	{
 		#region Without setting border color
