@@ -601,16 +601,25 @@ namespace ManagedCuda.BasicTypes
 	{
 		ushort x;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public half(float f)
 		{
 			x = __float2half(f).x;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public half(double d)
 		{
 			x = __double2half(d).x;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public half(half h16)
 		{
 			x = h16.x;
@@ -742,6 +751,9 @@ namespace ManagedCuda.BasicTypes
 			return r;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public override string ToString()
 		{
 			return x.ToString();
@@ -765,16 +777,25 @@ namespace ManagedCuda.BasicTypes
 	{
 		ushort x;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public bfloat16(float f)
 		{
 			x = __float2bfloat16(f).x;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public bfloat16(double d)
 		{
 			x = __double2bfloat16(d).x;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public bfloat16(bfloat16 bf16)
 		{
 			x = bf16.x;
@@ -813,7 +834,9 @@ namespace ManagedCuda.BasicTypes
 			{
 				u[0]--;
 			}
+#pragma warning disable CS1718 // Comparison made to same variable --> check for NAN
 			if ((d != x) && (x == x))
+#pragma warning restore CS1718 
 			{
 				u[0] |= 1U;
 			}
@@ -837,6 +860,9 @@ namespace ManagedCuda.BasicTypes
 			return r;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public override string ToString()
 		{
 			return x.ToString();

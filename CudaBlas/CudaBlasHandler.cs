@@ -6924,7 +6924,7 @@ namespace ManagedCuda.CudaBlas
         /// <param name="Ctype"></param>
         public void GemmBatched(Operation transa, Operation transb, int m, int n, int k, CudaDeviceVariable<float> alpha,
                                    CudaDeviceVariable<CUdeviceptr> Aarray, cudaDataType Atype, int lda, CudaDeviceVariable<CUdeviceptr> Barray, cudaDataType Btype, int ldb,
-                                   CudaDeviceVariable<float> beta, CudaDeviceVariable<CUdeviceptr> Carray, cudaDataType Ctype, int ldc, int batchCount, cudaDataType computeType, GemmAlgo algo)
+                                   CudaDeviceVariable<float> beta, CudaDeviceVariable<CUdeviceptr> Carray, cudaDataType Ctype, int ldc, int batchCount, ComputeType computeType, GemmAlgo algo)
         {
             _status = CudaBlasNativeMethods.cublasGemmBatchedEx(_blasHandle, transa, transb, m, n, k, alpha.DevicePointer, Aarray.DevicePointer, Atype, lda, Barray.DevicePointer, Btype, ldb, beta.DevicePointer, Carray.DevicePointer, Ctype, ldc, batchCount, computeType, algo);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasGemmBatchedEx", _status));
@@ -6971,7 +6971,7 @@ namespace ManagedCuda.CudaBlas
         /// <param name="Ctype"></param>
         public void GemmStridedBatched(Operation transa, Operation transb, int m, int n, int k, CUdeviceptr alpha,
                                    CUdeviceptr A, cudaDataType Atype, int lda, long strideA, CUdeviceptr B, cudaDataType Btype, int ldb, long strideB,
-                                   CUdeviceptr beta, CUdeviceptr C, cudaDataType Ctype, int ldc, long strideC, int batchCount, cudaDataType computeType, GemmAlgo algo)
+                                   CUdeviceptr beta, CUdeviceptr C, cudaDataType Ctype, int ldc, long strideC, int batchCount, ComputeType computeType, GemmAlgo algo)
         {
             _status = CudaBlasNativeMethods.cublasGemmStridedBatchedEx(_blasHandle, transa, transb, m, n, k, alpha, A, 
                 Atype, lda, strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc, strideC, batchCount, computeType, algo);
