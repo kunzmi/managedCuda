@@ -1192,7 +1192,19 @@ namespace ManagedCuda.NPP
 			return dstRect;
 		}
 
-#region helper methods
+
+		/// <summary>
+		/// Calculate scratch buffer size needed for the FloodFill function based on destination image oSizeROI width and height.
+		/// </summary>
+		public int FloodFillGetBufferSize()
+		{
+			int size = 0;
+			status = NPPNativeMethods.NPPi.FloodFill.nppiFloodFillGetBufferSize(_sizeRoi, ref size);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFloodFillGetBufferSize", status));
+			NPPException.CheckNppStatus(status, this);
+			return size;
+		}
+		#region helper methods
 		///// <summary>
 		///// Checks if two images have the same dimensions
 		///// </summary>
@@ -1202,6 +1214,6 @@ namespace ManagedCuda.NPP
 		//{
 		//    return this.Width == image.Width && this.Height == image.Height;
 		//}
-#endregion
+		#endregion
 	}
 }

@@ -3855,14 +3855,34 @@ namespace ManagedCuda.NPP
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = NPPI_JPEG_DECODE_N_BUFFERS)]
         public CUdeviceptr[] apGpuBuffer;
-    }
+	}
 
-    /// <summary>
-    /// General image descriptor. Defines the basic parameters of an image,
-    /// including data pointer, step size and size information.
-    /// This can be used by both source and destination sides.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+	/// <summary>
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct NppiConnectedRegion
+	{
+		/// <summary>
+		/// x, y, width, height == left, top, right, and bottom pixel coordinates
+		/// </summary>
+		public NppiRect oBoundingBox;
+		/// <summary>
+		/// total number of pixels in connected region 
+		/// </summary>
+		public uint nConnectedPixelCount;
+		/// <summary>
+		/// original pixel value of seed pixel, 1 or 3 channel
+		/// </summary>
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+		public uint[] aSeedPixelValue;
+	}
+
+	/// <summary>
+	/// General image descriptor. Defines the basic parameters of an image,
+	/// including data pointer, step size and size information.
+	/// This can be used by both source and destination sides.
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
     public struct NppiImageDescriptor
     {
         /// <summary>

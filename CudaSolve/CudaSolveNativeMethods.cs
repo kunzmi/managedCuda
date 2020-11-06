@@ -36,7 +36,7 @@ namespace ManagedCuda.CudaSolve
 	/// <summary/>
 	public static class CudaSolveNativeMethods
 	{
-		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_10.dll";
+		internal const string CUSOLVE_API_DLL_NAME = "cusolver64_11.dll";
 
 #if (NETCOREAPP)
 		internal const string CUSOLVE_API_DLL_NAME_LINUX = "cusolver";
@@ -5553,6 +5553,7 @@ namespace ManagedCuda.CudaSolve
 
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnPotrf_bufferSize(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5566,6 +5567,7 @@ namespace ManagedCuda.CudaSolve
 				ref SizeT workspaceInBytes );
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnPotrf(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5583,6 +5585,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for POTRS 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnPotrs(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5602,6 +5605,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for GEQRF 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnGeqrf_bufferSize(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5618,6 +5622,7 @@ namespace ManagedCuda.CudaSolve
 				ref SizeT workspaceInBytes );
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnGeqrf(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5637,6 +5642,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for GETRF
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnGetrf_bufferSize(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5649,6 +5655,7 @@ namespace ManagedCuda.CudaSolve
 				ref SizeT workspaceInBytes );
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnGetrf(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5667,6 +5674,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for GETRS
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnGetrs(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5686,6 +5694,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for SYEVD
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnSyevd_bufferSize(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5701,6 +5710,7 @@ namespace ManagedCuda.CudaSolve
 				ref SizeT workspaceInBytes);
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnSyevd(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5721,6 +5731,7 @@ namespace ManagedCuda.CudaSolve
 
 			#region 64-bit API for SYEVDX 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnSyevdx_bufferSize(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5743,6 +5754,7 @@ namespace ManagedCuda.CudaSolve
 
 
 			[DllImport(CUSOLVE_API_DLL_NAME)]
+			[Obsolete("Deprecated in Cuda version 11.1")]
 			public static extern cusolverStatus cusolverDnSyevdx(
 				cusolverDnHandle handle,
 				cusolverDnParams parameters,
@@ -5764,6 +5776,323 @@ namespace ManagedCuda.CudaSolve
 				CUdeviceptr pBuffer,
 				SizeT workspaceInBytes,
 				CUdeviceptr info);
+			#endregion
+
+			#region new 64-bit API
+			#region 64-bit API for POTRF
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXpotrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXpotrf(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr info);
+
+			/* 64-bit API for POTRS */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXpotrs(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				FillMode uplo,
+				long n,
+				long nrhs,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeB,
+				CUdeviceptr B,
+				long ldb,
+				CUdeviceptr info);
+
+			/* 64-bit API for GEQRF */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgeqrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeTau,
+				CUdeviceptr tau,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgeqrf(
+			cusolverDnHandle handle,
+			cusolverDnParams parameters,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeTau,
+			CUdeviceptr tau,
+			cudaDataType computeType,
+			CUdeviceptr bufferOnDevice,
+			SizeT workspaceInBytesOnDevice,
+			byte[] bufferOnHost,
+			SizeT workspaceInBytesOnHost,
+			CUdeviceptr info);
+
+			/* 64-bit API for GETRF */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgetrf_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgetrf(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				CUdeviceptr ipiv,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr info);
+
+			/* 64-bit API for GETRS */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgetrs(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				Operation trans,
+				long n,
+				long nrhs,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				CUdeviceptr ipiv,
+				cudaDataType dataTypeB,
+				CUdeviceptr B,
+				long ldb,
+				CUdeviceptr info );
+
+			/* 64-bit API for SYEVD */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXsyevd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXsyevd(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr info);
+
+			/* 64-bit API for SYEVDX */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXsyevdx_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				cusolverEigRange range,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				IntPtr vl,
+				IntPtr vu,
+				long il,
+				long iu,
+				ref long h_meig,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXsyevdx(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				cusolverEigRange range,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				IntPtr vl,
+				IntPtr vu,
+				long il,
+				long iu,
+				ref long meig64,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr info);
+
+			/* 64-bit API for GESVD */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgesvd_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				sbyte jobu,
+				sbyte jobvt,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeS,
+				CUdeviceptr S,
+				cudaDataType dataTypeU,
+				CUdeviceptr U,
+				long ldu,
+				cudaDataType dataTypeVT,
+				CUdeviceptr VT,
+				long ldvt,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgesvd(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				sbyte jobu,
+				sbyte jobvt,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeS,
+				CUdeviceptr S,
+				cudaDataType dataTypeU,
+				CUdeviceptr U,
+				long ldu,
+				cudaDataType dataTypeVT,
+				CUdeviceptr VT,
+				long ldvt,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr info);
+
+			/* 64-bit API for GESVDP */
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgesvdp_bufferSize(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				int econ,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeS,
+				CUdeviceptr S,
+				cudaDataType dataTypeU,
+				CUdeviceptr U,
+				long ldu,
+				cudaDataType dataTypeV,
+				CUdeviceptr V,
+				long ldv,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost);
+
+			[DllImport(CUSOLVE_API_DLL_NAME)]
+			public static extern cusolverStatus cusolverDnXgesvdp(
+				cusolverDnHandle handle,
+				cusolverDnParams parameters,
+				cusolverEigMode jobz,
+				int econ,
+				long m,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeS,
+				CUdeviceptr S,
+				cudaDataType dataTypeU,
+				CUdeviceptr U,
+				long ldu,
+				cudaDataType dataTypeV,
+				CUdeviceptr V,
+				long ldv,
+				cudaDataType computeType,
+				CUdeviceptr bufferOnDevice,
+				SizeT workspaceInBytesOnDevice,
+				byte[] bufferOnHost,
+				SizeT workspaceInBytesOnHost,
+				CUdeviceptr d_info,
+				ref double h_err_sigma);
+			#endregion
 			#endregion
 		}
 
@@ -5821,7 +6150,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix
-			/// type is CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// type is CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of m elements that contains the start of every row.</param>
 			/// <param name="csrEndPtrA">integer array of m elements that contains the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnzAcolumn indices of the nonzero elements of matrix A.</param>
@@ -5837,7 +6166,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnzA (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnzA (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5856,7 +6185,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnzA (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnzA (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5875,7 +6204,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnzA (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnzA (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5894,7 +6223,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnzA (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnzA (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5916,7 +6245,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5935,7 +6264,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5954,7 +6283,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5973,7 +6302,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -5993,7 +6322,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6012,7 +6341,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6031,7 +6360,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6050,7 +6379,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6072,7 +6401,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6091,7 +6420,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6110,7 +6439,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6129,7 +6458,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6149,7 +6478,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6168,7 +6497,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6187,7 +6516,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6206,7 +6535,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrVal">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtr">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColInd">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6229,7 +6558,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6250,7 +6579,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6271,7 +6600,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6292,7 +6621,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6315,7 +6644,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6335,7 +6664,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6355,7 +6684,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6375,7 +6704,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6395,7 +6724,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6415,7 +6744,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6435,7 +6764,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6455,7 +6784,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="m">number of rows and columns of matrix A.</param>
 			/// <param name="nnz">number of nonzeros of matrix A.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrValA">array of nnz (= csrRowPtrA(n) * csrRowPtrA(0)) nonzero elements of matrix A.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
@@ -6500,7 +6829,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
 			/// <param name="p">permutation vector of size n.</param>
@@ -6520,7 +6849,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
 			/// <param name="p">permutation vector of size n.</param>
@@ -6546,7 +6875,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of rows and columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
 			/// <param name="p">permutation vector of size n.</param>
@@ -6646,7 +6975,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
 			/// <param name="p">left permutation vector of size m.</param>
@@ -6665,7 +6994,7 @@ namespace ManagedCuda.CudaSolve
 			/// <param name="n">number of columns of matrix A.</param>
 			/// <param name="nnzA">number of nonzeros of matrix A. It is the size of csrValA and csrColIndA.</param>
 			/// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			/// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			/// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			/// <param name="csrRowPtrA">integer array of n + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 			/// <param name="csrColIndA">integer array of nnz (=csrRowPtrA(n) * csrRowPtrA(0)) column indices of the nonzero elements of matrix A.</param>
 			/// <param name="p">left permutation vector of size m.</param>
@@ -6705,7 +7034,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnzA">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrRowPtrA">integer array of m+1 elements that contains the
 			///// start of every row and the end of the last row plus one.</param>
 			///// <param name="csrColIndA">integer array of nnzAcolumn indices of the nonzero elements of each matrix Aj.</param>
@@ -6722,7 +7051,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrVal">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtr">integer array of m+1 elements that contains the
@@ -6744,7 +7073,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrVal">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtr">integer array of m+1 elements that contains the
@@ -6766,7 +7095,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrVal">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtr">integer array of m+1 elements that contains the
@@ -6788,7 +7117,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrVal">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtr">integer array of m+1 elements that contains the
@@ -6810,7 +7139,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrValA">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtrA">integer array of m+1 elements that contains the
@@ -6834,7 +7163,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrValA">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtrA">integer array of m+1 elements that contains the
@@ -6858,7 +7187,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrValA">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtrA">integer array of m+1 elements that contains the
@@ -6882,7 +7211,7 @@ namespace ManagedCuda.CudaSolve
 			///// <param name="n">number of columns of each matrix Aj.</param>
 			///// <param name="nnz">number of nonzeros of each matrix Aj. It is the size csrColIndA.</param>
 			///// <param name="descrA">the descriptor of matrix A. The supported matrix type is
-			///// CUSPARSE_MATRIX_TYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
+			///// CUSPARSE_MATRIXYPE_GENERAL. Also, the supported index bases are CUSPARSE_INDEX_BASE_ZERO and CUSPARSE_INDEX_BASE_ONE.</param>
 			///// <param name="csrValA">array of nnzA*batchSize nonzero 
 			///// elements of matrices A0, A1, .... All matrices are aggregated one after another.</param>
 			///// <param name="csrRowPtrA">integer array of m+1 elements that contains the

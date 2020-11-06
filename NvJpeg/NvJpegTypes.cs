@@ -32,11 +32,18 @@ namespace ManagedCuda.NvJpeg
         /// Maximum number of channels nvjpeg decoder supports
         /// </summary>
         public const int MaxComponent = 4;
+        /// <summary>
+        /// 
+        /// </summary>
         public const int NVJPEG_FLAGS_DEFAULT = 0;
         /// <summary>
         /// use this to disable pipelining for hardware decoder backend
         /// </summary>
         public const int NVJPEG_FLAGS_HW_DECODE_NO_PIPELINE = 1;
+        /// <summary>
+        /// 
+        /// </summary>
+        public const int NVJPEG_FLAGS_ENABLE_MEMORY_POOLS = 1 << 1;
     }
 
     /// <summary>

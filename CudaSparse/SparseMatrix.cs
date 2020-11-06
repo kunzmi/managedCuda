@@ -363,6 +363,30 @@ namespace ManagedCuda.CudaSparse
 		/// <summary>
 		/// 
 		/// </summary>
+		public void SetStridedBatchCoo(int batchCount,
+							long batchStride)
+		{
+			res = CudaSparseNativeMethods.cusparseCooSetStridedBatch(descr, batchCount, batchStride);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCooSetStridedBatch", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public void SetStridedBatchCsr(int batchCount,
+							long offsetsBatchStride, long columnsValuesBatchStride)
+		{
+			res = CudaSparseNativeMethods.cusparseCsrSetStridedBatch(descr, batchCount, offsetsBatchStride, columnsValuesBatchStride);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCsrSetStridedBatch", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public void GetSize()
 		{
 			res = CudaSparseNativeMethods.cusparseSpMatGetSize(descr, ref rows, ref cols, ref nnz);

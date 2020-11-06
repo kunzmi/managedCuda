@@ -161,11 +161,17 @@ namespace ManagedCuda
 				//case CUResult.ErrorProfilerAlreadyStopped:
 				//    message = "This indicates profiler has already been stopped and probably cuProfilerStop() is incorrectly called.";
 				//    break;
+				case CUResult.ErrorStubLibrary:
+					message = "This indicates that the CUDA driver that the application has loaded is a stub library. Applications that run with the stub rather than a real driver loaded will result in CUDA API returning this error.";
+					break;
 				case CUResult.ErrorNoDevice:
 					message = "This indicates that no CUDA-capable devices were detected by the installed CUDA driver.";
 					break;
 				case CUResult.ErrorInvalidDevice:
 					message = "This indicates that the device ordinal supplied by the user does not correspond to a valid CUDA device.";
+					break;
+				case CUResult.DeviceNotLicensed:
+					message = "This error indicates that the Grid license is not applied.";
 					break;
 				case CUResult.ErrorInvalidImage:
 					message = "This indicates that the device kernel image is invalid. This can also indicate an invalid CUDA module.";
@@ -227,6 +233,9 @@ namespace ManagedCuda
 					break;
                 case CUResult.JITCompilerNotFound:
                     message = "This indicates that the PTX JIT compiler library was not found.";
+                    break;
+                case CUResult.UnsupportedPTXVersion:
+                    message = "This indicates that the provided PTX was compiled with an unsupported toolchain.";
                     break;
                 case CUResult.ErrorInvalidSource:
 					message = "This indicates that the device kernel source is invalid.";

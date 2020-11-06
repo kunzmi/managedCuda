@@ -9733,5 +9733,72 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, pBatchList);
 		}
 		#endregion
+
+		#region New in Cuda 11.1
+		/// <summary>
+		/// 4 channel 8-bit unsigned planar JPEG YCCK color format to 4 channel 8-bit unsigned planar CMYK color conversion using 601 RGB color coefficients and CMY inversion.
+		/// </summary>
+		public static void YCCKToCMYK_JPEG_601(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 src3, 
+			NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, NPPImage_8uC1 dest3)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi, src3.DevicePointerRoi };
+			CUdeviceptr[] arrayDst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi, dest3.DevicePointerRoi };
+			NppStatus status = NPPNativeMethods.NPPi.YCCKToCMYK_JPEG.nppiYCCKToCMYK_JPEG_601_8u_P4R(arraySrc, src0.Pitch, arrayDst, dest0.Pitch, src0.SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYCCKToCMYK_JPEG_601_8u_P4R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned planar JPEG CMYK or YCCK color model image to 3 channel 8-bit unsigned planar RGB color model image without color profile conversion.
+		/// </summary>
+		public static void CMYKOrYCCKToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 src3,
+			NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi, src3.DevicePointerRoi };
+			CUdeviceptr[] arrayDst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+			NppStatus status = NPPNativeMethods.NPPi.CMYK_OR_YCCK_JPEG_TO_RGB.nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R(arraySrc, src0.Pitch, arrayDst, dest0.Pitch, src0.SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCMYKOrYCCKToRGB_JPEG_8u_P4P3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned planar JPEG CMYK or YCCK color model image to 3 channel 8-bit unsigned packed RGB color model image without color profile conversion
+		/// </summary>
+		public static void CMYKOrYCCKToRGB_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 src3,
+			NPPImage_8uC3 dest)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi, src3.DevicePointerRoi };
+			NppStatus status = NPPNativeMethods.NPPi.CMYK_OR_YCCK_JPEG_TO_RGB.nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R(arraySrc, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCMYKOrYCCKToRGB_JPEG_8u_P4C3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned planar JPEG CMYK or YCCK color model image to 3 channel 8-bit unsigned planar BGR color model image without color profile conversion.
+		/// </summary>
+		public static void CMYKOrYCCKToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 src3,
+			NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi, src3.DevicePointerRoi };
+			CUdeviceptr[] arrayDst = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+			NppStatus status = NPPNativeMethods.NPPi.CMYK_OR_YCCK_JPEG_TO_BGR.nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R(arraySrc, src0.Pitch, arrayDst, dest0.Pitch, src0.SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCMYKOrYCCKToBGR_JPEG_8u_P4P3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+
+		/// <summary>
+		/// 4 channel 8-bit unsigned planar JPEG CMYK or YCCK color model image to 3 channel 8-bit unsigned packed BGR color model image without color profile conversion.
+		/// </summary>
+		public static void CMYKOrYCCKToBGR_JPEG(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 src3,
+			NPPImage_8uC3 dest)
+		{
+			CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi, src3.DevicePointerRoi };
+			NppStatus status = NPPNativeMethods.NPPi.CMYK_OR_YCCK_JPEG_TO_BGR.nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R(arraySrc, src0.Pitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCMYKOrYCCKToBGR_JPEG_8u_P4C3R", status));
+			NPPException.CheckNppStatus(status, null);
+		}
+		#endregion
 	}
 }

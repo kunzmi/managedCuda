@@ -156,7 +156,7 @@ namespace ManagedCuda
         /// <param name="memsetParams">When the graph is launched, the node will perform the memset described by memsetParams.</param>
         /// <param name="ctx">Cuda context used for the operation</param>
         /// <returns>A handle to the new node will be returned.</returns>
-        public CUgraphNode AddMemsetNode(CUgraphNode[] dependencies, CUDA_MEMSET_NODE_PARAMS memsetParams, CudaContext ctx)
+        public CUgraphNode AddMemsetNode(CUgraphNode[] dependencies, CudaMemsetNodeParams memsetParams, CudaContext ctx)
         {
             CUgraphNode node = new CUgraphNode();
             SizeT numDependencies = 0;
@@ -191,7 +191,7 @@ namespace ManagedCuda
             if (dependencies != null)
                 numDependencies = dependencies.Length;
 
-            CUDA_MEMSET_NODE_PARAMS memsetParams = CUDA_MEMSET_NODE_PARAMS.init<T>(deviceVariable, value);
+            CudaMemsetNodeParams memsetParams = CudaMemsetNodeParams.init<T>(deviceVariable, value);
 
             res = DriverAPINativeMethods.GraphManagment.cuGraphAddMemsetNode(ref node, _graph, dependencies, numDependencies, ref memsetParams, ctx.Context);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddMemsetNode", res));
@@ -221,7 +221,7 @@ namespace ManagedCuda
             if (dependencies != null)
                 numDependencies = dependencies.Length;
 
-            CUDA_MEMSET_NODE_PARAMS memsetParams = CUDA_MEMSET_NODE_PARAMS.init<T>(deviceVariable, value);
+            CudaMemsetNodeParams memsetParams = CudaMemsetNodeParams.init<T>(deviceVariable, value);
 
             res = DriverAPINativeMethods.GraphManagment.cuGraphAddMemsetNode(ref node, _graph, dependencies, numDependencies, ref memsetParams, ctx.Context);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddMemsetNode", res));
@@ -275,7 +275,7 @@ namespace ManagedCuda
         /// <param name="dependencies">can be null</param>
         /// <param name="nodeParams">Parameters for the GPU execution node</param>
         /// <returns>A handle to the new node will be returned.</returns>
-        public CUgraphNode AddKernelNode(CUgraphNode[] dependencies, CUDA_KERNEL_NODE_PARAMS nodeParams)
+        public CUgraphNode AddKernelNode(CUgraphNode[] dependencies, CudaKernelNodeParams nodeParams)
         {
             CUgraphNode node = new CUgraphNode();
             SizeT numDependencies = 0;
@@ -309,7 +309,7 @@ namespace ManagedCuda
             if (dependencies != null)
                 numDependencies = dependencies.Length;
 
-            CUDA_KERNEL_NODE_PARAMS nodeParams = new CUDA_KERNEL_NODE_PARAMS
+            CudaKernelNodeParams nodeParams = new CudaKernelNodeParams
             {
                 blockDimX = kernel.BlockDimensions.x,
                 blockDimY = kernel.BlockDimensions.y,
@@ -379,7 +379,7 @@ namespace ManagedCuda
             if (dependencies != null)
                 numDependencies = dependencies.Length;
 
-            CUDA_HOST_NODE_PARAMS nodeParams = new CUDA_HOST_NODE_PARAMS
+            CudaHostNodeParams nodeParams = new CudaHostNodeParams
             {
                 fn = hostFunction,
                 userData = userData
@@ -391,6 +391,65 @@ namespace ManagedCuda
 
             return node;
         }
+
+        /// <summary>
+        /// Creates an event record node and adds it to a graph
+        /// Creates a new event record node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p params.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries.
+        /// A handle to the new node will be returned in \p phGraphNode.
+        /// Each launch of the graph will record \p event to capture execution of the
+        /// node's dependencies.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="event_">Event for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddEventRecordNode(CUgraphNode[] dependencies, CudaEvent event_)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddEventRecordNode(ref node, _graph, dependencies, numDependencies, event_.Event);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddEventRecordNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates an event wait node and adds it to a graph
+        /// Creates a new event wait node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p params.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries.
+        /// A handle to the new node will be returned in \p phGraphNode.
+        /// The graph node will wait for all work captured in \p event.  See ::cuEventRecord()
+        /// for details on what is captured by an event. \p event may be from a different context
+        /// or device than the launch stream.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="event_">Event for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddEventWaitNode(CUgraphNode[] dependencies, CudaEvent event_)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddEventWaitNode(ref node, _graph, dependencies, numDependencies, event_.Event);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddEventWaitNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+
+
+
 
         /// <summary>
         /// Clones a graph<para/>

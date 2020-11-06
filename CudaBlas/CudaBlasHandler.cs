@@ -256,6 +256,17 @@ namespace ManagedCuda.CudaBlas
 			return new Version(version / 1000, version % 1000);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		public void SetWorkspace(CudaDeviceVariable<byte> workspace)
+		{
+			int version = 0;
+			_status = CudaBlasNativeMethods.cublasSetWorkspace_v2(_blasHandle, workspace.DevicePointer, workspace.SizeInBytes);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSetWorkspace_v2", _status));
+			if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+		}
+
 		#region BLAS1
 		#region Copy
 		/// <summary>

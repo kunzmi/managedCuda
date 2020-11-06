@@ -176,6 +176,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(float alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -191,6 +192,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(double alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -206,6 +208,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -221,6 +224,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZaxpyi(_handle, (int)xInd.Size, ref alpha, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -237,6 +241,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -252,6 +257,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -267,6 +273,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -282,6 +289,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Axpyi(CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZaxpyi(_handle, (int)xInd.Size, alpha.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -298,6 +306,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthr(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -312,6 +321,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthr(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -326,6 +336,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthr(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -340,6 +351,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthr(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZgthr(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -356,6 +368,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthrz(CudaDeviceVariable<float> y, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -370,6 +383,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthrz(CudaDeviceVariable<double> y, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -384,6 +398,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthrz(CudaDeviceVariable<cuFloatComplex> y, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -398,6 +413,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xVal">vector with nnz non-zero values that were gathered from vector y (that is unchanged if nnz == 0).</param>
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gthrz(CudaDeviceVariable<cuDoubleComplex> y, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZgthrz(_handle, (int)xInd.Size, y.DevicePointer, xVal.DevicePointer, xInd.DevicePointer, idxBase);
@@ -415,6 +431,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Sctr(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -429,6 +446,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Sctr(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -443,6 +461,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Sctr(CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseCsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -457,6 +476,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="xInd">integer vector with nnz indices of the non-zero values of vector x. Length of xInd gives the number nzz passed to CUSPARSE.</param>
 		/// <param name="y">vector in dense format.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Sctr(CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseZsctr(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, idxBase);
@@ -476,6 +496,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Roti(CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<float> y, float c, float s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseSroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref c, ref s, idxBase);
@@ -492,6 +513,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="c">cosine element of the rotation matrix.</param>
 		/// <param name="s">sine element of the rotation matrix.</param>
 		/// <param name="idxBase">Index base.</param>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Roti(CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd, CudaDeviceVariable<double> y, double c, double s, IndexBase idxBase)
 		{
 			res = CudaSparseNativeMethods.cusparseDroti(_handle, (int)xInd.Size, xVal.DevicePointer, xInd.DevicePointer, y.DevicePointer, ref c, ref s, idxBase);
@@ -1768,6 +1790,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, float alpha, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> cscValB, CudaDeviceVariable<int> cscColPtrB, CudaDeviceVariable<int> cscRowIndB, float beta, CudaDeviceVariable<float> C, int ldc)
 		{
 			res = CudaSparseNativeMethods.cusparseSgemmi(_handle, m, n, k, nnz, ref alpha, A.DevicePointer, lda, cscValB.DevicePointer, cscColPtrB.DevicePointer, cscRowIndB.DevicePointer, ref beta, C.DevicePointer, ldc);
@@ -1780,6 +1803,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, double alpha, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> cscValB, CudaDeviceVariable<int> cscColPtrB, CudaDeviceVariable<int> cscRowIndB, double beta, CudaDeviceVariable<double> C, int ldc)
 		{
 			res = CudaSparseNativeMethods.cusparseDgemmi(_handle, m, n, k, nnz, ref alpha, A.DevicePointer, lda, cscValB.DevicePointer, cscColPtrB.DevicePointer, cscRowIndB.DevicePointer, ref beta, C.DevicePointer, ldc);
@@ -1792,6 +1816,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<cuFloatComplex> cscValB, CudaDeviceVariable<int> cscColPtrB, CudaDeviceVariable<int> cscRowIndB, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
 		{
 			res = CudaSparseNativeMethods.cusparseCgemmi(_handle, m, n, k, nnz, ref alpha, A.DevicePointer, lda, cscValB.DevicePointer, cscColPtrB.DevicePointer, cscRowIndB.DevicePointer, ref beta, C.DevicePointer, ldc);
@@ -1804,6 +1829,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<cuDoubleComplex> cscValB, CudaDeviceVariable<int> cscColPtrB, CudaDeviceVariable<int> cscRowIndB, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
 		{
 			res = CudaSparseNativeMethods.cusparseZgemmi(_handle, m, n, k, nnz, ref alpha, A.DevicePointer, lda, cscValB.DevicePointer, cscColPtrB.DevicePointer, cscRowIndB.DevicePointer, ref beta, C.DevicePointer, ldc);
@@ -1819,6 +1845,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> cscValB, CudaDeviceVariable<int> cscColPtrB,
 			CudaDeviceVariable<int> cscRowIndB, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> C, int ldc)
 		{
@@ -1832,6 +1859,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> cscValB, CudaDeviceVariable<int> cscColPtrB,
 			CudaDeviceVariable<int> cscRowIndB, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> C, int ldc)
 		{
@@ -1845,6 +1873,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<cuFloatComplex> cscValB, CudaDeviceVariable<int> cscColPtrB, 
 			CudaDeviceVariable<int> cscRowIndB, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
 		{
@@ -1858,6 +1887,7 @@ namespace ManagedCuda.CudaSparse
 		/// where A is column-major dense matrix, B is a sparse matrix in CSC format, 
 		/// and C is column-major dense matrix.
 		/// </summary>
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Gemmi(int m, int n, int k, int nnz, CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<cuDoubleComplex> cscValB,
 			CudaDeviceVariable<int> cscColPtrB, CudaDeviceVariable<int> cscRowIndB, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
 		{
@@ -12156,6 +12186,100 @@ namespace ManagedCuda.CudaSparse
 		#region Generic API
 
 		#region Vector Vector
+
+		public void Axpby<indexT, dataTIn>(CudaDeviceVariable<dataTIn> alpha, SparseVector<indexT, dataTIn> vecX,
+			CudaDeviceVariable<dataTIn> beta, DenseVector<dataTIn> vecY)
+			where indexT : struct where dataTIn : struct 
+		{
+			res = CudaSparseNativeMethods.cusparseAxpby(_handle, alpha.DevicePointer, vecX.Descr, beta.DevicePointer, vecY.Descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseAxpby", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void Axpby<indexT, dataTIn>(dataTIn alpha, SparseVector<indexT, dataTIn> vecX,
+			dataTIn beta, DenseVector<dataTIn> vecY)
+			where indexT : struct where dataTIn : struct
+		{
+			IntPtr ptr = IntPtr.Zero;
+			IntPtr ptrAlpha = IntPtr.Zero;
+			IntPtr ptrBeta = IntPtr.Zero;
+			try
+			{
+				int size = CudaDataTypeTranslator.GetSize(typeof(dataTIn));
+				ptr = Marshal.AllocHGlobal(2 * size);
+				ptrAlpha = ptr + 0;
+				ptrBeta = ptr + size;
+
+				Marshal.StructureToPtr(alpha, ptrAlpha, false);
+				Marshal.StructureToPtr(beta, ptrBeta, false);
+				res = CudaSparseNativeMethods.cusparseAxpby(_handle, ptrAlpha, vecX.Descr, ptrBeta, vecY.Descr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseAxpby", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				Marshal.FreeHGlobal(ptr);
+			}
+		}
+
+		public void Gather<indexT, dataTIn>(DenseVector<dataTIn> vecY, SparseVector<indexT, dataTIn> vecX)
+			where indexT : struct where dataTIn : struct
+		{
+			res = CudaSparseNativeMethods.cusparseGather(_handle, vecY.Descr, vecX.Descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGather", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void Scatter<indexT, dataTIn>(SparseVector<indexT, dataTIn> vecX, DenseVector<dataTIn> vecY)
+			where indexT : struct where dataTIn : struct
+		{
+			res = CudaSparseNativeMethods.cusparseScatter(_handle, vecX.Descr, vecY.Descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseScatter", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+
+		public void Rot<indexT, dataTIn>(CudaDeviceVariable<dataTIn> c_coeff, SparseVector<indexT, dataTIn> vecX,
+			CudaDeviceVariable<dataTIn> s_coeff, DenseVector<dataTIn> vecY)
+			where indexT : struct where dataTIn : struct
+		{
+			res = CudaSparseNativeMethods.cusparseRot(_handle, c_coeff.DevicePointer, s_coeff.DevicePointer, vecX.Descr, vecY.Descr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseRot", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		public void Rot<indexT, dataTIn>(dataTIn c_coeff, SparseVector<indexT, dataTIn> vecX,
+			dataTIn s_coeff, DenseVector<dataTIn> vecY)
+			where indexT : struct where dataTIn : struct
+		{
+			IntPtr ptr = IntPtr.Zero;
+			IntPtr ptrCCoeff = IntPtr.Zero;
+			IntPtr ptrSCoeff = IntPtr.Zero;
+			try
+			{
+				int size = CudaDataTypeTranslator.GetSize(typeof(dataTIn));
+				ptr = Marshal.AllocHGlobal(2 * size);
+				ptrCCoeff = ptr + 0;
+				ptrSCoeff = ptr + size;
+
+				Marshal.StructureToPtr(c_coeff, ptrCCoeff, false);
+				Marshal.StructureToPtr(s_coeff, ptrSCoeff, false);
+				res = CudaSparseNativeMethods.cusparseRot(_handle, ptrCCoeff, ptrSCoeff, vecX.Descr, vecY.Descr);
+				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseRot", res));
+				if (res != cusparseStatus.Success)
+					throw new CudaSparseException(res);
+			}
+			finally
+			{
+				Marshal.FreeHGlobal(ptr);
+			}
+		}
+
 		public SizeT VV_bufferSize<indexT, dataTIn, dataTCompute>(cusparseOperation opX, SparseVector<indexT, dataTIn> vecX,
 			DenseVector<dataTIn> vecY, CudaDeviceVariable<dataTCompute> result) 
 			where indexT : struct where dataTIn : struct where dataTCompute : struct

@@ -280,6 +280,26 @@ namespace ManagedCuda.NvJpeg
                   int max_cpuhreads,
                   nvjpegOutputFormat output_format);
 
+        /// <summary>
+        /// Allocates the internal buffers as a pre-allocation step
+        /// </summary>
+        /// <param name="handle">Library handle</param>
+        /// <param name="jpeg_handle">Decoded jpeg image state handle</param>
+        /// <param name="batch_size"></param>
+        /// <param name="width">frame width</param>
+        /// <param name="height">frame height</param>
+        /// <param name="chroma_subsampling">chroma subsampling of images to be decoded</param>
+        /// <param name="output_format">out format</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedPreAllocate(
+                  nvjpegHandle handle,
+                  nvjpegJpegState jpeg_handle,
+                  int batch_size,
+                  int width,
+                  int height,
+                  nvjpegChromaSubsampling chroma_subsampling,
+                  nvjpegOutputFormat output_format);
+
 
         /// <summary>
         /// Decodes batch of images. Output buffers should be large enough to be able to store 
@@ -401,6 +421,16 @@ namespace ManagedCuda.NvJpeg
                 nvjpegInputFormat input_format,
                 int image_width,
                 int image_height,
+                CUstream stream);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegEncodeRetrieveBitstreamDevice(
+                nvjpegHandle handle,
+                nvjpegEncoderState encoder_state,
+                CUdeviceptr data,
+                ref SizeT length,
                 CUstream stream);
 
         /// <summary>

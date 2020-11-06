@@ -46,6 +46,14 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Creates a new Event using <see cref="CUEventFlags.Default"/> 
+        /// </summary>
+        internal CudaEvent(CUevent event_)
+        {
+            _event = event_;
+        }
+
+        /// <summary>
         /// Creates a new Event
         /// </summary>
         /// <param name="flags">Parameters for event creation</param>
@@ -136,6 +144,30 @@ namespace ManagedCuda
         {
             res = DriverAPINativeMethods.Events.cuEventRecord(_event, stream);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuEventRecord", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+
+        /// <summary>
+        /// Records an event
+        /// Captures in \p hEvent the contents of \p hStream at the time of this call.
+        /// \p hEvent and \p hStream must be from the same context.
+        /// Calls such as ::cuEventQuery() or ::cuStreamWaitEvent() will then
+        /// examine or wait for completion of the work that was captured.Uses of
+        /// \p hStream after this call do not modify \p hEvent. See note on default
+        /// stream behavior for what is captured in the default case.
+        /// ::cuEventRecordWithFlags() can be called multiple times on the same event and
+        /// will overwrite the previously captured state.Other APIs such as
+        /// ::cuStreamWaitEvent() use the most recently captured state at the time
+        /// of the API call, and are not affected by later calls to
+        /// ::cuEventRecordWithFlags(). Before the first call to::cuEventRecordWithFlags(), an
+        /// event represents an empty set of work, so for example::cuEventQuery()
+        /// would return ::CUDA_SUCCESS.
+        /// </summary>
+        public void Record(CUstream stream, CUEventRecordFlags flags)
+        {
+            res = DriverAPINativeMethods.Events.cuEventRecordWithFlags(_event, stream, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuEventRecordWithFlags", res));
             if (res != CUResult.Success) throw new CudaException(res);
         }
 

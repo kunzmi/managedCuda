@@ -83,7 +83,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(11, 0); }
+            get { return new Version(11, 1); }
         }
 
         #region Initialization
@@ -192,6 +192,18 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceTotalMem_v2(ref SizeT bytes, CUdevice dev);
 
+            /// <summary>
+            /// Returns the maximum number of elements allocatable in a 1D linear texture for a given texture element size.
+            /// Returns in \p maxWidthInElements the maximum number of texture elements allocatable in a 1D linear texture
+            /// for given \p format and \p numChannels.
+            /// </summary>
+            /// <param name="maxWidthInElements">Returned maximum number of texture elements allocatable for given \p format and \p numChannels.</param>
+            /// <param name="format">Texture format.</param>
+            /// <param name="numChannels">Number of channels per texture element.</param>
+            /// <param name="dev">Device handle.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetTexture1DLinearMaxWidth(ref SizeT maxWidthInElements, CUArrayFormat format, uint numChannels, CUdevice dev);
 
             /// <summary>
             /// Returns in <c>pi</c> the integer value of the attribute <c>attrib</c> on device <c>dev</c>. See <see cref="CUDeviceAttribute"/>.
@@ -355,8 +367,9 @@ namespace ManagedCuda
 			/// <param name="Flags">Flags for this operation. Must be specified as ::CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS</param>
 			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, 
 			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/>, <see cref="CUResult.ErrorTooManyPeers"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuIpcOpenMemHandle(ref CUdeviceptr pdptr, CUipcMemHandle handle, uint Flags);
+			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuIpcOpenMemHandle_v2")]
+
+            public static extern CUResult cuIpcOpenMemHandle(ref CUdeviceptr pdptr, CUipcMemHandle handle, uint Flags);
 			
 			/// <summary>
 			/// Unmaps memory returnd by ::cuIpcOpenMemHandle. The original allocation
@@ -1598,6 +1611,17 @@ namespace ManagedCuda
             /// <param name="flags">flags for future use, must be zero now. </param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemMap(CUdeviceptr ptr, SizeT size, SizeT offset, CUmemGenericAllocationHandle handle, ulong flags);
+
+            /// <summary>
+            /// Maps or unmaps subregions of sparse CUDA arrays and sparse CUDA mipmapped arrays
+            /// </summary>
+            /// <param name="mapInfoList">List of ::CUarrayMapInfo</param>
+            /// <param name="count">Count of ::CUarrayMapInfo  in \p mapInfoList</param>
+            /// <param name="hStream">Stream identifier for the stream to use for map or unmap operations</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "pcuMemMapArrayAsync" + CUDA_PTSZ)]
+            public static extern CUResult pcuMemMapArrayAsync(CUarrayMapInfo[] mapInfoList, uint count, CUstream hStream);
+
 
 
             /// <summary>
@@ -6608,7 +6632,43 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuArrayGetDescriptor_v2( ref CUDAArrayDescriptor pArrayDescriptor, CUarray hArray );
-            
+
+            /// <summary>
+            /// Returns the layout properties of a sparse CUDA array
+            /// Returns the layout properties of a sparse CUDA array in \p sparseProperties
+            /// If the CUDA array is not allocated with flag ::CUDA_ARRAY3D_SPARSE ::CUDA_ERROR_INVALID_VALUE will be returned.
+            /// If the returned value in ::CUDA_ARRAY_SPARSE_PROPERTIES::flags contains ::CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL,
+            /// then::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize represents the total size of the array.Otherwise, it will be zero.
+            /// Also, the returned value in ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailFirstLevel is always zero.
+            /// Note that the \p array must have been allocated using ::cuArrayCreate or::cuArray3DCreate.For CUDA arrays obtained
+            /// using ::cuMipmappedArrayGetLevel, ::CUDA_ERROR_INVALID_VALUE will be returned.Instead, ::cuMipmappedArrayGetSparseProperties
+            /// must be used to obtain the sparse properties of the entire CUDA mipmapped array to which \p array belongs to.
+            /// </summary>
+            /// <param name="sparseProperties">Pointer to ::CUDA_ARRAY_SPARSE_PROPERTIES</param>
+            /// <param name="array"> CUDA array to get the sparse properties of</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuArrayGetSparseProperties(ref CudaArraySparseProperties sparseProperties, CUarray array);
+
+            /// <summary>
+            /// Returns the layout properties of a sparse CUDA mipmapped array
+            /// Returns the sparse array layout properties in \p sparseProperties
+            /// If the CUDA mipmapped array is not allocated with flag ::CUDA_ARRAY3D_SPARSE
+            /// ::CUDA_ERROR_INVALID_VALUE will be returned.
+            /// For non-layered CUDA mipmapped arrays, ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize returns the
+            /// size of the mip tail region.The mip tail region includes all mip levels whose width, height or depth
+            /// is less than that of the tile.
+            /// For layered CUDA mipmapped arrays, if ::CUDA_ARRAY_SPARSE_PROPERTIES::flags contains ::CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL,
+            /// then ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize specifies the size of the mip tail of all layers combined. 
+            /// Otherwise, ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize specifies mip tail size per layer.
+            /// The returned value of::CUDA_ARRAY_SPARSE_PROPERTIES::miptailFirstLevel is valid only if ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize is non-zero.
+            /// </summary>
+            /// <param name="sparseProperties">Pointer to ::CUDA_ARRAY_SPARSE_PROPERTIES</param>
+            /// <param name="mipmap">CUDA mipmapped array to get the sparse properties of</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMipmappedArrayGetSparseProperties(ref CudaArraySparseProperties sparseProperties, CUmipmappedArray mipmap);
+
             /// <summary>
             /// Destroys the CUDA array hArray.
             /// </summary>
@@ -7482,7 +7542,30 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuEventRecord" + CUDA_PTSZ)]
             public static extern CUResult cuEventRecord( CUevent hEvent, CUstream hStream );
-            
+                        
+            /// <summary>
+            /// Records an event
+            /// Captures in \p hEvent the contents of \p hStream at the time of this call.
+            /// \p hEvent and \p hStream must be from the same context.
+            /// Calls such as ::cuEventQuery() or ::cuStreamWaitEvent() will then
+            /// examine or wait for completion of the work that was captured.Uses of
+            /// \p hStream after this call do not modify \p hEvent. See note on default
+            /// stream behavior for what is captured in the default case.
+            /// ::cuEventRecordWithFlags() can be called multiple times on the same event and
+            /// will overwrite the previously captured state.Other APIs such as
+            /// ::cuStreamWaitEvent() use the most recently captured state at the time
+            /// of the API call, and are not affected by later calls to
+            /// ::cuEventRecordWithFlags(). Before the first call to::cuEventRecordWithFlags(), an
+            /// event represents an empty set of work, so for example::cuEventQuery()
+            /// would return ::CUDA_SUCCESS.
+            /// </summary>
+            /// <param name="hEvent">Event to record</param>
+            /// <param name="hStream">Stream to record event for</param>
+            /// <param name="flags">See ::CUevent_capture_flags</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuEventRecordWithFlags" + CUDA_PTSZ)]
+            public static extern CUResult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, CUEventRecordFlags flags);
+
             /// <summary>
             /// Returns <see cref="CUResult.Success"/> if the event has actually been recorded, or <see cref="CUResult.ErrorNotReady"/> if not. If
             /// <see cref="cuEventRecord"/> has not been called on this event, the function returns <see cref="CUResult.ErrorInvalidValue"/>.
@@ -8839,7 +8922,7 @@ namespace ManagedCuda
             /// <param name="memHandleDesc">Memory import handle descriptor</param>
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuImportExternalMemory(ref CUexternalMemory extMem_out, ref CUDA_EXTERNAL_MEMORY_HANDLE_DESC memHandleDesc);
+            public static extern CUResult cuImportExternalMemory(ref CUexternalMemory extMem_out, ref CudaExternalMemoryHandleDesc memHandleDesc);
 
             /// <summary>
             /// Maps a buffer onto an imported memory object<para/>
@@ -8849,7 +8932,7 @@ namespace ManagedCuda
             /// <param name="extMem">Handle to external memory object</param>
             /// <param name="bufferDesc">Buffer descriptor</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuExternalMemoryGetMappedBuffer(ref CUdeviceptr devPtr, CUexternalMemory extMem, ref CUDA_EXTERNAL_MEMORY_BUFFER_DESC bufferDesc);
+            public static extern CUResult cuExternalMemoryGetMappedBuffer(ref CUdeviceptr devPtr, CUexternalMemory extMem, ref CudaExternalMemoryBufferDesc bufferDesc);
 
             /// <summary>
             /// Maps a CUDA mipmapped array onto an external memory object<para/>
@@ -8860,7 +8943,7 @@ namespace ManagedCuda
             /// <param name="extMem">Handle to external memory object</param>
             /// <param name="mipmapDesc">CUDA array descriptor</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuExternalMemoryGetMappedMipmappedArray(ref CUmipmappedArray mipmap, CUexternalMemory extMem, ref CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC mipmapDesc);
+            public static extern CUResult cuExternalMemoryGetMappedMipmappedArray(ref CUmipmappedArray mipmap, CUexternalMemory extMem, ref CudaExternalMemoryMipmappedArrayDesc mipmapDesc);
 
             /// <summary>
             /// Releases all resources associated with an external memory object.<para/>
@@ -8880,7 +8963,7 @@ namespace ManagedCuda
             /// <param name="semHandleDesc">Semaphore import handle descriptor</param>
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuImportExternalSemaphore(ref CUexternalSemaphore extSem_out, ref CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC semHandleDesc);
+            public static extern CUResult cuImportExternalSemaphore(ref CUexternalSemaphore extSem_out, ref CudaExternalSemaphoreHandleDesc semHandleDesc);
 
             /// <summary>
             /// Signals a set of external semaphore objects<para/>
@@ -8896,7 +8979,7 @@ namespace ManagedCuda
             /// <param name="numExtSems">Number of semaphores to signal</param>
             /// <param name="stream">Stream to enqueue the signal operations in</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuSignalExternalSemaphoresAsync" + CUDA_PTSZ)]
-            public static extern CUResult cuSignalExternalSemaphoresAsync([In, Out] CUexternalSemaphore[] extSemArray, [In, Out] CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS[] paramsArray, uint numExtSems, CUstream stream);
+            public static extern CUResult cuSignalExternalSemaphoresAsync([In, Out] CUexternalSemaphore[] extSemArray, [In, Out] CudaExternalSemaphoreSignalParams[] paramsArray, uint numExtSems, CUstream stream);
 
             /// <summary>
             /// Waits on a set of external semaphore objects<para/>
@@ -8910,7 +8993,7 @@ namespace ManagedCuda
             /// <param name="numExtSems">Number of semaphores to wait on</param>
             /// <param name="stream">Stream to enqueue the wait operations in</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuWaitExternalSemaphoresAsync" + CUDA_PTSZ)]
-            public static extern CUResult cuWaitExternalSemaphoresAsync([In, Out] CUexternalSemaphore[] extSemArray, [In, Out] CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS[] paramsArray, uint numExtSems, CUstream stream);
+            public static extern CUResult cuWaitExternalSemaphoresAsync([In, Out] CUexternalSemaphore[] extSemArray, [In, Out] CudaExternalSemaphoreWaitParams[] paramsArray, uint numExtSems, CUstream stream);
 
             /// <summary>
             /// Destroys an external semaphore<para/>
@@ -8962,7 +9045,7 @@ namespace ManagedCuda
             /// <param name="numDependencies">Number of dependencies</param>
             /// <param name="nodeParams">Parameters for the GPU execution node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphAddKernelNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUDA_KERNEL_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphAddKernelNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CudaKernelNodeParams nodeParams);
 
             /// <summary>
             /// Returns a kernel node's parameters<para/>
@@ -8979,7 +9062,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to get the parameters for</param>
             /// <param name="nodeParams">Pointer to return the parameters</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphKernelNodeGetParams(CUgraphNode hNode, ref CUDA_KERNEL_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphKernelNodeGetParams(CUgraphNode hNode, ref CudaKernelNodeParams nodeParams);
 
             /// <summary>
             /// Sets a kernel node's parameters<para/>
@@ -8988,7 +9071,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to set the parameters for</param>
             /// <param name="nodeParams">Parameters to copy</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphKernelNodeSetParams(CUgraphNode hNode, ref CUDA_KERNEL_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphKernelNodeSetParams(CUgraphNode hNode, ref CudaKernelNodeParams nodeParams);
 
             /// <summary>
             /// Creates a memcpy node and adds it to a graph<para/>
@@ -9050,7 +9133,7 @@ namespace ManagedCuda
             /// <param name="memsetParams">Parameters for the memory set</param>
             /// <param name="ctx">Context on which to run the node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphAddMemsetNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUDA_MEMSET_NODE_PARAMS memsetParams, CUcontext ctx);
+            public static extern CUResult cuGraphAddMemsetNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CudaMemsetNodeParams memsetParams, CUcontext ctx);
 
             /// <summary>
             /// Returns a memset node's parameters<para/>
@@ -9059,7 +9142,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to get the parameters for</param>
             /// <param name="nodeParams">Pointer to return the parameters</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphMemsetNodeGetParams(CUgraphNode hNode, ref CUDA_MEMSET_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphMemsetNodeGetParams(CUgraphNode hNode, ref CudaMemsetNodeParams nodeParams);
 
             /// <summary>
             /// Sets a memset node's parameters<para/>
@@ -9068,7 +9151,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to set the parameters for</param>
             /// <param name="nodeParams">Parameters to copy</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphMemsetNodeSetParams(CUgraphNode hNode, ref CUDA_MEMSET_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphMemsetNodeSetParams(CUgraphNode hNode, ref CudaMemsetNodeParams nodeParams);
 
             /// <summary>
             /// Creates a host execution node and adds it to a graph<para/>
@@ -9085,7 +9168,7 @@ namespace ManagedCuda
             /// <param name="numDependencies">Number of dependencies</param>
             /// <param name="nodeParams">Parameters for the host node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphAddHostNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUDA_HOST_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphAddHostNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CudaHostNodeParams nodeParams);
 
             /// <summary>
             /// Returns a host node's parameters<para/>
@@ -9094,7 +9177,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to get the parameters for</param>
             /// <param name="nodeParams">Pointer to return the parameters</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphHostNodeGetParams(CUgraphNode hNode, ref CUDA_HOST_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphHostNodeGetParams(CUgraphNode hNode, ref CudaHostNodeParams nodeParams);
 
             /// <summary>
             /// Sets a host node's parameters<para/>
@@ -9103,7 +9186,7 @@ namespace ManagedCuda
             /// <param name="hNode">Node to set the parameters for</param>
             /// <param name="nodeParams">Parameters to copy</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphHostNodeSetParams(CUgraphNode hNode, ref CUDA_HOST_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphHostNodeSetParams(CUgraphNode hNode, ref CudaHostNodeParams nodeParams);
 
             /// <summary>
             /// Creates a child graph node and adds it to a graph<para/>
@@ -9151,6 +9234,84 @@ namespace ManagedCuda
             /// <param name="numDependencies">Number of dependencies</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphAddEmptyNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies);
+
+
+            /// <summary>
+            /// Creates an event record node and adds it to a graph
+            /// Creates a new event record node and adds it to \p hGraph with \p numDependencies
+            /// dependencies specified via \p dependencies and arguments specified in \p params.
+            /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+            /// at the root of the graph. \p dependencies may not have any duplicate entries.
+            /// A handle to the new node will be returned in \p phGraphNode.
+            /// Each launch of the graph will record \p event to capture execution of the
+            /// node's dependencies.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="event_">Event for the node</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddEventRecordNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CUevent event_);
+            
+            /// <summary>
+            /// Returns the event associated with an event record node
+            /// </summary>
+            /// <param name="hNode">Node to get the event for</param>
+            /// <param name="event_out">Pointer to return the event</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, ref CUevent event_out);
+
+            /// <summary>
+            /// Sets an event record node's event
+            /// </summary>
+            /// <param name="hNode">Node to set the event for</param>
+            /// <param name="event_">Event to use</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event_);
+
+         
+            /// <summary>
+            /// Creates an event wait node and adds it to a graph
+            /// Creates a new event wait node and adds it to \p hGraph with \p numDependencies
+            /// dependencies specified via \p dependencies and arguments specified in \p params.
+            /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+            /// at the root of the graph. \p dependencies may not have any duplicate entries.
+            /// A handle to the new node will be returned in \p phGraphNode.
+            /// The graph node will wait for all work captured in \p event.  See ::cuEventRecord()
+            /// for details on what is captured by an event. \p event may be from a different context
+            /// or device than the launch stream.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="event_">Event for the node</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddEventWaitNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CUevent event_);
+
+            /// <summary>
+            /// Returns the event associated with an event wait node
+            /// </summary>
+            /// <param name="hNode">Node to get the event for</param>
+            /// <param name="event_out">Pointer to return the event</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, ref CUevent event_out);
+
+            /// <summary>
+            /// Sets an event wait node's event
+            /// </summary>
+            /// <param name="hNode">Node to set the event for</param>
+            /// <param name="event_">Event to use</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event_);
+
 
             /// <summary>
             /// Clones a graph<para/>
@@ -9339,7 +9500,7 @@ namespace ManagedCuda
             /// <param name="hNode">kernel node from the graph from which graphExec was instantiated</param>
             /// <param name="nodeParams">Updated Parameters to set</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_KERNEL_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CudaKernelNodeParams nodeParams);
             
 
             /// <summary>
@@ -9354,7 +9515,7 @@ namespace ManagedCuda
             /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
             /// or running launches of \p hGraphExec are not affected by this call.  hNode is also 
             /// not modified by this call.<para/>
-            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operandsâ€™ mappings changed or
+            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operands' mappings changed or
             /// either the original or new memory operands are multidimensional.
             /// </summary>
             /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
@@ -9363,7 +9524,7 @@ namespace ManagedCuda
             /// <param name="ctx">Context on which to run the node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDAMemCpy3D copyParams, CUcontext ctx);
-            
+
 
             /// <summary>
             /// Sets the parameters for a memset node in the given graphExec.<para/>
@@ -9377,7 +9538,7 @@ namespace ManagedCuda
             /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
             /// or running launches of \p hGraphExec are not affected by this call.  hNode is also 
             /// not modified by this call.<para/>
-            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operandâ€™s mappings changed or
+            /// Returns CUDA_ERROR_INVALID_VALUE if the memory operand's mappings changed or
             /// either the original or new memory operand are multidimensional.
             /// </summary>
             /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
@@ -9385,7 +9546,7 @@ namespace ManagedCuda
             /// <param name="memsetParams">The updated parameters to set</param>
             /// <param name="ctx">Context on which to run the node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_MEMSET_NODE_PARAMS memsetParams, CUcontext ctx);
+            public static extern CUResult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CudaMemsetNodeParams memsetParams, CUcontext ctx);
             
 
             /// <summary>
@@ -9401,7 +9562,75 @@ namespace ManagedCuda
             /// <param name="hNode">Host node from the graph which was used to instantiate graphExec</param>
             /// <param name="nodeParams">The updated parameters to set</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUDA_HOST_NODE_PARAMS nodeParams);
+            public static extern CUResult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CudaHostNodeParams nodeParams);
+
+
+
+            /// <summary>
+            /// Updates node parameters in the child graph node in the given graphExec.
+            /// Updates the work represented by \p hNode in \p hGraphExec as though the nodes contained
+            /// in \p hNode's graph had the parameters contained in \p childGraph's nodes at instantiation.
+            /// \p hNode must remain in the graph which was used to instantiate \p hGraphExec.
+            /// Changed edges to and from \p hNode are ignored.
+            /// The modifications only affect future launches of \p hGraphExec.  Already enqueued 
+            /// or running launches of \p hGraphExec are not affected by this call.  \p hNode is also
+            /// not modified by this call.
+            /// The topology of \p childGraph, as well as the node insertion order, must match that
+            /// of the graph contained in \p hNode.  See::cuGraphExecUpdate() for a list of restrictions
+            /// on what can be updated in an instantiated graph.The update is recursive, so child graph
+            /// nodes contained within the top level child graph will also be updated.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">Host node from the graph which was used to instantiate graphExec</param>
+            /// <param name="childGraph">The graph supplying the updated parameters</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraph childGraph);
+
+            /// <summary>
+            /// Sets the event for an event record node in the given graphExec
+            /// Sets the event of an event record node in an executable graph \p hGraphExec.
+            /// The node is identified by the corresponding node \p hNode in the
+            /// non-executable graph, from which the executable graph was instantiated.
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// \p hNode is also not modified by this call.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">event record node from the graph from which graphExec was instantiated</param>
+            /// <param name="event_">Updated event to use</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event_);
+
+            
+            /// <summary>
+            /// Sets the event for an event record node in the given graphExec
+            /// Sets the event of an event record node in an executable graph \p hGraphExec.
+            /// The node is identified by the corresponding node \p hNode in the
+            /// non-executable graph, from which the executable graph was instantiated.
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// \p hNode is also not modified by this call.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">event wait node from the graph from which graphExec was instantiated</param>
+            /// <param name="event_">Updated event to use</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event_);
+            
+            /// <summary>
+            /// Uploads an executable graph in a stream
+            /// Uploads \p hGraphExec to the device in \p hStream without executing it.Uploads of
+            /// the same \p hGraphExec will be serialized.Each upload is ordered behind both any
+            /// previous work in \p hStream and any previous launches of \p hGraphExec.
+            /// </summary>
+            /// <param name="hGraphExec">Executable graph to upload</param>
+            /// <param name="hStream">Stream in which to upload the graph</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphUpload" + CUDA_PTSZ)]
+            public static extern CUResult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream);
 
 
             /// <summary>

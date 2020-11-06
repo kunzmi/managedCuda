@@ -139,6 +139,8 @@ namespace ManagedCuda
 		private int _maxAccessPolicyWindowSize;
 		private bool _GPUDirectRDMAWithCudaVMMSupported;
 		private int _reservedSharedMemoryPerBlock;
+		private bool _sparseCudaArraySupported;
+		private bool _readOnlyHostRegisterSupported;
 
 
 
@@ -1102,6 +1104,24 @@ namespace ManagedCuda
 		{
 			get { return this._reservedSharedMemoryPerBlock; }
 			internal set { this._reservedSharedMemoryPerBlock = value; }
+		}
+
+		/// <summary>
+		/// Device supports sparse CUDA arrays and sparse CUDA mipmapped arrays
+		/// </summary>
+		public bool SparseCudaArraySupported
+		{
+			get { return this._sparseCudaArraySupported; }
+			internal set { this._sparseCudaArraySupported = value; }
+		}
+
+		/// <summary>
+		/// Device supports using the ::cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU
+		/// </summary>
+		public bool ReadOnlyHostRegisterSupported
+		{
+			get { return this._readOnlyHostRegisterSupported; }
+			internal set { this._readOnlyHostRegisterSupported = value; }
 		}
 	}
 }

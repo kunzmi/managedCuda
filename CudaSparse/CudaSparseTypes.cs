@@ -393,21 +393,41 @@ namespace ManagedCuda.CudaSparse
 	public enum SpMMAlg
 	{
 		/// <summary/>
+		[Obsolete("Use CUSPARSE_SPMM_ALG_DEFAULT instead")]
 		CUSPARSE_MM_ALG_DEFAULT = 0,
 		/// <summary>
 		/// non-deterministc results
 		/// </summary>
+		[Obsolete("Use CUSPARSE_SPMM_COO_ALG1 instead")]
 		CUSPARSE_COOMM_ALG1 = 1,
 		/// <summary>
 		/// deterministic results 
 		/// </summary>
-		CUSPARSE_COOMM_ALG2 = 2, 
+		[Obsolete("Use CUSPARSE_SPMM_COO_ALG2 instead")]
+		CUSPARSE_COOMM_ALG2 = 2,
 		/// <summary>
 		/// non-deterministc results, for large matrices
 		/// </summary>
-		CUSPARSE_COOMM_ALG3 = 3, 
+		[Obsolete("Use CUSPARSE_SPMM_COO_ALG3 instead")]
+		CUSPARSE_COOMM_ALG3 = 3,
 		/// <summary/>
+		[Obsolete("Use CUSPARSE_SPMM_CSR_ALG1 instead")]
 		CUSPARSE_CSRMM_ALG1 = 4,
+
+		/// <summary/>
+		CUSPARSE_SPMM_ALG_DEFAULT = 0,
+		/// <summary/>
+		CUSPARSE_SPMM_COO_ALG1 = 1,
+		/// <summary/>
+		CUSPARSE_SPMM_COO_ALG2 = 2,
+		/// <summary/>
+		CUSPARSE_SPMM_COO_ALG3 = 3,
+		/// <summary/>
+		CUSPARSE_SPMM_COO_ALG4 = 5,
+		/// <summary/>
+		CUSPARSE_SPMM_CSR_ALG1 = 4,
+		/// <summary/>
+		CUSPARSE_SPMM_CSR_ALG2 = 6,
 	}
 
 	/// <summary>

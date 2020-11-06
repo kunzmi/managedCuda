@@ -520,19 +520,19 @@ namespace ManagedCuda.CudaSolve
 
 		#region Row pivoting
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnSlaswp(cusolverDnHandle handle, int n, CUdeviceptr A, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
 
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnDlaswp(cusolverDnHandle handle, int n, CUdeviceptr A, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
 
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnClaswp(cusolverDnHandle handle, int n, CUdeviceptr A, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
 
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnZlaswp(cusolverDnHandle handle, int n, CUdeviceptr A, int lda, int k1, int k2, CUdeviceptr devIpiv, int incx);
 		#endregion
 
@@ -961,11 +961,11 @@ namespace ManagedCuda.CudaSolve
 		}
 
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnSsytrd(cusolverDnHandle handle, char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
 
 		///// <summary/>
-		//[DllImport(CUSOLVE_API_DLL_NAME)]
+		//
 		//public static extern cusolverStatus cusolverDnDsytrd(cusolverDnHandle handle, char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
 		#endregion
 
@@ -3735,6 +3735,7 @@ namespace ManagedCuda.CudaSolve
 		#endregion
 
 		#region 64Bit
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public SizeT Potrf_bufferSize(Params parameters,
 			FillMode uplo,
 			long n,
@@ -3749,6 +3750,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 			return workspaceInBytes;
 		}
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public SizeT Geqrf_bufferSize(Params parameters,
 			long m,
 			long n,
@@ -3765,6 +3767,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 			return workspaceInBytes;
 		}
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public SizeT Getrf_bufferSize(Params parameters,
 			long m,
 			long n,
@@ -3779,6 +3782,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 			return workspaceInBytes;
 		}
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public SizeT Syevd_bufferSize(Params parameters,
 			cusolverEigMode jobz,
 			FillMode uplo,
@@ -3797,6 +3801,7 @@ namespace ManagedCuda.CudaSolve
 			return workspaceInBytes;
 		}
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public SizeT Syevdx_bufferSize(Params parameters,
 			cusolverEigMode jobz,
 			cusolverEigRange range,
@@ -3826,6 +3831,7 @@ namespace ManagedCuda.CudaSolve
 
 
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Potrf(Params parameters, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			cudaDataType computeType, CudaDeviceVariable<byte> work, CudaDeviceVariable<int> info)
 		{
@@ -3833,6 +3839,7 @@ namespace ManagedCuda.CudaSolve
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnPotrf", res));
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 		}
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Potrs(Params parameters, FillMode uplo, long n, long nrhs, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			cudaDataType dataTypeB, CUdeviceptr B, long ldb, CudaDeviceVariable<int> info)
 		{
@@ -3841,6 +3848,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 		}
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Geqrf(Params parameters, long m, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			cudaDataType dataTypeTau, CUdeviceptr tau, cudaDataType computeType, CudaDeviceVariable<byte> work, CudaDeviceVariable<int> info)
 		{
@@ -3849,6 +3857,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 		}
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Getrf(Params parameters, long m, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			CudaDeviceVariable<long> ipiv, cudaDataType computeType, CudaDeviceVariable<byte> work, CudaDeviceVariable<int> info)
 		{
@@ -3857,6 +3866,7 @@ namespace ManagedCuda.CudaSolve
 			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
 		}
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Getrs(Params parameters, Operation trans, long n, long nrhs, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			CudaDeviceVariable<long> ipiv, cudaDataType dataTypeB, CUdeviceptr B, long ldb, CudaDeviceVariable<int> info)
 		{
@@ -3866,6 +3876,7 @@ namespace ManagedCuda.CudaSolve
 		}
 
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public void Syevd(Params parameters, cusolverEigMode jobz, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			cudaDataType dataTypeW, CUdeviceptr W, cudaDataType computeType, CudaDeviceVariable<byte> work, CudaDeviceVariable<int> info)
 		{
@@ -3875,6 +3886,7 @@ namespace ManagedCuda.CudaSolve
 		}
 
 
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public long Syevdx(Params parameters, cusolverEigMode jobz, cusolverEigRange range, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
 			IntPtr vl, IntPtr vu, long il, long iu, cudaDataType dataTypeW, CUdeviceptr W,
 			cudaDataType computeType, CudaDeviceVariable<byte> work, CudaDeviceVariable<int> info)
@@ -3891,6 +3903,302 @@ namespace ManagedCuda.CudaSolve
 
 
 
+		#endregion
+
+		#region new 64-bit API
+		#region 64-bit API for POTRF
+
+		
+		public void XpotrfBufferSize(
+			Params parameters,
+			FillMode uplo,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXpotrf_bufferSize(_handle, parameters.ParamsHandle, uplo, n, dataTypeA, A, lda, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXpotrf_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+
+		public void Xpotrf(
+			Params parameters, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			 cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXpotrf(_handle, parameters.ParamsHandle, uplo, n, dataTypeA, A, lda, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXpotrf", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for POTRS */
+
+		public void Xpotrs(Params parameters, FillMode uplo, long n, long nrhs, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			cudaDataType dataTypeB, CUdeviceptr B, long ldb, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXpotrs(_handle, parameters.ParamsHandle, uplo, n, nrhs, dataTypeA, A, lda, dataTypeB, B, ldb, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXpotrs", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for GEQRF */
+
+		public void XgeqrfBufferSize(Params parameters,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeTau,
+			CUdeviceptr tau,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgeqrf_bufferSize(_handle, parameters.ParamsHandle, m, n, dataTypeA, A, lda, dataTypeTau, tau, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgeqrf_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		
+		public void Xgeqrf(Params parameters, long m, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			cudaDataType dataTypeTau, CUdeviceptr tau, cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgeqrf(_handle, parameters.ParamsHandle, m, n, dataTypeA, A, lda, dataTypeTau, tau, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgeqrf", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for GETRF */
+
+		public void XgetrfBufferSize(
+			Params parameters,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgetrf_bufferSize(_handle, parameters.ParamsHandle, m, n, dataTypeA, A, lda, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgetrf_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		
+		public void Xgetrf(Params parameters, long m, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			CudaDeviceVariable<long> ipiv, cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgetrf(_handle, parameters.ParamsHandle, m, n, dataTypeA, A, lda, ipiv.DevicePointer, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgetrf", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for GETRS */
+
+		public void Xgetrs(Params parameters, Operation trans, long n, long nrhs, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			CudaDeviceVariable<long> ipiv, cudaDataType dataTypeB, CUdeviceptr B, long ldb, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgetrs(_handle, parameters.ParamsHandle, trans, n, nrhs, dataTypeA, A, lda, ipiv.DevicePointer, dataTypeB, B, ldb, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgetrs", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+	}
+
+		/* 64-bit API for SYEVD */
+
+		public void XsyevdBufferSize(
+				Params parameters,
+				cusolverEigMode jobz,
+				FillMode uplo,
+				long n,
+				cudaDataType dataTypeA,
+				CUdeviceptr A,
+				long lda,
+				cudaDataType dataTypeW,
+				CUdeviceptr W,
+				cudaDataType computeType,
+				ref SizeT workspaceInBytesOnDevice,
+				ref SizeT workspaceInBytesOnHost)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXsyevd_bufferSize(_handle, parameters.ParamsHandle, jobz, uplo, n, dataTypeA, A, lda, dataTypeW, W, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevd_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		
+		public void Xsyevd(Params parameters, cusolverEigMode jobz, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			cudaDataType dataTypeW, CUdeviceptr W, cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXsyevd(_handle, parameters.ParamsHandle, jobz, uplo, n, dataTypeA, A, lda, dataTypeW, W, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevd", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for SYEVDX */
+
+		public void XsyevdxBufferSize(
+			Params parameters,
+			cusolverEigMode jobz,
+			cusolverEigRange range,
+			FillMode uplo,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			IntPtr vl,
+			IntPtr vu,
+			long il,
+			long iu,
+			ref long h_meig,
+			cudaDataType dataTypeW,
+			CUdeviceptr W,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			res = CudaSolveNativeMethods.Dense.cusolverDnXsyevdx_bufferSize(_handle, parameters.ParamsHandle, jobz, range, uplo, n, dataTypeA, A, lda, vl, vu, il, iu, ref h_meig, dataTypeW, W, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevdx_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+
+		public long Xsyevdx(Params parameters, cusolverEigMode jobz, cusolverEigRange range, FillMode uplo, long n, cudaDataType dataTypeA, CUdeviceptr A, long lda,
+			IntPtr vl, IntPtr vu, long il, long iu, cudaDataType dataTypeW, CUdeviceptr W,
+			cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			long h_meig = 0;
+			res = CudaSolveNativeMethods.Dense.cusolverDnXsyevdx(_handle, parameters.ParamsHandle, jobz, range, uplo, n, dataTypeA, A, lda, vl, vu, il, iu,
+				ref h_meig, dataTypeW, W, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevdx", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+			return h_meig;
+		}
+
+		/* 64-bit API for GESVD */
+
+		public void XgesvdBufferSize(
+			Params parameters,
+			char jobu,
+			char jobvt,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeS,
+			CUdeviceptr S,
+			cudaDataType dataTypeU,
+			CUdeviceptr U,
+			long ldu,
+			cudaDataType dataTypeVT,
+			CUdeviceptr VT,
+			long ldvt,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			sbyte jobusb = Convert.ToSByte(jobu);
+			sbyte jobvtsb = Convert.ToSByte(jobvt);
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgesvd_bufferSize(_handle, parameters.ParamsHandle, jobusb, jobvtsb, m, n, dataTypeA, A, lda, dataTypeS, S, dataTypeU, U,
+				ldu, dataTypeVT, VT, ldvt, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgesvd_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		
+		public void Xgesvd(
+			Params parameters,
+			char jobu,
+			char jobvt,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeS,
+			CUdeviceptr S,
+			cudaDataType dataTypeU,
+			CUdeviceptr U,
+			long ldu,
+			cudaDataType dataTypeVT,
+			CUdeviceptr VT,
+			long ldvt,
+			cudaDataType computeType,
+			CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			sbyte jobusb = Convert.ToSByte(jobu);
+			sbyte jobvtsb = Convert.ToSByte(jobvt);
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgesvd(_handle, parameters.ParamsHandle, jobusb, jobvtsb, m, n, dataTypeA, A, lda, dataTypeS, S, dataTypeU, U,
+				ldu, dataTypeVT, VT, ldvt, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgesvd", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+		/* 64-bit API for GESVDP */
+
+		public void XgesvdpBufferSize(
+			Params parameters,
+			cusolverEigMode jobz,
+			int econ,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeS,
+			CUdeviceptr S,
+			cudaDataType dataTypeU,
+			CUdeviceptr U,
+			long ldu,
+			cudaDataType dataTypeV,
+			CUdeviceptr V,
+			long ldv,
+			cudaDataType computeType,
+			ref SizeT workspaceInBytesOnDevice,
+			ref SizeT workspaceInBytesOnHost)
+		{
+			
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgesvdp_bufferSize(_handle, parameters.ParamsHandle, jobz, econ, m, n, dataTypeA, A, lda, dataTypeS, S, dataTypeU, U,
+				ldu, dataTypeV, V, ldv, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgesvdp_bufferSize", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+		}
+
+
+		public double Xgesvdp(
+			Params parameters,
+			cusolverEigMode jobz,
+			int econ,
+			long m,
+			long n,
+			cudaDataType dataTypeA,
+			CUdeviceptr A,
+			long lda,
+			cudaDataType dataTypeS,
+			CUdeviceptr S,
+			cudaDataType dataTypeU,
+			CUdeviceptr U,
+			long ldu,
+			cudaDataType dataTypeV,
+			CUdeviceptr V,
+			long ldv,
+			cudaDataType computeType,
+			CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+		{
+			double h_sigma_err = 0;			
+			res = CudaSolveNativeMethods.Dense.cusolverDnXgesvdp(_handle, parameters.ParamsHandle, jobz, econ, m, n, dataTypeA, A, lda, dataTypeS, S, dataTypeU, U,
+				ldu, dataTypeV, V, ldv, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer, ref h_sigma_err);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgesvdp", res));
+			if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+			return h_sigma_err;
+		}
+		#endregion
 		#endregion
 	}
 }

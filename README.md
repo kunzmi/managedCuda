@@ -9,7 +9,7 @@ or
 ManagedCUDA aims an easy integration of NVidia's CUDA in .net applications written in C#, Visual Basic or any other .net language.
 
 For this it includes:
-- A complete wrapper for the  CUDA Driver API, version 11.0 (a 1:1 representation of cuda.h in C#) 
+- A complete wrapper for the  CUDA Driver API, version 11.1 (a 1:1 representation of cuda.h in C#) 
 - Based on this, wrapper classes for CUDA context, kernel, device variable, etc. 
 - Wrapper for graphics interop with DirectX and OpenGL, respectively SlimDX and OpenTK 
 - CUDA vector types like int2, float3 etc. with ToString() methods and operators (+, –, *, /) 

@@ -266,6 +266,31 @@ namespace ManagedCuda
 
 			return array;
 		}
+
+		/// <summary>
+		/// Returns the layout properties of a sparse CUDA mipmapped array
+		/// Returns the sparse array layout properties in \p sparseProperties
+		/// If the CUDA mipmapped array is not allocated with flag ::CUDA_ARRAY3D_SPARSE
+		/// ::CUDA_ERROR_INVALID_VALUE will be returned.
+		/// For non-layered CUDA mipmapped arrays, ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize returns the
+		/// size of the mip tail region.The mip tail region includes all mip levels whose width, height or depth
+		/// is less than that of the tile.
+		/// For layered CUDA mipmapped arrays, if ::CUDA_ARRAY_SPARSE_PROPERTIES::flags contains ::CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL,
+		/// then ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize specifies the size of the mip tail of all layers combined. 
+		/// Otherwise, ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize specifies mip tail size per layer.
+		/// The returned value of::CUDA_ARRAY_SPARSE_PROPERTIES::miptailFirstLevel is valid only if ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize is non-zero.
+		/// </summary>
+		public CudaArraySparseProperties GetSparseProperties()
+		{
+			CudaArraySparseProperties sparseProperties = new CudaArraySparseProperties();
+
+			res = DriverAPINativeMethods.ArrayManagement.cuMipmappedArrayGetSparseProperties(ref sparseProperties, _mipmappedArray);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMipmappedArrayGetSparseProperties", res));
+			if (res != CUResult.Success)
+				throw new CudaException(res);
+
+			return sparseProperties;
+		}
 		#endregion
 
 		#region Properties

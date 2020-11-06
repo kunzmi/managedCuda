@@ -5979,6 +5979,18 @@ namespace ManagedCuda
 			if (res != CUResult.Success) throw new CudaException(res);
 			props.ReservedSharedMemoryPerBlock = reservedSharedMemoryPerBlock;
 
+			int sparseCudaArraySupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref sparseCudaArraySupported, CUDeviceAttribute.SparseCudaArraySupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.SparseCudaArraySupported = sparseCudaArraySupported > 0;
+
+			int readOnlyHostRegisterSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref readOnlyHostRegisterSupported, CUDeviceAttribute.ReadOnlyHostRegisterSupported, device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			props.ReadOnlyHostRegisterSupported = readOnlyHostRegisterSupported > 0;
+
 			return props;
 		}
 
@@ -6081,6 +6093,26 @@ namespace ManagedCuda
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxResetPersistingL2Cache", res));
 			if (res != CUResult.Success)
 				throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Returns the maximum number of elements allocatable in a 1D linear texture for a given texture element size.
+		/// Returns in \p maxWidthInElements the maximum number of texture elements allocatable in a 1D linear texture
+		/// for given \p format and \p numChannels.
+		/// </summary>
+		/// <param name="format">Texture format.</param>
+		/// <param name="numChannels">Number of channels per texture element.</param>
+		/// <param name="dev"></param>
+		/// <returns>Returned maximum number of texture elements allocatable for given \p format and \p numChannels.</returns>
+		public SizeT GetTexture1DLinearMaxWidth(CUArrayFormat format, uint numChannels, CUdevice dev)
+		{ 
+			CUResult res;
+			SizeT maxWidthInElements = new SizeT();
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetTexture1DLinearMaxWidth(ref maxWidthInElements, format, numChannels, _device);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetTexture1DLinearMaxWidth", res));
+			if (res != CUResult.Success)
+				throw new CudaException(res);
+			return maxWidthInElements;
 		}
 		#endregion
 

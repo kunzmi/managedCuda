@@ -240,35 +240,43 @@ namespace ManagedCuda.CudaSparse
 		#region ref host
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSaxpyi(cusparseContext handle, int nnz, ref float alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDaxpyi(cusparseContext handle, int nnz, ref double alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCaxpyi(cusparseContext handle, int nnz, ref cuFloatComplex alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZaxpyi(cusparseContext handle, int nnz, ref cuDoubleComplex alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 		#endregion
 		#region ref device
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 		#endregion
 
@@ -280,54 +288,66 @@ namespace ManagedCuda.CudaSparse
 		sparse vector x. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/* Description: Gather of non-zero elements from desne vector y into 
 		sparse vector x (also replacing these elements in y by zeros). */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
 
 		/* Description: Scatter of elements of the sparse vector x into 
 		dense vector y. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
 
 		/* Description: Givens rotation, where c and s are cosine and sine, 
@@ -335,10 +355,12 @@ namespace ManagedCuda.CudaSparse
 		#region ref host
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, ref float c, ref float s, IndexBase idxBase);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, ref double c, ref double s, IndexBase idxBase);
 		#endregion
 		#region ref device
@@ -1335,6 +1357,7 @@ namespace ManagedCuda.CudaSparse
 		#region ref host
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
                                              int m,
                                              int n,
@@ -1352,6 +1375,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
                                              int m,
                                              int n,
@@ -1369,6 +1393,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
                                              int m,
                                              int n,
@@ -1386,6 +1411,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
                                              int m,
                                              int n,
@@ -1405,6 +1431,7 @@ namespace ManagedCuda.CudaSparse
 		#region ref device
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
 											 int m,
 											 int n,
@@ -1422,6 +1449,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
 											 int m,
 											 int n,
@@ -1439,6 +1467,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
 											 int m,
 											 int n,
@@ -1456,6 +1485,7 @@ namespace ManagedCuda.CudaSparse
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated in Cuda version 11.1")]
 		public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
 											 int m,
 											 int n,
@@ -8286,6 +8316,18 @@ namespace ManagedCuda.CudaSparse
 		public static extern cusparseStatus cusparseSpMatGetStridedBatch(cusparseSpMatDescr spMatDescr,
 							 ref int batchCount);
 
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCooSetStridedBatch(cusparseSpMatDescr spMatDescr,
+							int batchCount,
+							long batchStride);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCsrSetStridedBatch(cusparseSpMatDescr spMatDescr,
+							int batchCount,
+							long offsetsBatchStride,
+							long columnsValuesBatchStride);
+
+
 		//------------------------------------------------------------------------------
 		// ### CSR ###
 
@@ -8420,6 +8462,43 @@ namespace ManagedCuda.CudaSparse
 		// #############################################################################
 		// # SPARSE VECTOR-VECTOR MULTIPLICATION
 		// #############################################################################
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
+			  IntPtr alpha,
+			  cusparseSpVecDescr vecX,
+              IntPtr beta,
+			  cusparseDnVecDescr vecY);
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
+			  CUdeviceptr alpha,
+			  cusparseSpVecDescr vecX,
+			  CUdeviceptr beta,
+			  cusparseDnVecDescr vecY);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseGather(cusparseContext handle,
+			   cusparseDnVecDescr vecY,
+			   cusparseSpVecDescr vecX);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseScatter(cusparseContext handle,
+				cusparseSpVecDescr vecX,
+				cusparseDnVecDescr vecY);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseRot(cusparseContext handle,
+			IntPtr c_coeff,
+			IntPtr s_coeff,
+			cusparseSpVecDescr vecX,
+            cusparseDnVecDescr vecY);
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseRot(cusparseContext handle,
+			CUdeviceptr c_coeff,
+			CUdeviceptr s_coeff,
+			cusparseSpVecDescr vecX,
+            cusparseDnVecDescr vecY);
+
 
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseSpVV_bufferSize(cusparseContext handle,

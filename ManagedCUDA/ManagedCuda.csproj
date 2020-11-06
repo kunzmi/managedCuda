@@ -57,6 +57,9 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BasicTypes.cs" />
+    <Compile Include="BasicTypesEnum.cs" />
+    <Compile Include="BasicTypesStructAsTypes.cs" />
+    <Compile Include="BasicTypeStruct.cs" />
     <Compile Include="CudaContext.cs" />
     <Compile Include="CudaArray1D.cs" />
     <Compile Include="CudaArray2D.cs" />

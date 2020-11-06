@@ -77,6 +77,10 @@ namespace ManagedCuda.CudaBlas
 		/// <summary>
 		/// </summary>
 		[DllImport(CUBLAS_API_DLL_NAME)]
+		public static extern CublasStatus cublasSetWorkspace_v2(CudaBlasHandle handle, CUdeviceptr workspace, SizeT workspaceSizeInBytes);
+		/// <summary>
+		/// </summary>
+		[DllImport(CUBLAS_API_DLL_NAME)]
 		public static extern CublasStatus cublasSetStream_v2(CudaBlasHandle handle, CUstream streamId);
 		/// <summary>
 		/// </summary>

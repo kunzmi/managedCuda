@@ -162,6 +162,14 @@ namespace ManagedCuda.NvJpeg
 				throw new NvJpegException(res);
 		}
 
+		public void DecodeBatchedPreAllocate(int batch_size, int width, int height, nvjpegChromaSubsampling chroma_subsampling, nvjpegOutputFormat output_format)
+		{
+			res = NvJpegNativeMethods.nvjpegDecodeBatchedPreAllocate(_nvJpeg.Handle, _state, batch_size, width, height, chroma_subsampling, output_format);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegDecodeBatchedPreAllocate", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+		}
+
 		public void DecodeBatchedInitialize(IntPtr[] data, SizeT[] lengths, nvjpegImage[] destinations, CUstream stream)
 		{
 			res = NvJpegNativeMethods.nvjpegDecodeBatched(_nvJpeg.Handle, _state, data, lengths, destinations, stream);

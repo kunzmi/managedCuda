@@ -381,6 +381,29 @@ namespace ManagedCuda
             if (res != CUResult.Success)
                 throw new CudaException(res);
         }
+
+        /// <summary>        /// 
+        /// Returns the layout properties of a sparse CUDA array
+        /// Returns the layout properties of a sparse CUDA array in \p sparseProperties
+        /// If the CUDA array is not allocated with flag ::CUDA_ARRAY3D_SPARSE ::CUDA_ERROR_INVALID_VALUE will be returned.
+        /// If the returned value in ::CUDA_ARRAY_SPARSE_PROPERTIES::flags contains ::CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL,
+        /// then::CUDA_ARRAY_SPARSE_PROPERTIES::miptailSize represents the total size of the array.Otherwise, it will be zero.
+        /// Also, the returned value in ::CUDA_ARRAY_SPARSE_PROPERTIES::miptailFirstLevel is always zero.
+        /// Note that the \p array must have been allocated using ::cuArrayCreate or::cuArray3DCreate.For CUDA arrays obtained
+        /// using ::cuMipmappedArrayGetLevel, ::CUDA_ERROR_INVALID_VALUE will be returned.Instead, ::cuMipmappedArrayGetSparseProperties
+        /// must be used to obtain the sparse properties of the entire CUDA mipmapped array to which \p array belongs to.
+        /// </summary>
+        public CudaArraySparseProperties GetSparseProperties()
+        {
+            CudaArraySparseProperties sparseProperties = new CudaArraySparseProperties();
+
+            res = DriverAPINativeMethods.ArrayManagement.cuArrayGetSparseProperties(ref sparseProperties, _cuArray);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuArrayGetSparseProperties", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            return sparseProperties;
+        }
         #endregion
 
         #region Properties

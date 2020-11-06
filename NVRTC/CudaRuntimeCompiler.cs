@@ -197,6 +197,26 @@ namespace ManagedCuda.NVRTC
 		}
 
 		/// <summary/>
+		public byte[] GetCubin()
+		{
+			SizeT cubinSize = new SizeT();
+
+			res = NVRTCNativeMethods.nvrtcGetCUBINSize(_program, ref cubinSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBINSize", res));
+			if (res != nvrtcResult.Success)
+				throw new NVRTCException(res);
+
+			byte[] cubinCode = new byte[cubinSize];
+
+			res = NVRTCNativeMethods.nvrtcGetCUBIN(_program, cubinCode);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBIN", res));
+			if (res != nvrtcResult.Success)
+				throw new NVRTCException(res);
+
+			return cubinCode;
+		}
+
+		/// <summary/>
 		public string GetPTXAsString()
 		{
 			byte[] ptxCode = GetPTX();

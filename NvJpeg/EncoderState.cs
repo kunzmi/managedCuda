@@ -115,6 +115,23 @@ namespace ManagedCuda.NvJpeg
 		/// <summary>
 		/// Retrieves the compressed stream from the encoder state that was previously used in one of the encoder functions.
 		/// </summary>
+		/// <param name="ptr">Pointer to the buffer in the device memory where the compressed stream will be stored. Can be NULL</param>
+		/// <param name="stream">CUDA stream where all the required device operations will be placed.</param>
+		/// <returns>On return the NVJPEG library will give the actual compressed stream size in this value.</returns>
+		public SizeT RetrieveBitstream(CudaDeviceVariable<byte> ptr, CudaStream stream)
+		{
+			SizeT length = ptr.SizeInBytes;
+			res = NvJpegNativeMethods.nvjpegEncodeRetrieveBitstreamDevice(_nvJpeg.Handle, _state, ptr.DevicePointer, ref length, stream.Stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegEncodeRetrieveBitstreamDevice", res));
+			if (res != nvjpegStatus.Success)
+				throw new NvJpegException(res);
+
+			return length;
+		}
+
+		/// <summary>
+		/// Retrieves the compressed stream from the encoder state that was previously used in one of the encoder functions.
+		/// </summary>
 		/// <param name="ptr">Pointer to the buffer in the host memory where the compressed stream will be stored. Can be NULL</param>
 		/// <param name="length">input buffer size.</param>
 		/// <param name="stream">CUDA stream where all the required device operations will be placed.</param>
