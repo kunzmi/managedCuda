@@ -2758,18 +2758,45 @@ namespace ManagedCuda.BasicTypes
 	///  ::CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT
 	///   then 'name' must be NULL.
 	/// </summary>
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
 	public struct Win32Handle
 	{
 		/// <summary>
 		/// Valid NT handle. Must be NULL if 'name' is non-NULL
 		/// </summary>
+		[FieldOffset(0)]
 		public IntPtr handle;
 		/// <summary>
 		/// Name of a valid memory object. Must be NULL if 'handle' is non-NULL.
 		/// </summary>
+		[FieldOffset(8)]
 		[MarshalAs(UnmanagedType.LPStr)]
-		string name;
+		public string name;
+	}
+
+	/// <summary>
+	/// </summary>
+	[StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
+	public struct HandleUnion
+	{
+		/// <summary>
+		/// File descriptor referencing the memory object. Valid when type is CUDA_EXTERNAL_MEMORY_DEDICATED
+		/// </summary>
+		[FieldOffset(0)]
+		public int fd;
+
+		/// <summary>
+		/// Win32 handle referencing the semaphore object.
+		/// </summary>
+		[FieldOffset(0)]
+		public Win32Handle win32;
+
+		/// <summary>
+		/// A handle representing an NvSciBuf Object.Valid when type
+		/// is ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF
+		/// </summary>
+		[FieldOffset(0)]
+		public IntPtr nvSciBufObject;
 	}
 
 	/// <summary>
@@ -2785,39 +2812,26 @@ namespace ManagedCuda.BasicTypes
 		public CUexternalMemoryHandleType type;
 
 		/// <summary>
-		/// File descriptor referencing the memory object. Valid when type is CUDA_EXTERNAL_MEMORY_DEDICATED
+		/// 
 		/// </summary>
-		[FieldOffset(4)]
-		public int fd;
-
-		/// <summary>
-		/// Win32 handle referencing the semaphore object.
-		/// </summary>
-		[FieldOffset(4)]
-		public Win32Handle handle;
-
-		/// <summary>
-		/// A handle representing an NvSciBuf Object.Valid when type
-		/// is ::CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF
-		/// </summary>
-		[FieldOffset(4)]
-		public IntPtr nvSciBufObject;
+		[FieldOffset(8)]
+		public HandleUnion handle;
 
 		/// <summary>
 		/// Size of the memory allocation
 		/// </summary>
-		[FieldOffset(20)]
+		[FieldOffset(24)]
 		public ulong size;
 
 		/// <summary>
 		/// Flags must either be zero or ::CUDA_EXTERNAL_MEMORY_DEDICATED
 		/// </summary>
-		[FieldOffset(28)]
+		[FieldOffset(32)]
 		public CudaExternalMemory flags;
 
 		//Original struct definition in cuda-header sets a unsigned int[16] array at the end of the struct.
-		//To get the same struct size (96 bytes), we simply put an uint at FieldOffset 92.
-		[FieldOffset(92)]
+		//To get the same struct size (104 bytes), we simply put an uint at FieldOffset 100.
+		[FieldOffset(100)]
 		private uint reserved;
 	}
 
@@ -2832,34 +2846,22 @@ namespace ManagedCuda.BasicTypes
 		/// Type of the handle
 		/// </summary>
 		[FieldOffset(0)]
-		CUexternalSemaphoreHandleType type;
-
+		public CUexternalSemaphoreHandleType type;
+		
 		/// <summary>
-		/// File descriptor referencing the semaphore object. Valid when type is CUDA_EXTERNAL_MEMORY_DEDICATED
+		/// 
 		/// </summary>
-		[FieldOffset(4)]
-		public int fd;
-
-		/// <summary>
-		/// Win32 handle referencing the semaphore object.
-		/// </summary>
-		[FieldOffset(4)]
-		public Win32Handle handle;
-
-		/// <summary>
-		/// Valid NvSciSyncObj. Must be non NULL
-		/// </summary>
-		[FieldOffset(4)]
-		public IntPtr nvSciSyncObj;
+		[FieldOffset(8)]
+		public HandleUnion handle;
 		/// <summary>
 		/// Flags reserved for the future. Must be zero.
 		/// </summary>
-		[FieldOffset(20)]
+		[FieldOffset(32)]
 		public uint flags;
 
 		//Original struct definition in cuda-header sets a unsigned int[16] array at the end of the struct.
-		//To get the same struct size (88 bytes), we simply put an uint at FieldOffset 84.
-		[FieldOffset(84)]
+		//To get the same struct size (96 bytes), we simply put an uint at FieldOffset 92.
+		[FieldOffset(92)]
 		private uint reserved;
 	}
 
@@ -2867,54 +2869,52 @@ namespace ManagedCuda.BasicTypes
 	/// <summary>
 	/// External memory buffer descriptor
 	/// </summary>
-	[StructLayout(LayoutKind.Explicit)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct CudaExternalMemoryBufferDesc
 	{
 		/// <summary>
 		/// Offset into the memory object where the buffer's base is
 		/// </summary>
-		[FieldOffset(0)]
+		//[FieldOffset(0)]
 		public ulong offset;
 		/// <summary>
 		/// Size of the buffer
 		/// </summary>
-		[FieldOffset(8)]
+		//[FieldOffset(8)]
 		public ulong size;
 		/// <summary>
 		/// Flags reserved for future use. Must be zero.
 		/// </summary>
-		[FieldOffset(16)]
+		//[FieldOffset(16)]
 		public uint flags;
 
-		[FieldOffset(32)] //instead of uint[16]
-		private uint reserved;
+		//[FieldOffset(84)] //instead of uint[16]
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U4)]
+		private uint[] reserved;
 	}
 
 
 	/// <summary>
 	/// External memory mipmap descriptor
 	/// </summary>
-	[StructLayout(LayoutKind.Explicit)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct CudaExternalMemoryMipmappedArrayDesc
 	{
 		/// <summary>
 		/// Offset into the memory object where the base level of the mipmap chain is.
 		/// </summary>
-		[FieldOffset(0)]
 		public ulong offset;
 		/// <summary>
 		/// Format, dimension and type of base level of the mipmap chain
 		/// </summary>
-		[FieldOffset(8)]
 		public CUDAArray3DDescriptor arrayDesc;
 		/// <summary>
 		/// Total number of levels in the mipmap chain
 		/// </summary>
-		[FieldOffset(12)]
 		public uint numLevels;
 
-		[FieldOffset(24)] //instead of uint[16]
-		private uint reserved;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U4)]
+		private uint[] reserved;
 	}
 
 
@@ -2942,7 +2942,7 @@ namespace ManagedCuda.BasicTypes
 				public ulong value;
 			}
 			[FieldOffset(0)]
-			Fence fence;
+			public Fence fence;
 			/// <summary>
 			/// Pointer to NvSciSyncFence. Valid if CUexternalSemaphoreHandleType
 			/// is of type CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC.
@@ -2956,7 +2956,7 @@ namespace ManagedCuda.BasicTypes
 				public IntPtr fence;
 			}
 			[FieldOffset(8)]
-			NvSciSync nvSciSync;
+			public NvSciSync nvSciSync;
 
 			/// <summary>
 			/// Parameters for keyed mutex objects
@@ -2968,19 +2968,15 @@ namespace ManagedCuda.BasicTypes
 				/// Value of key to acquire the mutex with
 				/// </summary>
 				public ulong key;
-				/// <summary>
-				/// Timeout in milliseconds to wait to acquire the mutex
-				/// </summary>
-				public uint timeoutMs;
 			}
 			[FieldOffset(16)]
-			NvSciSync keyedMutex;
+			public KeyedMutex keyedMutex;
 
 			[FieldOffset(68)] //params.reserved[9];
 			private uint reserved;
 		}
 		[FieldOffset(0)]
-		Parameters parameters;
+		public Parameters parameters;
 		/// <summary>
 		/// Flags reserved for the future. Must be zero.
 		/// </summary>
@@ -3015,18 +3011,49 @@ namespace ManagedCuda.BasicTypes
 				public ulong value;
 			}
 			[FieldOffset(0)]
-			Fence fence;
+			public Fence fence;
+			/// <summary>
+			/// Pointer to NvSciSyncFence. Valid if CUexternalSemaphoreHandleType
+			/// is of type CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC.
+			/// </summary>
+			[StructLayout(LayoutKind.Sequential)]
+			public struct NvSciSync
+			{
+				/// <summary>
+				/// 
+				/// </summary>
+				public IntPtr fence;
+			}
+			[FieldOffset(8)]
+			public NvSciSync nvSciSync;
+			/// <summary>
+			/// Parameters for keyed mutex objects
+			/// </summary>
+			[StructLayout(LayoutKind.Sequential)]
+			public struct KeyedMutex
+			{
+				/// <summary>
+				/// Value of key to acquire the mutex with
+				/// </summary>
+				public ulong key;
+				/// <summary>
+				/// Timeout in milliseconds to wait to acquire the mutex
+				/// </summary>
+				public uint timeoutMs;
+			}
+			[FieldOffset(16)]
+			public KeyedMutex keyedMutex;
 			[FieldOffset(20)]
 			private uint reserved;
 		}
 		[FieldOffset(0)]
-		Parameters parameters;
+		public Parameters parameters;
 		/// <summary>
 		/// Flags reserved for the future. Must be zero.
 		/// </summary>
-		[FieldOffset(84)]
+		[FieldOffset(72)]
 		public uint flags;
-		[FieldOffset(88)]
+		[FieldOffset(136)]
 		uint reserved;
 	}
 
@@ -3404,7 +3431,51 @@ namespace ManagedCuda.BasicTypes
 		/// Reserved for future use, must be zero now.
 		/// </summary>
 		public uint reserved1;
-	} 
+	}
+
+
+	/// <summary>
+	/// Semaphore signal node parameters
+	/// </summary>
+	public class CudaExtSemSignalNodeParams
+	{
+		public CUexternalSemaphore[] extSemArray;
+		public CudaExternalSemaphoreSignalParams[] paramsArray;
+	}
+
+	/// <summary>
+	/// Semaphore wait node parameters
+	/// </summary>
+	public class CudaExtSemWaitNodeParams
+	{
+		public CUexternalSemaphore[] extSemArray;
+		public CudaExternalSemaphoreWaitParams[] paramsArray;
+	}
+
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemPoolProps
+	{
+		public CUmemAllocationType allocType;
+		public CUmemAllocationHandleType handleTypes;
+		public CUmemLocation location;
+		public IntPtr win32SecurityAttributes;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
+		byte[] reserved;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemPoolPtrExportData
+	{
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
+		byte[] reserved;
+	}
 
 	#endregion
 }

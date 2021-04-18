@@ -899,28 +899,28 @@ namespace ManagedCuda.NPP
 		#endregion
 
 		#region Sqrt
-		/// <summary>
-		/// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Sqrt(NPPImage_16sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Sqrt.nppiSqrt_16s_C4RSfs(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sqrt(NPPImage_16sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Sqrt.nppiSqrt_16s_C4RSfs(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Inplace image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Sqrt(int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Sqrt.nppiSqrt_16s_C4IRSfs(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Inplace image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sqrt(int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Sqrt.nppiSqrt_16s_C4IRSfs(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 		/// <summary>
 		/// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.

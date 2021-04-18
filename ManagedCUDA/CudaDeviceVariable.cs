@@ -59,6 +59,31 @@ namespace ManagedCuda
 		}
 
 		/// <summary>
+		/// Allocates memory with stream ordered semantics<para/>
+		/// Inserts an allocation operation into \p hStream.<para/>
+		/// A pointer to the allocated memory is returned immediately in *dptr.<para/>
+		/// The allocation must not be accessed until the the allocation operation completes.<para/>
+		/// The allocation comes from the memory pool current to the stream's device.<para/>
+		/// <para/>
+		/// note The default memory pool of a device contains device memory from that device.<para/>
+		/// note Basic stream ordering allows future work submitted into the same stream to use the allocation.
+		/// Stream query, stream synchronize, and CUDA events can be used to guarantee that the allocation
+		/// operation completes before work submitted in a separate stream runs. 
+		/// </summary>
+		/// <param name="size">In elements</param>
+		public CudaDeviceVariable(SizeT size, CudaStream stream)
+		{
+			_devPtr = new CUdeviceptr();
+			_size = size;
+			_typeSize = (uint)Marshal.SizeOf(typeof(T));
+
+			res = DriverAPINativeMethods.MemoryManagement.cuMemAllocAsync(ref _devPtr, _typeSize * size, stream.Stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAllocAsync", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+			_isOwner = true;
+		}
+
+		/// <summary>
 		/// Creates a new CudaDeviceVariable from an existing CUdeviceptr. The allocated size is gethered via the CUDA API.
 		/// devPtr won't be freed while disposing.
 		/// </summary>
@@ -164,6 +189,23 @@ namespace ManagedCuda
 		/// </summary>
 		public void Dispose()
 		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Dispose Async:
+		/// Frees memory with stream ordered semantics<para/>
+		/// Inserts a free operation into \p hStream.<para/>
+		/// The allocation must not be accessed after stream execution reaches the free.
+		/// After this API returns, accessing the memory from any subsequent work launched on the GPU
+		/// or querying its pointer attributes results in undefined behavior.
+		/// </summary>
+		public void Dispose(CudaStream stream)
+		{
+			res = DriverAPINativeMethods.MemoryManagement.cuMemFreeAsync(_devPtr, stream.Stream);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemFreeAsync", res));
+			_isOwner = false;
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -1069,6 +1111,23 @@ namespace ManagedCuda
 				throw new CudaException(res);
 		}
 		#endregion
+
+		/// <summary>
+		/// Export data to share a memory pool allocation between processes.<para/>
+		/// Constructs \p shareData_out for sharing a specific allocation from an already shared memory pool.<para/>
+		/// The recipient process can import the allocation with the::cuMemPoolImportPointer api.<para/>
+		/// The data is not a handle and may be shared through any IPC mechanism.
+		/// </summary>
+		public CUmemPoolPtrExportData MemPoolExportPointer()
+		{
+			if (disposed) throw new ObjectDisposedException(this.ToString());
+			CUmemPoolPtrExportData exportData = new CUmemPoolPtrExportData();
+			res = DriverAPINativeMethods.MemoryManagement.cuMemPoolExportPointer(ref exportData, _devPtr);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemPoolExportPointer", res));
+			if (res != CUResult.Success)
+				throw new CudaException(res);
+			return exportData;
+		}
 
 		#region Properties
 		/// <summary>

@@ -44,6 +44,10 @@ namespace ManagedCuda.NvJpeg
         /// 
         /// </summary>
         public const int NVJPEG_FLAGS_ENABLE_MEMORY_POOLS = 1 << 1;
+        /// <summary>
+        /// 
+        /// </summary>
+        public const int NVJPEG_FLAGS_BITSTREAM_STRICT = 1 << 2;
     }
 
     /// <summary>
@@ -100,7 +104,7 @@ namespace ManagedCuda.NvJpeg
     /// Otherwise both chroma planes are present
     /// </summary>
     public enum nvjpegChromaSubsampling
-    { 
+    {
         CSS_444 = 0,
         CSS_422 = 1,
         CSS_420 = 2,
@@ -220,7 +224,7 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
         /// decoded output width and height is scaled by a factor of 1/2
         /// </summary>
-        Scale_1_by_2 = 1, 
+        Scale_1_by_2 = 1,
         /// <summary>
         /// decoded output width and height is scaled by a factor of 1/4
         /// </summary>
@@ -228,7 +232,7 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
         /// decoded output width and height is scaled by a factor of 1/8
         /// </summary>
-        Scale_1_by_8 = 3,  
+        Scale_1_by_8 = 3,
     }
 
     /// <summary>

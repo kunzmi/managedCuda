@@ -618,6 +618,10 @@ namespace ManagedCuda.BasicTypes
 	public enum CUmemAllocationHandleType
 	{
 		/// <summary>
+		/// Does not allow any export mechanism.
+		/// </summary>
+		None = 0,
+		/// <summary>
 		/// Allows a file descriptor to be used for exporting. Permitted only on POSIX systems. (int)
 		/// </summary>
 		PosixFileDescriptor = 0x1,  

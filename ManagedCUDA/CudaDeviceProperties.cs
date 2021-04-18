@@ -129,7 +129,7 @@ namespace ManagedCuda
         private bool _hostRegisterSupported;
         private bool _pageableMemoryAccessUsesHostPageTables;
         private bool _directManagedMemoryAccessFromHost;
-		private bool _virtualAddressManagementSupported;
+		private bool _virtualMemoryManagementSupported;
 		private bool _handleTypePosixFileDescriptorSupported;
 		private bool _handleTypeWin32HandleSupported;
 		private bool _handleTypeWin32KMTHandleSupported;
@@ -744,6 +744,7 @@ namespace ManagedCuda
 		/// <summary>
 		/// Maximum 1D linear texture width
 		/// </summary>
+		[Obsolete("Deprecated, do not use. Use cudaDeviceGetTexture1DLinearMaxWidth() or cuDeviceGetTexture1DLinearMaxWidth() instead.")]
 		public int MaximumTexture1DLinearWidth
 		{
 			get { return this._maximumTexture1DLinearWidth; }
@@ -1027,10 +1028,10 @@ namespace ManagedCuda
 		/// <summary>
 		/// Device supports virtual address management APIs like ::cuMemAddressReserve, ::cuMemCreate, ::cuMemMap and related APIs
 		/// </summary>
-		public bool VirtualAddressManagementSupported
+		public bool VirtualMemoryManagementSupported
 		{
-			get { return this._virtualAddressManagementSupported; }
-			internal set { this._virtualAddressManagementSupported = value; }
+			get { return this._virtualMemoryManagementSupported; }
+			internal set { this._virtualMemoryManagementSupported = value; }
 		}
 		/// <summary>
 		/// Device supports exporting memory to a posix file descriptor with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate

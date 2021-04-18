@@ -226,6 +226,43 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
         }
 
+
+        /// <summary>
+        /// Sets the parameters for an external semaphore signal node in the given graphExec<para/>
+        /// Sets the parameters of an external semaphore signal node in an executable graph \p hGraphExec.
+        /// The node is identified by the corresponding node \p hNode in the
+        /// non-executable graph, from which the executable graph was instantiated.<para/>
+        /// hNode must not have been removed from the original graph.<para/>
+        /// The modifications only affect future launches of \p hGraphExec. Already
+        /// enqueued or running launches of \p hGraphExec are not affected by this call.
+        /// hNode is also not modified by this call.<para/>
+        /// Changing \p nodeParams->numExtSems is not supported.
+        /// </summary>
+        public void SetParams(CUgraphNode hNode, CudaExtSemSignalNodeParams nodeParams)
+        {
+            res = DriverAPINativeMethods.GraphManagment.cuGraphExecExternalSemaphoresSignalNodeSetParams(_graph, hNode, nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExecExternalSemaphoresSignalNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Sets the parameters for an external semaphore wait node in the given graphExec<para/>
+        /// Sets the parameters of an external semaphore wait node in an executable graph \p hGraphExec.<para/>
+        /// The node is identified by the corresponding node \p hNode in the
+        /// non-executable graph, from which the executable graph was instantiated.<para/>
+        /// hNode must not have been removed from the original graph.<para/>
+        /// The modifications only affect future launches of \p hGraphExec. Already
+        /// enqueued or running launches of \p hGraphExec are not affected by this call.
+        /// hNode is also not modified by this call.<para/>
+        /// Changing \p nodeParams->numExtSems is not supported.
+        /// </summary>
+        public void SetParams(CUgraphNode hNode, CudaExtSemWaitNodeParams nodeParams)
+        {
+            res = DriverAPINativeMethods.GraphManagment.cuGraphExecExternalSemaphoresWaitNodeSetParams(_graph, hNode, nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExecExternalSemaphoresWaitNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
         /// <summary>
         /// Sets the event for an event record node in the given graphExec
         /// Sets the event of an event record node in an executable graph \p hGraphExec.

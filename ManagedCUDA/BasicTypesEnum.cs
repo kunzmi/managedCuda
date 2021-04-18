@@ -100,6 +100,11 @@ namespace ManagedCuda.BasicTypes
 		/// 32-bit floating point
 		/// </summary>
 		Float = 0x20,
+
+		/// <summary>
+		/// 8-bit YUV planar format, with 4:2:0 sampling
+		/// </summary>
+		NV12 = 0xb0 
 	}
 
 	/// <summary>
@@ -499,6 +504,7 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Maximum 1D linear texture width
 		/// </summary>
+		[Obsolete("Deprecated, do not use. Use cudaDeviceGetTexture1DLinearMaxWidth() or cuDeviceGetTexture1DLinearMaxWidth() instead.")]
 		MaximumTexture1DLinearWidth = 69,
 		/// <summary>
 		/// Maximum 2D linear texture width
@@ -629,9 +635,14 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		DirectManagedMemoryAccessFromHost = 101,
 		/// <summary>
-		/// Device supports virtual address management APIs like ::cuMemAddressReserve, ::cuMemCreate, ::cuMemMap and related APIs
+		/// Deprecated, Use VirtualMemoryManagementSupported
 		/// </summary>
+		[Obsolete("Deprecated, Use VirtualMemoryManagementSupported")]
 		VirtualAddressManagementSupported = 102,
+		/// <summary>
+		/// Device supports virtual memory management APIs like ::cuMemAddressReserve, ::cuMemCreate, ::cuMemMap and related APIs
+		/// </summary>
+		VirtualMemoryManagementSupported = 102,
 		/// <summary>
 		/// Device supports exporting memory to a posix file descriptor with ::cuMemExportToShareableHandle, if requested via ::cuMemCreate
 		/// </summary>
@@ -676,7 +687,14 @@ namespace ManagedCuda.BasicTypes
 		/// Device supports using the ::cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU
 		/// </summary>
 		ReadOnlyHostRegisterSupported = 113,
-
+		/// <summary>
+		/// External timeline semaphore interop is supported on the device
+		/// </summary>
+		TimelineSemaphoreInteropSupported = 114,
+		/// <summary>
+		/// Device supports using the ::cuMemAllocAsync and ::cuMemPool family of APIs
+		/// </summary>
+		MemoryPoolsSupported = 115,
 
 		/// <summary>
 		/// Max elems...
@@ -1486,6 +1504,11 @@ namespace ManagedCuda.BasicTypes
 		/// This indicates that the provided PTX was compiled with an unsupported toolchain.
 		/// </summary>
 		UnsupportedPTXVersion = 222,
+
+		/// <summary>
+		/// This indicates that the PTX JIT compilation was disabled.
+		/// </summary>
+		JITCompilationDisabled = 223,
 
 		/// <summary>
 		/// Invalid source
@@ -2471,6 +2494,14 @@ namespace ManagedCuda.BasicTypes
 		/// </summary>
 		EventRecord = 7,
 		/// <summary>
+		/// External semaphore signal node
+		/// </summary>
+		ExtSemasSignal = 8,
+		/// <summary>
+		/// External semaphore wait node
+		/// </summary>
+		ExtSemasWait = 9,
+		/// <summary>
 		/// 
 		/// </summary>
 		CU_GRAPH_NODE_TYPE_COUNT
@@ -2591,7 +2622,15 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// Handle is a globally shared handle referencing a D3D11 keyed mutex object
 		/// </summary>
-		D3D11KeyedMutexKMT = 8
+		D3D11KeyedMutexKMT = 8,
+		/// <summary>
+		/// Handle is an opaque file descriptor referencing a timeline semaphore
+		/// </summary>
+		TimelineSemaphoreFD = 9,
+		/// <summary>
+		/// Handle is an opaque shared NT handle referencing a timeline semaphore
+		/// </summary>
+		TimelineSemaphoreWin32 = 10
 	}
 
 
@@ -2658,7 +2697,11 @@ namespace ManagedCuda.BasicTypes
 		/// <summary>
 		/// The update failed because something about the node is not supported
 		/// </summary>
-		ErrorNotSupported = 0x6
+		ErrorNotSupported = 0x6,
+		/// <summary>
+		/// The update failed because the function of a kernel node changed in an unsupported way
+		/// </summary>
+		ErrorUnsupportedFunctionChange = 0x7 
 	}
 
 	/// <summary>
@@ -2814,6 +2857,17 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		Generic = 0
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum CUmemPool_attribute
+	{
+		ReuseFollowEventDependencies = 1,
+		ReuseAllowOpportunistic,
+		ReuseAllowInternalDependencies,
+		ReleaseThreshold
 	}
 	#endregion
 }

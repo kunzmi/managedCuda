@@ -96,6 +96,27 @@ namespace ManagedCuda.CudaSparse
 			return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
 		}
 		//CSR
+		public static SparseMatrix<indexT1, dataT1> CreateCSC<indexT1, dataT1>(
+			long rows,
+			long cols,
+			long nnz,
+			CudaDeviceVariable<indexT1> cscColOffsets,
+			CudaDeviceVariable<indexT1> cscRowInd,
+			CudaDeviceVariable<dataT1> cscValues,
+			IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+		{
+			cusparseSpMatDescr descr = new cusparseSpMatDescr();
+			IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+			cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+			cusparseStatus res = CudaSparseNativeMethods.cusparseCreateCsc(ref descr, rows, cols, nnz, cscColOffsets.DevicePointer,
+				cscRowInd.DevicePointer, cscValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateCsc", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+
+			return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+		}
+		//CSR
 		public static SparseMatrix<indexT1, dataT1> CreateCOO<indexT1, dataT1>(
 			long rows,
 			long cols,
@@ -212,6 +233,34 @@ namespace ManagedCuda.CudaSparse
 			res = CudaSparseNativeMethods.cusparseCsrSetPointers(descr, csrRowOffsets.DevicePointer,
 					csrColInd.DevicePointer, csrValues.DevicePointer);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCsrSetPointers", res));
+
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		public void CscSet(CudaDeviceVariable<indexT> cscColOffsets,
+			CudaDeviceVariable<indexT> cscRowInd,
+			CudaDeviceVariable<dataT> cscValues)
+		{
+			res = CudaSparseNativeMethods.cusparseCscSetPointers(descr, cscColOffsets.DevicePointer,
+					cscRowInd.DevicePointer, cscValues.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCscSetPointers", res));
+
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		public void CooSet(CudaDeviceVariable<indexT> cooRows,
+			CudaDeviceVariable<indexT> cooColumns,
+			CudaDeviceVariable<dataT> cooValues)
+		{
+			res = CudaSparseNativeMethods.cusparseCooSetPointers(descr, cooRows.DevicePointer,
+					cooColumns.DevicePointer, cooValues.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCooSetPointers", res));
 
 			if (res != cusparseStatus.Success)
 				throw new CudaSparseException(res);

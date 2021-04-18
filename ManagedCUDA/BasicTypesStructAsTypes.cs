@@ -110,6 +110,37 @@ namespace ManagedCuda.BasicTypes
 				return invalid;
 			}
 		}
+
+		/// <summary>
+		/// Sets the current memory pool of a device<para/>
+		/// The memory pool must be local to the specified device.
+		/// ::cuMemAllocAsync allocates from the current mempool of the provided stream's device.
+		/// By default, a device's current memory pool is its default memory pool.
+		/// <para/>
+		/// note Use ::cuMemAllocFromPoolAsync to specify asynchronous allocations from a device different than the one the stream runs on.
+		/// </summary>
+		public void SetMemoryPool(CudaMemoryPool memPool)
+		{
+			CUResult res = DriverAPINativeMethods.DeviceManagement.cuDeviceSetMemPool(this, memPool.MemoryPool);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceSetMemPool", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Gets the current memory pool of the CUdevice. 
+		/// </summary>
+		public CudaMemoryPool GetMemoryPool()
+		{
+			return new CudaMemoryPool(this, false);
+		}
+
+		/// <summary>
+		/// Gets the default memory pool of the CUdevice. 
+		/// </summary>
+		public CudaMemoryPool GetDefaultMemoryPool()
+		{
+			return new CudaMemoryPool(this, true);
+		}
 	}
 
 	/// <summary>
@@ -990,6 +1021,28 @@ namespace ManagedCuda.BasicTypes
 		}
 
 		/// <summary>
+		/// Sets an external semaphore signal node's parameters.
+		/// </summary>
+		/// <param name="nodeParams"></param>
+		public void SetParameters(CudaExtSemSignalNodeParams nodeParams)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphExternalSemaphoresSignalNodeSetParams(this, nodeParams);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExternalSemaphoresSignalNodeSetParams", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Sets an external semaphore wait node's parameters.
+		/// </summary>
+		/// <param name="nodeParams"></param>
+		public void SetParameters(CudaExtSemWaitNodeParams nodeParams)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphExternalSemaphoresWaitNodeSetParams(this, nodeParams);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExternalSemaphoresWaitNodeSetParams", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
 		/// Gets the parameters of host node.
 		/// </summary>
 		/// <param name="nodeParams"></param>
@@ -1030,6 +1083,28 @@ namespace ManagedCuda.BasicTypes
 		{
 			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemsetNodeGetParams(this, ref nodeParams);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemsetNodeGetParams", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Gets the external semaphore signal node's parameters.
+		/// </summary>
+		/// <param name="nodeParams"></param>
+		public void GetParameters(CudaExtSemSignalNodeParams nodeParams)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphExternalSemaphoresSignalNodeGetParams(this, nodeParams);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExternalSemaphoresSignalNodeGetParams", res));
+			if (res != CUResult.Success) throw new CudaException(res);
+		}
+
+		/// <summary>
+		/// Gets the external semaphore wait node's parameters.
+		/// </summary>
+		/// <param name="nodeParams"></param>
+		public void GetParameters(CudaExtSemWaitNodeParams nodeParams)
+		{
+			CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphExternalSemaphoresWaitNodeGetParams(this, nodeParams);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExternalSemaphoresWaitNodeGetParams", res));
 			if (res != CUResult.Success) throw new CudaException(res);
 		}
 
@@ -1205,6 +1280,18 @@ namespace ManagedCuda.BasicTypes
 		/// 
 		/// </summary>
 		public ulong Pointer;
+	}
+
+	/// <summary>
+	/// CUDA memory pool
+	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CUmemoryPool
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public IntPtr Pointer;
 	}
 	#endregion
 

@@ -19,6 +19,7 @@
 //	MA 02110-1301  USA, http://www.gnu.org/licenses/.
 
 
+#define ADD_MISSING_CTX
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -1239,30 +1240,28 @@ namespace ManagedCuda.NPP
 		#endregion
 
 		#region Sqrt
-		/// <summary>
-		/// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-		public void Sqrt(NPPImage_16uC4 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
-		{
-			status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_16u_C4RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16u_C4RSfs_Ctx", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sqrt(NPPImage_16uC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_16u_C4RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16u_C4RSfs_Ctx", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Inplace image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-		public void Sqrt(int nScaleFactor, NppStreamContext nppStreamCtx)
-		{
-			status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_16u_C4IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16u_C4IRSfs_Ctx", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Inplace image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sqrt(int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_16u_C4IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSqrt_16u_C4IRSfs_Ctx", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 		/// <summary>
 		/// Image square root, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.

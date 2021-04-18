@@ -404,6 +404,29 @@ namespace ManagedCuda
 
             return sparseProperties;
         }
+
+        /// <summary>  
+        /// Gets a CUDA array plane from a CUDA array<para/>
+        /// Returns a CUDA array that represents a single format plane
+        /// of the CUDA array \p hArray.<para/>
+        /// If planeIdx is greater than the maximum number of planes in this array or if the array does
+        /// not have a multi-planar format e.g: ::CU_AD_FORMAT_NV12, then::CUDA_ERROR_INVALID_VALUE is returned.<para/>
+        /// Note that if the \p hArray has format ::CU_AD_FORMAT_NV12, then passing in 0 for \p planeIdx returns
+        /// a CUDA array of the same size as \p hArray but with one channel and::CU_AD_FORMAT_UNSIGNED_INT8 as its format.
+        /// If 1 is passed for \p planeIdx, then the returned CUDA array has half the height and width
+        /// of \p hArray with two channels and ::CU_AD_FORMAT_UNSIGNED_INT8 as its format.
+        /// </summary>
+        public CudaArray3D GetPlane(uint planeIdx)
+        {
+            CUarray arrayPlane = new CUarray();
+
+            res = DriverAPINativeMethods.ArrayManagement.cuArrayGetPlane(ref arrayPlane, _cuArray, planeIdx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuArrayGetPlane", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            return new CudaArray3D(arrayPlane, true);
+        }
         #endregion
 
         #region Properties

@@ -5919,11 +5919,11 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.DirectManagedMemoryAccessFromHost = directManagedMemoryAccessFromHost > 0;
 
-			int virtualAddressManagementSupported = 0;
-			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref virtualAddressManagementSupported, CUDeviceAttribute.VirtualAddressManagementSupported, device);
+			int virtualMemoryManagementSupported = 0;
+			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref virtualMemoryManagementSupported, CUDeviceAttribute.VirtualMemoryManagementSupported, device);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
 			if (res != CUResult.Success) throw new CudaException(res);
-			props.VirtualAddressManagementSupported = virtualAddressManagementSupported > 0;
+			props.VirtualMemoryManagementSupported = virtualMemoryManagementSupported > 0;
 
 			int handleTypePosixFileDescriptorSupported = 0;
 			res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref handleTypePosixFileDescriptorSupported, CUDeviceAttribute.HandleTypePosixFileDescriptorSupported, device);

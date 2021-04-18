@@ -428,12 +428,44 @@ namespace ManagedCuda.CudaSparse
 		CUSPARSE_SPMM_CSR_ALG1 = 4,
 		/// <summary/>
 		CUSPARSE_SPMM_CSR_ALG2 = 6,
+		/// <summary/>
+		CUSPARSE_SPMMA_PREPROCESS = 7,
+		/// <summary/>
+		CUSPARSE_SPMMA_ALG1 = 8,
+		/// <summary/>
+		CUSPARSE_SPMMA_ALG2 = 9,
+		/// <summary/>
+		CUSPARSE_SPMMA_ALG3 = 10,
+		/// <summary/>
+		CUSPARSE_SPMMA_ALG4 = 11
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	public enum cusparseSpGEMMAlg
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Default = 0
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseSparseToDenseAlg
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Default = 0
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum cusparseDenseToSparseAlg
 	{
 		/// <summary>
 		/// 

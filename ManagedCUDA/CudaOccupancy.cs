@@ -370,7 +370,8 @@ namespace ManagedCuda
 				case 5:
 				case 6:
 				case 7: return 256;
-				case 8: return 128;
+				case 8:
+				case 9: return 128;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -387,7 +388,8 @@ namespace ManagedCuda
 				case 5:
 				case 6: return 255;
 				case 7:
-				case 8: return 256;
+				case 8:
+				case 9: return 256;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -404,7 +406,8 @@ namespace ManagedCuda
 				case 5:
 				case 6:
 				case 7:
-				case 8: return 256;
+				case 8:
+				case 9: return 256;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -430,6 +433,7 @@ namespace ManagedCuda
 				case 6: return properties.computeMinor != 0 ? 4 : 2;
 				case 7: return 4;
 				case 8: return 4;
+				case 9: return 4;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -444,17 +448,9 @@ namespace ManagedCuda
 			{
 				case 3: return 16;
 				case 5:
-					{
-						bool isTuring = properties.computeMinor == 5;
-						value = (isTuring) ? 16 : 32;
-					}
-					return value;
+					return 32;
 				case 6:
-					{
-						bool isTuring = properties.computeMinor == 5;
-						value = (isTuring) ? 16 : 32;
-					}
-					return value;
+					return 32;
 				case 7:
 					{
 						bool isTuring = properties.computeMinor == 5;
@@ -464,6 +460,8 @@ namespace ManagedCuda
 				case 8:
 					value = properties.computeMinor == 0 ? 32 : 16;
 					return value;
+				case 9:
+					return 32;
 				default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 			}
 		}
@@ -532,7 +530,7 @@ namespace ManagedCuda
 					}
 				case 8:
 					{
-						if (properties.computeMinor == 0)
+						if (properties.computeMinor == 0 || properties.computeMinor == 7)
 						{
 							if (size == 0)
 							{
@@ -601,6 +599,54 @@ namespace ManagedCuda
 							{
 								throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 							}
+						}
+						break;
+					}
+				case 9:
+					{
+						if (size == 0)
+						{
+							shMemSize = 0;
+						}
+						else if (size <= 8 * 1024)
+						{
+							shMemSize = 8 * 1024;
+						}
+						else if (size <= 16 * 1024)
+						{
+							shMemSize = 16 * 1024;
+						}
+						else if (size <= 32 * 1024)
+						{
+							shMemSize = 32 * 1024;
+						}
+						else if (size <= 64 * 1024)
+						{
+							shMemSize = 64 * 1024;
+						}
+						else if (size <= 100 * 1024)
+						{
+							shMemSize = 100 * 1024;
+						}
+						else if (size <= 132 * 1024)
+						{
+							shMemSize = 132 * 1024;
+						}
+						else if (size <= 164 * 1024)
+						{
+							shMemSize = 164 * 1024;
+						}
+						else if (size <= 196 * 1024)
+						{
+							shMemSize = 196 * 1024;
+						}
+						else if (size <= 228 * 1024)
+						{
+							shMemSize = 228 * 1024;
+						}
+						else
+						{
+							throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
 						}
 						break;
 					}
@@ -770,6 +816,7 @@ namespace ManagedCuda
 					break;
 				case 7:
 				case 8:
+				case 9:
 					switch (shmemLimitConfig)
 					{
 						//default:

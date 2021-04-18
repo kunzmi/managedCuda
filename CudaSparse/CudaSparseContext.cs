@@ -5654,6 +5654,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrValA">Output: array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="csrRowPtrA">Output: integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 		/// <param name="csrColIndA">Output: integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csr(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
 		{
 			res = CudaSparseNativeMethods.cusparseSdense2csr(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
@@ -5675,6 +5676,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrValA">Output: array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="csrRowPtrA">Output: integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 		/// <param name="csrColIndA">Output: integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csr(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
 		{
 			res = CudaSparseNativeMethods.cusparseDdense2csr(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
@@ -5696,6 +5698,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrValA">Output: array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="csrRowPtrA">Output: integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 		/// <param name="csrColIndA">Output: integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csr(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
 		{
 			res = CudaSparseNativeMethods.cusparseCdense2csr(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
@@ -5717,6 +5720,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrValA">Output: array of nnz (= csrRowPtrA(m)-csrRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="csrRowPtrA">Output: integer array of m + 1 elements that contains the start of every row and the end of the last row plus one.</param>
 		/// <param name="csrColIndA">Output: integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csr(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<int> nnzPerRow, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA)
 		{
 			res = CudaSparseNativeMethods.cusparseZdense2csr(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerRow.DevicePointer, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer);
@@ -5738,6 +5742,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of array matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csr2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseScsr2dense(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, A.DevicePointer, lda);
@@ -5758,6 +5763,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of array matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csr2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseDcsr2dense(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, A.DevicePointer, lda);
@@ -5778,6 +5784,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of array matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csr2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseCcsr2dense(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, A.DevicePointer, lda);
@@ -5798,6 +5805,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of array matrix A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csr2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseZcsr2dense(_handle, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, A.DevicePointer, lda);
@@ -5820,6 +5828,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscValA">Output: array of nnz (= cscRowPtrA(m)-cscRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="cscRowIndA">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="cscColPtrA">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csc(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<int> nnzPerCol, CudaDeviceVariable<float> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA)
 		{
 			res = CudaSparseNativeMethods.cusparseSdense2csc(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerCol.DevicePointer, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer);
@@ -5841,6 +5850,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscValA">Output: array of nnz (= cscRowPtrA(m)-cscRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="cscRowIndA">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="cscColPtrA">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csc(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<int> nnzPerCol, CudaDeviceVariable<double> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA)
 		{
 			res = CudaSparseNativeMethods.cusparseDdense2csc(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerCol.DevicePointer, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer);
@@ -5862,6 +5872,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscValA">Output: array of nnz (= cscRowPtrA(m)-cscRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="cscRowIndA">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="cscColPtrA">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csc(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<int> nnzPerCol, CudaDeviceVariable<cuFloatComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA)
 		{
 			res = CudaSparseNativeMethods.cusparseCdense2csc(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerCol.DevicePointer, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer);
@@ -5883,6 +5894,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscValA">Output: array of nnz (= cscRowPtrA(m)-cscRowPtrA(0)) non-zero elements of matrix A.</param>
 		/// <param name="cscRowIndA">Output: integer array of nnz (= cscRowPtrA(m) - cscRowPtrA(0)) column indices of the non-zero elements of matrix A.</param>
 		/// <param name="cscColPtrA">Output: integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use DenseToSparse instead.")]
 		public void Dense2csc(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<int> nnzPerCol, CudaDeviceVariable<cuDoubleComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA)
 		{
 			res = CudaSparseNativeMethods.cusparseZdense2csc(_handle, m, n, descrA.Descriptor, A.DevicePointer, lda, nnzPerCol.DevicePointer, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer);
@@ -5905,6 +5917,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscColPtrA">integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of dense array A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csc2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA, CudaDeviceVariable<float> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseScsc2dense(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, A.DevicePointer, lda);
@@ -5925,6 +5938,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscColPtrA">integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of dense array A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csc2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA, CudaDeviceVariable<double> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseDcsc2dense(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, A.DevicePointer, lda);
@@ -5945,6 +5959,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscColPtrA">integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of dense array A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csc2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA, CudaDeviceVariable<cuFloatComplex> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseCcsc2dense(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, A.DevicePointer, lda);
@@ -5965,6 +5980,7 @@ namespace ManagedCuda.CudaSparse
 		/// <param name="cscColPtrA">integer array of n+1 elements that contains the start of every column and the end of the last column plus one.</param>
 		/// <param name="A">Output: array of dimensions (lda, n) that is filled in with the values of the sparse matrix.</param>
 		/// <param name="lda">leading dimension of dense array A.</param>
+		[Obsolete("Deprecated from Cuda 11.2 on. Use SparseToDense instead.")]
 		public void Csc2dense(int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> cscValA, CudaDeviceVariable<int> cscRowIndA, CudaDeviceVariable<int> cscColPtrA, CudaDeviceVariable<cuDoubleComplex> A, int lda)
 		{
 			res = CudaSparseNativeMethods.cusparseZcsc2dense(_handle, m, n, descrA.Descriptor, cscValA.DevicePointer, cscRowIndA.DevicePointer, cscColPtrA.DevicePointer, A.DevicePointer, lda);
@@ -12720,6 +12736,74 @@ namespace ManagedCuda.CudaSparse
 				Marshal.FreeHGlobal(ptrAlpha);
 				Marshal.FreeHGlobal(ptrBeta);
 			}
+		}
+
+		#endregion
+
+		#region Sparse/Dense conversion
+
+		/// <summary>
+		/// SparseToDenseBufferSize
+		/// </summary>
+		/// <param name="pointerMode"></param>
+		public SizeT SparseToDenseBufferSize<indexT, dataT>(SparseMatrix<indexT, dataT> matA, DenseMatrix<dataT> matB, cusparseSparseToDenseAlg alg) where indexT : struct where dataT : struct
+		{
+			SizeT bufferSize = new SizeT();
+			res = CudaSparseNativeMethods.cusparseSparseToDense_bufferSize(_handle, matA.Descr, matB.Descr, alg, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSparseToDense_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return bufferSize;
+		}
+
+		/// <summary>
+		/// SparseToDense
+		/// </summary>
+		/// <param name="pointerMode"></param>
+		public void SparseToDense<indexT, dataT>(SparseMatrix<indexT, dataT> matA, DenseMatrix<dataT> matB, cusparseSparseToDenseAlg alg, CudaDeviceVariable<byte> buffer) where indexT : struct where dataT : struct
+		{
+			res = CudaSparseNativeMethods.cusparseSparseToDense(_handle, matA.Descr, matB.Descr, alg, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSparseToDense", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		/// <summary>
+		/// DenseToSparseBufferSize
+		/// </summary>
+		/// <param name="pointerMode"></param>
+		public SizeT DenseToSparseBufferSize<indexT, dataT>(DenseMatrix<dataT> matA, SparseMatrix<indexT, dataT> matB, cusparseDenseToSparseAlg alg) where indexT : struct where dataT : struct
+		{
+			SizeT bufferSize = new SizeT();
+			res = CudaSparseNativeMethods.cusparseDenseToSparse_bufferSize(_handle, matA.Descr, matB.Descr, alg, ref bufferSize);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDenseToSparse_bufferSize", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+			return bufferSize;
+		}
+
+		/// <summary>
+		/// DenseToSparse
+		/// </summary>
+		/// <param name="pointerMode"></param>
+		public void DenseToSparseAnalysis<indexT, dataT>(DenseMatrix<dataT> matA, SparseMatrix<indexT, dataT> matB, cusparseDenseToSparseAlg alg, CudaDeviceVariable<byte> buffer) where indexT : struct where dataT : struct
+		{
+			res = CudaSparseNativeMethods.cusparseDenseToSparse_analysis(_handle, matA.Descr, matB.Descr, alg, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDenseToSparse_analysis", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
+		}
+
+		/// <summary>
+		/// DenseToSparse
+		/// </summary>
+		/// <param name="pointerMode"></param>
+		public void DenseToSparseConvert<indexT, dataT>(DenseMatrix<dataT> matA, SparseMatrix<indexT, dataT> matB, cusparseDenseToSparseAlg alg, CudaDeviceVariable<byte> buffer) where indexT : struct where dataT : struct
+		{
+			res = CudaSparseNativeMethods.cusparseDenseToSparse_convert(_handle, matA.Descr, matB.Descr, alg, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDenseToSparse_convert", res));
+			if (res != cusparseStatus.Success)
+				throw new CudaSparseException(res);
 		}
 
 		#endregion

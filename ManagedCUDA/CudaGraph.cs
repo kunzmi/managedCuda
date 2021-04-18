@@ -447,6 +447,58 @@ namespace ManagedCuda
             return node;
         }
 
+        /// <summary>
+        /// Creates an external semaphore signal node and adds it to a graph<para/>
+        /// Creates a new external semaphore signal node and adds it to \p hGraph with \p
+        /// numDependencies dependencies specified via \p dependencies and arguments specified
+        /// in \p nodeParams.It is possible for \p numDependencies to be 0, in which case the
+        /// node will be placed at the root of the graph. \p dependencies may not have any
+        /// duplicate entries. A handle to the new node will be returned in \p phGraphNode.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="numDependencies">Number of dependencies</param>
+        /// <param name="nodeParams">Parameters for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddExternalSemaphoresSignalNode(CUgraphNode[] dependencies, CudaExtSemSignalNodeParams nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddExternalSemaphoresSignalNode(ref node, _graph, dependencies, numDependencies, nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddExternalSemaphoresSignalNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates an external semaphore wait node and adds it to a graph<para/>
+        /// Creates a new external semaphore wait node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+        /// to the new node will be returned in \p phGraphNode.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="numDependencies">Number of dependencies</param>
+        /// <param name="nodeParams">Parameters for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddExternalSemaphoresWaitNode(CUgraphNode[] dependencies, CudaExtSemWaitNodeParams nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddExternalSemaphoresWaitNode(ref node, _graph, dependencies, numDependencies, nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddExternalSemaphoresWaitNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
 
 
 

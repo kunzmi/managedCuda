@@ -4209,36 +4209,44 @@ namespace ManagedCuda.CudaSparse
 		   nnz routine. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseSdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseDdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseCdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseZdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
 
 		/* Description: This routine converts a sparse matrix in CSR storage format
 		   to a dense matrix. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseScsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseDcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseCcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseZcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
 
 		/* Description: This routine converts a dense matrix to a sparse matrix 
@@ -4246,36 +4254,44 @@ namespace ManagedCuda.CudaSparse
 		   nnz routine. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseSdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseDdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseCdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
 		public static extern cusparseStatus cusparseZdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
 
 		/* Description: This routine converts a sparse matrix in CSC storage format
 		   to a dense matrix. */
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
 		public static extern cusparseStatus cusparseScsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
 		public static extern cusparseStatus cusparseDcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
 		public static extern cusparseStatus cusparseCcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
 
 		/// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+		[Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
 		public static extern cusparseStatus cusparseZcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
 
 		/* Description: This routine compresses the indecis of rows or columns.
@@ -8344,6 +8360,21 @@ namespace ManagedCuda.CudaSparse
 				  IndexBase idxBase,
 				  cudaDataType valueType);
 
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCreateCsc(ref cusparseSpMatDescr spMatDescr,
+				  long rows,
+				  long cols,
+				  long nnz,
+				  CUdeviceptr cscColOffsets,
+				  CUdeviceptr cscRowInd,
+				  CUdeviceptr cscValues,
+				  IndexType cscColOffsetsType,
+				  IndexType cscRowIndType,
+				  IndexBase idxBase,
+				  cudaDataType valueType);
+
+
 		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseCsrGet(cusparseSpMatDescr spMatDescr,
 			   ref long rows,
@@ -8362,6 +8393,13 @@ namespace ManagedCuda.CudaSparse
 					   CUdeviceptr csrRowOffsets,
 					   CUdeviceptr csrColInd,
 					   CUdeviceptr csrValues);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCscSetPointers(cusparseSpMatDescr spMatDescr,
+					   CUdeviceptr cscColOffsets,
+					   CUdeviceptr cscRowInd,
+					   CUdeviceptr cscValues);
+
 
 		//------------------------------------------------------------------------------
 		// ### COO ###
@@ -8412,13 +8450,62 @@ namespace ManagedCuda.CudaSparse
 				  ref IndexType idxType,
 				  ref IndexBase idxBase,
 				  ref cudaDataType valueType);
-        #endregion
-        #region Dense Matrix
-        // #############################################################################
-        // # DENSE MATRIX DESCRIPTOR
-        // #############################################################################
 
-        [DllImport(CUSPARSE_API_DLL_NAME)]
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseCooSetPointers(cusparseSpMatDescr spMatDescr,
+					   CUdeviceptr cooRows,
+					   CUdeviceptr cooColumns,
+					   CUdeviceptr cooValues);
+
+		#endregion
+
+		#region SPARSE TO DENSE
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSparseToDense_bufferSize(cusparseContext handle,
+								 cusparseSpMatDescr matA,
+								 cusparseDnMatDescr matB,
+								 cusparseSparseToDenseAlg alg,
+								 ref SizeT bufferSize);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseSparseToDense(cusparseContext handle,
+					  cusparseSpMatDescr matA,
+					  cusparseDnMatDescr matB,
+					  cusparseSparseToDenseAlg alg,
+					  CUdeviceptr buffer);
+
+		#endregion
+		#region DENSE TO SPARSE
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDenseToSparse_bufferSize(cusparseContext handle,
+								 cusparseDnMatDescr matA,
+								 cusparseSpMatDescr matB,
+								 cusparseDenseToSparseAlg alg,
+								 ref SizeT bufferSize);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDenseToSparse_analysis(cusparseContext handle,
+							   cusparseDnMatDescr matA,
+							   cusparseSpMatDescr matB,
+							   cusparseDenseToSparseAlg alg,
+							   CUdeviceptr buffer);
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
+		public static extern cusparseStatus cusparseDenseToSparse_convert(cusparseContext handle,
+							  cusparseDnMatDescr matA,
+							  cusparseSpMatDescr matB,
+							  cusparseDenseToSparseAlg alg,
+							  CUdeviceptr buffer);
+
+		#endregion
+		#region Dense Matrix
+		// #############################################################################
+		// # DENSE MATRIX DESCRIPTOR
+		// #############################################################################
+
+		[DllImport(CUSPARSE_API_DLL_NAME)]
 		public static extern cusparseStatus cusparseCreateDnMat(ref cusparseDnMatDescr dnMatDescr,
 					long rows,
 					long cols,

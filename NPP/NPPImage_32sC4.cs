@@ -403,101 +403,101 @@ namespace ManagedCuda.NPP
 		#endregion
 
 		#region Add
-		/// <summary>
-		/// Image addition, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Add(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image addition, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Add(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image addition, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Add(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image addition, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Add(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nConstant">Values to add</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Add(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
-		/// </summary>
-		/// <param name="nConstant">Values to add</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Add(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nConstant">Values to add</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Add(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+		///// </summary>
+		///// <param name="nConstant">Values to add</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Add(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Image addition, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void AddA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image addition, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void AddA(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image addition, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void AddA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image addition, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void AddA(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Add.nppiAdd_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAdd_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
-		/// </summary>
-		/// <param name="nConstant">Values to add</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void AddA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unmodified Alpha.
-		/// </summary>
-		/// <param name="nConstant">Values to add</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void AddA(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unmodified Alpha.
+		///// </summary>
+		///// <param name="nConstant">Values to add</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void AddA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unmodified Alpha.
+		///// </summary>
+		///// <param name="nConstant">Values to add</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void AddA(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.AddConst.nppiAddC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddC_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 		#endregion
 
 		#region Logical
@@ -877,275 +877,275 @@ namespace ManagedCuda.NPP
 			NPPException.CheckNppStatus(status, this);
 		}
 
-		/// <summary>
-		/// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nConstant">Value to subtract</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Sub(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
-		/// </summary>
-		/// <param name="nConstant">Value to subtract</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Sub(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nConstant">Value to subtract</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sub(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+		///// </summary>
+		///// <param name="nConstant">Value to subtract</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Sub(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Image subtraction, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void SubA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Sub.nppiSub_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSub_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image subtraction, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void SubA(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Sub.nppiSub_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSub_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image subtraction, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void SubA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Sub.nppiSub_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSub_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image subtraction, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void SubA(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Sub.nppiSub_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSub_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value to subtract</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void SubA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value to subtract</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void SubA(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value to subtract</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void SubA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value to subtract</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void SubA(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.SubConst.nppiSubC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubC_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 		#endregion
 
 		#region Mul
-		/// <summary>
-		/// Image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Mul(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Mul(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Mul(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Mul(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Mul(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Mul(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Mul(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Mul(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 
-		/// <summary>
-		/// Image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void MulA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void MulA(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void MulA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image multiplication, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void MulA(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Mul.nppiMul_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMul_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void MulA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void MulA(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void MulA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void MulA(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.MulConst.nppiMulC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulC_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 		#endregion
 
 		#region Div
-		/// <summary>
-		/// Image division, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Div(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image division, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Div(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image division, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Div(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_C4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image division, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Div(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_C4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Div(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_C4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void Div(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_C4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Div(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_C4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_C4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void Div(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_C4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_C4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Image division, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void DivA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// In place image division, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="src2">2nd source image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void DivA(NPPImage_32sC4 src2, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Image division, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void DivA(NPPImage_32sC4 src2, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_AC4RSfs(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// In place image division, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="src2">2nd source image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void DivA(NPPImage_32sC4 src2, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.Div.nppiDiv_32s_AC4IRSfs(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDiv_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
-		/// <summary>
-		/// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="dest">Destination image</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void DivA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_AC4RSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
-		/// <summary>
-		/// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
-		/// </summary>
-		/// <param name="nConstant">Value</param>
-		/// <param name="nScaleFactor">scaling factor</param>
-		public void DivA(int[] nConstant, int nScaleFactor)
-		{
-			status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_AC4IRSfs", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+		///// <summary>
+		///// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="dest">Destination image</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void DivA(int[] nConstant, NPPImage_32sC4 dest, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_AC4RSfs(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_AC4RSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
+		///// <summary>
+		///// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace. Unchanged Alpha.
+		///// </summary>
+		///// <param name="nConstant">Value</param>
+		///// <param name="nScaleFactor">scaling factor</param>
+		//public void DivA(int[] nConstant, int nScaleFactor)
+		//{
+		//	status = NPPNativeMethods.NPPi.DivConst.nppiDivC_32s_AC4IRSfs(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivC_32s_AC4IRSfs", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 		#endregion
 
 		#region Geometric Transforms

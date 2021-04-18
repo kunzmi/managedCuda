@@ -83,7 +83,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(11, 1); }
+            get { return new Version(11, 2); }
         }
 
         #region Initialization
@@ -248,6 +248,42 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceGetNvSciSyncAttributes(IntPtr nvSciSyncAttrList, CUdevice dev, NvSciSyncAttr flags);
 
+            /// <summary>
+            /// Sets the current memory pool of a device<para/>
+            /// The memory pool must be local to the specified device.
+            /// ::cuMemAllocAsync allocates from the current mempool of the provided stream's device.
+            /// By default, a device's current memory pool is its default memory pool.
+            /// <para/>
+            /// note Use ::cuMemAllocFromPoolAsync to specify asynchronous allocations from a device different than the one the stream runs on.
+            /// </summary>
+            /// <param name="dev"></param>
+            /// <param name="pool"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool);
+
+            /// <summary>
+            /// Gets the current mempool for a device<para/>
+            /// Returns the last pool provided to ::cuDeviceSetMemPool for this device
+            /// or the device's default memory pool if ::cuDeviceSetMemPool has never been called.
+            /// By default the current mempool is the default mempool for a device.
+            /// Otherwise the returned pool must have been set with::cuDeviceSetMemPool.
+            /// </summary>
+            /// <param name="pool"></param>
+            /// <param name="dev"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetMemPool(ref CUmemoryPool pool, CUdevice dev);
+            
+            /// <summary>
+            /// Returns the default mempool of a device<para/>
+            /// The default mempool of a device contains device memory from that device.
+            /// </summary>
+            /// <param name="pool_out"></param>
+            /// <param name="dev"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetDefaultMemPool(ref CUmemoryPool pool_out, CUdevice dev);
 
             #region Missing from 4.1
             /// <summary>
@@ -1741,6 +1777,305 @@ namespace ManagedCuda
             /// <param name="addr">Memory address to query, that has been mapped previously.</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemRetainAllocationHandle(ref CUmemGenericAllocationHandle handle, IntPtr addr);
+
+            /// <summary>
+            /// Frees memory with stream ordered semantics<para/>
+            /// Inserts a free operation into \p hStream.<para/>
+            /// The allocation must not be accessed after stream execution reaches the free.
+            /// After this API returns, accessing the memory from any subsequent work launched on the GPU
+            /// or querying its pointer attributes results in undefined behavior.
+            /// </summary>
+            /// <param name="dptr">memory to free</param>
+            /// <param name="hStream">The stream establishing the stream ordering contract.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemFreeAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream);
+
+            /// <summary>
+            /// Allocates memory with stream ordered semantics<para/>
+            /// Inserts an allocation operation into \p hStream.<para/>
+            /// A pointer to the allocated memory is returned immediately in *dptr.<para/>
+            /// The allocation must not be accessed until the the allocation operation completes.<para/>
+            /// The allocation comes from the memory pool current to the stream's device.<para/>
+            /// <para/>
+            /// note The default memory pool of a device contains device memory from that device.<para/>
+            /// note Basic stream ordering allows future work submitted into the same stream to use the allocation.
+            /// Stream query, stream synchronize, and CUDA events can be used to guarantee that the allocation
+            /// operation completes before work submitted in a separate stream runs. 
+            /// </summary>
+            /// <param name="dptr">Returned device pointer</param>
+            /// <param name="bytesize">Number of bytes to allocate</param>
+            /// <param name="hStream">The stream establishing the stream ordering contract and the memory pool to allocate from</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemAllocAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemAllocAsync(ref CUdeviceptr dptr, SizeT bytesize, CUstream hStream);
+
+            /// <summary>
+            /// Tries to release memory back to the OS<para/>
+            /// Releases memory back to the OS until the pool contains fewer than minBytesToKeep
+            /// reserved bytes, or there is no more memory that the allocator can safely release.<para/>
+            /// The allocator cannot release OS allocations that back outstanding asynchronous allocations.<para/>
+            /// The OS allocations may happen at different granularity from the user allocations.<para/>
+            /// <para/>
+            /// note: Allocations that have not been freed count as outstanding.<para/>
+            /// note: Allocations that have been asynchronously freed but whose completion has
+            /// not been observed on the host (eg.by a synchronize) can count as outstanding.
+            /// </summary>
+            /// <param name="pool">The memory pool to trim</param>
+            /// <param name="minBytesToKeep">If the pool has less than minBytesToKeep reserved,
+            /// the TrimTo operation is a no-op.Otherwise the pool will be guaranteed to have at least minBytesToKeep bytes reserved after the operation.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolTrimTo(CUmemoryPool pool, SizeT minBytesToKeep);
+
+            /// <summary>
+            /// Sets attributes of a memory pool<para/>
+            /// Supported attributes are:<para/>
+            /// - ::CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value type = cuuint64_t)<para/>
+            /// Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS.When more than the release
+            /// threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next 
+            /// call to stream, event or context synchronize. (default 0)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to use memory asynchronously freed
+            /// in another stream as long as a stream ordering dependency
+            /// of the allocating stream on the free action exists.
+            /// Cuda events and null stream interactions can create the required
+            /// stream ordered dependencies. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)<para/>
+            /// Allow reuse of already completed frees when there is no dependency
+            /// between the free and allocation. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to insert new stream dependencies
+            /// in order to establish the stream ordering required to reuse
+            /// a piece of memory released by::cuMemFreeAsync(default enabled).
+            /// </summary>
+            /// <param name="pool">The memory pool to modify</param>
+            /// <param name="attr">The attribute to modify</param>
+            /// <param name="value">Pointer to the value to assign</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, ref int value);
+
+            /// <summary>
+            /// Sets attributes of a memory pool<para/>
+            /// Supported attributes are:<para/>
+            /// - ::CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value type = cuuint64_t)<para/>
+            /// Amount of reserved memory in bytes to hold onto before trying to release memory back to the OS.When more than the release
+            /// threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next 
+            /// call to stream, event or context synchronize. (default 0)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to use memory asynchronously freed
+            /// in another stream as long as a stream ordering dependency
+            /// of the allocating stream on the free action exists.
+            /// Cuda events and null stream interactions can create the required
+            /// stream ordered dependencies. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)<para/>
+            /// Allow reuse of already completed frees when there is no dependency
+            /// between the free and allocation. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to insert new stream dependencies
+            /// in order to establish the stream ordering required to reuse
+            /// a piece of memory released by::cuMemFreeAsync(default enabled).
+            /// </summary>
+            /// <param name="pool">The memory pool to modify</param>
+            /// <param name="attr">The attribute to modify</param>
+            /// <param name="value">Pointer to the value to assign</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, ref ulong value);
+
+            /// <summary>
+            /// Gets attributes of a memory pool<para/>
+            /// Supported attributes are:<para/>
+            /// - ::CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value type = cuuint64_t)<para/>
+            /// Amount of reserved memory in bytes to hold onto before trying
+            /// to release memory back to the OS.When more than the release
+            /// threshold bytes of memory are held by the memory pool, the
+            /// allocator will try to release memory back to the OS on the
+            /// next call to stream, event or context synchronize. (default 0)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to use memory asynchronously freed
+            /// in another stream as long as a stream ordering dependency
+            /// of the allocating stream on the free action exists.
+            /// Cuda events and null stream interactions can create the required
+            /// stream ordered dependencies. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)<para/>
+            /// Allow reuse of already completed frees when there is no dependency between the free and allocation. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to insert new stream dependencies in order to establish the stream ordering 
+            /// required to reuse a piece of memory released by::cuMemFreeAsync(default enabled).
+            /// </summary>
+            /// <param name="pool">The memory pool to get attributes of</param>
+            /// <param name="attr">The attribute to get</param>
+            /// <param name="value">Retrieved value</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, ref int value);
+
+            /// <summary>
+            /// Gets attributes of a memory pool<para/>
+            /// Supported attributes are:<para/>
+            /// - ::CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value type = cuuint64_t)<para/>
+            /// Amount of reserved memory in bytes to hold onto before trying
+            /// to release memory back to the OS.When more than the release
+            /// threshold bytes of memory are held by the memory pool, the
+            /// allocator will try to release memory back to the OS on the
+            /// next call to stream, event or context synchronize. (default 0)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to use memory asynchronously freed
+            /// in another stream as long as a stream ordering dependency
+            /// of the allocating stream on the free action exists.
+            /// Cuda events and null stream interactions can create the required
+            /// stream ordered dependencies. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)<para/>
+            /// Allow reuse of already completed frees when there is no dependency between the free and allocation. (default enabled)<para/>
+            /// - ::CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)<para/>
+            /// Allow::cuMemAllocAsync to insert new stream dependencies in order to establish the stream ordering 
+            /// required to reuse a piece of memory released by::cuMemFreeAsync(default enabled).
+            /// </summary>
+            /// <param name="pool">The memory pool to get attributes of</param>
+            /// <param name="attr">The attribute to get</param>
+            /// <param name="value">Retrieved value</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, ref ulong value);
+
+            /// <summary>
+            /// Controls visibility of pools between devices
+            /// </summary>
+            /// <param name="pool">The pool being modified</param>
+            /// <param name="map">Array of access descriptors. Each descriptor instructs the access to enable for a single gpu.</param>
+            /// <param name="count">Number of descriptors in the map array.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolSetAccess(CUmemoryPool pool, CUmemAccessDesc[] map, SizeT count);
+
+            /// <summary>
+            /// Returns the accessibility of a pool from a device<para/>
+            /// Returns the accessibility of the pool's memory from the specified location.
+            /// </summary>
+            /// <param name="flags">the accessibility of the pool from the specified location</param>
+            /// <param name="memPool">the pool being queried</param>
+            /// <param name="location">the location accessing the pool</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolGetAccess(ref CUmemAccess_flags flags, CUmemoryPool memPool, ref CUmemLocation location);
+            
+            /// <summary>
+            /// Creates a memory pool<para/>
+            /// Creates a CUDA memory pool and returns the handle in \p pool. The \p poolProps determines
+            /// the properties of the pool such as the backing device and IPC capabilities.<para/>
+            /// By default, the pool's memory will be accessible from the device it is allocated on.<para/>
+            /// note Specifying CU_MEM_HANDLE_TYPE_NONE creates a memory pool that will not support IPC.
+            /// </summary>
+            /// <param name="pool"></param>
+            /// <param name="poolProps"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolCreate(ref CUmemoryPool pool, ref CUmemPoolProps poolProps);
+
+            /// <summary>
+            /// Destroys the specified memory pool<para/>
+            /// If any pointers obtained from this pool haven't been freed or
+            /// the pool has free operations that haven't completed
+            /// when::cuMemPoolDestroy is invoked, the function will return immediately and the
+            /// resources associated with the pool will be released automatically
+            /// once there are no more outstanding allocations.<para/>
+            /// Destroying the current mempool of a device sets the default mempool of
+            /// that device as the current mempool for that device.<para/>
+            /// note A device's default memory pool cannot be destroyed.
+            /// </summary>
+            /// <param name="pool"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolDestroy(CUmemoryPool pool);
+
+            /// <summary>
+            /// Allocates memory from a specified pool with stream ordered semantics.<para/>
+            /// Inserts an allocation operation into \p hStream.<para/>
+            /// A pointer to the allocated memory is returned immediately in *dptr.<para/>
+            /// The allocation must not be accessed until the the allocation operation completes.<para/>
+            /// The allocation comes from the specified memory pool.<para/>
+            /// note<para/>
+            /// -  The specified memory pool may be from a device different than that of the specified \p hStream.<para/>
+            /// -  Basic stream ordering allows future work submitted into the same stream to use the allocation.
+            /// Stream query, stream synchronize, and CUDA events can be used to guarantee that the allocation
+            /// operation completes before work submitted in a separate stream runs. 
+            /// </summary>
+            /// <param name="dptr">Returned device pointer</param>
+            /// <param name="bytesize">Number of bytes to allocate</param>
+            /// <param name="pool">The pool to allocate from</param>
+            /// <param name="hStream">The stream establishing the stream ordering semantic</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemAllocFromPoolAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemAllocFromPoolAsync(ref CUdeviceptr dptr, SizeT bytesize, CUmemoryPool pool, CUstream hStream);
+
+            /// <summary>
+            /// Exports a memory pool to the requested handle type.<para/>
+            /// Given an IPC capable mempool, create an OS handle to share the pool with another process.<para/>
+            /// A recipient process can convert the shareable handle into a mempool with::cuMemPoolImportFromShareableHandle.
+            /// Individual pointers can then be shared with the ::cuMemPoolExportPointer and ::cuMemPoolImportPointer APIs.
+            /// The implementation of what the shareable handle is and how it can be transferred is defined by the requested
+            /// handle type.<para/>
+            /// note: To create an IPC capable mempool, create a mempool with a CUmemAllocationHandleType other than CU_MEM_HANDLE_TYPE_NONE.
+            /// </summary>
+            /// <param name="handle_out">Returned OS handle</param>
+            /// <param name="pool">pool to export</param>
+            /// <param name="handleType">the type of handle to create</param>
+            /// <param name="flags">must be 0</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolExportToShareableHandle(ref IntPtr handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, ulong flags);
+
+            /// <summary>
+            /// imports a memory pool from a shared handle.<para/>
+            /// Specific allocations can be imported from the imported pool with cuMemPoolImportPointer.<para/>
+            /// note Imported memory pools do not support creating new allocations. As such imported memory pools 
+            /// may not be used in cuDeviceSetMemPool or ::cuMemAllocFromPoolAsync calls.
+            /// </summary>
+            /// <param name="pool_out">Returned memory pool</param>
+            /// <param name="handle">OS handle of the pool to open</param>
+            /// <param name="handleType">The type of handle being imported</param>
+            /// <param name="flags">must be 0</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolImportFromShareableHandle(
+                    ref CUmemoryPool pool_out,
+                    IntPtr handle,
+                    CUmemAllocationHandleType handleType,
+                    ulong flags);
+            
+            /// <summary>
+            /// Export data to share a memory pool allocation between processes.<para/>
+            /// Constructs \p shareData_out for sharing a specific allocation from an already shared memory pool.<para/>
+            /// The recipient process can import the allocation with the::cuMemPoolImportPointer api.<para/>
+            /// The data is not a handle and may be shared through any IPC mechanism.
+            /// </summary>
+            /// <param name="shareData_out">Returned export data</param>
+            /// <param name="ptr">pointer to memory being exported</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolExportPointer(ref CUmemPoolPtrExportData shareData_out, CUdeviceptr ptr);
+
+            /// <summary>
+            /// Import a memory pool allocation from another process.<para/>
+            /// Returns in \p ptr_out a pointer to the imported memory.<para/>
+            /// The imported memory must not be accessed before the allocation operation completes
+            /// in the exporting process.The imported memory must be freed from all importing processes before
+            /// being freed in the exporting process.The pointer may be freed with cuMemFree
+            /// or cuMemFreeAsync.If cuMemFreeAsync is used, the free must be completed
+            /// on the importing process before the free operation on the exporting process.<para/>
+            /// note The cuMemFreeAsync api may be used in the exporting process before
+            /// the cuMemFreeAsync operation completes in its stream as long as the
+            /// cuMemFreeAsync in the exporting process specifies a stream with
+            /// a stream dependency on the importing process's cuMemFreeAsync.
+            /// </summary>
+            /// <param name="ptr_out">pointer to imported memory</param>
+            /// <param name="pool">pool from which to import</param>
+            /// <param name="shareData">data specifying the memory to import</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemPoolImportPointer(ref CUdeviceptr ptr_out, CUmemoryPool pool, ref CUmemPoolPtrExportData shareData);
         }
         #endregion
 
@@ -6668,6 +7003,24 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMipmappedArrayGetSparseProperties(ref CudaArraySparseProperties sparseProperties, CUmipmappedArray mipmap);
+                        
+            /// <summary>
+            /// Gets a CUDA array plane from a CUDA array<para/>
+            /// Returns in \p pPlaneArray a CUDA array that represents a single format plane
+            /// of the CUDA array \p hArray.<para/>
+            /// If \p planeIdx is greater than the maximum number of planes in this array or if the array does
+            /// not have a multi-planar format e.g: ::CU_AD_FORMAT_NV12, then::CUDA_ERROR_INVALID_VALUE is returned.<para/>
+            /// Note that if the \p hArray has format ::CU_AD_FORMAT_NV12, then passing in 0 for \p planeIdx returns
+            /// a CUDA array of the same size as \p hArray but with one channel and::CU_AD_FORMAT_UNSIGNED_INT8 as its format.
+            /// If 1 is passed for \p planeIdx, then the returned CUDA array has half the height and width
+            /// of \p hArray with two channels and ::CU_AD_FORMAT_UNSIGNED_INT8 as its format.
+            /// </summary>
+            /// <param name="pPlaneArray">Returned CUDA array referenced by the planeIdx</param>
+            /// <param name="hArray">Multiplanar CUDA array</param>
+            /// <param name="planeIdx">Plane index</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuArrayGetPlane(ref CUarray pPlaneArray, CUarray hArray, uint planeIdx);
 
             /// <summary>
             /// Destroys the CUDA array hArray.
@@ -9314,6 +9667,445 @@ namespace ManagedCuda
 
 
             /// <summary>
+            /// Creates an external semaphore signal node and adds it to a graph<para/>
+            /// Creates a new external semaphore signal node and adds it to \p hGraph with \p
+            /// numDependencies dependencies specified via \p dependencies and arguments specified
+            /// in \p nodeParams.It is possible for \p numDependencies to be 0, in which case the
+            /// node will be placed at the root of the graph. \p dependencies may not have any
+            /// duplicate entries. A handle to the new node will be returned in \p phGraphNode.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="nodeParams">Parameters for the node</param>
+            /// <returns></returns>
+            public static CUResult cuGraphAddExternalSemaphoresSignalNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CudaExtSemSignalNodeParams nodeParams) 
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphAddExternalSemaphoresSignalNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphAddExternalSemaphoresSignalNode")]
+            private static extern CUResult cuGraphAddExternalSemaphoresSignalNodeInternal(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, IntPtr nodeParams);
+            
+            /// <summary>
+            /// Returns an external semaphore signal node's parameters<para/>
+            /// Returns the parameters of an external semaphore signal node \p hNode in \p params_out.
+            /// The \p extSemArray and \p paramsArray returned in \p params_out,
+            /// are owned by the node.This memory remains valid until the node is destroyed or its
+            /// parameters are modified, and should not be modified
+            /// directly.Use ::cuGraphExternalSemaphoresSignalNodeSetParams to update the parameters of this node.
+            /// </summary>
+            /// <param name="hNode">Node to get the parameters for</param>
+            /// <param name="params_out">Pointer to return the parameters</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, CudaExtSemSignalNodeParams params_out)
+            {
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    Marshal.WriteIntPtr(mainPtr + 0, IntPtr.Zero);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, IntPtr.Zero);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    retVal = cuGraphExternalSemaphoresSignalNodeGetParamsInternal(hNode, mainPtr);
+
+                    int length = Marshal.ReadInt32(mainPtr + 2 * IntPtr.Size);
+
+                    CUexternalSemaphore[] array1 = new CUexternalSemaphore[length];
+                    CudaExternalSemaphoreSignalParams[] array2 = new CudaExternalSemaphoreSignalParams[length];
+
+                    //Cuda owns these pointers, we won't free them
+                    IntPtr ptr1 = Marshal.ReadIntPtr(mainPtr);
+                    IntPtr ptr2 = Marshal.ReadIntPtr(mainPtr + IntPtr.Size);
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
+                        array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreSignalParams>(ptr2 + (paramsSize * i));
+                    }
+
+                    params_out.extSemArray = array1;
+                    params_out.paramsArray = array2;
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExternalSemaphoresSignalNodeGetParams")]
+            private static extern CUResult cuGraphExternalSemaphoresSignalNodeGetParamsInternal(CUgraphNode hNode, IntPtr params_out);
+
+            /// <summary>
+            /// Sets an external semaphore signal node's parameters<para/>
+            /// Sets the parameters of an external semaphore signal node \p hNode to \p nodeParams.
+            /// </summary>
+            /// <param name="hNode">Node to set the parameters for</param>
+            /// <param name="nodeParams">Parameters to copy</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, CudaExtSemSignalNodeParams nodeParams)
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphExternalSemaphoresSignalNodeSetParamsInternal(hNode, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExternalSemaphoresSignalNodeSetParams")]
+            private static extern CUResult cuGraphExternalSemaphoresSignalNodeSetParamsInternal(CUgraphNode hNode, IntPtr nodeParams);
+
+            /// <summary>
+            /// Creates an external semaphore wait node and adds it to a graph<para/>
+            /// Creates a new external semaphore wait node and adds it to \p hGraph with \p numDependencies
+            /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+            /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+            /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+            /// to the new node will be returned in \p phGraphNode.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="nodeParams">Parameters for the node</param>
+            /// <returns></returns>
+            public static CUResult cuGraphAddExternalSemaphoresWaitNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CudaExtSemWaitNodeParams nodeParams)
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphAddExternalSemaphoresWaitNodeInternal(ref phGraphNode, hGraph, dependencies, numDependencies, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphAddExternalSemaphoresWaitNode")]
+            private static extern CUResult cuGraphAddExternalSemaphoresWaitNodeInternal(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, IntPtr nodeParams);
+
+            /// <summary>
+            /// Returns an external semaphore wait node's parameters<para/>
+            /// Returns the parameters of an external semaphore wait node \p hNode in \p params_out.
+            /// The \p extSemArray and \p paramsArray returned in \p params_out,
+            /// are owned by the node.This memory remains valid until the node is destroyed or its
+            /// parameters are modified, and should not be modified
+            /// directly.Use ::cuGraphExternalSemaphoresSignalNodeSetParams to update the
+            /// parameters of this node.
+            /// </summary>
+            /// <param name="hNode">Node to get the parameters for</param>
+            /// <param name="params_out">Pointer to return the parameters</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CudaExtSemWaitNodeParams params_out)
+            {
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    Marshal.WriteIntPtr(mainPtr + 0, IntPtr.Zero);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, IntPtr.Zero);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    retVal = cuGraphExternalSemaphoresWaitNodeGetParamsInternal(hNode, mainPtr);
+
+                    int length = Marshal.ReadInt32(mainPtr + 2 * IntPtr.Size);
+
+                    CUexternalSemaphore[] array1 = new CUexternalSemaphore[length];
+                    CudaExternalSemaphoreWaitParams[] array2 = new CudaExternalSemaphoreWaitParams[length];
+
+                    //Cuda owns these pointers, we won't free them
+                    IntPtr ptr1 = Marshal.ReadIntPtr(mainPtr);
+                    IntPtr ptr2 = Marshal.ReadIntPtr(mainPtr + IntPtr.Size);
+
+                    for (int i = 0; i < length; i++)
+                    {
+                        array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
+                        array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreWaitParams>(ptr2 + (paramsSize * i));
+                    }
+
+                    params_out.extSemArray = array1;
+                    params_out.paramsArray = array2;
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExternalSemaphoresWaitNodeGetParams")]
+            private static extern CUResult cuGraphExternalSemaphoresWaitNodeGetParamsInternal(CUgraphNode hNode, IntPtr params_out);
+
+            /// <summary>
+            /// Sets an external semaphore wait node's parameters<para/>
+            /// Sets the parameters of an external semaphore wait node \p hNode to \p nodeParams.
+            /// </summary>
+            /// <param name="hNode">Node to set the parameters for</param>
+            /// <param name="nodeParams">Parameters to copy</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, CudaExtSemWaitNodeParams nodeParams)
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphExternalSemaphoresWaitNodeSetParamsInternal(hNode, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExternalSemaphoresWaitNodeSetParams")]
+            public static extern CUResult cuGraphExternalSemaphoresWaitNodeSetParamsInternal(CUgraphNode hNode, IntPtr nodeParams);
+
+            /// <summary>
             /// Clones a graph<para/>
             /// This function creates a copy of \p originalGraph and returns it in \p * phGraphClone.
             /// All parameters are copied into the cloned graph. The original graph may be modified
@@ -9619,7 +10411,172 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event_);
-            
+
+            /// <summary>
+            /// Sets the parameters for an external semaphore signal node in the given graphExec<para/>
+            /// Sets the parameters of an external semaphore signal node in an executable graph \p hGraphExec.
+            /// The node is identified by the corresponding node \p hNode in the
+            /// non-executable graph, from which the executable graph was instantiated.<para/>
+            /// hNode must not have been removed from the original graph.<para/>
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// hNode is also not modified by this call.<para/>
+            /// Changing \p nodeParams->numExtSems is not supported.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">semaphore signal node from the graph from which graphExec was instantiated</param>
+            /// <param name="nodeParams">Updated Parameters to set</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CudaExtSemSignalNodeParams nodeParams)
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphExecExternalSemaphoresSignalNodeSetParamsInternal(hGraphExec, hNode, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExecExternalSemaphoresSignalNodeSetParams")]
+            private static extern CUResult cuGraphExecExternalSemaphoresSignalNodeSetParamsInternal(CUgraphExec hGraphExec, CUgraphNode hNode, IntPtr nodeParams);
+
+            /// <summary>
+            /// Sets the parameters for an external semaphore wait node in the given graphExec<para/>
+            /// Sets the parameters of an external semaphore wait node in an executable graph \p hGraphExec.<para/>
+            /// The node is identified by the corresponding node \p hNode in the
+            /// non-executable graph, from which the executable graph was instantiated.<para/>
+            /// hNode must not have been removed from the original graph.<para/>
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// hNode is also not modified by this call.<para/>
+            /// Changing \p nodeParams->numExtSems is not supported.
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to set the specified node</param>
+            /// <param name="hNode">semaphore wait node from the graph from which graphExec was instantiated</param>
+            /// <param name="nodeParams">Updated Parameters to set</param>
+            /// <returns></returns>
+            public static CUResult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CudaExtSemWaitNodeParams nodeParams)
+            {
+                IntPtr extSemPtr = IntPtr.Zero;
+                IntPtr paramsPtr = IntPtr.Zero;
+                IntPtr mainPtr = IntPtr.Zero;
+
+                CUResult retVal = CUResult.ErrorInvalidValue;
+
+                try
+                {
+                    int arraySize = 0;
+                    if (nodeParams.extSemArray != null && nodeParams.paramsArray != null)
+                    {
+                        if (nodeParams.extSemArray.Length != nodeParams.paramsArray.Length)
+                        {
+                            return CUResult.ErrorInvalidValue;
+                        }
+                        arraySize = nodeParams.extSemArray.Length;
+                    }
+
+                    int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+
+                    mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
+
+                    if (arraySize > 0)
+                    {
+                        extSemPtr = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                        paramsPtr = Marshal.AllocHGlobal(arraySize * paramsSize);
+                    }
+
+                    Marshal.WriteIntPtr(mainPtr + 0, extSemPtr);
+                    Marshal.WriteIntPtr(mainPtr + IntPtr.Size, paramsPtr);
+                    Marshal.WriteInt32(mainPtr + 2 * IntPtr.Size, arraySize);
+
+                    for (int i = 0; i < arraySize; i++)
+                    {
+                        Marshal.StructureToPtr(nodeParams.extSemArray[i], extSemPtr + (IntPtr.Size * i), false);
+                        Marshal.StructureToPtr(nodeParams.paramsArray[i], paramsPtr + (paramsSize * i), false);
+                    }
+
+                    retVal = cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(hGraphExec, hNode, mainPtr);
+                }
+                catch
+                {
+                    retVal = CUResult.ErrorInvalidValue;
+                }
+                finally
+                {
+                    if (mainPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(mainPtr);
+                    }
+                    if (extSemPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(extSemPtr);
+                    }
+                    if (paramsPtr != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(paramsPtr);
+                    }
+                }
+                return retVal;
+            }
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExecExternalSemaphoresWaitNodeSetParams")]
+            public static extern CUResult cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(CUgraphExec hGraphExec, CUgraphNode hNode, IntPtr nodeParams);
+
+
             /// <summary>
             /// Uploads an executable graph in a stream
             /// Uploads \p hGraphExec to the device in \p hStream without executing it.Uploads of

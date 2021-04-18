@@ -8,14 +8,14 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NVRTC
 {
-	/// <summary>
-	/// Cuda runtime compiler
-	/// </summary>
-	public class CudaRuntimeCompiler : IDisposable
-	{
-		nvrtcProgram _program;
-		bool disposed = false;
-		nvrtcResult res;
+    /// <summary>
+    /// Cuda runtime compiler
+    /// </summary>
+    public class CudaRuntimeCompiler : IDisposable
+    {
+        nvrtcProgram _program;
+        bool disposed = false;
+        nvrtcResult res;
         #region Contructors
         /// <summary>
         /// Creates a runtime compiler instance.
@@ -27,56 +27,56 @@ namespace ManagedCuda.NVRTC
 		/// <param name="headers">Name of each header by which they can be included in the CUDA program source.</param>
         public CudaRuntimeCompiler(string src, string name, string[] headers, string[] includeNames)
         {
-			int headerCount = 0;
-			IntPtr[] headersPtr = null;
-			IntPtr[] includeNamesPtr = null;
+            int headerCount = 0;
+            IntPtr[] headersPtr = null;
+            IntPtr[] includeNamesPtr = null;
 
-			try
-			{
-				if (headers != null && includeNames != null)
-				{
-					if (headers.Length != includeNames.Length)
-						throw new ArgumentException("headers and includeNames must have same length.");
+            try
+            {
+                if (headers != null && includeNames != null)
+                {
+                    if (headers.Length != includeNames.Length)
+                        throw new ArgumentException("headers and includeNames must have same length.");
 
-					if (headers == null)
-						throw new ArgumentNullException("headers can't be NULL if includeNames is not NULL");
-				
-					if (includeNames == null)
-						throw new ArgumentNullException("includeNames can't be NULL if headers is not NULL");
+                    if (headers == null)
+                        throw new ArgumentNullException("headers can't be NULL if includeNames is not NULL");
 
-					headerCount = headers.Length;
+                    if (includeNames == null)
+                        throw new ArgumentNullException("includeNames can't be NULL if headers is not NULL");
 
-					headersPtr = new IntPtr[headerCount];
-					includeNamesPtr = new IntPtr[headerCount];
+                    headerCount = headers.Length;
 
-					for (int i = 0; i < headerCount; i++)
-					{
-						headersPtr[i] = Marshal.StringToHGlobalAnsi(headers[i]);
-						includeNamesPtr[i] = Marshal.StringToHGlobalAnsi(includeNames[i]);
-					}
-				}
+                    headersPtr = new IntPtr[headerCount];
+                    includeNamesPtr = new IntPtr[headerCount];
 
-				_program = new nvrtcProgram();
-				res = NVRTCNativeMethods.nvrtcCreateProgram(ref _program, src, name, headerCount, headersPtr, includeNamesPtr);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcCreateProgram", res));
-			}
-			finally
-			{
-				if (headersPtr != null)
-					for (int i = 0; i < headersPtr.Length; i++)
-					{
-						Marshal.FreeHGlobal(headersPtr[i]);
-					}
+                    for (int i = 0; i < headerCount; i++)
+                    {
+                        headersPtr[i] = Marshal.StringToHGlobalAnsi(headers[i]);
+                        includeNamesPtr[i] = Marshal.StringToHGlobalAnsi(includeNames[i]);
+                    }
+                }
 
-				if (includeNamesPtr != null)
-					for (int i = 0; i < includeNamesPtr.Length; i++)
-					{
-						Marshal.FreeHGlobal(includeNamesPtr[i]);
-					}
-			}
+                _program = new nvrtcProgram();
+                res = NVRTCNativeMethods.nvrtcCreateProgram(ref _program, src, name, headerCount, headersPtr, includeNamesPtr);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcCreateProgram", res));
+            }
+            finally
+            {
+                if (headersPtr != null)
+                    for (int i = 0; i < headersPtr.Length; i++)
+                    {
+                        Marshal.FreeHGlobal(headersPtr[i]);
+                    }
 
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+                if (includeNamesPtr != null)
+                    for (int i = 0; i < includeNamesPtr.Length; i++)
+                    {
+                        Marshal.FreeHGlobal(includeNamesPtr[i]);
+                    }
+            }
+
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
         }
         /// <summary>
         /// Creates a runtime compiler instance.
@@ -85,10 +85,10 @@ namespace ManagedCuda.NVRTC
 		/// <param name="name">CUDA program name.<para/>
 		/// name can be NULL; "default_program" is used when name is NULL.</param>
 		public CudaRuntimeCompiler(string src, string name)
-			: this(src, name, null, null)
-		{
+            : this(src, name, null, null)
+        {
 
-		}
+        }
 
         /// <summary>
         /// For dispose
@@ -118,8 +118,8 @@ namespace ManagedCuda.NVRTC
             if (fDisposing && !disposed)
             {
                 //Ignore if failing
-				res = NVRTCNativeMethods.nvrtcDestroyProgram(ref _program);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcDestroyProgram", res));
+                res = NVRTCNativeMethods.nvrtcDestroyProgram(ref _program);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcDestroyProgram", res));
                 disposed = true;
             }
             if (!fDisposing && !disposed)
@@ -127,157 +127,179 @@ namespace ManagedCuda.NVRTC
         }
         #endregion
 
-		#region Static Methods
-		/// <summary/>
-		public static Version GetVersion()
-		{
-			int major = 0;
-			int minor = 0;
-			nvrtcResult res = NVRTCNativeMethods.nvrtcVersion(ref major, ref minor);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcVersion", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
-			return new Version(major, minor);
-		}
-		#endregion
+        #region Static Methods
+        /// <summary/>
+        public static Version GetVersion()
+        {
+            int major = 0;
+            int minor = 0;
+            nvrtcResult res = NVRTCNativeMethods.nvrtcVersion(ref major, ref minor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcVersion", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+            return new Version(major, minor);
+        }
 
-		#region Methods
-		/// <summary/>
-		public void Compile(string[] options)
-		{ 
-			int optionCount = 0;
-			IntPtr[] optionsPtr = null;
+        public static int[] GetSupportedArchs()
+        {
+            int num = 0;
+            nvrtcResult res = NVRTCNativeMethods.nvrtcGetNumSupportedArchs(ref num);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetNumSupportedArchs", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-			try
-			{
-				if (options != null)
-				{
-					optionCount = options.Length;
-					optionsPtr = new IntPtr[optionCount];
+            if (num <= 0)
+            {
+                return null;
+            }
 
-					for (int i = 0; i < optionCount; i++)
-					{
-						optionsPtr[i] = Marshal.StringToHGlobalAnsi(options[i]);
-					}
-				}
+            int[] archs = new int[num];
+            res = NVRTCNativeMethods.nvrtcGetSupportedArchs(archs);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetSupportedArchs", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-				res = NVRTCNativeMethods.nvrtcCompileProgram(_program, optionCount, optionsPtr);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcCompileProgram", res));		
-			}
-			finally
-			{
-				if (optionsPtr != null)
-					for (int i = 0; i < optionsPtr.Length; i++)
-					{
-						Marshal.FreeHGlobal(optionsPtr[i]);
-					}
-			}
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
-		}
+            return archs;
+        }
+        #endregion
 
-		/// <summary/>
-		public byte[] GetPTX()
-		{
-			SizeT ptxSize = new SizeT();
+        #region Methods
+        /// <summary/>
+        public void Compile(string[] options)
+        {
+            int optionCount = 0;
+            IntPtr[] optionsPtr = null;
 
-			res = NVRTCNativeMethods.nvrtcGetPTXSize(_program, ref ptxSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPTXSize", res));	
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);	
-			
-			byte[] ptxCode = new byte[ptxSize];
+            try
+            {
+                if (options != null)
+                {
+                    optionCount = options.Length;
+                    optionsPtr = new IntPtr[optionCount];
 
-			res = NVRTCNativeMethods.nvrtcGetPTX(_program, ptxCode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPTX", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+                    for (int i = 0; i < optionCount; i++)
+                    {
+                        optionsPtr[i] = Marshal.StringToHGlobalAnsi(options[i]);
+                    }
+                }
 
-			return ptxCode;
-		}
+                res = NVRTCNativeMethods.nvrtcCompileProgram(_program, optionCount, optionsPtr);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcCompileProgram", res));
+            }
+            finally
+            {
+                if (optionsPtr != null)
+                    for (int i = 0; i < optionsPtr.Length; i++)
+                    {
+                        Marshal.FreeHGlobal(optionsPtr[i]);
+                    }
+            }
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+        }
 
-		/// <summary/>
-		public byte[] GetCubin()
-		{
-			SizeT cubinSize = new SizeT();
+        /// <summary/>
+        public byte[] GetPTX()
+        {
+            SizeT ptxSize = new SizeT();
 
-			res = NVRTCNativeMethods.nvrtcGetCUBINSize(_program, ref cubinSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBINSize", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+            res = NVRTCNativeMethods.nvrtcGetPTXSize(_program, ref ptxSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPTXSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-			byte[] cubinCode = new byte[cubinSize];
+            byte[] ptxCode = new byte[ptxSize];
 
-			res = NVRTCNativeMethods.nvrtcGetCUBIN(_program, cubinCode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBIN", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+            res = NVRTCNativeMethods.nvrtcGetPTX(_program, ptxCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPTX", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-			return cubinCode;
-		}
+            return ptxCode;
+        }
 
-		/// <summary/>
-		public string GetPTXAsString()
-		{
-			byte[] ptxCode = GetPTX();
-			ASCIIEncoding enc = new ASCIIEncoding();
+        /// <summary/>
+        public byte[] GetCubin()
+        {
+            SizeT cubinSize = new SizeT();
 
-			string ptxString = enc.GetString(ptxCode);
-			return ptxString.Replace("\0", "");
-		}
+            res = NVRTCNativeMethods.nvrtcGetCUBINSize(_program, ref cubinSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBINSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-		/// <summary/>
-		public byte[] GetLog()
-		{
-			SizeT logSize = new SizeT();
+            byte[] cubinCode = new byte[cubinSize];
 
-			res = NVRTCNativeMethods.nvrtcGetProgramLogSize(_program, ref logSize);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetProgramLogSize", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+            res = NVRTCNativeMethods.nvrtcGetCUBIN(_program, cubinCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetCUBIN", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-			byte[] logCode = new byte[logSize];
+            return cubinCode;
+        }
 
-			res = NVRTCNativeMethods.nvrtcGetProgramLog(_program, logCode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetProgramLog", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+        /// <summary/>
+        public string GetPTXAsString()
+        {
+            byte[] ptxCode = GetPTX();
+            ASCIIEncoding enc = new ASCIIEncoding();
 
-			return logCode;
-		}
+            string ptxString = enc.GetString(ptxCode);
+            return ptxString.Replace("\0", "");
+        }
 
-		/// <summary/>
-		public string GetLogAsString()
-		{
-			byte[] logCode = GetLog();
-			ASCIIEncoding enc = new ASCIIEncoding();
+        /// <summary/>
+        public byte[] GetLog()
+        {
+            SizeT logSize = new SizeT();
 
-			string logString = enc.GetString(logCode);
-			return logString.Replace("\0", "");
-		}
+            res = NVRTCNativeMethods.nvrtcGetProgramLogSize(_program, ref logSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetProgramLogSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-		/// <summary/>
-		public void AddNameExpression(string nameExpression)
-		{
+            byte[] logCode = new byte[logSize];
 
-			res = NVRTCNativeMethods.nvrtcAddNameExpression(_program, nameExpression);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcAddNameExpression", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
-		}
+            res = NVRTCNativeMethods.nvrtcGetProgramLog(_program, logCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetProgramLog", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
 
-		/// <summary/>
-		public string GetLoweredName(string nameExpression)
-		{
-			IntPtr ret = new IntPtr();
-			res = NVRTCNativeMethods.nvrtcGetLoweredName(_program, nameExpression, ref ret);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetLoweredName", res));
-			if (res != nvrtcResult.Success)
-				throw new NVRTCException(res);
+            return logCode;
+        }
 
-			//ret ptr is freed when _program is destroyed!
-			return Marshal.PtrToStringAnsi(ret);
-		}
-		#endregion
-	}
+        /// <summary/>
+        public string GetLogAsString()
+        {
+            byte[] logCode = GetLog();
+            ASCIIEncoding enc = new ASCIIEncoding();
+
+            string logString = enc.GetString(logCode);
+            return logString.Replace("\0", "");
+        }
+
+        /// <summary/>
+        public void AddNameExpression(string nameExpression)
+        {
+
+            res = NVRTCNativeMethods.nvrtcAddNameExpression(_program, nameExpression);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcAddNameExpression", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+        }
+
+        /// <summary/>
+        public string GetLoweredName(string nameExpression)
+        {
+            IntPtr ret = new IntPtr();
+            res = NVRTCNativeMethods.nvrtcGetLoweredName(_program, nameExpression, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetLoweredName", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            //ret ptr is freed when _program is destroyed!
+            return Marshal.PtrToStringAnsi(ret);
+        }
+        #endregion
+    }
 }

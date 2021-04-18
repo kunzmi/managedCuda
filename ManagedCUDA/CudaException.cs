@@ -237,6 +237,9 @@ namespace ManagedCuda
                 case CUResult.UnsupportedPTXVersion:
                     message = "This indicates that the provided PTX was compiled with an unsupported toolchain.";
                     break;
+                case CUResult.JITCompilationDisabled:
+                    message = "This indicates that the PTX JIT compilation was disabled.";
+                    break;
                 case CUResult.ErrorInvalidSource:
 					message = "This indicates that the device kernel source is invalid.";
 					break;
