@@ -60,6 +60,7 @@ namespace ManagedCuda
 		protected int _deviceID;
 		/// <summary/>
 		protected bool disposed;
+		public bool IsDisposed { get { return disposed; } protected set { disposed = value; } }
 		private bool _contextOwner; //Indicates if this CudaContext instance created the wrapped cuda context and should be destroyed while disposing.
 
 		#region Constructors

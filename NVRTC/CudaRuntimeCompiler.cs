@@ -15,6 +15,9 @@ namespace ManagedCuda.NVRTC
 	{
 		nvrtcProgram _program;
 		bool disposed = false;
+
+		public bool IsDisposed { get { return disposed; } protected set { disposed = value; } }
+
 		nvrtcResult res;
         #region Contructors
         /// <summary>
