@@ -81,16 +81,16 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegCreateSimple(ref nvjpegHandle handle);
 
-      
+
         /// <summary>
         /// Initalization of nvjpeg handle with additional parameters. This handle is used for all consecutive nvjpeg calls
-		/// </summary>
+        /// </summary>
         /// <param name="backend">Backend to use. Currently Default or Hybrid (which is the same at the moment) is supported.</param>
         /// <param name="dev_allocator">Pointer to nvjpegDevAllocator. If NULL - use default cuda calls (cudaMalloc/cudaFree)</param>
         /// <param name="pinned_allocator">Pointer to nvjpegPinnedAllocator. If NULL - use default cuda calls (cudaHostAlloc/cudaFreeHost)</param>
         /// <param name="flags">Parameters for the operation. Must be 0.</param>
         /// <param name="handle">Codec instance, use for other calls</param>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegCreateEx(nvjpegBackend backend,
                 ref nvjpegDevAllocator dev_allocator,
                 ref nvjpegPinnedAllocator pinned_allocator,
@@ -150,22 +150,22 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegDestroy(nvjpegHandle handle);
 
-        
+
         /// <summary>
         /// Sets padding for device memory allocations. After success on this call any device memory allocation would be padded to the multiple of specified number of bytes. 
         /// </summary>
         /// <param name="padding">padding size</param>
         /// <param name="handle">instance handle to release </param>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegSetDeviceMemoryPadding(SizeT padding, nvjpegHandle handle);
 
-        
+
         /// <summary>
         /// Retrieves padding for device memory allocations
         /// </summary>
         /// <param name="padding">padding size currently used in handle.</param>
         /// <param name="handle">instance handle to release </param>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegGetDeviceMemoryPadding(ref SizeT padding, nvjpegHandle handle);
 
 
@@ -203,7 +203,7 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegJpegStateDestroy(nvjpegJpegState jpeg_handle);
 
-        
+
         /// <summary>
         /// Retrieve the image info, including channel, width and height of each component, and chroma subsampling.<para/>
         /// If less than NVJPEG_MAX_COMPONENT channels are encoded, then zeros would be set to absent channels information<para/>
@@ -217,7 +217,7 @@ namespace ManagedCuda.NvJpeg
         /// <param name="subsampling">Chroma subsampling used in this JPEG, see nvjpegChromaSubsampling</param>
         /// <param name="widths">pointer to NVJPEG_MAX_COMPONENT of ints, returns width of each channel. 0 if channel is not encoded  </param>
         /// <param name="heights">pointer to NVJPEG_MAX_COMPONENT of ints, returns height of each channel. 0 if channel is not encoded </param>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegGetImageInfo(nvjpegHandle handle, IntPtr data, SizeT length,
                 ref int nComponents, ref nvjpegChromaSubsampling subsampling, int[] widths, int[] heights);
 
@@ -442,7 +442,7 @@ namespace ManagedCuda.NvJpeg
                 IntPtr data,
                 ref SizeT length,
                 CUstream stream);
-        
+
 
 
         ///////////////////////////////////////////////////////////////////////////////////
@@ -456,8 +456,8 @@ namespace ManagedCuda.NvJpeg
 
 
         /// <summary>
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegBufferPinnedCreate(nvjpegHandle handle,
             ref nvjpegPinnedAllocator pinned_allocator,
             ref nvjpegBufferPinned buffer);
@@ -492,7 +492,7 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegBufferDeviceRetrieve(nvjpegBufferDevice buffer, ref SizeT size, ref CUdeviceptr ptr);
 
-        
+
         /// <summary>
         /// this allows attaching same memory buffers to different states, allowing to switch implementations without allocating extra memory
         /// </summary>
@@ -677,7 +677,7 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegDecoderDestroy(nvjpegJpegDecoder decoder_handle);
 
-        
+
         /// <summary>
         /// on return sets is_supported value to 0 if decoder is capable to handle jpeg_stream 
         /// with specified decode parameters
@@ -695,6 +695,16 @@ namespace ManagedCuda.NvJpeg
         public static extern nvjpegStatus nvjpegDecodeBatchedSupported(nvjpegHandle handle,
             nvjpegJpegStream jpeg_stream,
             ref int is_supported);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedSupportedEx(nvjpegHandle handle,
+            nvjpegJpegStream jpeg_stream,
+            nvjpegDecodeParams decode_params,
+            ref int is_supported);
+
 
         /// <summary>
         /// creates decoder state 
@@ -733,7 +743,7 @@ namespace ManagedCuda.NvJpeg
             nvjpegDecodeParams decode_params,
             nvjpegJpegStream jpeg_stream);
 
-        
+
         /// <summary>
         /// hybrid stage of decoding image,  involves device async calls
         /// note that jpeg stream is a parameter here - because we still might need copy parts of bytestream to device
@@ -746,11 +756,11 @@ namespace ManagedCuda.NvJpeg
             nvjpegJpegStream jpeg_stream,
             CUstream stream);
 
-        
+
         /// <summary>
         /// finishing async operations on the device
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegDecodeJpegDevice(
             nvjpegHandle handle,
             nvjpegJpegDecoder decoder,
@@ -758,26 +768,43 @@ namespace ManagedCuda.NvJpeg
             ref nvjpegImage destination,
             CUstream stream);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="jpeg_handle"></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedEx(
+                  nvjpegHandle handle,
+                  nvjpegJpegState jpeg_handle,
+          IntPtr[] data,
+          SizeT[] lengths,
+          nvjpegImage[] destinations,
+          nvjpegDecodeParams[] decode_params,
+          CUstream stream);
+
         ///////////////////////////////////////////////////////////////////////////////////
         // JPEG Transcoding Functions //
         ///////////////////////////////////////////////////////////////////////////////////
 
-        
+
         /// <summary>
         /// copies metadata (JFIF, APP, EXT, COM markers) from parsed stream
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegEncoderParamsCopyMetadata(
             nvjpegEncoderState encoder_state,
             nvjpegEncoderParams encode_params,
             nvjpegJpegStream jpeg_stream,
             CUstream stream);
 
-        
+
         /// <summary>
         /// copies quantization tables from parsed stream
-		/// </summary>
-		[DllImport(NVJPEG_API_DLL_NAME)]
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegEncoderParamsCopyQuantizationTables(
             nvjpegEncoderParams encode_params,
             nvjpegJpegStream jpeg_stream,

@@ -35,9 +35,9 @@ namespace ManagedCuda
     /// </summary>
     public static class DriverAPINativeMethods
     {
-		internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
-		internal const string CUDA_OBSOLET_9_2 = "Don't use this CUDA API call with CUDA version >= 9.2.";
-		internal const string CUDA_OBSOLET_11 = "Don't use this CUDA API call with CUDA version >= 11";
+        internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
+        internal const string CUDA_OBSOLET_9_2 = "Don't use this CUDA API call with CUDA version >= 9.2.";
+        internal const string CUDA_OBSOLET_11 = "Don't use this CUDA API call with CUDA version >= 11";
 
 #if (NETCOREAPP)
         internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
@@ -64,7 +64,7 @@ namespace ManagedCuda
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
         internal static void Init()
-        { 
+        {
             //Need that to have the constructor called before any library call.
         }
 #endif
@@ -75,10 +75,10 @@ namespace ManagedCuda
 		internal const string CUDA_PTSZ = "_ptsz";
 #else
         internal const string CUDA_PTDS = "";
-		internal const string CUDA_PTSZ = "";
+        internal const string CUDA_PTSZ = "";
 #endif
 
-		/// <summary>
+        /// <summary>
         /// Gives the version of the wrapped api
         /// </summary>
         public static Version Version
@@ -157,7 +157,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceGetName([Out] byte[] name, int len, CUdevice dev);
-            
+
             /// <summary>
             /// Return an UUID for the device<para/>
             /// Returns 16-octets identifing the device \p dev in the structure pointed by the \p uuid.
@@ -274,7 +274,7 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceGetMemPool(ref CUmemoryPool pool, CUdevice dev);
-            
+
             /// <summary>
             /// Returns the default mempool of a device<para/>
             /// The default mempool of a device contains device memory from that device.
@@ -298,134 +298,134 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuDeviceGetByPCIBusId(ref CUdevice dev, [In, Out] byte[] pciBusId);
-			
-			/// <summary>
-			/// Returns an ASCII string identifying the device <c>dev</c> in the NULL-terminated
-			/// string pointed to by <c>pciBusId</c>. <c>len</c> specifies the maximum length of the
-			/// string that may be returned.
-			/// </summary>
-			/// <param name="pciBusId">Returned identifier string for the device in the following format
-			/// [domain]:[bus]:[device].[function]<para/>
-			/// where domain, bus, device, and function are all hexadecimal values.<para/>
-			/// pciBusId should be large enough to store 13 characters including the NULL-terminator.</param>
-			/// <param name="len">Maximum length of string to store in <c>name</c></param>
-			/// <param name="dev">Device to get identifier string for</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuDeviceGetPCIBusId([In, Out] byte[] pciBusId, int len, CUdevice dev);
-			
-			/// <summary>
-			/// Takes as input a previously allocated event. This event must have been 
-			/// created with the ::CU_EVENT_INTERPROCESS and ::CU_EVENT_DISABLE_TIMING 
-			/// flags set. This opaque handle may be copied into other processes and
-			/// opened with ::cuIpcOpenEventHandle to allow efficient hardware
-			/// synchronization between GPU work in different processes.
-			/// <para/>
-			/// After the event has been been opened in the importing process, 
-			/// ::cuEventRecord, ::cuEventSynchronize, ::cuStreamWaitEvent and 
-			/// ::cuEventQuery may be used in either process. Performing operations 
-			/// on the imported event after the exported event has been freed 
-			/// with ::cuEventDestroy will result in undefined behavior.
-			/// <para/>
-			/// IPC functionality is restricted to devices with support for unified 
-			/// addressing on Linux operating systems.
-			/// </summary>
-			/// <param name="pHandle">Pointer to a user allocated CUipcEventHandle in which to return the opaque event handle</param>
-			/// <param name="cuevent">Event allocated with ::CU_EVENT_INTERPROCESS and  ::CU_EVENT_DISABLE_TIMING flags.</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuIpcGetEventHandle(ref CUipcEventHandle pHandle, CUevent cuevent);
-			
-			/// <summary>
-			/// Opens an interprocess event handle exported from another process with 
-			/// ::cuIpcGetEventHandle. This function returns a ::CUevent that behaves like 
-			/// a locally created event with the ::CU_EVENT_DISABLE_TIMING flag specified. 
-			/// This event must be freed with ::cuEventDestroy.
-			/// <para/>
-			/// Performing operations on the imported event after the exported event has 
-			/// been freed with ::cuEventDestroy will result in undefined behavior.
-			/// <para/>
-			/// IPC functionality is restricted to devices with support for unified 
-			/// addressing on Linux operating systems.
-			/// </summary>
-			/// <param name="phEvent">Returns the imported event</param>
-			/// <param name="handle">Interprocess handle to open</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuIpcOpenEventHandle(ref CUevent phEvent, CUipcEventHandle handle);
-			
-			/// <summary>
-			/// Takes a pointer to the base of an existing device memory allocation created 
-			/// with ::cuMemAlloc and exports it for use in another process. This is a 
-			/// lightweight operation and may be called multiple times on an allocation
-			/// without adverse effects. 
-			/// <para/>
-			/// If a region of memory is freed with ::cuMemFree and a subsequent call
-			/// to ::cuMemAlloc returns memory with the same device address,
-			/// ::cuIpcGetMemHandle will return a unique handle for the
-			///  new memory. 
-			/// <para/>
-			/// IPC functionality is restricted to devices with support for unified 
-			/// addressing on Linux operating systems.
-			/// </summary>
-			/// <param name="pHandle">Pointer to user allocated ::CUipcMemHandle to return the handle in.</param>
-			/// <param name="dptr">Base pointer to previously allocated device memory </param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuIpcGetMemHandle(ref CUipcMemHandle pHandle, CUdeviceptr dptr);
-			
-			/// <summary>
-			/// Maps memory exported from another process with ::cuIpcGetMemHandle into
-			/// the current device address space. For contexts on different devices 
-			/// ::cuIpcOpenMemHandle can attempt to enable peer access between the
-			/// devices as if the user called ::cuCtxEnablePeerAccess. This behavior is 
-			/// controlled by the ::CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS flag. 
-			/// ::cuDeviceCanAccessPeer can determine if a mapping is possible.
-			/// <para/>
-			/// Contexts that may open ::CUipcMemHandles are restricted in the following way.
-			/// ::CUipcMemHandles from each ::CUdevice in a given process may only be opened 
-			/// by one ::CUcontext per ::CUdevice per other process.
-			/// <para/>
-			/// Memory returned from ::cuIpcOpenMemHandle must be freed with
-			/// ::cuIpcCloseMemHandle.
-			/// <para/>
-			/// Calling ::cuMemFree on an exported memory region before calling
-			/// ::cuIpcCloseMemHandle in the importing context will result in undefined
-			/// behavior.
-			/// <para/>
-			/// IPC functionality is restricted to devices with support for unified 
-			/// addressing on Linux operating systems.
-			/// </summary>
-			/// <param name="pdptr">Returned device pointer</param>
-			/// <param name="handle">::CUipcMemHandle to open</param>
-			/// <param name="Flags">Flags for this operation. Must be specified as ::CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/>, <see cref="CUResult.ErrorTooManyPeers"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuIpcOpenMemHandle_v2")]
+            public static extern CUResult cuDeviceGetByPCIBusId(ref CUdevice dev, [In, Out] byte[] pciBusId);
+
+            /// <summary>
+            /// Returns an ASCII string identifying the device <c>dev</c> in the NULL-terminated
+            /// string pointed to by <c>pciBusId</c>. <c>len</c> specifies the maximum length of the
+            /// string that may be returned.
+            /// </summary>
+            /// <param name="pciBusId">Returned identifier string for the device in the following format
+            /// [domain]:[bus]:[device].[function]<para/>
+            /// where domain, bus, device, and function are all hexadecimal values.<para/>
+            /// pciBusId should be large enough to store 13 characters including the NULL-terminator.</param>
+            /// <param name="len">Maximum length of string to store in <c>name</c></param>
+            /// <param name="dev">Device to get identifier string for</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetPCIBusId([In, Out] byte[] pciBusId, int len, CUdevice dev);
+
+            /// <summary>
+            /// Takes as input a previously allocated event. This event must have been 
+            /// created with the ::CU_EVENT_INTERPROCESS and ::CU_EVENT_DISABLE_TIMING 
+            /// flags set. This opaque handle may be copied into other processes and
+            /// opened with ::cuIpcOpenEventHandle to allow efficient hardware
+            /// synchronization between GPU work in different processes.
+            /// <para/>
+            /// After the event has been been opened in the importing process, 
+            /// ::cuEventRecord, ::cuEventSynchronize, ::cuStreamWaitEvent and 
+            /// ::cuEventQuery may be used in either process. Performing operations 
+            /// on the imported event after the exported event has been freed 
+            /// with ::cuEventDestroy will result in undefined behavior.
+            /// <para/>
+            /// IPC functionality is restricted to devices with support for unified 
+            /// addressing on Linux operating systems.
+            /// </summary>
+            /// <param name="pHandle">Pointer to a user allocated CUipcEventHandle in which to return the opaque event handle</param>
+            /// <param name="cuevent">Event allocated with ::CU_EVENT_INTERPROCESS and  ::CU_EVENT_DISABLE_TIMING flags.</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuIpcGetEventHandle(ref CUipcEventHandle pHandle, CUevent cuevent);
+
+            /// <summary>
+            /// Opens an interprocess event handle exported from another process with 
+            /// ::cuIpcGetEventHandle. This function returns a ::CUevent that behaves like 
+            /// a locally created event with the ::CU_EVENT_DISABLE_TIMING flag specified. 
+            /// This event must be freed with ::cuEventDestroy.
+            /// <para/>
+            /// Performing operations on the imported event after the exported event has 
+            /// been freed with ::cuEventDestroy will result in undefined behavior.
+            /// <para/>
+            /// IPC functionality is restricted to devices with support for unified 
+            /// addressing on Linux operating systems.
+            /// </summary>
+            /// <param name="phEvent">Returns the imported event</param>
+            /// <param name="handle">Interprocess handle to open</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuIpcOpenEventHandle(ref CUevent phEvent, CUipcEventHandle handle);
+
+            /// <summary>
+            /// Takes a pointer to the base of an existing device memory allocation created 
+            /// with ::cuMemAlloc and exports it for use in another process. This is a 
+            /// lightweight operation and may be called multiple times on an allocation
+            /// without adverse effects. 
+            /// <para/>
+            /// If a region of memory is freed with ::cuMemFree and a subsequent call
+            /// to ::cuMemAlloc returns memory with the same device address,
+            /// ::cuIpcGetMemHandle will return a unique handle for the
+            ///  new memory. 
+            /// <para/>
+            /// IPC functionality is restricted to devices with support for unified 
+            /// addressing on Linux operating systems.
+            /// </summary>
+            /// <param name="pHandle">Pointer to user allocated ::CUipcMemHandle to return the handle in.</param>
+            /// <param name="dptr">Base pointer to previously allocated device memory </param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuIpcGetMemHandle(ref CUipcMemHandle pHandle, CUdeviceptr dptr);
+
+            /// <summary>
+            /// Maps memory exported from another process with ::cuIpcGetMemHandle into
+            /// the current device address space. For contexts on different devices 
+            /// ::cuIpcOpenMemHandle can attempt to enable peer access between the
+            /// devices as if the user called ::cuCtxEnablePeerAccess. This behavior is 
+            /// controlled by the ::CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS flag. 
+            /// ::cuDeviceCanAccessPeer can determine if a mapping is possible.
+            /// <para/>
+            /// Contexts that may open ::CUipcMemHandles are restricted in the following way.
+            /// ::CUipcMemHandles from each ::CUdevice in a given process may only be opened 
+            /// by one ::CUcontext per ::CUdevice per other process.
+            /// <para/>
+            /// Memory returned from ::cuIpcOpenMemHandle must be freed with
+            /// ::cuIpcCloseMemHandle.
+            /// <para/>
+            /// Calling ::cuMemFree on an exported memory region before calling
+            /// ::cuIpcCloseMemHandle in the importing context will result in undefined
+            /// behavior.
+            /// <para/>
+            /// IPC functionality is restricted to devices with support for unified 
+            /// addressing on Linux operating systems.
+            /// </summary>
+            /// <param name="pdptr">Returned device pointer</param>
+            /// <param name="handle">::CUipcMemHandle to open</param>
+            /// <param name="Flags">Flags for this operation. Must be specified as ::CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/>, <see cref="CUResult.ErrorTooManyPeers"/></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuIpcOpenMemHandle_v2")]
 
             public static extern CUResult cuIpcOpenMemHandle(ref CUdeviceptr pdptr, CUipcMemHandle handle, uint Flags);
-			
-			/// <summary>
-			/// Unmaps memory returnd by ::cuIpcOpenMemHandle. The original allocation
-			/// in the exporting process as well as imported mappings in other processes
-			/// will be unaffected.
-			/// <para/>
-			/// Any resources used to enable peer access will be freed if this is the
-			/// last mapping using them.
-			/// <para/>
-			/// IPC functionality is restricted to devices with support for unified 
-			///  addressing on Linux operating systems.
-			/// </summary>
-			/// <param name="dptr">Device pointer returned by ::cuIpcOpenMemHandle</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuIpcCloseMemHandle(CUdeviceptr dptr);
 
-			#endregion
-		}
+            /// <summary>
+            /// Unmaps memory returnd by ::cuIpcOpenMemHandle. The original allocation
+            /// in the exporting process as well as imported mappings in other processes
+            /// will be unaffected.
+            /// <para/>
+            /// Any resources used to enable peer access will be freed if this is the
+            /// last mapping using them.
+            /// <para/>
+            /// IPC functionality is restricted to devices with support for unified 
+            ///  addressing on Linux operating systems.
+            /// </summary>
+            /// <param name="dptr">Device pointer returned by ::cuIpcOpenMemHandle</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidHandle"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorMapFailed"/></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuIpcCloseMemHandle(CUdeviceptr dptr);
+
+            #endregion
+        }
         #endregion
 
         #region Context management
@@ -526,7 +526,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuCtxPopCurrent_v2(ref  CUcontext pctx);
+            public static extern CUResult cuCtxPopCurrent_v2(ref CUcontext pctx);
 
             /// <summary>
             /// Binds the specified CUDA context to the calling CPU thread.
@@ -545,7 +545,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxSetCurrent([In] CUcontext ctx);
-            
+
             /// <summary>
             /// Returns in <c>ctx</c> the CUDA context bound to the calling CPU thread.
             /// If no context is bound to the calling CPU thread then <c>ctx</c> is
@@ -629,80 +629,80 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxSetCacheConfig(CUFuncCache config);
-			
-			/// <summary>
-			/// Returns the current shared memory configuration for the current context.
-			/// <para/>
-			/// This function will return in \p pConfig the current size of shared memory banks
-			/// in the current context. On devices with configurable shared memory banks, 
-			/// <see cref="cuCtxSetSharedMemConfig"/> can be used to change this setting, so that all 
-			/// subsequent kernel launches will by default use the new bank size. When 
-			/// <see cref="cuCtxGetSharedMemConfig"/> is called on devices without configurable shared 
-			/// memory, it will return the fixed bank size of the hardware.
-			///<para/>
-			/// The returned bank configurations can be either:
-			/// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
-			///   be natively four bytes.
-			/// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
-			///   be natively eight bytes.
-			/// </summary>
-			/// <param name="pConfig">returned shared memory configuration</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Returns the current shared memory configuration for the current context.
+            /// <para/>
+            /// This function will return in \p pConfig the current size of shared memory banks
+            /// in the current context. On devices with configurable shared memory banks, 
+            /// <see cref="cuCtxSetSharedMemConfig"/> can be used to change this setting, so that all 
+            /// subsequent kernel launches will by default use the new bank size. When 
+            /// <see cref="cuCtxGetSharedMemConfig"/> is called on devices without configurable shared 
+            /// memory, it will return the fixed bank size of the hardware.
+            ///<para/>
+            /// The returned bank configurations can be either:
+            /// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
+            ///   be natively four bytes.
+            /// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
+            ///   be natively eight bytes.
+            /// </summary>
+            /// <param name="pConfig">returned shared memory configuration</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxGetSharedMemConfig(ref CUsharedconfig pConfig);
 
-			/// <summary>
-			/// Sets the shared memory configuration for the current context.<para/>
-			/// On devices with configurable shared memory banks, this function will set
-		    /// the context's shared memory bank size which is used for subsequent kernel 
-			/// launches. <para/> 
-		    /// Changed the shared memory configuration between launches may insert a device
-			/// side synchronization point between those launches.<para/>
-		    /// Changing the shared memory bank size will not increase shared memory usage
-		    /// or affect occupancy of kernels, but may have major effects on performance. 
-		    /// Larger bank sizes will allow for greater potential bandwidth to shared memory,
-		    /// but will change what kinds of accesses to shared memory will result in bank 
-			/// conflicts.<para/>
-			/// This function will do nothing on devices with fixed shared memory bank size.
-			/// <para/>
-			/// The supported bank configurations are:
-			/// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
-			///   setting (currently, four bytes).
-			/// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
-			///   be natively four bytes.
-			/// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
-			///   be natively eight bytes.
-			/// </summary>
-			/// <param name="config">requested shared memory configuration</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuCtxSetSharedMemConfig(CUsharedconfig config);
+            /// <summary>
+            /// Sets the shared memory configuration for the current context.<para/>
+            /// On devices with configurable shared memory banks, this function will set
+            /// the context's shared memory bank size which is used for subsequent kernel 
+            /// launches. <para/> 
+            /// Changed the shared memory configuration between launches may insert a device
+            /// side synchronization point between those launches.<para/>
+            /// Changing the shared memory bank size will not increase shared memory usage
+            /// or affect occupancy of kernels, but may have major effects on performance. 
+            /// Larger bank sizes will allow for greater potential bandwidth to shared memory,
+            /// but will change what kinds of accesses to shared memory will result in bank 
+            /// conflicts.<para/>
+            /// This function will do nothing on devices with fixed shared memory bank size.
+            /// <para/>
+            /// The supported bank configurations are:
+            /// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
+            ///   setting (currently, four bytes).
+            /// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
+            ///   be natively four bytes.
+            /// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
+            ///   be natively eight bytes.
+            /// </summary>
+            /// <param name="config">requested shared memory configuration</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxSetSharedMemConfig(CUsharedconfig config);
 
-			/// <summary>
-			/// Returns numerical values that correspond to the least and greatest stream priorities.<para/>
-			/// Returns in <c>leastPriority</c> and <c>greatestPriority</c> the numerical values that correspond
-			/// to the least and greatest stream priorities respectively. Stream priorities
-			/// follow a convention where lower numbers imply greater priorities. The range of
-			/// meaningful stream priorities is given by [<c>greatestPriority</c>, <c>leastPriority</c>].
-			/// If the user attempts to create a stream with a priority value that is
-			/// outside the meaningful range as specified by this API, the priority is
-			/// automatically clamped down or up to either <c>leastPriority</c> or <c>greatestPriority</c>
-			/// respectively. See ::cuStreamCreateWithPriority for details on creating a
-			/// priority stream.
-			/// A NULL may be passed in for <c>leastPriority</c> or <c>greatestPriority</c> if the value
-			/// is not desired.
-			/// This function will return '0' in both <c>leastPriority</c> and <c>greatestPriority</c> if
-			/// the current context's device does not support stream priorities
-			/// (see ::cuDeviceGetAttribute).
-			/// </summary>
-			/// <param name="leastPriority">Pointer to an int in which the numerical value for least
-			/// stream priority is returned</param>
-			/// <param name="greatestPriority">Pointer to an int in which the numerical value for greatest stream priority is returned</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuCtxGetStreamPriorityRange(ref int leastPriority, ref int greatestPriority);
+            /// <summary>
+            /// Returns numerical values that correspond to the least and greatest stream priorities.<para/>
+            /// Returns in <c>leastPriority</c> and <c>greatestPriority</c> the numerical values that correspond
+            /// to the least and greatest stream priorities respectively. Stream priorities
+            /// follow a convention where lower numbers imply greater priorities. The range of
+            /// meaningful stream priorities is given by [<c>greatestPriority</c>, <c>leastPriority</c>].
+            /// If the user attempts to create a stream with a priority value that is
+            /// outside the meaningful range as specified by this API, the priority is
+            /// automatically clamped down or up to either <c>leastPriority</c> or <c>greatestPriority</c>
+            /// respectively. See ::cuStreamCreateWithPriority for details on creating a
+            /// priority stream.
+            /// A NULL may be passed in for <c>leastPriority</c> or <c>greatestPriority</c> if the value
+            /// is not desired.
+            /// This function will return '0' in both <c>leastPriority</c> and <c>greatestPriority</c> if
+            /// the current context's device does not support stream priorities
+            /// (see ::cuDeviceGetAttribute).
+            /// </summary>
+            /// <param name="leastPriority">Pointer to an int in which the numerical value for least
+            /// stream priority is returned</param>
+            /// <param name="greatestPriority">Pointer to an int in which the numerical value for greatest stream priority is returned</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxGetStreamPriorityRange(ref int leastPriority, ref int greatestPriority);
 
             /// <summary>
             /// Resets all persisting lines in cache to normal status.<para/>
@@ -719,100 +719,100 @@ namespace ManagedCuda
             /// <param name="flags">Pointer to store flags of current context</param>
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuCtxGetFlags(ref CUCtxFlags flags);
+            public static extern CUResult cuCtxGetFlags(ref CUCtxFlags flags);
 
 
 
-			#region Primary Context
+            #region Primary Context
 
-			/// <summary>
-			/// Retain the primary context on the GPU.<para/>
-			/// Retains the primary context on the device, creating it if necessary,
-			/// increasing its usage count. The caller must call
-			/// ::cuDevicePrimaryCtxRelease() when done using the context.
-			/// Unlike ::cuCtxCreate() the newly created context is not pushed onto the stack.
-			/// <para/>
-			/// Context creation will fail with ::CUDA_ERROR_UNKNOWN if the compute mode of
-			/// the device is ::CU_COMPUTEMODE_PROHIBITED. Similarly, context creation will
-			/// also fail with ::CUDA_ERROR_UNKNOWN if the compute mode for the device is
-			/// set to ::CU_COMPUTEMODE_EXCLUSIVE and there is already an active, non-primary,
-			/// context on the device. The function ::cuDeviceGetAttribute() can be used with
-			/// ::CU_DEVICE_ATTRIBUTE_COMPUTE_MODE to determine the compute mode of the
-			/// device. The <i>nvidia-smi</i> tool can be used to set the compute mode for
-			/// devices. Documentation for <i>nvidia-smi</i> can be obtained by passing a
-			/// -h option to it.
-			/// <para/> 
-			/// Please note that the primary context always supports pinned allocations. Other
-			/// flags can be specified by ::cuDevicePrimaryCtxSetFlags().
-			/// </summary>
-			/// <param name="pctx">Returned context handle of the new context</param>
-			/// <param name="dev">Device for which primary context is requested</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
-			public static extern CUResult cuDevicePrimaryCtxRetain(ref CUcontext pctx, CUdevice dev);
+            /// <summary>
+            /// Retain the primary context on the GPU.<para/>
+            /// Retains the primary context on the device, creating it if necessary,
+            /// increasing its usage count. The caller must call
+            /// ::cuDevicePrimaryCtxRelease() when done using the context.
+            /// Unlike ::cuCtxCreate() the newly created context is not pushed onto the stack.
+            /// <para/>
+            /// Context creation will fail with ::CUDA_ERROR_UNKNOWN if the compute mode of
+            /// the device is ::CU_COMPUTEMODE_PROHIBITED. Similarly, context creation will
+            /// also fail with ::CUDA_ERROR_UNKNOWN if the compute mode for the device is
+            /// set to ::CU_COMPUTEMODE_EXCLUSIVE and there is already an active, non-primary,
+            /// context on the device. The function ::cuDeviceGetAttribute() can be used with
+            /// ::CU_DEVICE_ATTRIBUTE_COMPUTE_MODE to determine the compute mode of the
+            /// device. The <i>nvidia-smi</i> tool can be used to set the compute mode for
+            /// devices. Documentation for <i>nvidia-smi</i> can be obtained by passing a
+            /// -h option to it.
+            /// <para/> 
+            /// Please note that the primary context always supports pinned allocations. Other
+            /// flags can be specified by ::cuDevicePrimaryCtxSetFlags().
+            /// </summary>
+            /// <param name="pctx">Returned context handle of the new context</param>
+            /// <param name="dev">Device for which primary context is requested</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
+            public static extern CUResult cuDevicePrimaryCtxRetain(ref CUcontext pctx, CUdevice dev);
 
-			/// <summary>
-			/// Release the primary context on the GPU<para/>
-			/// Releases the primary context interop on the device by decreasing the usage
-			/// count by 1. If the usage drops to 0 the primary context of device \p dev
-			/// will be destroyed regardless of how many threads it is current to.
-			/// <para/>
-			/// Please note that unlike ::cuCtxDestroy() this method does not pop the context
-			/// from stack in any circumstances.
-			/// </summary>
-			/// <param name="dev">Device which primary context is released</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxRelease_v2")]
-			public static extern CUResult cuDevicePrimaryCtxRelease(CUdevice dev);
+            /// <summary>
+            /// Release the primary context on the GPU<para/>
+            /// Releases the primary context interop on the device by decreasing the usage
+            /// count by 1. If the usage drops to 0 the primary context of device \p dev
+            /// will be destroyed regardless of how many threads it is current to.
+            /// <para/>
+            /// Please note that unlike ::cuCtxDestroy() this method does not pop the context
+            /// from stack in any circumstances.
+            /// </summary>
+            /// <param name="dev">Device which primary context is released</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxRelease_v2")]
+            public static extern CUResult cuDevicePrimaryCtxRelease(CUdevice dev);
 
-			/// <summary>
-			/// Set flags for the primary context<para/>
-			/// Sets the flags for the primary context on the device overwriting perviously
-			/// set ones. If the primary context is already created
-			/// ::CUDA_ERROR_PRIMARY_CONTEXT_ACTIVE is returned.
-			/// <para/>
-			///	The three LSBs of the \p flags parameter can be used to control how the OS
-			///	thread, which owns the CUDA context at the time of an API call, interacts
-			///	with the OS scheduler when waiting for results from the GPU. Only one of
-			///	the scheduling flags can be set when creating a context.
-			/// </summary>
-			/// <param name="dev">Device for which the primary context flags are set</param>
-			/// <param name="flags">New flags for the device</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuDevicePrimaryCtxSetFlags(CUdevice dev, CUCtxFlags flags);
+            /// <summary>
+            /// Set flags for the primary context<para/>
+            /// Sets the flags for the primary context on the device overwriting perviously
+            /// set ones. If the primary context is already created
+            /// ::CUDA_ERROR_PRIMARY_CONTEXT_ACTIVE is returned.
+            /// <para/>
+            ///	The three LSBs of the \p flags parameter can be used to control how the OS
+            ///	thread, which owns the CUDA context at the time of an API call, interacts
+            ///	with the OS scheduler when waiting for results from the GPU. Only one of
+            ///	the scheduling flags can be set when creating a context.
+            /// </summary>
+            /// <param name="dev">Device for which the primary context flags are set</param>
+            /// <param name="flags">New flags for the device</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevicePrimaryCtxSetFlags(CUdevice dev, CUCtxFlags flags);
 
-			/// <summary>
-			/// Get the state of the primary context<para/>
-			/// Returns in \p *flags the flags for the primary context of \p dev, and in
-			/// \p *active whether it is active.  See ::cuDevicePrimaryCtxSetFlags for flag
-			/// values.
-			/// </summary>
-			/// <param name="dev">Device to get primary context flags for</param>
-			/// <param name="flags">Pointer to store flags</param>
-			/// <param name="active">Pointer to store context state; 0 = inactive, 1 = active</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuDevicePrimaryCtxGetState(CUdevice dev, ref CUCtxFlags flags, ref int active);
+            /// <summary>
+            /// Get the state of the primary context<para/>
+            /// Returns in \p *flags the flags for the primary context of \p dev, and in
+            /// \p *active whether it is active.  See ::cuDevicePrimaryCtxSetFlags for flag
+            /// values.
+            /// </summary>
+            /// <param name="dev">Device to get primary context flags for</param>
+            /// <param name="flags">Pointer to store flags</param>
+            /// <param name="active">Pointer to store context state; 0 = inactive, 1 = active</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevicePrimaryCtxGetState(CUdevice dev, ref CUCtxFlags flags, ref int active);
 
-			/// <summary>
-			/// Destroy all allocations and reset all state on the primary context
-			/// 
-			/// Explicitly destroys and cleans up all resources associated with the current
-			/// device in the current process.
-			/// 
-			/// Note that it is responsibility of the calling function to ensure that no
-			/// other module in the process is using the device any more. For that reason
-			/// it is recommended to use ::cuDevicePrimaryCtxRelease() in most cases.
-			/// However it is safe for other modules to call ::cuDevicePrimaryCtxRelease()
-			/// even after resetting the device.
-			/// </summary>
-			/// <param name="dev">Device for which primary context is destroyed</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxReset_v2")]
-			public static extern CUResult cuDevicePrimaryCtxReset(CUdevice dev);
-			#endregion
-		}
+            /// <summary>
+            /// Destroy all allocations and reset all state on the primary context
+            /// 
+            /// Explicitly destroys and cleans up all resources associated with the current
+            /// device in the current process.
+            /// 
+            /// Note that it is responsibility of the calling function to ensure that no
+            /// other module in the process is using the device any more. For that reason
+            /// it is recommended to use ::cuDevicePrimaryCtxRelease() in most cases.
+            /// However it is safe for other modules to call ::cuDevicePrimaryCtxRelease()
+            /// even after resetting the device.
+            /// </summary>
+            /// <param name="dev">Device for which primary context is destroyed</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxReset_v2")]
+            public static extern CUResult cuDevicePrimaryCtxReset(CUdevice dev);
+            #endregion
+        }
         #endregion
 
         #region Module management
@@ -961,84 +961,84 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuModuleGetSurfRef(ref CUsurfref pSurfRef, CUmodule hmod, string name);
-					
-			/// <summary>
-			/// Creates a pending JIT linker invocation.<para/>
-			/// If the call is successful, the caller owns the returned CUlinkState, which should eventually be destroyed with ::cuLinkDestroy.
-			/// The device code machine size (32 or 64 bit) will match the calling application.<para/>
-			/// Both linker and compiler options may be specified. Compiler options will be applied to inputs to this linker action which must 
-			/// be compiled from PTX. The options ::CU_JIT_WALL_TIME, 
-			/// ::CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, and ::CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES will accumulate data until the CUlinkState is destroyed.<para/>
-			/// <c>optionValues</c> must remain valid for the life of the CUlinkState if output options are used. No other references to inputs are maintained after this call returns.
-			/// </summary>
-			/// <param name="numOptions">Size of options arrays</param>
-			/// <param name="options">Array of linker and compiler options</param>
-			/// <param name="optionValues">Array of option values, each cast to void *</param>
-			/// <param name="stateOut">On success, this will contain a CUlinkState to specify and complete this action</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkCreate_v2")]
+
+            /// <summary>
+            /// Creates a pending JIT linker invocation.<para/>
+            /// If the call is successful, the caller owns the returned CUlinkState, which should eventually be destroyed with ::cuLinkDestroy.
+            /// The device code machine size (32 or 64 bit) will match the calling application.<para/>
+            /// Both linker and compiler options may be specified. Compiler options will be applied to inputs to this linker action which must 
+            /// be compiled from PTX. The options ::CU_JIT_WALL_TIME, 
+            /// ::CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, and ::CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES will accumulate data until the CUlinkState is destroyed.<para/>
+            /// <c>optionValues</c> must remain valid for the life of the CUlinkState if output options are used. No other references to inputs are maintained after this call returns.
+            /// </summary>
+            /// <param name="numOptions">Size of options arrays</param>
+            /// <param name="options">Array of linker and compiler options</param>
+            /// <param name="optionValues">Array of option values, each cast to void *</param>
+            /// <param name="stateOut">On success, this will contain a CUlinkState to specify and complete this action</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkCreate_v2")]
             public static extern CUResult cuLinkCreate(uint numOptions, CUJITOption[] options, [In, Out] IntPtr[] optionValues, ref CUlinkState stateOut);
 
 
 
-			/// <summary>
-			/// Add an input to a pending linker invocation.<para/>
-			/// Ownership of <c>data</c> data is retained by the caller.  No reference is retained to any inputs after this call returns.<para/>
-			/// This method accepts only compiler options, which are used if the data must be compiled from PTX, and does not accept any of
-			/// ::CU_JIT_WALL_TIME, ::CU_JIT_INFO_LOG_BUFFER, ::CU_JIT_ERROR_LOG_BUFFER, ::CU_JIT_TARGET_FROM_CUCONTEXT, or ::CU_JIT_TARGET.
-			/// </summary>
-			/// <param name="state">A pending linker action.</param>
-			/// <param name="type">The type of the input data.</param>
-			/// <param name="data">The input data.  PTX must be NULL-terminated.</param>
-			/// <param name="size">The length of the input data.</param>
-			/// <param name="name">An optional name for this input in log messages.</param>
-			/// <param name="numOptions">Size of options.</param>
-			/// <param name="options">Options to be applied only for this input (overrides options from ::cuLinkCreate).</param>
-			/// <param name="optionValues">Array of option values, each cast to void *.</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkAddData_v2")]
+            /// <summary>
+            /// Add an input to a pending linker invocation.<para/>
+            /// Ownership of <c>data</c> data is retained by the caller.  No reference is retained to any inputs after this call returns.<para/>
+            /// This method accepts only compiler options, which are used if the data must be compiled from PTX, and does not accept any of
+            /// ::CU_JIT_WALL_TIME, ::CU_JIT_INFO_LOG_BUFFER, ::CU_JIT_ERROR_LOG_BUFFER, ::CU_JIT_TARGET_FROM_CUCONTEXT, or ::CU_JIT_TARGET.
+            /// </summary>
+            /// <param name="state">A pending linker action.</param>
+            /// <param name="type">The type of the input data.</param>
+            /// <param name="data">The input data.  PTX must be NULL-terminated.</param>
+            /// <param name="size">The length of the input data.</param>
+            /// <param name="name">An optional name for this input in log messages.</param>
+            /// <param name="numOptions">Size of options.</param>
+            /// <param name="options">Options to be applied only for this input (overrides options from ::cuLinkCreate).</param>
+            /// <param name="optionValues">Array of option values, each cast to void *.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkAddData_v2")]
             public static extern CUResult cuLinkAddData(CUlinkState state, CUJITInputType type, byte[] data, SizeT size, [MarshalAs(UnmanagedType.LPStr)] string name,
-				uint numOptions, CUJITOption[] options, IntPtr[] optionValues);
+                uint numOptions, CUJITOption[] options, IntPtr[] optionValues);
 
-			/// <summary>
-			/// Add a file input to a pending linker invocation.<para/>
-			/// No reference is retained to any inputs after this call returns.<para/>
-			/// This method accepts only compiler options, which are used if the data must be compiled from PTX, and does not accept any of
-			/// ::CU_JIT_WALL_TIME, ::CU_JIT_INFO_LOG_BUFFER, ::CU_JIT_ERROR_LOG_BUFFER, ::CU_JIT_TARGET_FROM_CUCONTEXT, or ::CU_JIT_TARGET.
-			/// <para/>This method is equivalent to invoking ::cuLinkAddData on the contents of the file.
-			/// </summary>
-			/// <param name="state">A pending linker action.</param>
-			/// <param name="type">The type of the input data.</param>
-			/// <param name="path">Path to the input file.</param>
-			/// <param name="numOptions">Size of options.</param>
-			/// <param name="options">Options to be applied only for this input (overrides options from ::cuLinkCreate).</param>
-			/// <param name="optionValues">Array of option values, each cast to void *.</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkAddFile_v2")]
+            /// <summary>
+            /// Add a file input to a pending linker invocation.<para/>
+            /// No reference is retained to any inputs after this call returns.<para/>
+            /// This method accepts only compiler options, which are used if the data must be compiled from PTX, and does not accept any of
+            /// ::CU_JIT_WALL_TIME, ::CU_JIT_INFO_LOG_BUFFER, ::CU_JIT_ERROR_LOG_BUFFER, ::CU_JIT_TARGET_FROM_CUCONTEXT, or ::CU_JIT_TARGET.
+            /// <para/>This method is equivalent to invoking ::cuLinkAddData on the contents of the file.
+            /// </summary>
+            /// <param name="state">A pending linker action.</param>
+            /// <param name="type">The type of the input data.</param>
+            /// <param name="path">Path to the input file.</param>
+            /// <param name="numOptions">Size of options.</param>
+            /// <param name="options">Options to be applied only for this input (overrides options from ::cuLinkCreate).</param>
+            /// <param name="optionValues">Array of option values, each cast to void *.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuLinkAddFile_v2")]
             public static extern CUResult cuLinkAddFile(CUlinkState state, CUJITInputType type, string path, uint numOptions, CUJITOption[] options, IntPtr[] optionValues);
 
 
-			/// <summary>
-			/// Complete a pending linker invocation.<para/>
-			/// Completes the pending linker action and returns the cubin image for the linked
-			/// device code, which can be used with ::cuModuleLoadData. <para/>The cubin is owned by
-			/// <c>state</c>, so it should be loaded before <c>state</c> is destroyed via ::cuLinkDestroy.
-			/// This call does not destroy <c>state</c>.
-			/// </summary>
-			/// <param name="state">A pending linker invocation</param>
-			/// <param name="cubinOut">On success, this will point to the output image</param>
-			/// <param name="sizeOut">Optional parameter to receive the size of the generated image</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Complete a pending linker invocation.<para/>
+            /// Completes the pending linker action and returns the cubin image for the linked
+            /// device code, which can be used with ::cuModuleLoadData. <para/>The cubin is owned by
+            /// <c>state</c>, so it should be loaded before <c>state</c> is destroyed via ::cuLinkDestroy.
+            /// This call does not destroy <c>state</c>.
+            /// </summary>
+            /// <param name="state">A pending linker invocation</param>
+            /// <param name="cubinOut">On success, this will point to the output image</param>
+            /// <param name="sizeOut">Optional parameter to receive the size of the generated image</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuLinkComplete(CUlinkState state, ref IntPtr cubinOut, ref SizeT sizeOut);
 
-			/// <summary>
-			/// Destroys state for a JIT linker invocation.
-			/// </summary>
-			/// <param name="state">State object for the linker invocation</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuLinkDestroy(CUlinkState state);
+            /// <summary>
+            /// Destroys state for a JIT linker invocation.
+            /// </summary>
+            /// <param name="state">State object for the linker invocation</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuLinkDestroy(CUlinkState state);
 
         }
         #endregion
@@ -1281,158 +1281,158 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuPointerGetAttribute(ref CUMemoryType data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer
-			/// </summary>
-			/// <param name="data">Returned pointer attribute value</param>
-			/// <param name="attribute">Pointer attribute to query</param>
-			/// <param name="ptr">Pointer</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttribute(ref CUdeviceptr data, CUPointerAttribute attribute, CUdeviceptr ptr);
+            /// <summary>
+            /// Returns information about a pointer
+            /// </summary>
+            /// <param name="data">Returned pointer attribute value</param>
+            /// <param name="attribute">Pointer attribute to query</param>
+            /// <param name="ptr">Pointer</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttribute(ref CUdeviceptr data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer
-			/// </summary>
-			/// <param name="data">Returned pointer attribute value</param>
-			/// <param name="attribute">Pointer attribute to query</param>
-			/// <param name="ptr">Pointer</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttribute(ref IntPtr data, CUPointerAttribute attribute, CUdeviceptr ptr);
+            /// <summary>
+            /// Returns information about a pointer
+            /// </summary>
+            /// <param name="data">Returned pointer attribute value</param>
+            /// <param name="attribute">Pointer attribute to query</param>
+            /// <param name="ptr">Pointer</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttribute(ref IntPtr data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer
-			/// </summary>
-			/// <param name="data">Returned pointer attribute value</param>
-			/// <param name="attribute">Pointer attribute to query</param>
-			/// <param name="ptr">Pointer</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttribute(ref CudaPointerAttributeP2PTokens data, CUPointerAttribute attribute, CUdeviceptr ptr);
+            /// <summary>
+            /// Returns information about a pointer
+            /// </summary>
+            /// <param name="data">Returned pointer attribute value</param>
+            /// <param name="attribute">Pointer attribute to query</param>
+            /// <param name="ptr">Pointer</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttribute(ref CudaPointerAttributeP2PTokens data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer
-			/// </summary>
-			/// <param name="data">Returned pointer attribute value</param>
-			/// <param name="attribute">Pointer attribute to query</param>
-			/// <param name="ptr">Pointer</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttribute(ref int data, CUPointerAttribute attribute, CUdeviceptr ptr);
+            /// <summary>
+            /// Returns information about a pointer
+            /// </summary>
+            /// <param name="data">Returned pointer attribute value</param>
+            /// <param name="attribute">Pointer attribute to query</param>
+            /// <param name="ptr">Pointer</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttribute(ref int data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer
-			/// </summary>
-			/// <param name="data">Returned pointer attribute value</param>
-			/// <param name="attribute">Pointer attribute to query</param>
-			/// <param name="ptr">Pointer</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttribute(ref ulong data, CUPointerAttribute attribute, CUdeviceptr ptr);
+            /// <summary>
+            /// Returns information about a pointer
+            /// </summary>
+            /// <param name="data">Returned pointer attribute value</param>
+            /// <param name="attribute">Pointer attribute to query</param>
+            /// <param name="ptr">Pointer</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttribute(ref ulong data, CUPointerAttribute attribute, CUdeviceptr ptr);
 
 
-			/// <summary>
-			/// Prefetches memory to the specified destination device<para/>
-			/// Prefetches memory to the specified destination device. devPtr is the 
-			/// base device pointer of the memory to be prefetched and dstDevice is the 
-			/// destination device. count specifies the number of bytes to copy. hStream
-			/// is the stream in which the operation is enqueued.<para/>
-			/// 
-			/// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
-			/// 
-			/// If no physical memory has been allocated for this region, then this memory region
-			/// will be populated and mapped on the destination device. If there's insufficient
-			/// memory to prefetch the desired region, the Unified Memory driver may evict pages
-			/// belonging to other memory regions to make room. If there's no memory that can be
-			/// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
-			/// 
-			/// In the normal case, any mappings to the previous location of the migrated pages are
-			/// removed and mappings for the new location are only setup on the dstDevice.
-			/// The application can exercise finer control on these mappings using ::cudaMemAdvise.
-			/// </summary>
-			/// <param name="devPtr">Pointer to be prefetched</param>
-			/// <param name="count">Size in bytes</param>
-			/// <param name="dstDevice">Destination device to prefetch to</param>
-			/// <param name="hStream">Stream to enqueue prefetch operation</param>
-			/// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemPrefetchAsync" + CUDA_PTSZ)]
-			public static extern CUResult cuMemPrefetchAsync(CUdeviceptr devPtr, SizeT count, CUdevice dstDevice, CUstream hStream);
+            /// <summary>
+            /// Prefetches memory to the specified destination device<para/>
+            /// Prefetches memory to the specified destination device. devPtr is the 
+            /// base device pointer of the memory to be prefetched and dstDevice is the 
+            /// destination device. count specifies the number of bytes to copy. hStream
+            /// is the stream in which the operation is enqueued.<para/>
+            /// 
+            /// Passing in CU_DEVICE_CPU for dstDevice will prefetch the data to CPU memory.<para/>
+            /// 
+            /// If no physical memory has been allocated for this region, then this memory region
+            /// will be populated and mapped on the destination device. If there's insufficient
+            /// memory to prefetch the desired region, the Unified Memory driver may evict pages
+            /// belonging to other memory regions to make room. If there's no memory that can be
+            /// evicted, then the Unified Memory driver will prefetch less than what was requested.<para/>
+            /// 
+            /// In the normal case, any mappings to the previous location of the migrated pages are
+            /// removed and mappings for the new location are only setup on the dstDevice.
+            /// The application can exercise finer control on these mappings using ::cudaMemAdvise.
+            /// </summary>
+            /// <param name="devPtr">Pointer to be prefetched</param>
+            /// <param name="count">Size in bytes</param>
+            /// <param name="dstDevice">Destination device to prefetch to</param>
+            /// <param name="hStream">Stream to enqueue prefetch operation</param>
+            /// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemPrefetchAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemPrefetchAsync(CUdeviceptr devPtr, SizeT count, CUdevice dstDevice, CUstream hStream);
 
-			/// <summary>
-			/// Advise about the usage of a given memory range<para/>
-			/// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
-			/// <para/>
-			/// The \p advice parameter can take the following values:<para/>
-			/// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
-			/// from and only occasionally written to. This allows the driver to create read-only
-			/// copies of the data in a processor's memory when that processor accesses it. Similarly,
-			/// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
-			/// the data on the destination processor. When a processor writes to this data, all copies
-			/// of the corresponding page are invalidated except for the one where the write occurred.
-			/// The \p device argument is ignored for this advice.<para/>
-			/// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
-			/// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
-			/// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
-			/// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
-			/// preferred location as CPU memory. Setting the preferred location does not cause data to
-			/// migrate to that location immediately. Instead, it guides the migration policy when a fault
-			/// occurs on that memory region. If the data is already in its preferred location and the
-			/// faulting processor can establish a mapping without requiring the data to be migrated, then
-			/// the migration will be avoided. On the other hand, if the data is not in its preferred location
-			/// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
-			/// it. It is important to note that setting the preferred location does not prevent data prefetching
-			/// done using ::cuMemPrefetchAsync.<para/>
-			/// Having a preferred location can override the thrash detection and resolution logic in the Unified
-			/// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
-			/// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
-			/// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
-			/// When the Unified Memory driver has to evict pages from a certain location on account of that
-			/// memory being oversubscribed, the preferred location will be used to decide the destination to which
-			/// a page should be evicted to.<para/>
-			/// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
-			/// location will be ignored for that subset.<para/>
-			/// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
-			/// and changes the preferred location to none.<para/>
-			/// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
-			/// This does not cause data migration and has no impact on the location of the data per se. Instead,
-			/// it causes the data to always be mapped in the specified processor's page tables, as long as the
-			/// location of the data permits a mapping to be established. If the data gets migrated for any reason,
-			/// the mappings are updated accordingly.<para/>
-			/// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
-			/// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
-			/// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
-			/// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
-			/// migration may be too high. But preventing faults can still help improve performance, and so having
-			/// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
-			/// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
-			/// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
-			/// page in CPU memory.<para/>
-			/// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
-			/// mappings may be removed at any time causing accesses to result in page faults.
-			/// <para/>
-			/// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
-			/// <para/>
-			/// Note that this function is asynchronous with respect to the host and all work
-			/// on other devices.
-			/// </summary>
-			/// <param name="devPtr">Pointer to memory to set the advice for</param>
-			/// <param name="count">Size in bytes of the memory range</param>
-			/// <param name="advice">Advice to be applied for the specified memory range</param>
-			/// <param name="device">Device to apply the advice for</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuMemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device);
+            /// <summary>
+            /// Advise about the usage of a given memory range<para/>
+            /// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
+            /// <para/>
+            /// The \p advice parameter can take the following values:<para/>
+            /// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+            /// from and only occasionally written to. This allows the driver to create read-only
+            /// copies of the data in a processor's memory when that processor accesses it. Similarly,
+            /// if cuMemPrefetchAsync is called on this region, it will create a read-only copy of
+            /// the data on the destination processor. When a processor writes to this data, all copies
+            /// of the corresponding page are invalidated except for the one where the write occurred.
+            /// The \p device argument is ignored for this advice.<para/>
+            /// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY. Any read
+            /// duplicated copies of the data will be freed no later than the next write access to that data.<para/>
+            /// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+            /// data to be the memory belonging to \p device. Passing in CU_DEVICE_CPU for \p device sets the
+            /// preferred location as CPU memory. Setting the preferred location does not cause data to
+            /// migrate to that location immediately. Instead, it guides the migration policy when a fault
+            /// occurs on that memory region. If the data is already in its preferred location and the
+            /// faulting processor can establish a mapping without requiring the data to be migrated, then
+            /// the migration will be avoided. On the other hand, if the data is not in its preferred location
+            /// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+            /// it. It is important to note that setting the preferred location does not prevent data prefetching
+            /// done using ::cuMemPrefetchAsync.<para/>
+            /// Having a preferred location can override the thrash detection and resolution logic in the Unified
+            /// Memory driver. Normally, if a page is detected to be constantly thrashing between CPU and GPU
+            /// memory say, the page will eventually be pinned to CPU memory by the Unified Memory driver. But
+            /// if the preferred location is set as GPU memory, then the page will continue to thrash indefinitely.
+            /// When the Unified Memory driver has to evict pages from a certain location on account of that
+            /// memory being oversubscribed, the preferred location will be used to decide the destination to which
+            /// a page should be evicted to.<para/>
+            /// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, the preferred
+            /// location will be ignored for that subset.<para/>
+            /// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+            /// and changes the preferred location to none.<para/>
+            /// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by \p device.
+            /// This does not cause data migration and has no impact on the location of the data per se. Instead,
+            /// it causes the data to always be mapped in the specified processor's page tables, as long as the
+            /// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+            /// the mappings are updated accordingly.<para/>
+            /// This advice is useful in scenarios where data locality is not important, but avoiding faults is.
+            /// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+            /// data located on one GPU is occasionally accessed by other GPUs. In such scenarios, migrating data
+            /// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+            /// migration may be too high. But preventing faults can still help improve performance, and so having
+            /// a mapping set up in advance is useful. Note that on CPU access of this data, the data may be migrated
+            /// to CPU memory because the CPU typically cannot access GPU memory directly. Any GPU that had the
+            /// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+            /// page in CPU memory.<para/>
+            /// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of CU_MEM_ADVISE_SET_ACCESSED_BY. The current set of
+            /// mappings may be removed at any time causing accesses to result in page faults.
+            /// <para/>
+            /// Passing in ::CU_DEVICE_CPU for \p device will set the advice for the CPU.
+            /// <para/>
+            /// Note that this function is asynchronous with respect to the host and all work
+            /// on other devices.
+            /// </summary>
+            /// <param name="devPtr">Pointer to memory to set the advice for</param>
+            /// <param name="count">Size in bytes of the memory range</param>
+            /// <param name="advice">Advice to be applied for the specified memory range</param>
+            /// <param name="device">Device to apply the advice for</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device);
 
 
             /// <summary>
@@ -1510,50 +1510,50 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorNotSupported"/>, , <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuMemAllocManaged(ref CUdeviceptr dptr, SizeT bytesize, CUmemAttach_flags flags);
-			
+            public static extern CUResult cuMemAllocManaged(ref CUdeviceptr dptr, SizeT bytesize, CUmemAttach_flags flags);
 
-			/// <summary>
-			/// Set attributes on a previously allocated memory region<para/>
-			/// The supported attributes are:<para/>
-			/// <see cref="CUPointerAttribute.SyncMemops"/>: A boolean attribute that can either be set (1) or unset (0). When set,
-			/// memory operations that are synchronous. If there are some previously initiated
-			/// synchronous memory operations that are pending when this attribute is set, the
- 			/// function does not return until those memory operations are complete.
-			/// See further documentation in the section titled "API synchronization behavior"
-			/// to learn more about cases when synchronous memory operations can
-			/// exhibit asynchronous behavior.
-			/// <c>value</c> will be considered as a pointer to an unsigned integer to which this attribute is to be set.
-			/// </summary>
-			/// <param name="value">Pointer to memory containing the value to be set</param>
-			/// <param name="attribute">Pointer attribute to set</param>
-			/// <param name="ptr">Pointer to a memory region allocated using CUDA memory allocation APIs</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/></returns>.
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerSetAttribute(ref int value, CUPointerAttribute attribute, CUdeviceptr ptr);
 
-			/// <summary>
-			/// Returns information about a pointer.<para/>
-			/// The supported attributes are (refer to ::cuPointerGetAttribute for attribute descriptions and restrictions):
-			/// <para/>
-			/// - ::CU_POINTER_ATTRIBUTE_CONTEXT<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_MEMORY_TYPE<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_DEVICE_POINTER<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_HOST_POINTER<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_SYNC_MEMOPS<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_BUFFER_ID<para/>
-			/// - ::CU_POINTER_ATTRIBUTE_IS_MANAGED<para/>
-			/// </summary>
-			/// <param name="numAttributes">Number of attributes to query</param>
-			/// <param name="attributes">An array of attributes to query (numAttributes and the number of attributes in this array should match)</param>
-			/// <param name="data">A two-dimensional array containing pointers to memory
-			/// locations where the result of each attribute query will be written to.</param>
-			/// <param name="ptr">Pointer to query</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuPointerGetAttributes(uint numAttributes, [In, Out] CUPointerAttribute[] attributes,  IntPtr data, CUdeviceptr ptr);
-            
+            /// <summary>
+            /// Set attributes on a previously allocated memory region<para/>
+            /// The supported attributes are:<para/>
+            /// <see cref="CUPointerAttribute.SyncMemops"/>: A boolean attribute that can either be set (1) or unset (0). When set,
+            /// memory operations that are synchronous. If there are some previously initiated
+            /// synchronous memory operations that are pending when this attribute is set, the
+            /// function does not return until those memory operations are complete.
+            /// See further documentation in the section titled "API synchronization behavior"
+            /// to learn more about cases when synchronous memory operations can
+            /// exhibit asynchronous behavior.
+            /// <c>value</c> will be considered as a pointer to an unsigned integer to which this attribute is to be set.
+            /// </summary>
+            /// <param name="value">Pointer to memory containing the value to be set</param>
+            /// <param name="attribute">Pointer attribute to set</param>
+            /// <param name="ptr">Pointer to a memory region allocated using CUDA memory allocation APIs</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidDevice"/></returns>.
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerSetAttribute(ref int value, CUPointerAttribute attribute, CUdeviceptr ptr);
+
+            /// <summary>
+            /// Returns information about a pointer.<para/>
+            /// The supported attributes are (refer to ::cuPointerGetAttribute for attribute descriptions and restrictions):
+            /// <para/>
+            /// - ::CU_POINTER_ATTRIBUTE_CONTEXT<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_MEMORY_TYPE<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_DEVICE_POINTER<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_HOST_POINTER<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_SYNC_MEMOPS<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_BUFFER_ID<para/>
+            /// - ::CU_POINTER_ATTRIBUTE_IS_MANAGED<para/>
+            /// </summary>
+            /// <param name="numAttributes">Number of attributes to query</param>
+            /// <param name="attributes">An array of attributes to query (numAttributes and the number of attributes in this array should match)</param>
+            /// <param name="data">A two-dimensional array containing pointers to memory
+            /// locations where the result of each attribute query will be written to.</param>
+            /// <param name="ptr">Pointer to query</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuPointerGetAttributes(uint numAttributes, [In, Out] CUPointerAttribute[] attributes, IntPtr data, CUdeviceptr ptr);
+
             /// <summary>
             /// Allocate an address range reservation. <para/>
             /// Reserves a virtual address range based on the given parameters, giving
@@ -1569,7 +1569,7 @@ namespace ManagedCuda
             /// <param name="flags">Currently unused, must be zero</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemAddressReserve(ref CUdeviceptr ptr, SizeT size, SizeT alignment, CUdeviceptr addr, ulong flags);
-            
+
             /// <summary>
             /// Free an address range reservation.<para/>
             /// Frees a virtual address range reserved by cuMemAddressReserve.  The size
@@ -1581,7 +1581,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemAddressFree(CUdeviceptr ptr, SizeT size);
 
-            
+
             /// <summary>
             /// Create a shareable memory handle representing a memory allocation of a given size described by the given properties <para/>
             /// This creates a memory allocation on the target device specified through the
@@ -1960,7 +1960,7 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemPoolGetAccess(ref CUmemAccess_flags flags, CUmemoryPool memPool, ref CUmemLocation location);
-            
+
             /// <summary>
             /// Creates a memory pool<para/>
             /// Creates a CUDA memory pool and returns the handle in \p pool. The \p poolProps determines
@@ -2044,7 +2044,7 @@ namespace ManagedCuda
                     IntPtr handle,
                     CUmemAllocationHandleType handleType,
                     ulong flags);
-            
+
             /// <summary>
             /// Export data to share a memory pool allocation between processes.<para/>
             /// Constructs \p shareData_out for sharing a specific allocation from an already shared memory pool.<para/>
@@ -2111,7 +2111,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy" + CUDA_PTDS)]
             public static extern CUResult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, SizeT ByteCount);
-            
+
             /// <summary>
             /// Copies from device memory in one context to device memory in another
             /// context. <c>dstDevice</c> is the base device pointer of the destination memory 
@@ -2132,9 +2132,9 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpyPeer" + CUDA_PTDS)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpyPeer" + CUDA_PTDS)]
             public static extern CUResult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, SizeT ByteCount);
-            
+
             /// <summary>
             /// Perform a 3D memory copy according to the parameters specified in
             /// <c>pCopy</c>.  See the definition of the <see cref="CUDAMemCpy3DPeer"/> structure
@@ -2150,7 +2150,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy3DPeer" + CUDA_PTDS)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy3DPeer" + CUDA_PTDS)]
             public static extern CUResult cuMemcpy3DPeer(ref CUDAMemCpy3DPeer pCopy);
 
 
@@ -6804,7 +6804,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
             public static extern CUResult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z);
-            
+
             /// <summary>
             /// Sets through <c>bytes</c> the amount of dynamic shared memory that will be available to each thread block when the kernel
             /// given by <c>hfunc</c> is launched.
@@ -6817,7 +6817,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
             public static extern CUResult cuFuncSetSharedSize(CUfunction hfunc, uint bytes);
-            
+
             /// <summary>
             /// Returns in <c>pi</c> the integer value of the attribute <c>attrib</c> on the kernel given by <c>hfunc</c>. See <see cref="CUFunctionAttribute"/>.
             /// </summary>
@@ -6862,7 +6862,7 @@ namespace ManagedCuda
             /// <param name="value">The value to set</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuFuncSetAttribute(CUfunction hfunc, CUFunctionAttribute attrib, int value);
-            
+
 
 
             /// <summary>
@@ -6875,44 +6875,44 @@ namespace ManagedCuda
             /// </summary>
             /// <param name="hfunc">Kernel to configure cache for</param>
             /// <param name="config">Requested cache configuration</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>.
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuFuncSetCacheConfig(CUfunction hfunc, CUFuncCache config);
-			
-			/// <summary>
-			/// Sets the shared memory configuration for a device function.<para/>
-			/// On devices with configurable shared memory banks, this function will 
-			/// force all subsequent launches of the specified device function to have
-			/// the given shared memory bank size configuration. On any given launch of the
-			/// function, the shared memory configuration of the device will be temporarily
-			/// changed if needed to suit the function's preferred configuration. Changes in
-			/// shared memory configuration between subsequent launches of functions, 
-			/// may introduce a device side synchronization point.<para/>
-			/// Any per-function setting of shared memory bank size set via
-			/// <see cref="cuFuncSetSharedMemConfig"/>  will override the context wide setting set with
-			/// <see cref="DriverAPINativeMethods.ContextManagement.cuCtxSetSharedMemConfig"/>.<para/>
-			/// Changing the shared memory bank size will not increase shared memory usage
-			/// or affect occupancy of kernels, but may have major effects on performance. 
-			/// Larger bank sizes will allow for greater potential bandwidth to shared memory,
-			/// but will change what kinds of accesses to shared memory will result in bank 
-			/// conflicts.<para/>
-			/// This function will do nothing on devices with fixed shared memory bank size.<para/>
-			/// The supported bank configurations are<para/> 
-			/// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
-			///   setting (currently, four bytes).
-			/// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
-			///   be natively four bytes.
-			/// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
-			///   be natively eight bytes.
-			/// </summary>
-			/// <param name="hfunc">kernel to be given a shared memory config</param>
-			/// <param name="config">requested shared memory configuration</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config);
+
+            /// <summary>
+            /// Sets the shared memory configuration for a device function.<para/>
+            /// On devices with configurable shared memory banks, this function will 
+            /// force all subsequent launches of the specified device function to have
+            /// the given shared memory bank size configuration. On any given launch of the
+            /// function, the shared memory configuration of the device will be temporarily
+            /// changed if needed to suit the function's preferred configuration. Changes in
+            /// shared memory configuration between subsequent launches of functions, 
+            /// may introduce a device side synchronization point.<para/>
+            /// Any per-function setting of shared memory bank size set via
+            /// <see cref="cuFuncSetSharedMemConfig"/>  will override the context wide setting set with
+            /// <see cref="DriverAPINativeMethods.ContextManagement.cuCtxSetSharedMemConfig"/>.<para/>
+            /// Changing the shared memory bank size will not increase shared memory usage
+            /// or affect occupancy of kernels, but may have major effects on performance. 
+            /// Larger bank sizes will allow for greater potential bandwidth to shared memory,
+            /// but will change what kinds of accesses to shared memory will result in bank 
+            /// conflicts.<para/>
+            /// This function will do nothing on devices with fixed shared memory bank size.<para/>
+            /// The supported bank configurations are<para/> 
+            /// - <see cref="CUsharedconfig.DefaultBankSize"/>: set bank width to the default initial
+            ///   setting (currently, four bytes).
+            /// - <see cref="CUsharedconfig.FourByteBankSize"/>: set shared memory bank width to
+            ///   be natively four bytes.
+            /// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
+            ///   be natively eight bytes.
+            /// </summary>
+            /// <param name="hfunc">kernel to be given a shared memory config</param>
+            /// <param name="config">requested shared memory configuration</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config);
 
             /// <summary>
             /// Returns a module handle<para/>
@@ -6953,8 +6953,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuArrayCreate_v2(ref CUarray pHandle, ref CUDAArrayDescriptor pAllocateArray );
-            
+            public static extern CUResult cuArrayCreate_v2(ref CUarray pHandle, ref CUDAArrayDescriptor pAllocateArray);
+
             /// <summary>
             /// Returns in <c>pArrayDescriptor</c> a descriptor containing information on the format and dimensions of the CUDA
             /// array <c>hArray</c>. It is useful for subroutines that have been passed a CUDA array, but need to know the CUDA array
@@ -6966,7 +6966,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuArrayGetDescriptor_v2( ref CUDAArrayDescriptor pArrayDescriptor, CUarray hArray );
+            public static extern CUResult cuArrayGetDescriptor_v2(ref CUDAArrayDescriptor pArrayDescriptor, CUarray hArray);
 
             /// <summary>
             /// Returns the layout properties of a sparse CUDA array
@@ -7003,7 +7003,7 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMipmappedArrayGetSparseProperties(ref CudaArraySparseProperties sparseProperties, CUmipmappedArray mipmap);
-                        
+
             /// <summary>
             /// Gets a CUDA array plane from a CUDA array<para/>
             /// Returns in \p pPlaneArray a CUDA array that represents a single format plane
@@ -7030,7 +7030,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorArrayIsMapped"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuArrayDestroy( CUarray hArray );
+            public static extern CUResult cuArrayDestroy(CUarray hArray);
 
             /// <summary>
             /// Creates a CUDA array according to the <see cref="CUDAArray3DDescriptor"/> structure <c>pAllocateArray</c> and returns
@@ -7059,40 +7059,40 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuArray3DGetDescriptor_v2(ref CUDAArray3DDescriptor pArrayDescriptor, CUarray hArray);
 
-			/// <summary>
-			/// Creates a CUDA mipmapped array according to the ::CUDA_ARRAY3D_DESCRIPTOR structure
-			/// <c>pMipmappedArrayDesc</c> and returns a handle to the new CUDA mipmapped array in <c>pHandle</c>.
-			/// <c>numMipmapLevels</c> specifies the number of mipmap levels to be allocated. This value is
-			/// clamped to the range [1, 1 + floor(log2(max(width, height, depth)))]. 
-			/// </summary>
-			/// <param name="pHandle">Returned mipmapped array</param>
-			/// <param name="pMipmappedArrayDesc">mipmapped array descriptor</param>
-			/// <param name="numMipmapLevels">Number of mipmap levels</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>. </returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuMipmappedArrayCreate(ref CUmipmappedArray pHandle, ref CUDAArray3DDescriptor pMipmappedArrayDesc, uint numMipmapLevels);
-
-			/// <summary>
-			/// Returns in <c>pLevelArray</c> a CUDA array that represents a single mipmap level
-			/// of the CUDA mipmapped array <c>hMipmappedArray</c>.
-			/// </summary>
-			/// <param name="pLevelArray">Returned mipmap level CUDA array</param>
-			/// <param name="hMipmappedArray">CUDA mipmapped array</param>
-			/// <param name="level">Mipmap level</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
+            /// <summary>
+            /// Creates a CUDA mipmapped array according to the ::CUDA_ARRAY3D_DESCRIPTOR structure
+            /// <c>pMipmappedArrayDesc</c> and returns a handle to the new CUDA mipmapped array in <c>pHandle</c>.
+            /// <c>numMipmapLevels</c> specifies the number of mipmap levels to be allocated. This value is
+            /// clamped to the range [1, 1 + floor(log2(max(width, height, depth)))]. 
+            /// </summary>
+            /// <param name="pHandle">Returned mipmapped array</param>
+            /// <param name="pMipmappedArrayDesc">mipmapped array descriptor</param>
+            /// <param name="numMipmapLevels">Number of mipmap levels</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>. </returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuMipmappedArrayGetLevel(ref CUarray pLevelArray, CUmipmappedArray hMipmappedArray, uint level);
+            public static extern CUResult cuMipmappedArrayCreate(ref CUmipmappedArray pHandle, ref CUDAArray3DDescriptor pMipmappedArrayDesc, uint numMipmapLevels);
 
-			/// <summary>
-			/// Destroys the CUDA mipmapped array <c>hMipmappedArray</c>.
-			/// </summary>
-			/// <param name="hMipmappedArray">Mipmapped array to destroy</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
+            /// <summary>
+            /// Returns in <c>pLevelArray</c> a CUDA array that represents a single mipmap level
+            /// of the CUDA mipmapped array <c>hMipmappedArray</c>.
+            /// </summary>
+            /// <param name="pLevelArray">Returned mipmap level CUDA array</param>
+            /// <param name="hMipmappedArray">CUDA mipmapped array</param>
+            /// <param name="level">Mipmap level</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray);
+            public static extern CUResult cuMipmappedArrayGetLevel(ref CUarray pLevelArray, CUmipmappedArray hMipmappedArray, uint level);
+
+            /// <summary>
+            /// Destroys the CUDA mipmapped array <c>hMipmappedArray</c>.
+            /// </summary>
+            /// <param name="hMipmappedArray">Mipmapped array to destroy</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray);
 
 
         }
@@ -7123,8 +7123,8 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuTexRefCreate( ref CUtexref pTexRef );
-            
+            public static extern CUResult cuTexRefCreate(ref CUtexref pTexRef);
+
             /// <summary>
             /// Destroys the texture reference specified by <c>hTexRef</c>.
             /// </summary>
@@ -7134,8 +7134,8 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuTexRefDestroy( CUtexref hTexRef );
-    
+            public static extern CUResult cuTexRefDestroy(CUtexref hTexRef);
+
             /// <summary>
             /// Binds the CUDA array <c>hArray</c> to the texture reference <c>hTexRef</c>. Any previous address or CUDA array state
             /// associated with the texture reference is superseded by this function. Flags must be set to 
@@ -7150,20 +7150,20 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, CUTexRefSetArrayFlags Flags);
-			
-			/// <summary>
-			/// Binds the CUDA mipmapped array <c>hMipmappedArray</c> to the texture reference <c>hTexRef</c>.
-			/// Any previous address or CUDA array state associated with the texture reference
-			/// is superseded by this function. <c>Flags</c> must be set to <see cref="CUTexRefSetArrayFlags.OverrideFormat"/>. 
-			/// Any CUDA array previously bound to <c>hTexRef</c> is unbound.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference to bind</param>
-			/// <param name="hMipmappedArray">Mipmapped array to bind</param>
-			/// <param name="Flags">Options (must be <see cref="CUTexRefSetArrayFlags.OverrideFormat"/>)</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
-			/// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Binds the CUDA mipmapped array <c>hMipmappedArray</c> to the texture reference <c>hTexRef</c>.
+            /// Any previous address or CUDA array state associated with the texture reference
+            /// is superseded by this function. <c>Flags</c> must be set to <see cref="CUTexRefSetArrayFlags.OverrideFormat"/>. 
+            /// Any CUDA array previously bound to <c>hTexRef</c> is unbound.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference to bind</param>
+            /// <param name="hMipmappedArray">Mipmapped array to bind</param>
+            /// <param name="Flags">Options (must be <see cref="CUTexRefSetArrayFlags.OverrideFormat"/>)</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
+            /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, CUTexRefSetArrayFlags Flags);
 
@@ -7208,7 +7208,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetAddress2D_v2(CUtexref hTexRef, ref CUDAArrayDescriptor desc, CUdeviceptr dptr, SizeT Pitch);
-           
+
             /// <summary>
             /// Specifies the format of the data to be read by the texture reference <c>hTexRef</c>. <c>fmt</c> and <c>NumPackedComponents</c>
             /// are exactly analogous to the Format and NumChannels members of the <see cref="CUDAArrayDescriptor"/> structure:
@@ -7222,8 +7222,8 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefSetFormat( CUtexref hTexRef, CUArrayFormat fmt, int NumPackedComponents );
-            
+            public static extern CUResult cuTexRefSetFormat(CUtexref hTexRef, CUArrayFormat fmt, int NumPackedComponents);
+
             /// <summary>
             /// Specifies the addressing mode <c>am</c> for the given dimension <c>dim</c> of the texture reference <c>hTexRef</c>. If <c>dim</c> is zero,
             /// the addressing mode is applied to the first parameter of the functions used to fetch from the texture; if <c>dim</c> is 1, the
@@ -7238,8 +7238,8 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefSetAddressMode( CUtexref hTexRef, int dim, CUAddressMode am );
-            
+            public static extern CUResult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUAddressMode am);
+
             /// <summary>
             /// Specifies the filtering mode <c>fm</c> to be used when reading memory through the texture reference <c>hTexRef</c>. See <see cref="CUFilterMode"/>.<para/>
             /// Note that this call has no effect if hTexRef is bound to linear memory.
@@ -7251,7 +7251,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefSetFilterMode( CUtexref hTexRef, CUFilterMode fm );
+            public static extern CUResult cuTexRefSetFilterMode(CUtexref hTexRef, CUFilterMode fm);
 
             /// <summary>
             /// Specifies optional flags via <c>Flags</c> to specify the behavior of data returned through the texture reference <c>hTexRef</c>. See <see cref="CUTexRefSetFlags"/>.
@@ -7276,8 +7276,8 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetAddress( ref CUdeviceptr pdptr, CUtexref hTexRef );
-            
+            public static extern CUResult cuTexRefGetAddress(ref CUdeviceptr pdptr, CUtexref hTexRef);
+
             /// <summary>
             /// Returns in <c>phArray</c> the CUDA array bound to the texture reference <c>hTexRef</c>, or returns <see cref="CUResult.ErrorInvalidValue"/>
             /// if the texture reference is not bound to any CUDA array.
@@ -7289,21 +7289,21 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetArray( ref CUarray phArray, CUtexref hTexRef );
+            public static extern CUResult cuTexRefGetArray(ref CUarray phArray, CUtexref hTexRef);
 
-			/// <summary>
-			/// Returns in <c>phMipmappedArray</c> the CUDA mipmapped array bound to the texture 
-			/// reference <c>hTexRef</c>, or returns <see cref="CUResult.ErrorInvalidValue"/> if the texture reference
-			/// is not bound to any CUDA mipmapped array.
-			/// </summary>
-			/// <param name="phMipmappedArray">Returned mipmapped array</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Returns in <c>phMipmappedArray</c> the CUDA mipmapped array bound to the texture 
+            /// reference <c>hTexRef</c>, or returns <see cref="CUResult.ErrorInvalidValue"/> if the texture reference
+            /// is not bound to any CUDA mipmapped array.
+            /// </summary>
+            /// <param name="phMipmappedArray">Returned mipmapped array</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetMipmappedArray(ref CUmipmappedArray phMipmappedArray, CUtexref hTexRef);
-			
+
             /// <summary>
             /// Returns in <c>pam</c> the addressing mode corresponding to the dimension <c>dim</c> of the texture reference <c>hTexRef</c>. Currently,
             /// the only valid value for <c>dim</c> are 0 and 1.
@@ -7316,7 +7316,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetAddressMode( ref CUAddressMode pam, CUtexref hTexRef, int dim );
+            public static extern CUResult cuTexRefGetAddressMode(ref CUAddressMode pam, CUtexref hTexRef, int dim);
 
             /// <summary>
             /// Returns in <c>pfm</c> the filtering mode of the texture reference <c>hTexRef</c>.
@@ -7328,7 +7328,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetFilterMode( ref CUFilterMode pfm, CUtexref hTexRef );
+            public static extern CUResult cuTexRefGetFilterMode(ref CUFilterMode pfm, CUtexref hTexRef);
 
             /// <summary>
             /// Returns in <c>pFormat</c> and <c>pNumChannels</c> the format and number of components of the CUDA array bound to
@@ -7342,7 +7342,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetFormat( ref CUArrayFormat pFormat, ref int pNumChannels, CUtexref hTexRef );
+            public static extern CUResult cuTexRefGetFormat(ref CUArrayFormat pFormat, ref int pNumChannels, CUtexref hTexRef);
 
             /// <summary>
             /// Returns in <c>pFlags</c> the flags of the texture reference <c>hTexRef</c>.
@@ -7356,146 +7356,146 @@ namespace ManagedCuda
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetFlags(ref CUTexRefSetFlags pFlags, CUtexref hTexRef);
 
-			/// <summary>
-			/// Returns the mipmap filtering mode in <c>pfm</c> that's used when reading memory through
-			/// the texture reference <c>hTexRef</c>.
-			/// </summary>
-			/// <param name="pfm">Returned mipmap filtering mode</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Returns the mipmap filtering mode in <c>pfm</c> that's used when reading memory through
+            /// the texture reference <c>hTexRef</c>.
+            /// </summary>
+            /// <param name="pfm">Returned mipmap filtering mode</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetMipmapFilterMode(ref CUFilterMode pfm, CUtexref hTexRef);
-			
-			/// <summary>
-			/// Returns the mipmap level bias in <c>pBias</c> that's added to the specified mipmap
-			/// level when reading memory through the texture reference <c>hTexRef</c>.
-			/// </summary>
-			/// <param name="pbias">Returned mipmap level bias</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Returns the mipmap level bias in <c>pBias</c> that's added to the specified mipmap
+            /// level when reading memory through the texture reference <c>hTexRef</c>.
+            /// </summary>
+            /// <param name="pbias">Returned mipmap level bias</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetMipmapLevelBias(ref float pbias, CUtexref hTexRef);
-			
-			/// <summary>
-			/// Returns the min/max mipmap level clamps in <c>pminMipmapLevelClamp</c> and <c>pmaxMipmapLevelClamp</c>
-			/// that's used when reading memory through the texture reference <c>hTexRef</c>. 
-			/// </summary>
-			/// <param name="pminMipmapLevelClamp">Returned mipmap min level clamp</param>
-			/// <param name="pmaxMipmapLevelClamp">Returned mipmap max level clamp</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Returns the min/max mipmap level clamps in <c>pminMipmapLevelClamp</c> and <c>pmaxMipmapLevelClamp</c>
+            /// that's used when reading memory through the texture reference <c>hTexRef</c>. 
+            /// </summary>
+            /// <param name="pminMipmapLevelClamp">Returned mipmap min level clamp</param>
+            /// <param name="pmaxMipmapLevelClamp">Returned mipmap max level clamp</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetMipmapLevelClamp(ref float pminMipmapLevelClamp, ref float pmaxMipmapLevelClamp, CUtexref hTexRef);
-			
-			/// <summary>
-			/// Returns the maximum aniostropy in <c>pmaxAniso</c> that's used when reading memory through
-			/// the texture reference. 
-			/// </summary>
-			/// <param name="pmaxAniso">Returned maximum anisotropy</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Returns the maximum aniostropy in <c>pmaxAniso</c> that's used when reading memory through
+            /// the texture reference. 
+            /// </summary>
+            /// <param name="pmaxAniso">Returned maximum anisotropy</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefGetMaxAnisotropy(ref int pmaxAniso, CUtexref hTexRef);
 
-			/// <summary>
-			/// Specifies the mipmap filtering mode <c>fm</c> to be used when reading memory through
-			/// the texture reference <c>hTexRef</c>.<para/>
-			/// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <param name="fm">Filtering mode to set</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Specifies the mipmap filtering mode <c>fm</c> to be used when reading memory through
+            /// the texture reference <c>hTexRef</c>.<para/>
+            /// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <param name="fm">Filtering mode to set</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUFilterMode fm);
-			
-			/// <summary>
-			/// Specifies the mipmap level bias <c>bias</c> to be added to the specified mipmap level when 
-			/// reading memory through the texture reference <c>hTexRef</c>.<para/>
-			/// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <param name="bias">Mipmap level bias</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Specifies the mipmap level bias <c>bias</c> to be added to the specified mipmap level when 
+            /// reading memory through the texture reference <c>hTexRef</c>.<para/>
+            /// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <param name="bias">Mipmap level bias</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias);
-			
-			/// <summary>
-			/// Specifies the min/max mipmap level clamps, <c>minMipmapLevelClamp</c> and <c>maxMipmapLevelClamp</c>
-			/// respectively, to be used when reading memory through the texture reference 
-			/// <c>hTexRef</c>.<para/>
-			/// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <param name="minMipmapLevelClamp">Mipmap min level clamp</param>
-			/// <param name="maxMipmapLevelClamp">Mipmap max level clamp</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Specifies the min/max mipmap level clamps, <c>minMipmapLevelClamp</c> and <c>maxMipmapLevelClamp</c>
+            /// respectively, to be used when reading memory through the texture reference 
+            /// <c>hTexRef</c>.<para/>
+            /// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <param name="minMipmapLevelClamp">Mipmap min level clamp</param>
+            /// <param name="maxMipmapLevelClamp">Mipmap max level clamp</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp);
-			
-			/// <summary>
-			/// Specifies the maximum aniostropy <c>maxAniso</c> to be used when reading memory through
-			/// the texture reference <c>hTexRef</c>. <para/>
-			/// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <param name="maxAniso">Maximum anisotropy</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Specifies the maximum aniostropy <c>maxAniso</c> to be used when reading memory through
+            /// the texture reference <c>hTexRef</c>. <para/>
+            /// Note that this call has no effect if <c>hTexRef</c> is not bound to a mipmapped array.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <param name="maxAniso">Maximum anisotropy</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, uint maxAniso);
 
-			
-			/// <summary>
-			/// Sets the border color for a texture reference<para/>
-			/// Specifies the value of the RGBA color via the \p pBorderColor to the texture reference
-			/// \p hTexRef. The color value supports only float type and holds color components in
-			/// the following sequence:<para/>
-			/// pBorderColor[0] holds 'R' component<para/>
-			/// pBorderColor[1] holds 'G' component<para/>
-			/// pBorderColor[2] holds 'B' component<para/>
-			/// pBorderColor[3] holds 'A' component<para/>
-			/// <para/>
-			/// Note that the color values can be set only when the Address mode is set to
-			/// CU_TR_ADDRESS_MODE_BORDER using ::cuTexRefSetAddressMode.<para/>
-			/// Applications using integer border color values have to "reinterpret_cast" their values to float.
-			/// </summary>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <param name="pBorderColor">RGBA color</param>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+
+            /// <summary>
+            /// Sets the border color for a texture reference<para/>
+            /// Specifies the value of the RGBA color via the \p pBorderColor to the texture reference
+            /// \p hTexRef. The color value supports only float type and holds color components in
+            /// the following sequence:<para/>
+            /// pBorderColor[0] holds 'R' component<para/>
+            /// pBorderColor[1] holds 'G' component<para/>
+            /// pBorderColor[2] holds 'B' component<para/>
+            /// pBorderColor[3] holds 'A' component<para/>
+            /// <para/>
+            /// Note that the color values can be set only when the Address mode is set to
+            /// CU_TR_ADDRESS_MODE_BORDER using ::cuTexRefSetAddressMode.<para/>
+            /// Applications using integer border color values have to "reinterpret_cast" their values to float.
+            /// </summary>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <param name="pBorderColor">RGBA color</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
             public static extern CUResult cuTexRefSetBorderColor(CUtexref hTexRef, [In, Out] float[] pBorderColor);
 
-			/// <summary>
-			/// Gets the border color used by a texture reference<para/>
-			/// Returns in \p pBorderColor, values of the RGBA color used by
-			/// the texture reference \p hTexRef.<para/>
-			/// The color value is of type float and holds color components in
-			/// the following sequence:<para/>
-			/// pBorderColor[0] holds 'R' component
-			/// pBorderColor[1] holds 'G' component
-			/// pBorderColor[2] holds 'B' component
-			/// pBorderColor[3] holds 'A' component
-			/// </summary>
-			/// <param name="pBorderColor">Returned Type and Value of RGBA color</param>
-			/// <param name="hTexRef">Texture reference</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            /// <summary>
+            /// Gets the border color used by a texture reference<para/>
+            /// Returns in \p pBorderColor, values of the RGBA color used by
+            /// the texture reference \p hTexRef.<para/>
+            /// The color value is of type float and holds color components in
+            /// the following sequence:<para/>
+            /// pBorderColor[0] holds 'R' component
+            /// pBorderColor[1] holds 'G' component
+            /// pBorderColor[2] holds 'B' component
+            /// pBorderColor[3] holds 'A' component
+            /// </summary>
+            /// <param name="pBorderColor">Returned Type and Value of RGBA color</param>
+            /// <param name="hTexRef">Texture reference</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuTexRefGetBorderColor([In, Out] float[] pBorderColor, CUtexref hTexRef); 
+            public static extern CUResult cuTexRefGetBorderColor([In, Out] float[] pBorderColor, CUtexref hTexRef);
         }
         #endregion
 
@@ -7539,7 +7539,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_11)]
-            public static extern CUResult cuSurfRefGetArray( ref CUarray phArray, CUsurfref hSurfRef );
+            public static extern CUResult cuSurfRefGetArray(ref CUarray phArray, CUsurfref hSurfRef);
         }
         #endregion
 
@@ -7569,7 +7569,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
             public static extern CUResult cuLaunch([In] CUfunction f);
-            
+
             /// <summary>
             /// Invokes the kernel <c>f</c> on a <c>grid_width</c> x <c>grid_height</c> grid of blocks. Each block contains the number of threads
             /// specified by a previous call to <see cref="FunctionManagement.cuFuncSetBlockShape"/>.
@@ -7585,7 +7585,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
             public static extern CUResult cuLaunchGrid([In] CUfunction f, [In] int grid_width, [In] int grid_height);
-            
+
             /// <summary>
             /// Invokes the kernel <c>f</c> on a <c>grid_width</c> x <c>grid_height</c> grid of blocks. Each block contains the number of threads
             /// specified by a previous call to <see cref="FunctionManagement.cuFuncSetBlockShape"/>.<para/>
@@ -7602,7 +7602,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             [Obsolete(CUDA_OBSOLET_9_2)]
-            public static extern CUResult cuLaunchGridAsync([In]  CUfunction f, [In]  int grid_width, [In] int grid_height, [In] CUstream hStream);
+            public static extern CUResult cuLaunchGridAsync([In] CUfunction f, [In] int grid_width, [In] int grid_height, [In] CUstream hStream);
 
             /// <summary>
             /// Invokes the kernel <c>f</c> on a <c>gridDimX</c> x <c>gridDimY</c> x <c>gridDimZ</c>
@@ -7763,7 +7763,7 @@ namespace ManagedCuda
                                             uint sharedMemBytes,
                                             CUstream hStream,
                                             IntPtr[] kernelParams);
-        
+
             /// <summary>
             /// Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute
             /// <para/>
@@ -7830,6 +7830,7 @@ namespace ManagedCuda
             /// <param name="numDevices">Size of the \p launchParamsList array</param>
             /// <param name="flags">Flags to control launch behavior</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete("This function is deprecated as of CUDA 11.3")]
             public static extern CUResult cuLaunchCooperativeKernelMultiDevice(CudaLaunchParams[] launchParamsList, uint numDevices, CudaCooperativeLaunchMultiDeviceFlags flags);
 
             /// <summary>
@@ -7879,7 +7880,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuEventCreate(ref CUevent phEvent, CUEventFlags Flags);
-            
+
             /// <summary>
             /// Records an event. If <c>stream</c> is non-zero, the event is recorded after all preceding operations in the stream have been
             /// completed; otherwise, it is recorded after all preceding operations in the CUDA context have been completed. Since
@@ -7893,9 +7894,9 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuEventRecord" + CUDA_PTSZ)]
-            public static extern CUResult cuEventRecord( CUevent hEvent, CUstream hStream );
-                        
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuEventRecord" + CUDA_PTSZ)]
+            public static extern CUResult cuEventRecord(CUevent hEvent, CUstream hStream);
+
             /// <summary>
             /// Records an event
             /// Captures in \p hEvent the contents of \p hStream at the time of this call.
@@ -7928,8 +7929,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorNotReady"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuEventQuery( CUevent hEvent );
-            
+            public static extern CUResult cuEventQuery(CUevent hEvent);
+
             /// <summary>
             /// Waits until the event has actually been recorded. If <see cref="cuEventRecord"/> has been called on this event, the function returns
             /// <see cref="CUResult.ErrorInvalidValue"/>. Waiting for an event that was created with the <see cref="CUEventFlags.BlockingSync"/>
@@ -7941,8 +7942,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuEventSynchronize( CUevent hEvent );
-                      
+            public static extern CUResult cuEventSynchronize(CUevent hEvent);
+
             /// <summary>
             /// Destroys the event specified by <c>event</c>.<para/>
             /// In the case that <c>hEvent</c> has been recorded but has not yet been completed
@@ -7955,8 +7956,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuEventDestroy_v2( CUevent hEvent );
-            
+            public static extern CUResult cuEventDestroy_v2(CUevent hEvent);
+
             /// <summary>
             /// Computes the elapsed time between two events (in milliseconds with a resolution of around 0.5 microseconds). If
             /// either event has not been recorded yet, this function returns <see cref="CUResult.ErrorNotReady"/>. If either event has been
@@ -7969,7 +7970,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorNotReady"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuEventElapsedTime( ref float pMilliseconds, CUevent hStart, CUevent hEnd );
+            public static extern CUResult cuEventElapsedTime(ref float pMilliseconds, CUevent hStart, CUevent hEnd);
 
             /// <summary>
             /// Wait on a memory location<para/>
@@ -8067,7 +8068,7 @@ namespace ManagedCuda
             /// <param name="flags">See::CUstreamWriteValue_flags.</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWriteValue64" + CUDA_PTSZ)]
             public static extern CUResult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, ulong value, CUstreamWriteValue_flags flags);
-            
+
 
             /// <summary>
             /// Batch operations to synchronize the stream via memory operations
@@ -8120,8 +8121,8 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult  cuStreamCreate( ref CUstream phStream, CUStreamFlags Flags );
-            
+            public static extern CUResult cuStreamCreate(ref CUstream phStream, CUStreamFlags Flags);
+
             /// <summary>
             /// Returns <see cref="CUResult.Success"/> if all operations in the stream specified by <c>hStream</c> have completed, or
             /// <see cref="CUResult.ErrorNotReady"/> if not.
@@ -8130,9 +8131,9 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>, <see cref="CUResult.ErrorNotReady"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamQuery" + CUDA_PTSZ)]
-            public static extern CUResult  cuStreamQuery( CUstream hStream );
-            
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamQuery" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamQuery(CUstream hStream);
+
             /// <summary>
             /// Waits until the device has completed all operations in the stream specified by <c>hStream</c>. If the context was created
             /// with the <see cref="CUCtxFlags.BlockingSync"/> flag, the CPU thread will block until the stream is finished with all of its
@@ -8142,10 +8143,10 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamSynchronize" + CUDA_PTSZ)]
-            public static extern CUResult  cuStreamSynchronize( CUstream hStream );
-                      
-            
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamSynchronize" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamSynchronize(CUstream hStream);
+
+
             /// <summary>
             /// Destroys the stream specified by hStream.<para/>
             /// In the case that the device is still doing work in the stream <c>hStream</c>
@@ -8158,7 +8159,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult  cuStreamDestroy_v2( CUstream hStream );
+            public static extern CUResult cuStreamDestroy_v2(CUstream hStream);
 
 
             /// <summary>
@@ -8181,7 +8182,7 @@ namespace ManagedCuda
             /// <param name="value_out"></param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetAttribute" + CUDA_PTSZ)]
             public static extern CUResult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, ref CUstreamAttrValue value_out);
-            
+
 
             /// <summary>
             /// Sets stream attribute.<para/>
@@ -8224,89 +8225,89 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamWaitEvent" + CUDA_PTSZ)]
-            public static extern CUResult  cuStreamWaitEvent(CUstream hStream, CUevent hEvent, uint Flags);
+            public static extern CUResult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, uint Flags);
 
-			/// <summary>
-			/// Adds a callback to be called on the host after all currently enqueued
-			/// items in the stream have completed.  For each 
-			/// cuStreamAddCallback call, the callback will be executed exactly once.
-			/// The callback will block later work in the stream until it is finished.
-			/// <para/>
-			/// The callback may be passed <see cref="CUResult.Success"/> or an error code.  In the event
-			/// of a device error, all subsequently executed callbacks will receive an
-			/// appropriate <see cref="CUResult"/>.
-			/// <para/>
-			/// Callbacks must not make any CUDA API calls.  Attempting to use a CUDA API
-			/// will result in <see cref="CUResult.ErrorNotPermitted"/>.  Callbacks must not perform any
-			/// synchronization that may depend on outstanding device work or other callbacks
-			/// that are not mandated to run earlier.  Callbacks without a mandated order
-			/// (in independent streams) execute in undefined order and may be serialized.
-			/// <para/>
-			/// This API requires compute capability 1.1 or greater.  See
-			/// cuDeviceGetAttribute or ::cuDeviceGetProperties to query compute
-			/// capability.  Attempting to use this API with earlier compute versions will
-			/// return <see cref="CUResult.ErrorNotSupported"/>.
-			/// </summary>
-			/// <param name="hStream">Stream to add callback to</param>
-			/// <param name="callback">The function to call once preceding stream operations are complete</param>
-			/// <param name="userData">User specified data to be passed to the callback function</param>
-			/// <param name="flags">Reserved for future use; must be 0.</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamAddCallback" + CUDA_PTSZ)]
-			public static extern CUResult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, IntPtr userData, CUStreamAddCallbackFlags flags);
+            /// <summary>
+            /// Adds a callback to be called on the host after all currently enqueued
+            /// items in the stream have completed.  For each 
+            /// cuStreamAddCallback call, the callback will be executed exactly once.
+            /// The callback will block later work in the stream until it is finished.
+            /// <para/>
+            /// The callback may be passed <see cref="CUResult.Success"/> or an error code.  In the event
+            /// of a device error, all subsequently executed callbacks will receive an
+            /// appropriate <see cref="CUResult"/>.
+            /// <para/>
+            /// Callbacks must not make any CUDA API calls.  Attempting to use a CUDA API
+            /// will result in <see cref="CUResult.ErrorNotPermitted"/>.  Callbacks must not perform any
+            /// synchronization that may depend on outstanding device work or other callbacks
+            /// that are not mandated to run earlier.  Callbacks without a mandated order
+            /// (in independent streams) execute in undefined order and may be serialized.
+            /// <para/>
+            /// This API requires compute capability 1.1 or greater.  See
+            /// cuDeviceGetAttribute or ::cuDeviceGetProperties to query compute
+            /// capability.  Attempting to use this API with earlier compute versions will
+            /// return <see cref="CUResult.ErrorNotSupported"/>.
+            /// </summary>
+            /// <param name="hStream">Stream to add callback to</param>
+            /// <param name="callback">The function to call once preceding stream operations are complete</param>
+            /// <param name="userData">User specified data to be passed to the callback function</param>
+            /// <param name="flags">Reserved for future use; must be 0.</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidHandle"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamAddCallback" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, IntPtr userData, CUStreamAddCallbackFlags flags);
 
-			/// <summary>
-			/// Create a stream with the given priority<para/>
-			/// Creates a stream with the specified priority and returns a handle in <c>phStream</c>. <para/>
-			/// This API alters the scheduler priority of work in the stream. Work in a higher priority stream 
-			/// may preempt work already executing in a low priority stream.<para/>
-			/// <c>priority</c> follows a convention where lower numbers represent higher priorities.<para/>
-			/// '0' represents default priority. The range of meaningful numerical priorities can
-			/// be queried using <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>. If the specified priority is
-			/// outside the numerical range returned by <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>,
-			/// it will automatically be clamped to the lowest or the highest number in the range.
-			/// </summary>
-			/// <param name="phStream">Returned newly created stream</param>
-			/// <param name="flags">Flags for stream creation. See ::cuStreamCreate for a list of valid flags</param>
-			/// <param name="priority">Stream priority. Lower numbers represent higher priorities. <para/>
-			/// See <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/> for more information about meaningful stream priorities that can be passed.</param>
-			/// <remarks>Stream priorities are supported only on Quadro and Tesla GPUs with compute capability 3.5 or higher.
-			/// <para/>In the current implementation, only compute kernels launched in priority streams are affected by the stream's priority. <para/>
-			/// Stream priorities have no effect on host-to-device and device-to-host memory operations.</remarks>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuStreamCreateWithPriority(ref CUstream phStream, CUStreamFlags flags, int priority);
+            /// <summary>
+            /// Create a stream with the given priority<para/>
+            /// Creates a stream with the specified priority and returns a handle in <c>phStream</c>. <para/>
+            /// This API alters the scheduler priority of work in the stream. Work in a higher priority stream 
+            /// may preempt work already executing in a low priority stream.<para/>
+            /// <c>priority</c> follows a convention where lower numbers represent higher priorities.<para/>
+            /// '0' represents default priority. The range of meaningful numerical priorities can
+            /// be queried using <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>. If the specified priority is
+            /// outside the numerical range returned by <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>,
+            /// it will automatically be clamped to the lowest or the highest number in the range.
+            /// </summary>
+            /// <param name="phStream">Returned newly created stream</param>
+            /// <param name="flags">Flags for stream creation. See ::cuStreamCreate for a list of valid flags</param>
+            /// <param name="priority">Stream priority. Lower numbers represent higher priorities. <para/>
+            /// See <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/> for more information about meaningful stream priorities that can be passed.</param>
+            /// <remarks>Stream priorities are supported only on Quadro and Tesla GPUs with compute capability 3.5 or higher.
+            /// <para/>In the current implementation, only compute kernels launched in priority streams are affected by the stream's priority. <para/>
+            /// Stream priorities have no effect on host-to-device and device-to-host memory operations.</remarks>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuStreamCreateWithPriority(ref CUstream phStream, CUStreamFlags flags, int priority);
 
-			
-			/// <summary>
-			/// Query the priority of a given stream<para/>
-			/// Query the priority of a stream created using <see cref="cuStreamCreate"/> or <see cref="cuStreamCreateWithPriority"/>
-			/// and return the priority in <c>priority</c>. Note that if the stream was created with a
-			/// priority outside the numerical range returned by <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>,
-			/// this function returns the clamped priority.
-			/// See <see cref="cuStreamCreateWithPriority"/> for details about priority clamping.
-			/// </summary>
-			/// <param name="hStream">Handle to the stream to be queried</param>
-			/// <param name="priority">Pointer to a signed integer in which the stream's priority is returned</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetPriority" + CUDA_PTSZ)]
-			public static extern CUResult cuStreamGetPriority(CUstream hStream, ref int priority);
 
-			/// <summary>
-			/// Query the flags of a given stream<para/>
-			/// Query the flags of a stream created using <see cref="cuStreamCreate"/> or <see cref="cuStreamCreateWithPriority"/>
-			/// and return the flags in <c>flags</c>.
-			/// </summary>
-			/// <param name="hStream">Handle to the stream to be queried</param>
-			/// <param name="flags">Pointer to an unsigned integer in which the stream's flags are returned. <para/>
-			/// The value returned in <c>flags</c> is a logical 'OR' of all flags that
-			/// were used while creating this stream. See <see cref="cuStreamCreate"/> for the list
-			/// of valid flags</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetFlags" + CUDA_PTSZ)]
-			public static extern CUResult cuStreamGetFlags(CUstream hStream, ref CUStreamFlags flags);
-            
+            /// <summary>
+            /// Query the priority of a given stream<para/>
+            /// Query the priority of a stream created using <see cref="cuStreamCreate"/> or <see cref="cuStreamCreateWithPriority"/>
+            /// and return the priority in <c>priority</c>. Note that if the stream was created with a
+            /// priority outside the numerical range returned by <see cref="ContextManagement.cuCtxGetStreamPriorityRange"/>,
+            /// this function returns the clamped priority.
+            /// See <see cref="cuStreamCreateWithPriority"/> for details about priority clamping.
+            /// </summary>
+            /// <param name="hStream">Handle to the stream to be queried</param>
+            /// <param name="priority">Pointer to a signed integer in which the stream's priority is returned</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetPriority" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetPriority(CUstream hStream, ref int priority);
+
+            /// <summary>
+            /// Query the flags of a given stream<para/>
+            /// Query the flags of a stream created using <see cref="cuStreamCreate"/> or <see cref="cuStreamCreateWithPriority"/>
+            /// and return the flags in <c>flags</c>.
+            /// </summary>
+            /// <param name="hStream">Handle to the stream to be queried</param>
+            /// <param name="flags">Pointer to an unsigned integer in which the stream's flags are returned. <para/>
+            /// The value returned in <c>flags</c> is a logical 'OR' of all flags that
+            /// were used while creating this stream. See <see cref="cuStreamCreate"/> for the list
+            /// of valid flags</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetFlags" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetFlags(CUstream hStream, ref CUStreamFlags flags);
+
             /// <summary>
             /// Query the context associated with a stream<para/>
             /// Returns the CUDA context that the stream is associated with. .
@@ -8315,67 +8316,67 @@ namespace ManagedCuda
             /// <param name="pctx">Returned context associated with the stream</param>
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCtx" + CUDA_PTSZ)]
-			public static extern CUResult cuStreamGetCtx(CUstream hStream, ref CUcontext pctx);
+            public static extern CUResult cuStreamGetCtx(CUstream hStream, ref CUcontext pctx);
 
-			/// <summary>
-			/// Attach memory to a stream asynchronously
-			/// <para/>
-			/// Enqueues an operation in <c>hStream</c> to specify stream association of
-			/// <c>length</c> bytes of memory starting from <c>dptr</c>. This function is a
-			/// stream-ordered operation, meaning that it is dependent on, and will
-			/// only take effect when, previous work in stream has completed. Any
-			/// previous association is automatically replaced.
-			/// <para/>
-			/// <c>dptr</c> must point to an address within managed memory space declared
-			/// using the __managed__ keyword or allocated with cuMemAllocManaged.
-			/// <para/>
-			/// <c>length</c> must be zero, to indicate that the entire allocation's
-			/// stream association is being changed. Currently, it's not possible
-			/// to change stream association for a portion of an allocation.
-			/// <para/>
-			/// The stream association is specified using <c>flags</c> which must be
-			/// one of <see cref="CUmemAttach_flags"/>.
-			/// If the <see cref="CUmemAttach_flags.Global"/> flag is specified, the memory can be accessed
-			/// by any stream on any device.
-			/// If the <see cref="CUmemAttach_flags.Host"/> flag is specified, the program makes a guarantee
-			/// that it won't access the memory on the device from any stream.
-			/// If the <see cref="CUmemAttach_flags.Single"/> flag is specified, the program makes a guarantee
-			/// that it will only access the memory on the device from <c>hStream</c>. It is illegal
-			/// to attach singly to the NULL stream, because the NULL stream is a virtual global
-			/// stream and not a specific stream. An error will be returned in this case.
-			/// <para/>
-			/// When memory is associated with a single stream, the Unified Memory system will
-			/// allow CPU access to this memory region so long as all operations in <c>hStream</c>
-			/// have completed, regardless of whether other streams are active. In effect,
-			/// this constrains exclusive ownership of the managed memory region by
-			/// an active GPU to per-stream activity instead of whole-GPU activity.
-			/// <para/>
-			/// Accessing memory on the device from streams that are not associated with
-			/// it will produce undefined results. No error checking is performed by the
-			/// Unified Memory system to ensure that kernels launched into other streams
-			/// do not access this region. 
-			/// <para/>
-			/// It is a program's responsibility to order calls to <see cref="cuStreamAttachMemAsync"/>
-			/// via events, synchronization or other means to ensure legal access to memory
-			/// at all times. Data visibility and coherency will be changed appropriately
-			/// for all kernels which follow a stream-association change.
-			/// <para/>
-			/// If <c>hStream</c> is destroyed while data is associated with it, the association is
-			/// removed and the association reverts to the default visibility of the allocation
-			/// as specified at cuMemAllocManaged. For __managed__ variables, the default
-			/// association is always <see cref="CUmemAttach_flags.Global"/>. Note that destroying a stream is an
-			/// asynchronous operation, and as a result, the change to default association won't
-			/// happen until all work in the stream has completed.
-			/// <para/>
-			/// </summary>
-			/// <param name="hStream">Stream in which to enqueue the attach operation</param>
-			/// <param name="dptr">Pointer to memory (must be a pointer to managed memory)</param>
-			/// <param name="length">Length of memory (must be zero)</param>
-			/// <param name="flags">Must be one of <see cref="CUmemAttach_flags"/></param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamAttachMemAsync" + CUDA_PTSZ)]
-			public static extern CUResult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, SizeT length, CUmemAttach_flags flags);
-            
+            /// <summary>
+            /// Attach memory to a stream asynchronously
+            /// <para/>
+            /// Enqueues an operation in <c>hStream</c> to specify stream association of
+            /// <c>length</c> bytes of memory starting from <c>dptr</c>. This function is a
+            /// stream-ordered operation, meaning that it is dependent on, and will
+            /// only take effect when, previous work in stream has completed. Any
+            /// previous association is automatically replaced.
+            /// <para/>
+            /// <c>dptr</c> must point to an address within managed memory space declared
+            /// using the __managed__ keyword or allocated with cuMemAllocManaged.
+            /// <para/>
+            /// <c>length</c> must be zero, to indicate that the entire allocation's
+            /// stream association is being changed. Currently, it's not possible
+            /// to change stream association for a portion of an allocation.
+            /// <para/>
+            /// The stream association is specified using <c>flags</c> which must be
+            /// one of <see cref="CUmemAttach_flags"/>.
+            /// If the <see cref="CUmemAttach_flags.Global"/> flag is specified, the memory can be accessed
+            /// by any stream on any device.
+            /// If the <see cref="CUmemAttach_flags.Host"/> flag is specified, the program makes a guarantee
+            /// that it won't access the memory on the device from any stream.
+            /// If the <see cref="CUmemAttach_flags.Single"/> flag is specified, the program makes a guarantee
+            /// that it will only access the memory on the device from <c>hStream</c>. It is illegal
+            /// to attach singly to the NULL stream, because the NULL stream is a virtual global
+            /// stream and not a specific stream. An error will be returned in this case.
+            /// <para/>
+            /// When memory is associated with a single stream, the Unified Memory system will
+            /// allow CPU access to this memory region so long as all operations in <c>hStream</c>
+            /// have completed, regardless of whether other streams are active. In effect,
+            /// this constrains exclusive ownership of the managed memory region by
+            /// an active GPU to per-stream activity instead of whole-GPU activity.
+            /// <para/>
+            /// Accessing memory on the device from streams that are not associated with
+            /// it will produce undefined results. No error checking is performed by the
+            /// Unified Memory system to ensure that kernels launched into other streams
+            /// do not access this region. 
+            /// <para/>
+            /// It is a program's responsibility to order calls to <see cref="cuStreamAttachMemAsync"/>
+            /// via events, synchronization or other means to ensure legal access to memory
+            /// at all times. Data visibility and coherency will be changed appropriately
+            /// for all kernels which follow a stream-association change.
+            /// <para/>
+            /// If <c>hStream</c> is destroyed while data is associated with it, the association is
+            /// removed and the association reverts to the default visibility of the allocation
+            /// as specified at cuMemAllocManaged. For __managed__ variables, the default
+            /// association is always <see cref="CUmemAttach_flags.Global"/>. Note that destroying a stream is an
+            /// asynchronous operation, and as a result, the change to default association won't
+            /// happen until all work in the stream has completed.
+            /// <para/>
+            /// </summary>
+            /// <param name="hStream">Stream in which to enqueue the attach operation</param>
+            /// <param name="dptr">Pointer to memory (must be a pointer to managed memory)</param>
+            /// <param name="length">Length of memory (must be zero)</param>
+            /// <param name="flags">Must be one of <see cref="CUmemAttach_flags"/></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamAttachMemAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, SizeT length, CUmemAttach_flags flags);
+
 
             /// <summary>
             /// Begins graph capture on a stream<para/>
@@ -8394,7 +8395,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamBeginCapture_v2" + CUDA_PTSZ)]
             public static extern CUResult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode);
 
-            
+
             /// <summary>
             /// Ends capture on a stream, returning the captured graph<para/>
             /// End capture on \p hStream, returning the captured graph via \p phGraph.<para/>
@@ -8406,7 +8407,7 @@ namespace ManagedCuda
             /// <param name="phGraph">The captured graph</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamEndCapture" + CUDA_PTSZ)]
             public static extern CUResult cuStreamEndCapture(CUstream hStream, ref CUgraph phGraph);
-            
+
             /// <summary>
             /// Returns a stream's capture status<para/>
             /// Return the capture status of \p hStream via \p captureStatus. After a successful
@@ -8490,6 +8491,93 @@ namespace ManagedCuda
             public static extern CUResult cuStreamGetCaptureInfo(CUstream hStream, ref CUstreamCaptureStatus captureStatus, ref ulong id);
 
 
+            /// <summary>
+            /// Query a stream's capture state (11.3+)<para/>
+            /// Query stream state related to stream capture.
+            /// <para/>
+            /// If called on ::CU_STREAM_LEGACY(the "null stream") while a stream not created 
+            /// with::CU_STREAM_NON_BLOCKING is capturing, returns::CUDA_ERROR_STREAM_CAPTURE_IMPLICIT.
+            /// <para/>
+            /// Valid data(other than capture status) is returned only if both of the following are true:
+            /// - the call returns CUDA_SUCCESS
+            /// - the returned capture status is ::CU_STREAM_CAPTURE_STATUS_ACTIVE
+            /// <para/>
+            /// This version of cuStreamGetCaptureInfo is introduced in CUDA 11.3 and will supplant the
+            /// previous version in 12.0. Developers requiring compatibility across minor versions to
+            /// CUDA 11.0 (driver version 445) should use ::cuStreamGetCaptureInfo or include a fallback
+            /// path.
+            /// </summary>
+            /// <param name="hStream">The stream to query</param>
+            /// <param name="captureStatus_out">captureStatus_out - Location to return the capture status of the stream; required</param>
+            /// <param name="id_out">Optional location to return an id for the capture sequence, which is unique over the lifetime of the process</param>
+            /// <param name="graph_out">Optional location to return the graph being captured into. All operations other than destroy and node removal are permitted on the graph
+            /// while the capture sequence is in progress.This API does not transfer
+            /// ownership of the graph, which is transferred or destroyed at
+            /// ::cuStreamEndCapture.Note that the graph handle may be invalidated before
+            /// end of capture for certain errors.Nodes that are or become
+            /// unreachable from the original stream at ::cuStreamEndCapture due to direct
+            /// actions on the graph do not trigger ::CUDA_ERROR_STREAM_CAPTURE_UNJOINED.</param>
+            /// <param name="dependencies_out">Optional location to store a pointer to an array of nodes. The next node to be captured in the stream will depend on this set of nodes,
+            /// absent operations such as event wait which modify this set.The array pointer
+            /// is valid until the next API call which operates on the stream or until end of
+            /// capture. The node handles may be copied out and are valid until they or the
+            /// graph is destroyed.The driver-owned array may also be passed directly to
+            /// APIs that operate on the graph (not the stream) without copying.</param>
+            /// <param name="numDependencies_out">Optional location to store the size of the array returned in dependencies_out.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCaptureInfo" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetCaptureInfo_v2(CUstream hStream, ref CUstreamCaptureStatus captureStatus_out,
+                    ref ulong id_out, ref CUgraph graph_out, ref IntPtr dependencies_out, ref SizeT numDependencies_out);
+            /**
+             * \brief Update the set of dependencies in a capturing stream (11.3+)
+             *
+             * Modifies the dependency set of a capturing stream. The dependency set is the set
+             * of nodes that the next captured node in the stream will depend on.
+             *
+             * Valid flags are ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES and
+             * ::CU_STREAM_SET_CAPTURE_DEPENDENCIES. These control whether the set passed to
+             * the API is added to the existing set or replaces it. A flags value of 0 defaults
+             * to ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES.
+             *
+             * Nodes that are removed from the dependency set via this API do not result in
+             * ::CUDA_ERROR_STREAM_CAPTURE_UNJOINED if they are unreachable from the stream at
+             * ::cuStreamEndCapture.
+             *
+             * Returns ::CUDA_ERROR_ILLEGAL_STATE if the stream is not capturing.
+             *
+             * This API is new in CUDA 11.3. Developers requiring compatibility across minor
+             * versions to CUDA 11.0 should not use this API or provide a fallback.
+             *
+             * \return
+             * ::CUDA_SUCCESS,
+             * ::CUDA_ERROR_INVALID_VALUE,
+             * ::CUDA_ERROR_ILLEGAL_STATE
+             *
+             * \sa
+             * ::cuStreamBeginCapture,
+             * ::cuStreamGetCaptureInfo,
+             * ::cuStreamGetCaptureInfo_v2
+             */
+            /// <summary>
+            /// Update the set of dependencies in a capturing stream (11.3+)<para/>
+            /// Modifies the dependency set of a capturing stream. The dependency set is the set of nodes that the next captured node in the stream will depend on.<para/>
+            /// Valid flags are ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES and
+            /// ::CU_STREAM_SET_CAPTURE_DEPENDENCIES.These control whether the set passed to
+            /// the API is added to the existing set or replaces it.A flags value of 0 defaults
+            /// to ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES.
+            /// Nodes that are removed from the dependency set via this API do not result in
+            /// ::CUDA_ERROR_STREAM_CAPTURE_UNJOINED if they are unreachable from the stream at
+            /// ::cuStreamEndCapture.
+            /// Returns ::CUDA_ERROR_ILLEGAL_STATE if the stream is not capturing.
+            /// This API is new in CUDA 11.3. Developers requiring compatibility across minor
+            /// versions to CUDA 11.0 should not use this API or provide a fallback.
+            /// </summary>
+            /// <param name="hStream"></param>
+            /// <param name="dependencies"></param>
+            /// <param name="numDependencies"></param>
+            /// <param name="flags"></param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCaptureInfo" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode[] dependencies, SizeT numDependencies, uint flags);
+
         }
         #endregion
 
@@ -8516,7 +8604,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphicsUnregisterResource(CUgraphicsResource resource);
-            
+
             /// <summary>
             /// Returns in <c>pArray</c> an array through which the subresource of the mapped graphics resource resource which
             /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The value set in <c>pArray</c>
@@ -8536,24 +8624,24 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorNotMapped"/>, <see cref="CUResult.ErrorNotMappedAsArray"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGraphicsSubResourceGetMappedArray( ref CUarray pArray, CUgraphicsResource resource, uint arrayIndex, uint mipLevel );
+            public static extern CUResult cuGraphicsSubResourceGetMappedArray(ref CUarray pArray, CUgraphicsResource resource, uint arrayIndex, uint mipLevel);
 
-			/// <summary>
-			/// Returns in <c>pMipmappedArray</c> a mipmapped array through which the mapped graphics 
-			/// resource <c>resource</c>. The value set in <c>pMipmappedArray</c> may change every time 
-			/// that <c>resource</c> is mapped.
-			/// <para/>
-			/// If <c>resource</c> is not a texture then it cannot be accessed via a mipmapped array and
-			/// <see cref="CUResult.ErrorNotMappedAsArray"/> is returned.
-			/// If <c>resource</c> is not mapped then <see cref="CUResult.ErrorNotMapped"/> is returned.
-			/// </summary>
-			/// <param name="pMipmappedArray">Returned mipmapped array through which <c>resource</c> may be accessed</param>
-			/// <param name="resource">Mapped resource to access</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>,
-			/// <see cref="CUResult.ErrorNotMapped"/>, <see cref="CUResult.ErrorNotMappedAsArray"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuGraphicsResourceGetMappedMipmappedArray(ref CUmipmappedArray pMipmappedArray, CUgraphicsResource resource);
+            /// <summary>
+            /// Returns in <c>pMipmappedArray</c> a mipmapped array through which the mapped graphics 
+            /// resource <c>resource</c>. The value set in <c>pMipmappedArray</c> may change every time 
+            /// that <c>resource</c> is mapped.
+            /// <para/>
+            /// If <c>resource</c> is not a texture then it cannot be accessed via a mipmapped array and
+            /// <see cref="CUResult.ErrorNotMappedAsArray"/> is returned.
+            /// If <c>resource</c> is not mapped then <see cref="CUResult.ErrorNotMapped"/> is returned.
+            /// </summary>
+            /// <param name="pMipmappedArray">Returned mipmapped array through which <c>resource</c> may be accessed</param>
+            /// <param name="resource">Mapped resource to access</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>,
+            /// <see cref="CUResult.ErrorNotMapped"/>, <see cref="CUResult.ErrorNotMappedAsArray"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphicsResourceGetMappedMipmappedArray(ref CUmipmappedArray pMipmappedArray, CUgraphicsResource resource);
 
 
             /// <summary>
@@ -8572,7 +8660,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphicsResourceGetMappedPointer_v2(ref CUdeviceptr pDevPtr, ref SizeT pSize, CUgraphicsResource resource);
-            
+
             /// <summary>
             /// Set <c>flags</c> for mapping the graphics resource <c>resource</c>.
             /// Changes to <c>flags</c> will take effect the next time <c>resource</c> is mapped. See <see cref="CUGraphicsMapResourceFlags"/>. <para/>
@@ -8585,7 +8673,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorInvalidHandle"/>,
             /// <see cref="CUResult.ErrorAlreadyMapped"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphicsResourceSetMapFlags_v2")]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphicsResourceSetMapFlags_v2")]
             public static extern CUResult cuGraphicsResourceSetMapFlags(CUgraphicsResource resource, CUGraphicsMapResourceFlags flags);
 
             /// <summary>
@@ -8662,7 +8750,7 @@ namespace ManagedCuda
             /// <see cref="CUResult.ErrorNotMapped"/>, <see cref="CUResult.ErrorUnknown"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphicsUnmapResources" + CUDA_PTSZ)]
-            public static extern CUResult cuGraphicsUnmapResources(uint count, CUgraphicsResource[] resources, CUstream hStream);           
+            public static extern CUResult cuGraphicsUnmapResources(uint count, CUgraphicsResource[] resources, CUstream hStream);
         }
         #endregion   
 
@@ -8686,7 +8774,7 @@ namespace ManagedCuda
             /// <param name="pExportTableId"></param>
             /// <returns>CUDA Error Code<remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-            public static extern CUResult cuGetExportTable(ref IntPtr ppExportTable, ref CUuuid pExportTableId );
+            public static extern CUResult cuGetExportTable(ref IntPtr ppExportTable, ref CUuuid pExportTableId);
         }
         #endregion
 
@@ -8849,35 +8937,35 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxDisablePeerAccess(CUcontext peerContext);
-			
-			
-			
-			/// <summary>
-			/// Queries attributes of the link between two devices.<para/>
-			/// Returns in \p *value the value of the requested attribute \p attrib of the
-			/// link between \p srcDevice and \p dstDevice. The supported attributes are:<para/>
-			/// - ::CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value indicating the
-			/// performance of the link between two devices.<para/>
-			/// - ::CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is enable.<para/>
-			/// - ::CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic operations over
-			/// the link are supported.
-			/// </summary>
-			/// <param name="value">Returned value of the requested attribute</param>
-			/// <param name="attrib">The requested attribute of the link between \p srcDevice and \p dstDevice.</param>
-			/// <param name="srcDevice">The source device of the target link.</param>
-			/// <param name="dstDevice">The destination device of the target link.</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuDeviceGetP2PAttribute(ref int value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice);
+
+
+
+            /// <summary>
+            /// Queries attributes of the link between two devices.<para/>
+            /// Returns in \p *value the value of the requested attribute \p attrib of the
+            /// link between \p srcDevice and \p dstDevice. The supported attributes are:<para/>
+            /// - ::CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value indicating the
+            /// performance of the link between two devices.<para/>
+            /// - ::CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is enable.<para/>
+            /// - ::CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic operations over
+            /// the link are supported.
+            /// </summary>
+            /// <param name="value">Returned value of the requested attribute</param>
+            /// <param name="attrib">The requested attribute of the link between \p srcDevice and \p dstDevice.</param>
+            /// <param name="srcDevice">The source device of the target link.</param>
+            /// <param name="dstDevice">The destination device of the target link.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetP2PAttribute(ref int value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice);
 
         }
         #endregion
 
-		#region Texture objects
-		/// <summary>
-		/// Texture object management functions.
-		/// </summary>
-		public static class TextureObjects
+        #region Texture objects
+        /// <summary>
+        /// Texture object management functions.
+        /// </summary>
+        public static class TextureObjects
         {
 #if (NETCOREAPP)
             static TextureObjects()
@@ -8900,73 +8988,73 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectCreate(ref CUtexObject pTexObject, ref CudaResourceDesc pResDesc, ref CudaTextureDescriptor pTexDesc, ref CudaResourceViewDesc pResViewDesc);
-			
-			/// <summary>
-			/// Creates a texture object and returns it in <c>pTexObject</c>. <c>pResDesc</c> describes
-			/// the data to texture from. <c>pTexDesc</c> describes how the data should be sampled.
-			/// <c>pResViewDesc</c> is an optional argument that specifies an alternate format for
-			/// the data described by <c>pResDesc</c>, and also describes the subresource region
-			/// to restrict access to when texturing. <c>pResViewDesc</c> can only be specified if
-			/// the type of resource is a CUDA array or a CUDA mipmapped array.
-			/// </summary>
-			/// <param name="pTexObject">Texture object to create</param>
-			/// <param name="pResDesc">Resource descriptor</param>
-			/// <param name="pTexDesc">Texture descriptor</param>
-			/// <param name="pResViewDesc">Resource view descriptor (Null-Pointer)</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectCreate(ref CUtexObject pTexObject, ref CudaResourceDesc pResDesc, ref CudaTextureDescriptor pTexDesc, IntPtr pResViewDesc);
-			
-			/// <summary>
-			/// Destroys the texture object specified by <c>texObject</c>.
-			/// </summary>
-			/// <param name="texObject">Texture object to destroy</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectDestroy(CUtexObject texObject);
-			
-			/// <summary>
-			/// Returns the resource descriptor for the texture object specified by <c>texObject</c>.
-			/// </summary>
-			/// <param name="pResDesc">Resource descriptor</param>
-			/// <param name="texObject">Texture object</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectGetResourceDesc(ref CudaResourceDesc pResDesc, CUtexObject texObject);
-			
-			/// <summary>
-			/// Returns the texture descriptor for the texture object specified by <c>texObject</c>.
-			/// </summary>
-			/// <param name="pTexDesc">Texture descriptor</param>
-			/// <param name="texObject">Texture object</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectGetTextureDesc(ref CudaTextureDescriptor pTexDesc, CUtexObject texObject);
-			
-			/// <summary>
-			/// Returns the resource view descriptor for the texture object specified by <c>texObject</c>.
-			/// If no resource view was set for <c>texObject</c>, the ::CUDA_ERROR_INVALID_VALUE is returned.
-			/// </summary>
-			/// <param name="pResViewDesc">Resource view descriptor</param>
-			/// <param name="texObject">Texture object</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuTexObjectGetResourceViewDesc(ref CudaResourceViewDesc pResViewDesc, CUtexObject texObject);
+            public static extern CUResult cuTexObjectCreate(ref CUtexObject pTexObject, ref CudaResourceDesc pResDesc, ref CudaTextureDescriptor pTexDesc, ref CudaResourceViewDesc pResViewDesc);
 
-		}
-		#endregion
+            /// <summary>
+            /// Creates a texture object and returns it in <c>pTexObject</c>. <c>pResDesc</c> describes
+            /// the data to texture from. <c>pTexDesc</c> describes how the data should be sampled.
+            /// <c>pResViewDesc</c> is an optional argument that specifies an alternate format for
+            /// the data described by <c>pResDesc</c>, and also describes the subresource region
+            /// to restrict access to when texturing. <c>pResViewDesc</c> can only be specified if
+            /// the type of resource is a CUDA array or a CUDA mipmapped array.
+            /// </summary>
+            /// <param name="pTexObject">Texture object to create</param>
+            /// <param name="pResDesc">Resource descriptor</param>
+            /// <param name="pTexDesc">Texture descriptor</param>
+            /// <param name="pResViewDesc">Resource view descriptor (Null-Pointer)</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTexObjectCreate(ref CUtexObject pTexObject, ref CudaResourceDesc pResDesc, ref CudaTextureDescriptor pTexDesc, IntPtr pResViewDesc);
 
-		#region Surface objects
-		/// <summary>
-		/// Surface object management functions.
-		/// </summary>
-		public static class SurfaceObjects
+            /// <summary>
+            /// Destroys the texture object specified by <c>texObject</c>.
+            /// </summary>
+            /// <param name="texObject">Texture object to destroy</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTexObjectDestroy(CUtexObject texObject);
+
+            /// <summary>
+            /// Returns the resource descriptor for the texture object specified by <c>texObject</c>.
+            /// </summary>
+            /// <param name="pResDesc">Resource descriptor</param>
+            /// <param name="texObject">Texture object</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTexObjectGetResourceDesc(ref CudaResourceDesc pResDesc, CUtexObject texObject);
+
+            /// <summary>
+            /// Returns the texture descriptor for the texture object specified by <c>texObject</c>.
+            /// </summary>
+            /// <param name="pTexDesc">Texture descriptor</param>
+            /// <param name="texObject">Texture object</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTexObjectGetTextureDesc(ref CudaTextureDescriptor pTexDesc, CUtexObject texObject);
+
+            /// <summary>
+            /// Returns the resource view descriptor for the texture object specified by <c>texObject</c>.
+            /// If no resource view was set for <c>texObject</c>, the ::CUDA_ERROR_INVALID_VALUE is returned.
+            /// </summary>
+            /// <param name="pResViewDesc">Resource view descriptor</param>
+            /// <param name="texObject">Texture object</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTexObjectGetResourceViewDesc(ref CudaResourceViewDesc pResViewDesc, CUtexObject texObject);
+
+        }
+        #endregion
+
+        #region Surface objects
+        /// <summary>
+        /// Surface object management functions.
+        /// </summary>
+        public static class SurfaceObjects
         {
 #if (NETCOREAPP)
             static SurfaceObjects()
@@ -8985,37 +9073,37 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuSurfObjectCreate(ref CUsurfObject pSurfObject, ref CudaResourceDesc pResDesc);
-			
-			/// <summary>
-			/// Destroys the surface object specified by <c>surfObject</c>.
-			/// </summary>
-			/// <param name="surfObject">Surface object to destroy</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuSurfObjectDestroy(CUsurfObject surfObject);
+            public static extern CUResult cuSurfObjectCreate(ref CUsurfObject pSurfObject, ref CudaResourceDesc pResDesc);
 
-			/// <summary>
-			/// Returns the resource descriptor for the surface object specified by <c>surfObject</c>.
-			/// </summary>
-			/// <param name="pResDesc">Resource descriptor</param>
-			/// <param name="surfObject">Surface object</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuSurfObjectGetResourceDesc(ref CudaResourceDesc pResDesc, CUsurfObject surfObject);
+            /// <summary>
+            /// Destroys the surface object specified by <c>surfObject</c>.
+            /// </summary>
+            /// <param name="surfObject">Surface object to destroy</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuSurfObjectDestroy(CUsurfObject surfObject);
 
-		}
-		#endregion
+            /// <summary>
+            /// Returns the resource descriptor for the surface object specified by <c>surfObject</c>.
+            /// </summary>
+            /// <param name="pResDesc">Resource descriptor</param>
+            /// <param name="surfObject">Surface object</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuSurfObjectGetResourceDesc(ref CudaResourceDesc pResDesc, CUsurfObject surfObject);
 
-		#region Profiling
+        }
+        #endregion
 
-		/// <summary>
-		/// This section describes the profiler control functions of the low-level CUDA
-		/// driver application programming interface.
-		/// </summary>
-		public static class Profiling
+        #region Profiling
+
+        /// <summary>
+        /// This section describes the profiler control functions of the low-level CUDA
+        /// driver application programming interface.
+        /// </summary>
+        public static class Profiling
         {
 #if (NETCOREAPP)
             static Profiling()
@@ -9042,43 +9130,43 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorProfilerDisabled"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuProfilerInitialize(string configFile, string outputFile, CUoutputMode outputMode);
+            public static extern CUResult cuProfilerInitialize(string configFile, string outputFile, CUoutputMode outputMode);
 
-			/// <summary>
-			/// Enable profiling.<para/>
-			/// Enables profile collection by the active profiling tool for the
-			/// current context. If profiling is already enabled, then
-			/// cuProfilerStart() has no effect.<para/>
-			/// cuProfilerStart and cuProfilerStop APIs are used to
-			/// programmatically control the profiling granularity by allowing
-			/// profiling to be done only on selective pieces of code.
-			/// </summary>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidContext"/>. 
-			/// </returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuProfilerStart();
+            /// <summary>
+            /// Enable profiling.<para/>
+            /// Enables profile collection by the active profiling tool for the
+            /// current context. If profiling is already enabled, then
+            /// cuProfilerStart() has no effect.<para/>
+            /// cuProfilerStart and cuProfilerStop APIs are used to
+            /// programmatically control the profiling granularity by allowing
+            /// profiling to be done only on selective pieces of code.
+            /// </summary>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidContext"/>. 
+            /// </returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuProfilerStart();
 
-			/// <summary>
-			/// Disables profile collection by the active profiling tool for the
-			/// current context. If profiling is already disabled, then
-			/// cuProfilerStop() has no effect.<para/>
-			/// cuProfilerStart and cuProfilerStop APIs are used to
-			/// programmatically control the profiling granularity by allowing
-			/// profiling to be done only on selective pieces of code.
-			/// </summary>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidContext"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuProfilerStop();
-		}
-		#endregion
+            /// <summary>
+            /// Disables profile collection by the active profiling tool for the
+            /// current context. If profiling is already disabled, then
+            /// cuProfilerStop() has no effect.<para/>
+            /// cuProfilerStart and cuProfilerStop APIs are used to
+            /// programmatically control the profiling granularity by allowing
+            /// profiling to be done only on selective pieces of code.
+            /// </summary>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidContext"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuProfilerStop();
+        }
+        #endregion
 
-		#region Error Handling
+        #region Error Handling
 
-		/// <summary>
-		/// This section describes the error handling functions of the low-level CUDA
-		/// driver application programming interface.
-		/// </summary>
-		public static class ErrorHandling
+        /// <summary>
+        /// This section describes the error handling functions of the low-level CUDA
+        /// driver application programming interface.
+        /// </summary>
+        public static class ErrorHandling
         {
 #if (NETCOREAPP)
             static ErrorHandling()
@@ -9097,32 +9185,32 @@ namespace ManagedCuda
             /// <param name="pStr">Address of the string pointer.</param>
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuGetErrorString(CUResult error, ref IntPtr pStr);
+            public static extern CUResult cuGetErrorString(CUResult error, ref IntPtr pStr);
 
 
-			/// <summary>
-			/// Gets the string representation of an error code enum name.<para/>
-			/// Sets <c>pStr</c> to the address of a NULL-terminated string description
-			/// of the name of the enum error code <c>error</c>.
-			/// If the error code is not recognized, <see cref="CUResult.ErrorInvalidValue"/>
-			/// will be returned and <c>pStr</c> will be set to the NULL address
-			/// </summary>
-			/// <param name="error">Error code to convert to string.</param>
-			/// <param name="pStr">Address of the string pointer.</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuGetErrorName(CUResult error, ref IntPtr pStr);
+            /// <summary>
+            /// Gets the string representation of an error code enum name.<para/>
+            /// Sets <c>pStr</c> to the address of a NULL-terminated string description
+            /// of the name of the enum error code <c>error</c>.
+            /// If the error code is not recognized, <see cref="CUResult.ErrorInvalidValue"/>
+            /// will be returned and <c>pStr</c> will be set to the NULL address
+            /// </summary>
+            /// <param name="error">Error code to convert to string.</param>
+            /// <param name="pStr">Address of the string pointer.</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGetErrorName(CUResult error, ref IntPtr pStr);
 
-		}
-		#endregion
+        }
+        #endregion
 
-		#region Occupancy
+        #region Occupancy
 
-		/// <summary>
-		/// This section describes the occupancy calculation functions of the low-level CUDA
-		/// driver application programming interface.
-		/// </summary>
-		public static class Occupancy
+        /// <summary>
+        /// This section describes the occupancy calculation functions of the low-level CUDA
+        /// driver application programming interface.
+        /// </summary>
+        public static class Occupancy
         {
 #if (NETCOREAPP)
             static Occupancy()
@@ -9141,104 +9229,104 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorUnknown"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuOccupancyMaxActiveBlocksPerMultiprocessor(ref int numBlocks, CUfunction func, int blockSize, SizeT dynamicSMemSize);
+            public static extern CUResult cuOccupancyMaxActiveBlocksPerMultiprocessor(ref int numBlocks, CUfunction func, int blockSize, SizeT dynamicSMemSize);
 
-			/// <summary>
-			/// Returns in blockSize a reasonable block size that can achieve
-			/// the maximum occupancy (or, the maximum number of active warps with
-			/// the fewest blocks per multiprocessor), and in minGridSize the
-			/// minimum grid size to achieve the maximum occupancy.
-			/// 
-			/// If blockSizeLimit is 0, the configurator will use the maximum
-			/// block size permitted by the device / function instead.
-			/// 
-			/// If per-block dynamic shared memory allocation is not needed, the
-			/// user should leave both blockSizeToDynamicSMemSize and 
-			/// dynamicSMemSize as 0.
-			/// 
-			/// If per-block dynamic shared memory allocation is needed, then if
-			/// the dynamic shared memory size is constant regardless of block
-			/// size, the size should be passed through dynamicSMemSize, and 
-			/// blockSizeToDynamicSMemSize should be NULL.
-			/// 
-			/// Otherwise, if the per-block dynamic shared memory size varies with
-			/// different block sizes, the user needs to provide a unary function
-			/// through blockSizeToDynamicSMemSize that computes the dynamic
-			/// shared memory needed by func for any given block size.
-			/// dynamicSMemSize is ignored.
-			/// </summary>
-			/// <param name="minGridSize">Returned minimum grid size needed to achieve the maximum occupancy</param>
-			/// <param name="blockSize">Returned maximum block size that can achieve the maximum occupancy</param>
-			/// <param name="func">Kernel for which launch configuration is calulated</param>
-			/// <param name="blockSizeToDynamicSMemSize">A function that calculates how much per-block dynamic shared memory \p func uses based on the block size</param>
-			/// <param name="dynamicSMemSize">Dynamic shared memory usage intended, in bytes</param>
-			/// <param name="blockSizeLimit">The maximum block size \p func is designed to handle</param>
-			/// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
-			/// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorUnknown"/>.</returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuOccupancyMaxPotentialBlockSize(ref int minGridSize, ref int blockSize, CUfunction func, del_CUoccupancyB2DSize blockSizeToDynamicSMemSize, SizeT dynamicSMemSize, int blockSizeLimit);
-			
-			
-			/// <summary>
-			/// Returns occupancy of a function<para/>
-			/// Returns in \p *numBlocks the number of the maximum active blocks per
-			/// streaming multiprocessor.
-			/// 
-			/// The \p Flags parameter controls how special cases are handled. The
-			/// valid flags are:
-			/// 
-			/// - ::CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
-			/// ::cuOccupancyMaxActiveBlocksPerMultiprocessor;
-			/// - ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the
-			/// default behavior on platform where global caching affects
-			/// occupancy. On such platforms, if caching is enabled, but
-			/// per-block SM resource usage would result in zero occupancy, the
-			/// occupancy calculator will calculate the occupancy as if caching
-			/// is disabled. Setting ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE makes
-			/// the occupancy calculator to return 0 in such cases. More information
-			/// can be found about this feature in the "Unified L1/Texture Cache"
-			/// section of the Maxwell tuning guide.
-			/// </summary>
-			/// <param name="numBlocks">Returned occupancy</param>
-			/// <param name="func">Kernel for which occupancy is calculated</param>
-			/// <param name="blockSize">Block size the kernel is intended to be launched with</param>
-			/// <param name="dynamicSMemSize">Per-block dynamic shared memory usage intended, in bytes</param>
-			/// <param name="flags">Requested behavior for the occupancy calculator</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(ref int numBlocks, CUfunction func, int blockSize, SizeT dynamicSMemSize, CUoccupancy_flags flags);
+            /// <summary>
+            /// Returns in blockSize a reasonable block size that can achieve
+            /// the maximum occupancy (or, the maximum number of active warps with
+            /// the fewest blocks per multiprocessor), and in minGridSize the
+            /// minimum grid size to achieve the maximum occupancy.
+            /// 
+            /// If blockSizeLimit is 0, the configurator will use the maximum
+            /// block size permitted by the device / function instead.
+            /// 
+            /// If per-block dynamic shared memory allocation is not needed, the
+            /// user should leave both blockSizeToDynamicSMemSize and 
+            /// dynamicSMemSize as 0.
+            /// 
+            /// If per-block dynamic shared memory allocation is needed, then if
+            /// the dynamic shared memory size is constant regardless of block
+            /// size, the size should be passed through dynamicSMemSize, and 
+            /// blockSizeToDynamicSMemSize should be NULL.
+            /// 
+            /// Otherwise, if the per-block dynamic shared memory size varies with
+            /// different block sizes, the user needs to provide a unary function
+            /// through blockSizeToDynamicSMemSize that computes the dynamic
+            /// shared memory needed by func for any given block size.
+            /// dynamicSMemSize is ignored.
+            /// </summary>
+            /// <param name="minGridSize">Returned minimum grid size needed to achieve the maximum occupancy</param>
+            /// <param name="blockSize">Returned maximum block size that can achieve the maximum occupancy</param>
+            /// <param name="func">Kernel for which launch configuration is calulated</param>
+            /// <param name="blockSizeToDynamicSMemSize">A function that calculates how much per-block dynamic shared memory \p func uses based on the block size</param>
+            /// <param name="dynamicSMemSize">Dynamic shared memory usage intended, in bytes</param>
+            /// <param name="blockSizeLimit">The maximum block size \p func is designed to handle</param>
+            /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
+            /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorUnknown"/>.</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuOccupancyMaxPotentialBlockSize(ref int minGridSize, ref int blockSize, CUfunction func, del_CUoccupancyB2DSize blockSizeToDynamicSMemSize, SizeT dynamicSMemSize, int blockSizeLimit);
 
-			/// <summary>
-			/// Suggest a launch configuration with reasonable occupancy<para/>
-			/// An extended version of ::cuOccupancyMaxPotentialBlockSize. In
-			/// addition to arguments passed to ::cuOccupancyMaxPotentialBlockSize,
-			/// ::cuOccupancyMaxPotentialBlockSizeWithFlags also takes a \p Flags
-			/// parameter.
-			/// 
-			/// The \p Flags parameter controls how special cases are handled. The
-			/// valid flags are:
-			/// - ::CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
-			///   ::cuOccupancyMaxPotentialBlockSize;
-			/// - ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the
-			///   default behavior on platform where global caching affects
-			///   occupancy. On such platforms, the launch configurations that
-			///   produces maximal occupancy might not support global
-			///   caching. Setting ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE
-			///   guarantees that the the produced launch configuration is global
-			///   caching compatible at a potential cost of occupancy. More information
-			///   can be found about this feature in the "Unified L1/Texture Cache"
-			///   section of the Maxwell tuning guide.
-			/// </summary>
-			/// <param name="minGridSize">Returned minimum grid size needed to achieve the maximum occupancy</param>
-			/// <param name="blockSize">Returned maximum block size that can achieve the maximum occupancy</param>
-			/// <param name="func">Kernel for which launch configuration is calculated</param>
-			/// <param name="blockSizeToDynamicSMemSize">A function that calculates how much per-block dynamic shared memory \p func uses based on the block size</param>
-			/// <param name="dynamicSMemSize">Dynamic shared memory usage intended, in bytes</param>
-			/// <param name="blockSizeLimit">The maximum block size \p func is designed to handle</param>
-			/// <param name="flags">Options</param>
-			/// <returns></returns>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME)]
-			public static extern CUResult cuOccupancyMaxPotentialBlockSizeWithFlags(ref int minGridSize, ref int blockSize, CUfunction func, del_CUoccupancyB2DSize blockSizeToDynamicSMemSize, SizeT dynamicSMemSize, int blockSizeLimit, CUoccupancy_flags flags);
+
+            /// <summary>
+            /// Returns occupancy of a function<para/>
+            /// Returns in \p *numBlocks the number of the maximum active blocks per
+            /// streaming multiprocessor.
+            /// 
+            /// The \p Flags parameter controls how special cases are handled. The
+            /// valid flags are:
+            /// 
+            /// - ::CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
+            /// ::cuOccupancyMaxActiveBlocksPerMultiprocessor;
+            /// - ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the
+            /// default behavior on platform where global caching affects
+            /// occupancy. On such platforms, if caching is enabled, but
+            /// per-block SM resource usage would result in zero occupancy, the
+            /// occupancy calculator will calculate the occupancy as if caching
+            /// is disabled. Setting ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE makes
+            /// the occupancy calculator to return 0 in such cases. More information
+            /// can be found about this feature in the "Unified L1/Texture Cache"
+            /// section of the Maxwell tuning guide.
+            /// </summary>
+            /// <param name="numBlocks">Returned occupancy</param>
+            /// <param name="func">Kernel for which occupancy is calculated</param>
+            /// <param name="blockSize">Block size the kernel is intended to be launched with</param>
+            /// <param name="dynamicSMemSize">Per-block dynamic shared memory usage intended, in bytes</param>
+            /// <param name="flags">Requested behavior for the occupancy calculator</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(ref int numBlocks, CUfunction func, int blockSize, SizeT dynamicSMemSize, CUoccupancy_flags flags);
+
+            /// <summary>
+            /// Suggest a launch configuration with reasonable occupancy<para/>
+            /// An extended version of ::cuOccupancyMaxPotentialBlockSize. In
+            /// addition to arguments passed to ::cuOccupancyMaxPotentialBlockSize,
+            /// ::cuOccupancyMaxPotentialBlockSizeWithFlags also takes a \p Flags
+            /// parameter.
+            /// 
+            /// The \p Flags parameter controls how special cases are handled. The
+            /// valid flags are:
+            /// - ::CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
+            ///   ::cuOccupancyMaxPotentialBlockSize;
+            /// - ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the
+            ///   default behavior on platform where global caching affects
+            ///   occupancy. On such platforms, the launch configurations that
+            ///   produces maximal occupancy might not support global
+            ///   caching. Setting ::CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE
+            ///   guarantees that the the produced launch configuration is global
+            ///   caching compatible at a potential cost of occupancy. More information
+            ///   can be found about this feature in the "Unified L1/Texture Cache"
+            ///   section of the Maxwell tuning guide.
+            /// </summary>
+            /// <param name="minGridSize">Returned minimum grid size needed to achieve the maximum occupancy</param>
+            /// <param name="blockSize">Returned maximum block size that can achieve the maximum occupancy</param>
+            /// <param name="func">Kernel for which launch configuration is calculated</param>
+            /// <param name="blockSizeToDynamicSMemSize">A function that calculates how much per-block dynamic shared memory \p func uses based on the block size</param>
+            /// <param name="dynamicSMemSize">Dynamic shared memory usage intended, in bytes</param>
+            /// <param name="blockSizeLimit">The maximum block size \p func is designed to handle</param>
+            /// <param name="flags">Options</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuOccupancyMaxPotentialBlockSizeWithFlags(ref int minGridSize, ref int blockSize, CUfunction func, del_CUoccupancyB2DSize blockSizeToDynamicSMemSize, SizeT dynamicSMemSize, int blockSizeLimit, CUoccupancy_flags flags);
 
             /// <summary>
             /// Returns dynamic shared memory available per block when launching \p numBlocks blocks on SM <para/>
@@ -9607,7 +9695,7 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphAddEventRecordNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CUevent event_);
-            
+
             /// <summary>
             /// Returns the event associated with an event record node
             /// </summary>
@@ -9626,7 +9714,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event_);
 
-         
+
             /// <summary>
             /// Creates an event wait node and adds it to a graph
             /// Creates a new event wait node and adds it to \p hGraph with \p numDependencies
@@ -9680,7 +9768,7 @@ namespace ManagedCuda
             /// <param name="numDependencies">Number of dependencies</param>
             /// <param name="nodeParams">Parameters for the node</param>
             /// <returns></returns>
-            public static CUResult cuGraphAddExternalSemaphoresSignalNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CudaExtSemSignalNodeParams nodeParams) 
+            public static CUResult cuGraphAddExternalSemaphoresSignalNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CudaExtSemSignalNodeParams nodeParams)
             {
                 IntPtr extSemPtr = IntPtr.Zero;
                 IntPtr paramsPtr = IntPtr.Zero;
@@ -9746,7 +9834,7 @@ namespace ManagedCuda
 
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphAddExternalSemaphoresSignalNode")]
             private static extern CUResult cuGraphAddExternalSemaphoresSignalNodeInternal(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, IntPtr nodeParams);
-            
+
             /// <summary>
             /// Returns an external semaphore signal node's parameters<para/>
             /// Returns the parameters of an external semaphore signal node \p hNode in \p params_out.
@@ -10275,7 +10363,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphInstantiate_v2")]
             public static extern CUResult cuGraphInstantiate(ref CUgraphExec phGraphExec, CUgraph hGraph, ref CUgraphNode phErrorNode, [In, Out] byte[] logBuffer, SizeT bufferSize);
 
-            
+
             /// <summary>
             /// Sets the parameters for a kernel node in the given graphExec<para/>
             /// Sets the parameters of a kernel node in an executable graph \p hGraphExec.
@@ -10293,7 +10381,7 @@ namespace ManagedCuda
             /// <param name="nodeParams">Updated Parameters to set</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CudaKernelNodeParams nodeParams);
-            
+
 
             /// <summary>
             /// Sets the parameters for a memcpy node in the given graphExec.<para/>
@@ -10339,7 +10427,7 @@ namespace ManagedCuda
             /// <param name="ctx">Context on which to run the node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CudaMemsetNodeParams memsetParams, CUcontext ctx);
-            
+
 
             /// <summary>
             /// Sets the parameters for a host node in the given graphExec.<para/>
@@ -10395,7 +10483,7 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event_);
 
-            
+
             /// <summary>
             /// Sets the event for an event record node in the given graphExec
             /// Sets the event of an event record node in an executable graph \p hGraphExec.
@@ -10621,7 +10709,7 @@ namespace ManagedCuda
             /// <param name="hGraph">Graph to destroy</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphDestroy(CUgraph hGraph);
-            
+
 
             /// <summary>
             /// Check whether an executable graph can be updated with a graph and perform the update if possible<para/>
@@ -10686,7 +10774,7 @@ namespace ManagedCuda
             /// <param name="src">Source node</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src);
-            
+
             /// <summary>
             /// Queries node attribute.<para/>
             /// Queries attribute \p attr from node \p hNode and stores it in corresponding member of \p value_out.
@@ -10708,8 +10796,125 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, ref CUkernelNodeAttrValue value);
+
+            /// <summary>
+            /// Write a DOT file describing graph structure<para/>
+            /// Using the provided \p hGraph, write to \p path a DOT formatted description of the graph.
+            /// By default this includes the graph topology, node types, node id, kernel names and memcpy direction.
+            /// \p flags can be specified to write more detailed information about each node type such as
+            /// parameter values, kernel attributes, node and function handles.
+            /// </summary>
+            /// <param name="hGraph">The graph to create a DOT file from</param>
+            /// <param name="path">The path to write the DOT file to</param>
+            /// <param name="flags">Flags from CUgraphDebugDot_flags for specifying which additional node information to write</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphDebugDotPrint(CUgraph hGraph, [MarshalAs(UnmanagedType.LPStr)] string path, CUgraphDebugDot_flags flags);
+
+            /// <summary>
+            /// Create a user object<para/>
+            /// Create a user object with the specified destructor callback and initial reference count. The initial references are owned by the caller.<para/>
+            /// Destructor callbacks cannot make CUDA API calls and should avoid blocking behavior, as they
+            /// are executed by a shared internal thread.Another thread may be signaled to perform such
+            /// actions, if it does not block forward progress of tasks scheduled through CUDA.<para/>
+            /// See CUDA User Objects in the CUDA C++ Programming Guide for more information on user objects.
+            /// </summary>
+            /// <param name="object_out">Location to return the user object handle</param>
+            /// <param name="ptr">The pointer to pass to the destroy function</param>
+            /// <param name="destroy">Callback to free the user object when it is no longer in use</param>
+            /// <param name="initialRefcount">The initial refcount to create the object with, typically 1. The initial references are owned by the calling thread.</param>
+            /// <param name="flags">Currently it is required to pass ::CU_USER_OBJECT_NO_DESTRUCTOR_SYNC, which is the only defined flag. This indicates that the destroy 
+            /// callback cannot be waited on by any CUDA API.Users requiring synchronization of the callback should signal its completion manually.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuUserObjectCreate(ref CUuserObject object_out, IntPtr ptr, CUhostFn destroy,
+                                                uint initialRefcount, CUuserObject_flags flags);
+
+            /// <summary>
+            /// Retain a reference to a user object<para/>
+            /// Retains new references to a user object. The new references are owned by the caller.<para/>
+            /// See CUDA User Objects in the CUDA C++ Programming Guide for more information on user objects.
+            /// </summary>
+            /// <param name="obj">The object to retain</param>
+            /// <param name="count">The number of references to retain, typically 1. Must be nonzero and not larger than INT_MAX.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuUserObjectRetain(CUuserObject obj, uint count);
+
+            /// <summary>
+            /// Release a reference to a user object<para/>
+            /// Releases user object references owned by the caller. The object's destructor is invoked if the reference count reaches zero.<para/>
+            /// It is undefined behavior to release references not owned by the caller, or to use a user object handle after all references are released.<para/>
+            /// See CUDA User Objects in the CUDA C++ Programming Guide for more information on user objects.
+            /// </summary>
+            /// <param name="obj">The object to release</param>
+            /// <param name="count">The number of references to release, typically 1. Must be nonzero and not larger than INT_MAX.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuUserObjectRelease(CUuserObject obj, uint count);
+
+            /// <summary>
+            /// Retain a reference to a user object from a graph<para/>
+            /// Creates or moves user object references that will be owned by a CUDA graph.<para/>
+            /// See CUDA User Objects in the CUDA C++ Programming Guide for more information on user objects.
+            /// </summary>
+            /// <param name="graph">The graph to associate the reference with</param>
+            /// <param name="obj">The user object to retain a reference for</param>
+            /// <param name="count">The number of references to add to the graph, typically 1. Must be nonzero and not larger than INT_MAX.</param>
+            /// <param name="flags">The optional flag ::CU_GRAPH_USER_OBJECT_MOVE transfers references from the calling thread, rather than create new references.Pass None to create new references.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphRetainUserObject(CUgraph graph, CUuserObject obj, uint count, CUuserObjectRetain_flags flags);
+
+            /// <summary>
+            /// Release a user object reference from a graph<para/>
+            /// Releases user object references owned by a graph.<para/>
+            /// See CUDA User Objects in the CUDA C++ Programming Guide for more information on user objects.
+            /// </summary>
+            /// <param name="graph">The graph that will release the reference</param>
+            /// <param name="obj">The user object to release a reference for</param>
+            /// <param name="count">The number of references to release, typically 1. Must be nonzero and not larger than INT_MAX.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphReleaseUserObject(CUgraph graph, CUuserObject obj, uint count);
         }
         #endregion
 
+        #region RDMADirect
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static class RDMADirect
+        {
+#if (NETCOREAPP)
+            static RDMADirect()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
+            /// <summary>
+            /// Blocks until remote writes are visible to the specified scope<para/>
+            /// Blocks until GPUDirect RDMA writes to the target context via mappings
+            /// created through APIs like nvidia_p2p_get_pages(see
+            /// https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
+            /// visible to the specified scope.
+            /// <para/>
+            /// If the scope equals or lies within the scope indicated by
+            /// ::CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING, the call
+            /// will be a no-op and can be safely omitted for performance.This can be
+            /// determined by comparing the numerical values between the two enums, with
+            /// smaller scopes having smaller values.
+            /// Users may query support for this API via ::CU_DEVICE_ATTRIBUTE_FLUSH_FLUSH_GPU_DIRECT_RDMA_OPTIONS.
+            /// </summary>
+            /// <param name="target">The target of the operation, see ::CUflushGPUDirectRDMAWritesTarget</param>
+            /// <param name="scope">The scope of the operation, see ::CUflushGPUDirectRDMAWritesScope</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope);
+
+        }
+        #endregion
     }
 }

@@ -184,7 +184,7 @@ namespace ManagedCuda
         /// <param name="value">Value to set</param>
         /// <param name="ctx">Cuda context used for the operation</param>
         /// <returns>A handle to the new node will be returned.</returns>
-        public CUgraphNode AddMemsetNode<T>(CUgraphNode[] dependencies, CudaDeviceVariable<T> deviceVariable, uint value, CudaContext ctx) where T:struct
+        public CUgraphNode AddMemsetNode<T>(CUgraphNode[] dependencies, CudaDeviceVariable<T> deviceVariable, uint value, CudaContext ctx) where T : struct
         {
             CUgraphNode node = new CUgraphNode();
             SizeT numDependencies = 0;
@@ -677,6 +677,22 @@ namespace ManagedCuda
                 throw new CudaException(res, message, null);
             }
             return new CudaGraphExec(graphExec);
+        }
+
+        /// <summary>
+        /// Write a DOT file describing graph structure<para/>
+        /// Using the provided \p hGraph, write to \p path a DOT formatted description of the graph.
+        /// By default this includes the graph topology, node types, node id, kernel names and memcpy direction.
+        /// \p flags can be specified to write more detailed information about each node type such as
+        /// parameter values, kernel attributes, node and function handles.
+        /// </summary>
+        /// <param name="path">The path to write the DOT file to</param>
+        /// <param name="flags">Flags from CUgraphDebugDot_flags for specifying which additional node information to write</param>
+        public void DebugDotPrint(string path, CUgraphDebugDot_flags flags)
+        {
+            res = DriverAPINativeMethods.GraphManagment.cuGraphDebugDotPrint(_graph, path, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphDebugDotPrint", res));
+            if (res != CUResult.Success) throw new CudaException(res);
         }
         #endregion
 

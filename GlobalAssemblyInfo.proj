@@ -4,9 +4,9 @@
     <Company>Michael Kunz</Company> 
     <Copyright>Copyright © Michael Kunz 2020</Copyright>
 	
-    <Version>11.0.43</Version>
-    <AssemblyVersion>11.0.43</AssemblyVersion> 
-    <FileVersion>11.0.43</FileVersion> 
+    <Version>11.2.43</Version>
+    <AssemblyVersion>11.2.43</AssemblyVersion> 
+    <FileVersion>11.2.43</FileVersion> 
   </PropertyGroup> 
 </Project>
 

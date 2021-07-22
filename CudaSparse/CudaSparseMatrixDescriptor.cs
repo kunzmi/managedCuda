@@ -26,21 +26,21 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.CudaSparse
 {
-	/// <summary>
-	/// Wrapper class for cusparseMatDescr handle.
-	/// </summary>
-	public class CudaSparseMatrixDescriptor : IDisposable
-	{
-		private cusparseMatDescr _descr;
-		private cusparseStatus res;
-		private bool disposed;
-		
+    /// <summary>
+    /// Wrapper class for cusparseMatDescr handle.
+    /// </summary>
+    public class CudaSparseMatrixDescriptor : IDisposable
+    {
+        private cusparseMatDescr _descr;
+        private cusparseStatus res;
+        private bool disposed;
+
         #region Contructors
         /// <summary>
         /// When the matrix descriptor is created, its fields are initialized to: 
-		/// CUSPARSE_MATRIXYPE_GENERAL
-		/// CUSPARSE_INDEX_BASE_ZERO
-		/// All other fields are uninitialized
+        /// CUSPARSE_MATRIXYPE_GENERAL
+        /// CUSPARSE_INDEX_BASE_ZERO
+        /// All other fields are uninitialized
         /// </summary>
         public CudaSparseMatrixDescriptor()
         {
@@ -50,11 +50,11 @@ namespace ManagedCuda.CudaSparse
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
         }
-		
+
         /// <summary>
         /// When the matrix descriptor is created, its fields are initialized to: 
-		/// CUSPARSE_MATRIXYPE_GENERAL
-		/// CUSPARSE_INDEX_BASE_ZERO
+        /// CUSPARSE_MATRIXYPE_GENERAL
+        /// CUSPARSE_INDEX_BASE_ZERO
         /// </summary>
         public CudaSparseMatrixDescriptor(cusparseFillMode fillMode, cusparseDiagType diagType)
         {
@@ -63,10 +63,10 @@ namespace ManagedCuda.CudaSparse
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateMatDescr", res));
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
-			SetMatFillMode(fillMode);
-			SetMatDiagType(diagType);
+            SetMatFillMode(fillMode);
+            SetMatDiagType(diagType);
         }
-		
+
         /// <summary>
         /// Creates a new CudaSparseMatrixDescriptor
         /// </summary>
@@ -76,11 +76,11 @@ namespace ManagedCuda.CudaSparse
             res = CudaSparseNativeMethods.cusparseCreateMatDescr(ref _descr);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateMatDescr", res));
             if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-			SetMatType(matrixType);
-			SetMatFillMode(fillMode);
-			SetMatDiagType(diagType);
-			SetMatIndexBase(indexBase);
+                throw new CudaSparseException(res);
+            SetMatType(matrixType);
+            SetMatFillMode(fillMode);
+            SetMatDiagType(diagType);
+            SetMatIndexBase(indexBase);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace ManagedCuda.CudaSparse
             if (fDisposing && !disposed)
             {
                 //Ignore if failing
-				res = CudaSparseNativeMethods.cusparseDestroyMatDescr(_descr);
-				Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDestroyMatDescr", res));
+                res = CudaSparseNativeMethods.cusparseDestroyMatDescr(_descr);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDestroyMatDescr", res));
                 disposed = true;
             }
             if (!fDisposing && !disposed)
@@ -120,120 +120,120 @@ namespace ManagedCuda.CudaSparse
         }
         #endregion
 
-		#region Methods
-		/// <summary>
-		/// Sets the matrix type
-		/// </summary>
-		/// <param name="type"></param>
-		public void SetMatType(cusparseMatrixType type)
-		{
-			res = CudaSparseNativeMethods.cusparseSetMatType(_descr, type);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatType", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
+        #region Methods
+        /// <summary>
+        /// Sets the matrix type
+        /// </summary>
+        /// <param name="type"></param>
+        public void SetMatType(cusparseMatrixType type)
+        {
+            res = CudaSparseNativeMethods.cusparseSetMatType(_descr, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatType", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
 
-		/// <summary>
-		/// Returns matrix type
-		/// </summary>
-		/// <returns></returns>
-		public cusparseMatrixType GetMatType()
-		{
-			cusparseMatrixType type = CudaSparseNativeMethods.cusparseGetMatType(_descr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatType", res));
-			return type;
-		}
+        /// <summary>
+        /// Returns matrix type
+        /// </summary>
+        /// <returns></returns>
+        public cusparseMatrixType GetMatType()
+        {
+            cusparseMatrixType type = CudaSparseNativeMethods.cusparseGetMatType(_descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatType", res));
+            return type;
+        }
 
-		/// <summary>
-		/// Sets matrix fill mode
-		/// </summary>
-		/// <param name="fillMode"></param>
-		public void SetMatFillMode(cusparseFillMode fillMode)
-		{
-			res = CudaSparseNativeMethods.cusparseSetMatFillMode(_descr, fillMode);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatFillMode", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
+        /// <summary>
+        /// Sets matrix fill mode
+        /// </summary>
+        /// <param name="fillMode"></param>
+        public void SetMatFillMode(cusparseFillMode fillMode)
+        {
+            res = CudaSparseNativeMethods.cusparseSetMatFillMode(_descr, fillMode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatFillMode", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
 
-		/// <summary>
-		/// Returns matrix fill mode
-		/// </summary>
-		/// <returns></returns>
-		public cusparseFillMode GetMatFillMode()
-		{
-			cusparseFillMode fillMode = CudaSparseNativeMethods.cusparseGetMatFillMode(_descr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatFillMode", res));
-			return fillMode;
-		}
+        /// <summary>
+        /// Returns matrix fill mode
+        /// </summary>
+        /// <returns></returns>
+        public cusparseFillMode GetMatFillMode()
+        {
+            cusparseFillMode fillMode = CudaSparseNativeMethods.cusparseGetMatFillMode(_descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatFillMode", res));
+            return fillMode;
+        }
 
-		/// <summary>
-		/// Sets matrix diagonal type
-		/// </summary>
-		/// <param name="diagType"></param>
-		public void SetMatDiagType(cusparseDiagType diagType)
-		{
-			res = CudaSparseNativeMethods.cusparseSetMatDiagType(_descr, diagType);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatDiagType", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
+        /// <summary>
+        /// Sets matrix diagonal type
+        /// </summary>
+        /// <param name="diagType"></param>
+        public void SetMatDiagType(cusparseDiagType diagType)
+        {
+            res = CudaSparseNativeMethods.cusparseSetMatDiagType(_descr, diagType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatDiagType", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
 
-		/// <summary>
-		/// Returns matrix diagonal type
-		/// </summary>
-		/// <returns></returns>
-		public cusparseDiagType GetMatDiagType()
-		{
-			cusparseDiagType diagType = CudaSparseNativeMethods.cusparseGetMatDiagType(_descr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatDiagType", res));
-			return diagType;
-		}
+        /// <summary>
+        /// Returns matrix diagonal type
+        /// </summary>
+        /// <returns></returns>
+        public cusparseDiagType GetMatDiagType()
+        {
+            cusparseDiagType diagType = CudaSparseNativeMethods.cusparseGetMatDiagType(_descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatDiagType", res));
+            return diagType;
+        }
 
-		/// <summary>
-		/// Sets matrix index base
-		/// </summary>
-		/// <param name="indexBase"></param>
-		public void SetMatIndexBase(IndexBase indexBase)
-		{
-			res = CudaSparseNativeMethods.cusparseSetMatIndexBase(_descr, indexBase);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatIndexBase", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-		}
+        /// <summary>
+        /// Sets matrix index base
+        /// </summary>
+        /// <param name="indexBase"></param>
+        public void SetMatIndexBase(IndexBase indexBase)
+        {
+            res = CudaSparseNativeMethods.cusparseSetMatIndexBase(_descr, indexBase);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSetMatIndexBase", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
 
-		/// <summary>
-		/// Returns matrix index base.
-		/// </summary>
-		/// <returns></returns>
-		public IndexBase GetMatIndexBase()
-		{
-			IndexBase indexBase = CudaSparseNativeMethods.cusparseGetMatIndexBase(_descr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatIndexBase", res));
-			return indexBase;
-		}
+        /// <summary>
+        /// Returns matrix index base.
+        /// </summary>
+        /// <returns></returns>
+        public IndexBase GetMatIndexBase()
+        {
+            IndexBase indexBase = CudaSparseNativeMethods.cusparseGetMatIndexBase(_descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseGetMatIndexBase", res));
+            return indexBase;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		public CudaSparseMatrixDescriptor Copy()
-		{
-			CudaSparseMatrixDescriptor retVal = new CudaSparseMatrixDescriptor();
-			res = CudaSparseNativeMethods.cusparseCopyMatDescr(retVal.Descriptor, _descr);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCopyMatDescr", res));
-			if (res != cusparseStatus.Success)
-				throw new CudaSparseException(res);
-			return retVal;
-		}
-		#endregion
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public CudaSparseMatrixDescriptor Copy()
+        {
+            CudaSparseMatrixDescriptor retVal = new CudaSparseMatrixDescriptor();
+            res = CudaSparseNativeMethods.cusparseCopyMatDescr(retVal.Descriptor, _descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCopyMatDescr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return retVal;
+        }
+        #endregion
 
-		/// <summary>
-		/// Returns the inner handle.
-		/// </summary>
-		public cusparseMatDescr Descriptor
-		{
-			get { return _descr; }
-		}
-	}
+        /// <summary>
+        /// Returns the inner handle.
+        /// </summary>
+        public cusparseMatDescr Descriptor
+        {
+            get { return _descr; }
+        }
+    }
 }
