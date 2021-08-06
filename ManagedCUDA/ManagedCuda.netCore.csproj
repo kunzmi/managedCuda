@@ -16,7 +16,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>J:\ManagedCuda\managedCuda.netCore\ManagedCUDA\ManagedCuda.netCore.xml</DocumentationFile>
+    <DocumentationFile>..\managedCuda.netCore\ManagedCUDA\ManagedCuda.netCore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
