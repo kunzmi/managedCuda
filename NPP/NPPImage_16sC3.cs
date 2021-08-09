@@ -2994,7 +2994,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussBorder(NPPImage_16sC3 dest, MaskSize eMaskSize, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_16s_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_16s_C3R(_devPtrRoi, _pitch, _sizeRoi, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussBorder_16s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -3329,7 +3329,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussBorder(NPPImage_16sC3 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_16s_C3R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_16s_C3R(_devPtrRoi, _pitch, _sizeRoi, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussAdvancedBorder_16s_C3R", status));
 			NPPException.CheckNppStatus(status, this);
 		}

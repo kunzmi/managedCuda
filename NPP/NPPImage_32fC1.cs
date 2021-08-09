@@ -4545,7 +4545,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussBorder(NPPImage_32fC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_32f_C1R(_devPtrRoi, _pitch, _sizeRoi, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -4802,7 +4802,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussBorder(NPPImage_32fC1 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_32f_C1R(_devPtrRoi, _pitch, _sizeRoi, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussAdvancedBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
@@ -4859,7 +4859,7 @@ namespace ManagedCuda.NPP
 		/// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
 		public void FilterGaussPyramidLayerDownBorder(NPPImage_32fC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
 		{
-			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+			status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerDownBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
