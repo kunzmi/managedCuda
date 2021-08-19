@@ -71,23 +71,23 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CudaSparseBsric02Info.cs" />
+    <Compile Include="CudaSparseBsrilu02Info.cs" />
     <Compile Include="CudaSparseBsrsm2Info.cs" />
+    <Compile Include="CudaSparseBsrsv2Info.cs" />
     <Compile Include="CudaSparseColorInfo.cs" />
     <Compile Include="CudaSparseContext.cs" />
     <Compile Include="CudaSparseCsrgemm2Info.cs" />
+    <Compile Include="CudaSparseCsric02Info.cs" />
+    <Compile Include="CudaSparseCsrilu02Info.cs" />
     <Compile Include="CudaSparseCsrsm2Info.cs" />
+    <Compile Include="CudaSparseCsrsv2Info.cs" />
     <Compile Include="CudaSparseCsru2csrInfo.cs" />
     <Compile Include="CudaSparseException.cs" />
     <Compile Include="CudaSparseMatrixDescriptor.cs" />
     <Compile Include="CudaSparseNativeMethods.cs" />
     <Compile Include="CudaSparsePruneInfo.cs" />
     <Compile Include="CudaSparseTypes.cs" />
-    <Compile Include="CudaSparseCsrsv2Info.cs" />
-    <Compile Include="CudaSparseCsric02Info.cs" />
-    <Compile Include="CudaSparseCsrilu02Info.cs" />
-    <Compile Include="CudaSparseBsrilu02Info.cs" />
-    <Compile Include="CudaSparseBsrsv2Info.cs" />
-    <Compile Include="CudaSparseBsric02Info.cs" />
     <Compile Include="DenseMatrix.cs" />
     <Compile Include="DenseVector.cs" />
     <Compile Include="IndexTypeTranslator.cs" />
@@ -95,6 +95,8 @@
     <Compile Include="SparseMatrix.cs" />
     <Compile Include="SparseVector.cs" />
     <Compile Include="SpGEMMDescr.cs" />
+    <Compile Include="SpSMDescr.cs" />
+    <Compile Include="SpSVDescr.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ManagedCUDA\ManagedCuda.csproj">

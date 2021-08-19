@@ -239,6 +239,26 @@ namespace ManagedCuda.NVRTC
         }
 
         /// <summary/>
+        public byte[] GetNVVM()
+        {
+            SizeT nvvmSize = new SizeT();
+
+            res = NVRTCNativeMethods.nvrtcGetNVVMSize(_program, ref nvvmSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetNVVMSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            byte[] nvvmCode = new byte[nvvmSize];
+
+            res = NVRTCNativeMethods.nvrtcGetNVVM(_program, nvvmCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetNVVM", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            return nvvmCode;
+        }
+
+        /// <summary/>
         public string GetPTXAsString()
         {
             byte[] ptxCode = GetPTX();

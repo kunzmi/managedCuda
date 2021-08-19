@@ -1,4 +1,5 @@
-Donate a beer to help me to keep managedCuda up to date :)
+It all started as a hobby project to easily access CUDA from C# - at that time CUDA was available in version 3. Now a bit more than 10 years later, while other CUDA wrappers for .net appeared and mostly disappeared, managedCuda is still alive and is updated by me to the latest versions of CUDA. And till today it is only a hobby project maintained in my spare time. Whereas managedCuda found its way into several commercial products, the donation button lacks some success: about 30€ in total for the work of 10 years :)  
+I will thus change the license for upcoming releases, why this is likely the last update that I'll release under the terms of the LGPL license. From CUDA 12 on, I'll switch to a dual-license GPL / commercial license so that I can ask for a small contribution to keep this library up to date.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=kunzmi&url=https://github.com/kunzmi/managedCuda&title=managedCuda&language=&tags=github&category=software)
 or
@@ -9,7 +10,7 @@ or
 ManagedCUDA aims an easy integration of NVidia's CUDA in .net applications written in C#, Visual Basic or any other .net language.
 
 For this it includes:
-- A complete wrapper for the  CUDA Driver API, version 11.1 (a 1:1 representation of cuda.h in C#) 
+- A complete wrapper for the  CUDA Driver API, version 11.4 (a 1:1 representation of cuda.h in C#) 
 - Based on this, wrapper classes for CUDA context, kernel, device variable, etc. 
 - Wrapper for graphics interop with DirectX and OpenGL, respectively SlimDX and OpenTK 
 - CUDA vector types like int2, float3 etc. with ToString() methods and operators (+, –, *, /) 

@@ -678,6 +678,7 @@ namespace ManagedCuda.BasicTypes
     [Flags]
     public enum CUflushGPUDirectRDMAWritesOptions
     {
+        /// <summary/>
         None = 0,
         /// <summary>
         /// ::cuFlushGPUDirectRDMAWrites() and its CUDA Runtime API counterpart are supported on the device.
@@ -695,6 +696,7 @@ namespace ManagedCuda.BasicTypes
     [Flags]
     public enum CUgraphDebugDot_flags
     {
+        /// <summary/>
         None = 0,
         /// <summary>
         /// Output all debug data as if every debug flag is enabled 
@@ -739,7 +741,16 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Adds node handles and every kernel function handle to output
         /// </summary>
-        Handles = 1 << 10
+        Handles = 1 << 10,
+        /// <summary>
+        /// Adds memory alloc node parameters to output
+        /// </summary>
+        MemAllocNodeParams = 1 << 11,
+        /// <summary>
+        /// Adds memory free node parameters to output
+        /// </summary>
+        MemFreeNodeParams = 1 << 12
+
     }
 
     /// <summary>
@@ -748,6 +759,7 @@ namespace ManagedCuda.BasicTypes
     [Flags]
     public enum CUuserObject_flags
     {
+        /// <summary/>
         None = 0,
         /// <summary>
         /// Indicates the destructor execution is not synchronized by any CUDA handle. 
@@ -761,11 +773,26 @@ namespace ManagedCuda.BasicTypes
     [Flags]
     public enum CUuserObjectRetain_flags
     {
+        /// <summary/>
         None = 0,
         /// <summary>
         /// Transfer references from the caller rather than creating new references.
         /// </summary>
         Move = 1
+    }
+
+    /// <summary>
+    /// Flags for instantiating a graph
+    /// </summary>
+    [Flags]
+    public enum CUgraphInstantiate_flags
+    {
+        /// <summary/>
+        None = 0,
+        /// <summary>
+        /// Automatically free memory allocated in a graph before relaunching.
+        /// </summary>
+        AutoFreeOnLaunch = 1
     }
     #endregion
 

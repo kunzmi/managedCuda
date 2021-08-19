@@ -28,736 +28,855 @@ using System.Diagnostics;
 
 namespace ManagedCuda
 {
-	/// <summary>
-	/// A list of JIT compiler / linker option passed to Cuda.<para/>
-	/// If buffer options are used (i.e. InfoLogBuffer and ErrorLogBuffer), this 
-	/// collection should only be used once as buffer size is overwritten by Cuda.<para/>
-	/// To copy data from unmanaged to managed memory, call <see cref="UpdateValues()"/> after
-	/// the API call that produced output data.<para/>
-	/// Maximum number of options is limited to 30.
-	/// </summary>
-	public class CudaJitOptionCollection : IDisposable
-	{
-		/// <summary/>
-		protected bool disposed;
-		const int MAX_ELEM = 32;
-		CUJITOption[] _options = new CUJITOption[MAX_ELEM];
-		IntPtr[] _values = new IntPtr[MAX_ELEM];
-		List<CudaJitOption> _cudaOptions = new List<CudaJitOption>();
-		int _count = 0;
+    /// <summary>
+    /// A list of JIT compiler / linker option passed to Cuda.<para/>
+    /// If buffer options are used (i.e. InfoLogBuffer and ErrorLogBuffer), this 
+    /// collection should only be used once as buffer size is overwritten by Cuda.<para/>
+    /// To copy data from unmanaged to managed memory, call <see cref="UpdateValues()"/> after
+    /// the API call that produced output data.<para/>
+    /// Maximum number of options is limited to 30.
+    /// </summary>
+    public class CudaJitOptionCollection : IDisposable
+    {
+        /// <summary/>
+        protected bool disposed;
+        const int MAX_ELEM = 32;
+        CUJITOption[] _options = new CUJITOption[MAX_ELEM];
+        IntPtr[] _values = new IntPtr[MAX_ELEM];
+        List<CudaJitOption> _cudaOptions = new List<CudaJitOption>();
+        int _count = 0;
 
-		/// <summary>
-		/// Add a single option to the collection.
-		/// </summary>
-		/// <param name="opt">Option to add</param>
-		public void Add(CudaJitOption opt)
-		{
-			if (_count >= MAX_ELEM - 2)
-				throw new Exception("Maximum number of options elements reached!");
+        /// <summary>
+        /// Add a single option to the collection.
+        /// </summary>
+        /// <param name="opt">Option to add</param>
+        public void Add(CudaJitOption opt)
+        {
+            if (_count >= MAX_ELEM - 2)
+                throw new Exception("Maximum number of options elements reached!");
 
-			_cudaOptions.Add(opt);
+            _cudaOptions.Add(opt);
 
-			if (opt is CudaJOErrorLogBuffer) //add two elements
-			{
-				CUJITOption[] o = opt.Options;
-				IntPtr[] v = opt.Values;
+            if (opt is CudaJOErrorLogBuffer) //add two elements
+            {
+                CUJITOption[] o = opt.Options;
+                IntPtr[] v = opt.Values;
 
-				opt.Index = _count;
-				_options[_count] = o[0];
-				_values[_count] = v[0];
-				_count++;
-				_options[_count] = o[1];
-				_values[_count] = v[1];
-			}
-			else if (opt is CudaJOInfoLogBuffer) //add two elements
-			{
-				CUJITOption[] o = opt.Options;
-				IntPtr[] v = opt.Values;
+                opt.Index = _count;
+                _options[_count] = o[0];
+                _values[_count] = v[0];
+                _count++;
+                _options[_count] = o[1];
+                _values[_count] = v[1];
+            }
+            else if (opt is CudaJOInfoLogBuffer) //add two elements
+            {
+                CUJITOption[] o = opt.Options;
+                IntPtr[] v = opt.Values;
 
-				opt.Index = _count;
-				_options[_count] = o[0];
-				_values[_count] = v[0];
-				_count++;
-				_options[_count] = o[1];
-				_values[_count] = v[1];
-			}
-			else //add one elements
-			{
-				CUJITOption[] o = opt.Options;
-				IntPtr[] v = opt.Values;
+                opt.Index = _count;
+                _options[_count] = o[0];
+                _values[_count] = v[0];
+                _count++;
+                _options[_count] = o[1];
+                _values[_count] = v[1];
+            }
+            else //add one elements
+            {
+                CUJITOption[] o = opt.Options;
+                IntPtr[] v = opt.Values;
 
-				opt.Index = _count;
-				_options[_count] = o[0];
-				_values[_count] = v[0];
-			}
-			_count++;
-		}
+                opt.Index = _count;
+                _options[_count] = o[0];
+                _values[_count] = v[0];
+            }
+            _count++;
+        }
 
-		/// <summary>
-		/// A multiple options to the collection.
-		/// </summary>
-		/// <param name="options">Options to add</param>
-		public void Add(IList<CudaJitOption> options)
-		{
-			foreach (var item in options)
-			{
-				Add(item);
-			}
-		}
+        /// <summary>
+        /// A multiple options to the collection.
+        /// </summary>
+        /// <param name="options">Options to add</param>
+        public void Add(IList<CudaJitOption> options)
+        {
+            foreach (var item in options)
+            {
+                Add(item);
+            }
+        }
 
-		/// <summary>
-		/// Copy data from unmanaged to managed memory
-		/// </summary>
-		public void UpdateValues()
-		{
-			foreach (var item in _cudaOptions)
-			{
-				if (item is CudaJOErrorLogBuffer)
-				{
-					(item as CudaJOErrorLogBuffer).SetValue = _values[item.Index];
-				}
-				if (item is CudaJOInfoLogBuffer)
-				{
-					(item as CudaJOInfoLogBuffer).SetValue = _values[item.Index];
-				}
-				if (item is CudaJOThreadsPerBlock)
-				{
-					(item as CudaJOThreadsPerBlock).SetValue = _values[item.Index];
-				}
-				if (item is CudaJOWallTime)
-				{
-					(item as CudaJOWallTime).SetValue = _values[item.Index];
-				}
-			}
-		}
+        /// <summary>
+        /// Copy data from unmanaged to managed memory
+        /// </summary>
+        public void UpdateValues()
+        {
+            foreach (var item in _cudaOptions)
+            {
+                if (item is CudaJOErrorLogBuffer)
+                {
+                    (item as CudaJOErrorLogBuffer).SetValue = _values[item.Index];
+                }
+                if (item is CudaJOInfoLogBuffer)
+                {
+                    (item as CudaJOInfoLogBuffer).SetValue = _values[item.Index];
+                }
+                if (item is CudaJOThreadsPerBlock)
+                {
+                    (item as CudaJOThreadsPerBlock).SetValue = _values[item.Index];
+                }
+                if (item is CudaJOWallTime)
+                {
+                    (item as CudaJOWallTime).SetValue = _values[item.Index];
+                }
+            }
+        }
 
-		/// <summary>
-		/// Reset values returned from Cuda API for info and error buffers.
-		/// </summary>
-		public void ResetValues()
-		{
-			foreach (var item in _cudaOptions)
-			{
-				if (item is CudaJOErrorLogBuffer)
-				{
-					(item as CudaJOErrorLogBuffer).Reset();
-				}
-				if (item is CudaJOInfoLogBuffer)
-				{
-					(item as CudaJOInfoLogBuffer).Reset();
-				}
-			}
-		}
+        /// <summary>
+        /// Reset values returned from Cuda API for info and error buffers.
+        /// </summary>
+        public void ResetValues()
+        {
+            foreach (var item in _cudaOptions)
+            {
+                if (item is CudaJOErrorLogBuffer)
+                {
+                    (item as CudaJOErrorLogBuffer).Reset();
+                }
+                if (item is CudaJOInfoLogBuffer)
+                {
+                    (item as CudaJOInfoLogBuffer).Reset();
+                }
+            }
+        }
 
-		internal CUJITOption[] Options
-		{
-			get { return _options; }
-		}
-		
-		internal IntPtr[] Values
-		{
-			get
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				return _values; 
-			}
-		}
+        internal CUJITOption[] Options
+        {
+            get { return _options; }
+        }
 
-		internal int Count
-		{
-			get { return _count; }
-		}
+        internal IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return _values;
+            }
+        }
 
-		/// <summary>
-		/// For dispose
-		/// </summary>
-		~CudaJitOptionCollection()
-		{
-			Dispose(false);
-		}
+        internal int Count
+        {
+            get { return _count; }
+        }
 
-		#region Dispose
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        /// <summary>
+        /// For dispose
+        /// </summary>
+        ~CudaJitOptionCollection()
+        {
+            Dispose(false);
+        }
 
-		/// <summary>
-		/// For IDisposable
-		/// </summary>
-		/// <param name="fDisposing"></param>
-		protected virtual void Dispose(bool fDisposing)
-		{
-			if (fDisposing && !disposed)
-			{
-				foreach (var item in _cudaOptions)
-				{
-					item.Dispose();
-				}
-			}
-			if (!fDisposing && !disposed)
-				Debug.WriteLine(String.Format("ManagedCuda not-disposed warning: {0}", this.GetType()));
-		}
-		#endregion
-	}
+        #region Dispose
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-	/// <summary>
-	/// Online compiler options
-	/// </summary>
-	public abstract class CudaJitOption : IDisposable
-	{
-		/// <summary>
-		/// Option value converted to (void *)
-		/// </summary>
-		protected IntPtr _ptrValue;
-		/// <summary>
-		/// Option
-		/// </summary>
-		protected CUJITOption _option;
-		private int _index;
-		/// <summary/>
-		protected bool disposed;
+        /// <summary>
+        /// For IDisposable
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected virtual void Dispose(bool fDisposing)
+        {
+            if (fDisposing && !disposed)
+            {
+                foreach (var item in _cudaOptions)
+                {
+                    item.Dispose();
+                }
+            }
+            if (!fDisposing && !disposed)
+                Debug.WriteLine(String.Format("ManagedCuda not-disposed warning: {0}", this.GetType()));
+        }
+        #endregion
+    }
 
-		internal virtual CUJITOption[] Options
-		{
-			get { return new CUJITOption[] { _option }; }
-		}
+    /// <summary>
+    /// Online compiler options
+    /// </summary>
+    public abstract class CudaJitOption : IDisposable
+    {
+        /// <summary>
+        /// Option value converted to (void *)
+        /// </summary>
+        protected IntPtr _ptrValue;
+        /// <summary>
+        /// Option
+        /// </summary>
+        protected CUJITOption _option;
+        private int _index;
+        /// <summary/>
+        protected bool disposed;
 
-		internal virtual IntPtr[] Values
-		{
-			get { return new IntPtr[] { _ptrValue }; }
-		}
+        internal virtual CUJITOption[] Options
+        {
+            get { return new CUJITOption[] { _option }; }
+        }
 
-		internal int Index
-		{
-			get { return _index; }
-			set { _index = value; }
-		}
+        internal virtual IntPtr[] Values
+        {
+            get { return new IntPtr[] { _ptrValue }; }
+        }
 
-		/// <summary>
-		/// For dispose
-		/// </summary>
-		~CudaJitOption()
-		{
-			Dispose(false);
-		}
+        internal int Index
+        {
+            get { return _index; }
+            set { _index = value; }
+        }
 
-		#region Dispose
-		/// <summary>
-		/// Dispose
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        /// <summary>
+        /// For dispose
+        /// </summary>
+        ~CudaJitOption()
+        {
+            Dispose(false);
+        }
 
-		/// <summary>
-		/// For IDisposable
-		/// </summary>
-		/// <param name="fDisposing"></param>
-		protected virtual void Dispose(bool fDisposing)
-		{
-			if (fDisposing && !disposed)
-			{
-				disposed = true;
-			}
-			if (!fDisposing && !disposed)
-				Debug.WriteLine(String.Format("ManagedCuda not-disposed warning: {0}", this.GetType()));
-		}
-		#endregion
-	}
+        #region Dispose
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-	/// <summary>
-	/// <para>Max number of registers that a thread may use.</para>
-	/// <para>Option type: unsigned int</para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOMaxRegisters : CudaJitOption
-	{
-		/// <summary>
-		/// <para>Max number of registers that a thread may use.</para>
-		/// <para>Option type: unsigned int</para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOMaxRegisters(uint value)
-		{
-			_option = CUJITOption.MaxRegisters;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
-	}
-	/// <summary>
-	/// <para>IN: Specifies minimum number of threads per block to target compilation
-	/// for</para>
-	/// <para>OUT: Returns the number of threads the compiler actually targeted.
-	/// This restricts the resource utilization fo the compiler (e.g. max
-	/// registers) such that a block with the given number of threads should be
-	/// able to launch based on register limitations. Note, this option does not
-	/// currently take into account any other resource limitations, such as
-	/// shared memory utilization.</para>
-	/// <para>Option type: unsigned int</para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOThreadsPerBlock : CudaJitOption
-	{
-		/// <summary>
-		/// <para>IN: Specifies minimum number of threads per block to target compilation
-		/// for</para>
-		/// <para>OUT: Returns the number of threads the compiler actually targeted.
-		/// This restricts the resource utilization fo the compiler (e.g. max
-		/// registers) such that a block with the given number of threads should be
-		/// able to launch based on register limitations. Note, this option does not
-		/// currently take into account any other resource limitations, such as
-		/// shared memory utilization.</para>
-		/// <para>Option type: unsigned int</para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOThreadsPerBlock(int value)
-		{
-			_option = CUJITOption.ThreadsPerBlock;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
+        /// <summary>
+        /// For IDisposable
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected virtual void Dispose(bool fDisposing)
+        {
+            if (fDisposing && !disposed)
+            {
+                disposed = true;
+            }
+            if (!fDisposing && !disposed)
+                Debug.WriteLine(String.Format("ManagedCuda not-disposed warning: {0}", this.GetType()));
+        }
+        #endregion
+    }
 
-		/// <summary>
-		/// Returns the number of threads the compiler actually targeted.
-		/// This restricts the resource utilization fo the compiler (e.g. max
-		/// registers) such that a block with the given number of threads should be
-		/// able to launch based on register limitations. Note, this option does not
-		/// currently take into account any other resource limitations, such as
-		/// shared memory utilization.<para/>
-		/// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
-		/// </summary>
-		public int Value
-		{
-			get
-			{
-				return (int)_ptrValue;
-			}
-		}
+    /// <summary>
+    /// <para>Max number of registers that a thread may use.</para>
+    /// <para>Option type: unsigned int</para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOMaxRegisters : CudaJitOption
+    {
+        /// <summary>
+        /// <para>Max number of registers that a thread may use.</para>
+        /// <para>Option type: unsigned int</para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOMaxRegisters(uint value)
+        {
+            _option = CUJITOption.MaxRegisters;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+    /// <summary>
+    /// <para>IN: Specifies minimum number of threads per block to target compilation
+    /// for</para>
+    /// <para>OUT: Returns the number of threads the compiler actually targeted.
+    /// This restricts the resource utilization fo the compiler (e.g. max
+    /// registers) such that a block with the given number of threads should be
+    /// able to launch based on register limitations. Note, this option does not
+    /// currently take into account any other resource limitations, such as
+    /// shared memory utilization.</para>
+    /// <para>Option type: unsigned int</para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOThreadsPerBlock : CudaJitOption
+    {
+        /// <summary>
+        /// <para>IN: Specifies minimum number of threads per block to target compilation
+        /// for</para>
+        /// <para>OUT: Returns the number of threads the compiler actually targeted.
+        /// This restricts the resource utilization fo the compiler (e.g. max
+        /// registers) such that a block with the given number of threads should be
+        /// able to launch based on register limitations. Note, this option does not
+        /// currently take into account any other resource limitations, such as
+        /// shared memory utilization.</para>
+        /// <para>Option type: unsigned int</para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOThreadsPerBlock(int value)
+        {
+            _option = CUJITOption.ThreadsPerBlock;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
 
-		internal IntPtr SetValue
-		{
-			set { _ptrValue = value; }
-		}
-	}
-	/// <summary>
-	/// Returns a float value in the option of the wall clock time, in
-	/// milliseconds, spent creating the cubin<para/>
-	/// Option type: float
-	/// <para>Applies to: compiler and linker</para>
-	/// </summary>
-	public class CudaJOWallTime : CudaJitOption
-	{
-		/// <summary>
-		/// Returns a float value in the option of the wall clock time, in
-		/// milliseconds, spent creating the cubin<para/>
-		/// Option type: float
-		/// <para>Applies to: compiler and linker</para>
-		/// </summary>
-		public CudaJOWallTime()
-		{
-			_option = CUJITOption.WallTime;
-			_ptrValue = IntPtr.Zero;
-		}
+        /// <summary>
+        /// Returns the number of threads the compiler actually targeted.
+        /// This restricts the resource utilization fo the compiler (e.g. max
+        /// registers) such that a block with the given number of threads should be
+        /// able to launch based on register limitations. Note, this option does not
+        /// currently take into account any other resource limitations, such as
+        /// shared memory utilization.<para/>
+        /// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
+        /// </summary>
+        public int Value
+        {
+            get
+            {
+                return (int)_ptrValue;
+            }
+        }
 
-		/// <summary>
-		/// Returns a float value in the option of the wall clock time, in
-		/// milliseconds, spent creating the cubin<para/>
-		/// Option type: float
-		/// <para>Applies to: compiler and linker</para>
-		/// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
-		/// </summary>
-		public float Value
-		{
-			get
-			{
-				uint v = (uint)_ptrValue;
-				byte[] bytes = BitConverter.GetBytes(v);
-				return BitConverter.ToSingle(bytes, 0);
-			}
-		}
+        internal IntPtr SetValue
+        {
+            set { _ptrValue = value; }
+        }
+    }
+    /// <summary>
+    /// Returns a float value in the option of the wall clock time, in
+    /// milliseconds, spent creating the cubin<para/>
+    /// Option type: float
+    /// <para>Applies to: compiler and linker</para>
+    /// </summary>
+    public class CudaJOWallTime : CudaJitOption
+    {
+        /// <summary>
+        /// Returns a float value in the option of the wall clock time, in
+        /// milliseconds, spent creating the cubin<para/>
+        /// Option type: float
+        /// <para>Applies to: compiler and linker</para>
+        /// </summary>
+        public CudaJOWallTime()
+        {
+            _option = CUJITOption.WallTime;
+            _ptrValue = IntPtr.Zero;
+        }
 
-		internal IntPtr SetValue
-		{
-			set	{ _ptrValue = value; }
-		}
-	}
-	/// <summary>
-	/// <para>Pointer to a buffer in which to print any log messsages from PTXAS
-	/// that are informational in nature (the buffer size is specified via
-	/// option ::CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES)</para>
-	/// <para>Option type: char*</para>
-	/// <para>Applies to: compiler and linker</para>
-	/// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
-	/// </summary>
-	public class CudaJOInfoLogBuffer : CudaJitOption
-	{
-		byte[] _buffer;
-		int _size;
-		IntPtr _returnedSize;
-		GCHandle _handle;
+        /// <summary>
+        /// Returns a float value in the option of the wall clock time, in
+        /// milliseconds, spent creating the cubin<para/>
+        /// Option type: float
+        /// <para>Applies to: compiler and linker</para>
+        /// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
+        /// </summary>
+        public float Value
+        {
+            get
+            {
+                uint v = (uint)_ptrValue;
+                byte[] bytes = BitConverter.GetBytes(v);
+                return BitConverter.ToSingle(bytes, 0);
+            }
+        }
 
-		/// <summary>
-		/// <para>Pointer to a buffer in which to print any log messsages from PTXAS
-		/// that are informational in nature</para>
-		/// <para>Option type: char*</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
-		/// </summary>
-		/// <param name="size">Size of the internal buffer array</param>
-		public CudaJOInfoLogBuffer(int size)
-		{
-			_size = size;
-			_buffer = new byte[_size];
-			_handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
-			_ptrValue = _handle.AddrOfPinnedObject();
-			_option = CUJITOption.InfoLogBuffer;
-			_returnedSize = (IntPtr)_size;
-		}
+        internal IntPtr SetValue
+        {
+            set { _ptrValue = value; }
+        }
+    }
+    /// <summary>
+    /// <para>Pointer to a buffer in which to print any log messsages from PTXAS
+    /// that are informational in nature (the buffer size is specified via
+    /// option ::CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES)</para>
+    /// <para>Option type: char*</para>
+    /// <para>Applies to: compiler and linker</para>
+    /// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
+    /// </summary>
+    public class CudaJOInfoLogBuffer : CudaJitOption
+    {
+        byte[] _buffer;
+        int _size;
+        IntPtr _returnedSize;
+        GCHandle _handle;
 
-		internal override CUJITOption[] Options
-		{
-			get
-			{
-				return new CUJITOption[] { CUJITOption.InfoLogBufferSizeBytes, _option };
-			}
-		}
+        /// <summary>
+        /// <para>Pointer to a buffer in which to print any log messsages from PTXAS
+        /// that are informational in nature</para>
+        /// <para>Option type: char*</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
+        /// </summary>
+        /// <param name="size">Size of the internal buffer array</param>
+        public CudaJOInfoLogBuffer(int size)
+        {
+            _size = size;
+            _buffer = new byte[_size];
+            _handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
+            _ptrValue = _handle.AddrOfPinnedObject();
+            _option = CUJITOption.InfoLogBuffer;
+            _returnedSize = (IntPtr)_size;
+        }
 
-		internal override IntPtr[] Values
-		{
-			get
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				return new IntPtr[] { _returnedSize, _ptrValue };
-			}
-		}
+        internal override CUJITOption[] Options
+        {
+            get
+            {
+                return new CUJITOption[] { CUJITOption.InfoLogBufferSizeBytes, _option };
+            }
+        }
 
-		/// <summary>
-		/// ManagedCuda allocates an byte array as buffer and pins it in order to pass it to Cuda.<para/>
-		/// You must free the buffer manually if the buffer is not needed anymore.
-		/// </summary>
-		public void FreeHandle()
-		{
-			if (_handle != null)
-				if (_handle.IsAllocated)
-					_handle.Free();
-		}
+        internal override IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return new IntPtr[] { _returnedSize, _ptrValue };
+            }
+        }
 
-		/// <summary>
-		/// Returns the buffer converted to string.<para/>
-		/// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
-		/// </summary>
-		public string Value
-		{
-			get
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				if (!_handle.IsAllocated) return string.Empty;
+        /// <summary>
+        /// ManagedCuda allocates an byte array as buffer and pins it in order to pass it to Cuda.<para/>
+        /// You must free the buffer manually if the buffer is not needed anymore.
+        /// </summary>
+        public void FreeHandle()
+        {
+            if (_handle.IsAllocated)
+                _handle.Free();
+        }
 
-				string val = Marshal.PtrToStringAnsi(_ptrValue, (int)_returnedSize);
-				return val.Replace("\0", "");
-			}
-		}
+        /// <summary>
+        /// Returns the buffer converted to string.<para/>
+        /// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
+        /// </summary>
+        public string Value
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                if (!_handle.IsAllocated) return string.Empty;
 
-		internal IntPtr SetValue
-		{
-			set
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				_returnedSize = value; 
-			}
-		}
+                string val = Marshal.PtrToStringAnsi(_ptrValue, (int)_returnedSize);
+                return val.Replace("\0", "");
+            }
+        }
 
-		internal void Reset()
-		{
-			for (int i = 0; i < _size; i++)
-			{
-				_buffer[i] = 0;
-			}
-			_returnedSize = (IntPtr)_size;
-		}
+        internal IntPtr SetValue
+        {
+            set
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                _returnedSize = value;
+            }
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fDisposing"></param>
-		protected override void Dispose(bool fDisposing)
-		{
-			FreeHandle();
-			base.Dispose(fDisposing);
-		}
-	}
+        internal void Reset()
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                _buffer[i] = 0;
+            }
+            _returnedSize = (IntPtr)_size;
+        }
 
-	/// <summary>
-	/// <para>Pointer to a buffer in which to print any log messages from PTXAS that
-	/// reflect errors</para>
-	/// <para>Option type: char*</para>
-	/// <para>Applies to: compiler and linker</para>
-	/// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
-	/// </summary>
-	public class CudaJOErrorLogBuffer : CudaJitOption
-	{
- 		byte[] _buffer;
-		int _size;
-		IntPtr _returnedSize;
-		GCHandle _handle;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected override void Dispose(bool fDisposing)
+        {
+            FreeHandle();
+            base.Dispose(fDisposing);
+        }
+    }
 
-		/// <summary>
-		/// <para>Pointer to a buffer in which to print any log messages from PTXAS that
-		/// reflect errors</para>
-		/// <para>Option type: char*</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
-		/// </summary>
-		/// <param name="size"></param>
-		public CudaJOErrorLogBuffer(int size)
-		{
-			_size = size;
-			_buffer = new byte[_size];
-			_handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
-			_ptrValue = _handle.AddrOfPinnedObject();
-			_option = CUJITOption.ErrorLogBuffer;
-			_returnedSize = (IntPtr)_size;
-		}
+    /// <summary>
+    /// <para>Pointer to a buffer in which to print any log messages from PTXAS that
+    /// reflect errors</para>
+    /// <para>Option type: char*</para>
+    /// <para>Applies to: compiler and linker</para>
+    /// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
+    /// </summary>
+    public class CudaJOErrorLogBuffer : CudaJitOption
+    {
+        byte[] _buffer;
+        int _size;
+        IntPtr _returnedSize;
+        GCHandle _handle;
 
-		internal override CUJITOption[] Options
-		{
-			get
-			{
-				return new CUJITOption[] { CUJITOption.ErrorLogBufferSizeBytes, _option };
-			}
-		}
+        /// <summary>
+        /// <para>Pointer to a buffer in which to print any log messages from PTXAS that
+        /// reflect errors</para>
+        /// <para>Option type: char*</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// <para/>You must free the internal buffer array manually after use by calling <see cref="FreeHandle()"/>!
+        /// </summary>
+        /// <param name="size"></param>
+        public CudaJOErrorLogBuffer(int size)
+        {
+            _size = size;
+            _buffer = new byte[_size];
+            _handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
+            _ptrValue = _handle.AddrOfPinnedObject();
+            _option = CUJITOption.ErrorLogBuffer;
+            _returnedSize = (IntPtr)_size;
+        }
 
-		internal override IntPtr[] Values
-		{
-			get
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				return new IntPtr[] { _returnedSize, _ptrValue };
-			}
-		}
+        internal override CUJITOption[] Options
+        {
+            get
+            {
+                return new CUJITOption[] { CUJITOption.ErrorLogBufferSizeBytes, _option };
+            }
+        }
 
-		/// <summary>
-		/// ManagedCuda allocates an byte array as buffer and pins it in order to pass it to Cuda.<para/>
-		/// You must free the buffer manually if the buffer is not needed anymore.
-		/// </summary>
-		public void FreeHandle()
-		{
-			if (_handle != null)
-				if (_handle.IsAllocated)
-					_handle.Free();
-		}
+        internal override IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return new IntPtr[] { _returnedSize, _ptrValue };
+            }
+        }
 
-		/// <summary>
-		/// Returns the buffer converted to string.<para/>
-		/// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
-		/// </summary>
-		public string Value
-		{
-			get
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				if (!_handle.IsAllocated) return string.Empty;
+        /// <summary>
+        /// ManagedCuda allocates an byte array as buffer and pins it in order to pass it to Cuda.<para/>
+        /// You must free the buffer manually if the buffer is not needed anymore.
+        /// </summary>
+        public void FreeHandle()
+        {
+            if (_handle.IsAllocated)
+                _handle.Free();
+        }
 
-				string val = Marshal.PtrToStringAnsi(_ptrValue, (int)_returnedSize);
-				return val.Replace("\0", "");
-			}
-		}
+        /// <summary>
+        /// Returns the buffer converted to string.<para/>
+        /// The value is only valid after a succesful call to <see cref="CudaJitOptionCollection.UpdateValues()"/>
+        /// </summary>
+        public string Value
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                if (!_handle.IsAllocated) return string.Empty;
 
-		internal IntPtr SetValue
-		{
-			set
-			{
-				if (disposed) throw new ObjectDisposedException(this.ToString());
-				_returnedSize = value; 
-			}
-		}
+                string val = Marshal.PtrToStringAnsi(_ptrValue, (int)_returnedSize);
+                return val.Replace("\0", "");
+            }
+        }
 
-		internal void Reset()
-		{
-			for (int i = 0; i < _size; i++)
-			{
-				_buffer[i] = 0;
-			}
-			_returnedSize = (IntPtr)_size;
-		}
+        internal IntPtr SetValue
+        {
+            set
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                _returnedSize = value;
+            }
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fDisposing"></param>
-		protected override void Dispose(bool fDisposing)
-		{
-			FreeHandle();
-			base.Dispose(fDisposing);
-		}
-	}
+        internal void Reset()
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                _buffer[i] = 0;
+            }
+            _returnedSize = (IntPtr)_size;
+        }
 
-	/// <summary>
-	/// <para>Level of optimizations to apply to generated code (0 - 4), with 4
-	/// being the default and highest level of optimizations.</para>
-	/// <para>Option type: unsigned int</para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOOptimizationLevel : CudaJitOption
-	{
-		/// <summary>
-		/// <para>Level of optimizations to apply to generated code (0 - 4), with 4
-		/// being the default and highest level of optimizations.</para>
-		/// <para>Option type: unsigned int</para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value">Level of optimizations to apply to generated code (0 - 4), with 4
-		/// being the default and highest level of optimizations.</param>
-		public CudaJOOptimizationLevel(uint value)
-		{
-			_option = CUJITOption.OptimizationLevel;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
-	}
-	/// <summary>
-	/// <para>No option value required. Determines the target based on the current
-	/// attached context (default)</para>
-	/// <para>Option type: No option value needed</para>
-	/// <para>Applies to: compiler and linker</para>
-	/// </summary>
-	public class CudaJOTargetFromContext : CudaJitOption
-	{
-		/// <summary>
-		/// <para>Determines the target based on the current attached context (default)</para>
-		/// <para>Option type: No option value needed</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// </summary>
-		public CudaJOTargetFromContext()
-		{
-			_option = CUJITOption.TargetFromContext;
-			_ptrValue = new IntPtr();
-		}
-	}
-	/// <summary>
-	/// <para>Target is chosen based on supplied <see cref="CUJITTarget"/>.</para>
-	/// <para>Option type: unsigned int for enumerated type <see cref="CUJITTarget"/></para>
-	/// <para>Applies to: compiler and linker</para>
-	/// </summary>
-	public class CudaJOTarget : CudaJitOption
-	{
-		/// <summary>
-		/// <para>Target is chosen based on supplied ::CUjit_target_enum.</para>
-		/// <para>Option type: unsigned int for enumerated type ::CUjit_target_enum</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOTarget(CUJITTarget value)
-		{
-			_option = CUJITOption.Target;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
-	}
-	/// <summary>
-	/// <para>Specifies choice of fallback strategy if matching cubin is not found.
-	/// Choice is based on supplied <see cref="CUJITFallback"/>.</para>
-	/// <para>Option type: unsigned int for enumerated type <see cref="CUJITFallback"/></para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOFallbackStrategy : CudaJitOption
-	{
-		/// <summary>
-		/// <para>Specifies choice of fallback strategy if matching cubin is not found.
-		/// Choice is based on supplied <see cref="CUJITFallback"/>.</para>
-		/// <para>Option type: unsigned int for enumerated type <see cref="CUJITFallback"/></para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOFallbackStrategy(CUJITFallback value)
-		{
-			_option = CUJITOption.FallbackStrategy;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
-	}
-	/// <summary>
-	/// Specifies whether to create debug information in output (-g) <para/> (0: false, default)
-	/// <para>Option type: int</para>
-	/// <para>Applies to: compiler and linker</para>
-	/// </summary>
-	public class CudaJOGenerateDebugInfo : CudaJitOption
-	{
-		/// <summary>
-		/// Specifies whether to create debug information in output (-g) <para/> (0: false, default)
-		/// <para>Option type: int</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOGenerateDebugInfo(bool value)
-		{
-			_option = CUJITOption.GenerateDebugInfo;
-			_ptrValue = (IntPtr)(value ? 1 : 0);
-		}
-	}
-	
-	/// <summary>
-	/// Generate verbose log messages <para/> (0: false, default)
-	/// <para>Option type: int</para>
-	/// <para>Applies to: compiler and linker</para>
-	/// </summary>
-	public class CudaJOLogVerbose : CudaJitOption
-	{
-		/// <summary>
-		/// Generate verbose log messages <para/> (0: false, default)
-		/// <para>Option type: int</para>
-		/// <para>Applies to: compiler and linker</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOLogVerbose(bool value)
-		{
-			_option = CUJITOption.LogVerbose;
-			_ptrValue = (IntPtr)(value ? 1 : 0);
-		}
-	}
-	/// <summary>
-	/// Generate line number information (-lineinfo) <para/> (0: false, default)
-	/// <para>Option type: int</para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOGenerateLineInfo : CudaJitOption
-	{
-		/// <summary>
-		/// Generate line number information (-lineinfo) <para/> (0: false, default)
-		/// <para>Option type: int</para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOGenerateLineInfo(bool value)
-		{
-			_option = CUJITOption.GenerateLineInfo;
-			_ptrValue = (IntPtr)(value ? 1 : 0);
-		}
-	}
-	/// <summary>
-	/// Specifies whether to enable caching explicitly (-dlcm)<para/>
-	/// Choice is based on supplied <see cref="CUJITCacheMode"/>.
-	/// <para>Option type: unsigned int for enumerated type <see cref="CUJITCacheMode"/></para>
-	/// <para>Applies to: compiler only</para>
-	/// </summary>
-	public class CudaJOJITCacheMode : CudaJitOption
-	{
-		/// <summary>
-		/// Specifies whether to enable caching explicitly (-dlcm)<para/>
-		/// Choice is based on supplied <see cref="CUJITCacheMode"/>.
-		/// <para>Option type: unsigned int for enumerated type <see cref="CUJITCacheMode"/></para>
-		/// <para>Applies to: compiler only</para>
-		/// </summary>
-		/// <param name="value"></param>
-		public CudaJOJITCacheMode(CUJITCacheMode value)
-		{
-			_option = CUJITOption.GenerateLineInfo;
-			_ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
-		}
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected override void Dispose(bool fDisposing)
+        {
+            FreeHandle();
+            base.Dispose(fDisposing);
+        }
+    }
+
+    /// <summary>
+    /// <para>Level of optimizations to apply to generated code (0 - 4), with 4
+    /// being the default and highest level of optimizations.</para>
+    /// <para>Option type: unsigned int</para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOOptimizationLevel : CudaJitOption
+    {
+        /// <summary>
+        /// <para>Level of optimizations to apply to generated code (0 - 4), with 4
+        /// being the default and highest level of optimizations.</para>
+        /// <para>Option type: unsigned int</para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value">Level of optimizations to apply to generated code (0 - 4), with 4
+        /// being the default and highest level of optimizations.</param>
+        public CudaJOOptimizationLevel(uint value)
+        {
+            _option = CUJITOption.OptimizationLevel;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+    /// <summary>
+    /// <para>No option value required. Determines the target based on the current
+    /// attached context (default)</para>
+    /// <para>Option type: No option value needed</para>
+    /// <para>Applies to: compiler and linker</para>
+    /// </summary>
+    public class CudaJOTargetFromContext : CudaJitOption
+    {
+        /// <summary>
+        /// <para>Determines the target based on the current attached context (default)</para>
+        /// <para>Option type: No option value needed</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// </summary>
+        public CudaJOTargetFromContext()
+        {
+            _option = CUJITOption.TargetFromContext;
+            _ptrValue = new IntPtr();
+        }
+    }
+    /// <summary>
+    /// <para>Target is chosen based on supplied <see cref="CUJITTarget"/>.</para>
+    /// <para>Option type: unsigned int for enumerated type <see cref="CUJITTarget"/></para>
+    /// <para>Applies to: compiler and linker</para>
+    /// </summary>
+    public class CudaJOTarget : CudaJitOption
+    {
+        /// <summary>
+        /// <para>Target is chosen based on supplied ::CUjit_target_enum.</para>
+        /// <para>Option type: unsigned int for enumerated type ::CUjit_target_enum</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOTarget(CUJITTarget value)
+        {
+            _option = CUJITOption.Target;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+    /// <summary>
+    /// <para>Specifies choice of fallback strategy if matching cubin is not found.
+    /// Choice is based on supplied <see cref="CUJITFallback"/>.</para>
+    /// <para>Option type: unsigned int for enumerated type <see cref="CUJITFallback"/></para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOFallbackStrategy : CudaJitOption
+    {
+        /// <summary>
+        /// <para>Specifies choice of fallback strategy if matching cubin is not found.
+        /// Choice is based on supplied <see cref="CUJITFallback"/>.</para>
+        /// <para>Option type: unsigned int for enumerated type <see cref="CUJITFallback"/></para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOFallbackStrategy(CUJITFallback value)
+        {
+            _option = CUJITOption.FallbackStrategy;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+    /// <summary>
+    /// Specifies whether to create debug information in output (-g) <para/> (0: false, default)
+    /// <para>Option type: int</para>
+    /// <para>Applies to: compiler and linker</para>
+    /// </summary>
+    public class CudaJOGenerateDebugInfo : CudaJitOption
+    {
+        /// <summary>
+        /// Specifies whether to create debug information in output (-g) <para/> (0: false, default)
+        /// <para>Option type: int</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOGenerateDebugInfo(bool value)
+        {
+            _option = CUJITOption.GenerateDebugInfo;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+    /// <summary>
+    /// Generate verbose log messages <para/> (0: false, default)
+    /// <para>Option type: int</para>
+    /// <para>Applies to: compiler and linker</para>
+    /// </summary>
+    public class CudaJOLogVerbose : CudaJitOption
+    {
+        /// <summary>
+        /// Generate verbose log messages <para/> (0: false, default)
+        /// <para>Option type: int</para>
+        /// <para>Applies to: compiler and linker</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOLogVerbose(bool value)
+        {
+            _option = CUJITOption.LogVerbose;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+    /// <summary>
+    /// Generate line number information (-lineinfo) <para/> (0: false, default)
+    /// <para>Option type: int</para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOGenerateLineInfo : CudaJitOption
+    {
+        /// <summary>
+        /// Generate line number information (-lineinfo) <para/> (0: false, default)
+        /// <para>Option type: int</para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOGenerateLineInfo(bool value)
+        {
+            _option = CUJITOption.GenerateLineInfo;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+    /// <summary>
+    /// Specifies whether to enable caching explicitly (-dlcm)<para/>
+    /// Choice is based on supplied <see cref="CUJITCacheMode"/>.
+    /// <para>Option type: unsigned int for enumerated type <see cref="CUJITCacheMode"/></para>
+    /// <para>Applies to: compiler only</para>
+    /// </summary>
+    public class CudaJOJITCacheMode : CudaJitOption
+    {
+        /// <summary>
+        /// Specifies whether to enable caching explicitly (-dlcm)<para/>
+        /// Choice is based on supplied <see cref="CUJITCacheMode"/>.
+        /// <para>Option type: unsigned int for enumerated type <see cref="CUJITCacheMode"/></para>
+        /// <para>Applies to: compiler only</para>
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITCacheMode(CUJITCacheMode value)
+        {
+            _option = CUJITOption.GenerateLineInfo;
+            _ptrValue = (IntPtr)(Convert.ToUInt32(value, System.Globalization.CultureInfo.InvariantCulture));
+        }
+    }
+
+    /// <summary>
+    /// Enable link-time optimization (-dlto) for device code (0: false, default)<para/>
+    /// Option type: int<para/>
+    /// Applies to: compiler and linker
+    /// </summary>
+    public class CudaJOJITLto : CudaJitOption
+    {
+        /// <summary>
+        /// Enable link-time optimization (-dlto) for device code (0: false, default)<para/>
+        /// Option type: int<para/>
+        /// Applies to: compiler and linker
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITLto(bool value)
+        {
+            _option = CUJITOption.Lto;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+    /// <summary>
+    /// Control single-precision denormals (-ftz) support (0: false, default).<para/>
+    /// 1 : flushes denormal values to zero<para/>
+    /// 0 : preserves denormal values<para/>
+    /// Option type: int<para/>
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    /// </summary>
+    public class CudaJOJITFtz : CudaJitOption
+    {
+        /// <summary>
+        /// Control single-precision denormals (-ftz) support (0: false, default).<para/>
+        /// 1 : flushes denormal values to zero<para/>
+        /// 0 : preserves denormal values<para/>
+        /// Option type: int<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITFtz(bool value)
+        {
+            _option = CUJITOption.Ftz;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+
+    /// <summary>
+    /// Control single-precision floating-point division and reciprocals<para/>
+    /// (-prec-div) support (1: true, default).<para/>
+    /// 1 : Enables the IEEE round-to-nearest mode<para/>
+    /// 0 : Enables the fast approximation mode<para/>
+    /// Option type: int<para/>
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    /// </summary>
+    public class CudaJOJITPrecDiv : CudaJitOption
+    {
+        /// <summary>
+        /// Control single-precision floating-point division and reciprocals<para/>
+        /// (-prec-div) support (1: true, default).<para/>
+        /// 1 : Enables the IEEE round-to-nearest mode<para/>
+        /// 0 : Enables the fast approximation mode<para/>
+        /// Option type: int<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITPrecDiv(bool value)
+        {
+            _option = CUJITOption.PrecDiv;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+    /// <summary>
+    /// Control single-precision floating-point square root<para/>
+    /// (-prec-sqrt) support (1: true, default).<para/>
+    /// 1 : Enables the IEEE round-to-nearest mode<para/>
+    /// 0 : Enables the fast approximation mode<para/>
+    /// Option type: int\n<para/>
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    /// </summary>
+    public class CudaJOJITPrecSqrt : CudaJitOption
+    {
+        /// <summary>
+        /// Control single-precision floating-point square root<para/>
+        /// (-prec-sqrt) support (1: true, default).<para/>
+        /// 1 : Enables the IEEE round-to-nearest mode<para/>
+        /// 0 : Enables the fast approximation mode<para/>
+        /// Option type: int\n<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITPrecSqrt(bool value)
+        {
+            _option = CUJITOption.PrecSqrt;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+    /// <summary>
+    /// Enable/Disable the contraction of floating-point multiplies<para/>
+    /// and adds/subtracts into floating-point multiply-add (-fma)<para/>
+    /// operations (1: Enable, default; 0: Disable).<para/>
+    /// Option type: int\n<para/>
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    /// </summary>
+    public class CudaJOJITFma : CudaJitOption
+    {
+        /// <summary>
+        /// Enable/Disable the contraction of floating-point multiplies<para/>
+        /// and adds/subtracts into floating-point multiply-add (-fma)<para/>
+        /// operations (1: Enable, default; 0: Disable).<para/>
+        /// Option type: int\n<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOJITFma(bool value)
+        {
+            _option = CUJITOption.Fma;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
 
 }

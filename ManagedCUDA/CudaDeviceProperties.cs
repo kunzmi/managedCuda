@@ -1129,21 +1129,25 @@ namespace ManagedCuda
             internal set { this._readOnlyHostRegisterSupported = value; }
         }
 
+        /// <summary/>
         public bool GpuDirectRDMASupported
         {
             get { return this._gpuDirectRDMASupported; }
             internal set { this._gpuDirectRDMASupported = value; }
         }
+        /// <summary/>
         public CUflushGPUDirectRDMAWritesOptions GpuDirectRDMAFlushWritesOptions
         {
             get { return this._gpuDirectRDMAFlushWritesOptions; }
             internal set { this._gpuDirectRDMAFlushWritesOptions = value; }
         }
+        /// <summary/>
         public CUGPUDirectRDMAWritesOrdering GpuDirectRDMAWritesOrdering
         {
             get { return this._gpuDirectRDMAWritesOrdering; }
             internal set { this._gpuDirectRDMAWritesOrdering = value; }
         }
+        /// <summary/>
         public CUmemAllocationHandleType MempoolSupportedHandleTypes
         {
             get { return this._mempoolSupportedHandleTypes; }

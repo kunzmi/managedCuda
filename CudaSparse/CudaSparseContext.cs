@@ -867,6 +867,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">info contains structural zero or numerical zero if the user already called csrsv2_analysis() or csrsv2_solve().</param>
         /// <param name="position">if no structural or numerical zero, position is -1; otherwise, if A(j,j) is missing or U(j,j) is zero, position=j.</param>
         /// <returns>If true, position=j means A(j,j) has either a structural zero or a numerical zero; otherwise, position=-1.</returns>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public bool Csrsv2ZeroPivot(CudaSparseCsrsv2Info info, CudaDeviceVariable<int> position)
         {
             res = CudaSparseNativeMethods.cusparseXcsrsv2_zeroPivot(_handle, info.Csrsv2Info, position.DevicePointer);
@@ -888,6 +889,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">info contains structural zero or numerical zero if the user already called csrsv2_analysis() or csrsv2_solve().</param>
         /// <param name="position">if no structural or numerical zero, position is -1; otherwise, if A(j,j) is missing or U(j,j) is zero, position=j.</param>
         /// <returns>If true, position=j means A(j,j) has either a structural zero or a numerical zero; otherwise, position=-1.</returns>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public bool Csrsv2ZeroPivot(CudaSparseCsrsv2Info info, ref int position)
         {
             res = CudaSparseNativeMethods.cusparseXcsrsv2_zeroPivot(_handle, info.Csrsv2Info, ref position);
@@ -911,6 +913,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
         /// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
         /// <param name="info">record of internal states based on different algorithms.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public SizeT Csrsv2BufferSize(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info)
         {
             SizeT size = 0;
@@ -933,6 +936,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
         /// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
         /// <param name="info">record of internal states based on different algorithms.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public SizeT Csrsv2BufferSize(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info)
         {
             SizeT size = 0;
@@ -955,6 +959,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
         /// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
         /// <param name="info">record of internal states based on different algorithms.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public SizeT Csrsv2BufferSize(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info)
         {
             SizeT size = 0;
@@ -977,6 +982,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrColIndA">integer array of nnz (= csrRowPtrA(m) - csrRowPtrA(0)) column indices of the non-zero elements of matrix A.
         /// Length of csrColIndA gives the number nzz passed to CUSPARSE. </param>
         /// <param name="info">record of internal states based on different algorithms.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public SizeT Csrsv2BufferSize(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info)
         {
             SizeT size = 0;
@@ -1004,6 +1010,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">record of internal states based on different algorithms.</param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL.</param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsv2_bufferSizeExt().</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Analysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
         {
             res = CudaSparseNativeMethods.cusparseScsrsv2_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.Csrsv2Info, policy, buffer.DevicePointer);
@@ -1026,6 +1033,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">record of internal states based on different algorithms.</param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL.</param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsv2_bufferSizeExt().</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Analysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
         {
             res = CudaSparseNativeMethods.cusparseDcsrsv2_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.Csrsv2Info, policy, buffer.DevicePointer);
@@ -1048,6 +1056,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">record of internal states based on different algorithms.</param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL.</param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsv2_bufferSizeExt().</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Analysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
         {
             res = CudaSparseNativeMethods.cusparseCcsrsv2_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.Csrsv2Info, policy, buffer.DevicePointer);
@@ -1070,6 +1079,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">record of internal states based on different algorithms.</param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL.</param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsv2_bufferSizeExt().</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Analysis(cusparseOperation transA, int m, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
         {
             res = CudaSparseNativeMethods.cusparseZcsrsv2_analysis(_handle, transA, m, (int)csrColIndA.Size, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, info.Csrsv2Info, policy, buffer.DevicePointer);
@@ -1098,6 +1108,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, ref float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<float> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<float> y)
@@ -1125,6 +1136,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, ref double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<double> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<double> y)
@@ -1152,6 +1164,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, ref cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<cuFloatComplex> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<cuFloatComplex> y)
@@ -1179,6 +1192,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, ref cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<cuDoubleComplex> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<cuDoubleComplex> y)
@@ -1206,6 +1220,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<float> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<float> y)
@@ -1233,6 +1248,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<double> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<double> y)
@@ -1260,6 +1276,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<cuFloatComplex> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<cuFloatComplex> y)
@@ -1287,6 +1304,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="alpha">scalar used for multiplication.</param>
         /// <param name="x">right-hand-side vector of size m.</param>
         /// <param name="y">solution vector of size m.</param>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
         public void Csrsv2Solve(cusparseOperation transA, int m, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA,
             CudaDeviceVariable<int> csrColIndA, CudaSparseCsrsv2Info info,
             CudaDeviceVariable<cuDoubleComplex> x, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<cuDoubleComplex> y)
@@ -6041,6 +6059,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">info contains structural zero or numerical zero if the user already called csrsm2_analysis() or csrsm2_solve(). </param>
         /// <param name="position">if no structural or numerical zero, position is -1; otherwise, if A(j,j) is missing or U(j,j) is zero, position=j. </param>
         /// <returns></returns>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public cusparseStatus Csrsm2_zeroPivot(CudaSparseCsrsm2Info info, CudaDeviceVariable<int> position)
         {
             res = CudaSparseNativeMethods.cusparseXcsrsm2_zeroPivot(_handle, info.Csrsm2Info, position.DevicePointer);
@@ -6066,6 +6085,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6098,6 +6118,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6130,6 +6151,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6162,6 +6184,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6195,6 +6218,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6225,6 +6249,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6255,6 +6280,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6285,6 +6311,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6316,6 +6343,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6347,6 +6375,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6378,6 +6407,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6409,6 +6439,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6433,6 +6464,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">info contains structural zero or numerical zero if the user already called csrsm2_analysis() or csrsm2_solve(). </param>
         /// <param name="position">if no structural or numerical zero, position is -1; otherwise, if A(j,j) is missing or U(j,j) is zero, position=j. </param>
         /// <returns></returns>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public cusparseStatus Csrsm2_zeroPivot(CudaSparseCsrsm2Info info, ref int position)
         {
             res = CudaSparseNativeMethods.cusparseXcsrsm2_zeroPivot(_handle, info.Csrsm2Info, ref position);
@@ -6458,6 +6490,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6490,6 +6523,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6522,6 +6556,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6554,6 +6589,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="ldb">leading dimension of B and X.</param>
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public SizeT Csrsm2_bufferSizeExt(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy)
@@ -6589,6 +6625,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6619,6 +6656,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6649,6 +6687,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6679,6 +6718,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_analysis(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6710,6 +6750,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<float> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6741,6 +6782,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<double> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6772,6 +6814,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -6803,6 +6846,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="info">structure with information collected during the analysis phase (that should have been passed to the solve phase unchanged). </param>
         /// <param name="policy">The supported policies are CUSPARSE_SOLVE_POLICY_NO_LEVEL and CUSPARSE_SOLVE_POLICY_USE_LEVEL. </param>
         /// <param name="buffer">buffer allocated by the user, the size is returned by csrsm2_bufferSize().</param>
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public void Csrsm2_solve(int algo, cusparseOperation transA, cusparseOperation transB, int m, int nrhs,
             int nnz, ref cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrSortedValA, CudaDeviceVariable<int> csrSortedRowPtrA,
             CudaDeviceVariable<int> csrSortedColIndA, CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaSparseCsrsm2Info info, cusparseSolvePolicy policy, CudaDeviceVariable<byte> buffer)
@@ -12651,6 +12695,109 @@ namespace ManagedCuda.CudaSparse
 
         #endregion
 
+        #region SpSM
+
+        public SizeT SpSM_bufferSize<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
+            where indexT : struct where dataT : struct
+        {
+            SizeT size = 0;
+
+            res = CudaSparseNativeMethods.cusparseSpSM_bufferSize(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_bufferSize", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return size;
+        }
+
+        public void SpSM_analysis<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr, CudaDeviceVariable<byte> buffer)
+            where indexT : struct where dataT : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpSM_analysis(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_analysis", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        public void cusparseSpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
+            where indexT : struct where dataT : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpSM_solve(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_solve", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        public SizeT SpSM_bufferSize<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
+            where indexT : struct where dataT : struct
+        {
+            IntPtr ptrAlpha = IntPtr.Zero;
+            SizeT size = 0;
+            try
+            {
+                ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+                Marshal.StructureToPtr(alpha, ptrAlpha, false);
+                res = CudaSparseNativeMethods.cusparseSpSM_bufferSize(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr, ref size);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_bufferSize", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+            }
+            finally
+            {
+                //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+                Marshal.FreeHGlobal(ptrAlpha);
+            }
+            return size;
+        }
+
+        public void SpSM_analysis<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr, CudaDeviceVariable<byte> buffer)
+            where indexT : struct where dataT : struct
+        {
+            IntPtr ptrAlpha = IntPtr.Zero;
+            try
+            {
+                ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+                Marshal.StructureToPtr(alpha, ptrAlpha, false);
+                res = CudaSparseNativeMethods.cusparseSpSM_analysis(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr, buffer.DevicePointer);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_analysis", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+            }
+            finally
+            {
+                //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+                Marshal.FreeHGlobal(ptrAlpha);
+            }
+        }
+
+        public void cusparseSpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, SparseMatrix<indexT, dataT> matA,
+            DenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
+            where indexT : struct where dataT : struct
+        {
+            IntPtr ptrAlpha = IntPtr.Zero;
+            try
+            {
+                ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataT)));
+                Marshal.StructureToPtr(alpha, ptrAlpha, false);
+                res = CudaSparseNativeMethods.cusparseSpSM_solve(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, matC.Descr, computeType, alg, SpSMDescr.Descr);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_solve", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+            }
+            finally
+            {
+                //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+                Marshal.FreeHGlobal(ptrAlpha);
+            }
+        }
+
+        #endregion
+
         #region SpGeMM
 
         public SizeT SpGEMM_workEstimation<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, SparseMatrix<indexT, dataT> matA,
@@ -12802,6 +12949,7 @@ namespace ManagedCuda.CudaSparse
         #region GeMM
 
 
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public SizeT ConstrainedGeMM_bufferSize<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTABC> alpha, DenseMatrix<dataTABC> matA,
             DenseMatrix<dataTABC> matB, CudaDeviceVariable<dataTABC> beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType)
             where indexT : struct where dataTABC : struct
@@ -12814,6 +12962,7 @@ namespace ManagedCuda.CudaSparse
             return size;
         }
 
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public SizeT ConstrainedGeMM_bufferSize<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, dataTABC alpha, DenseMatrix<dataTABC> matA,
             DenseMatrix<dataTABC> matB, dataTABC beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType)
             where indexT : struct where dataTABC : struct
@@ -12840,6 +12989,7 @@ namespace ManagedCuda.CudaSparse
             }
             return size;
         }
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public void ConstrainedGeMM<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTABC> alpha, DenseMatrix<dataTABC> matA,
             DenseMatrix<dataTABC> matB, CudaDeviceVariable<dataTABC> beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType, CudaDeviceVariable<byte> buffer)
             where indexT : struct where dataTABC : struct
@@ -12850,6 +13000,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public void ConstrainedGeMM<indexT, dataTABC>(cusparseOperation opA, cusparseOperation opB, dataTABC alpha, DenseMatrix<dataTABC> matA,
             DenseMatrix<dataTABC> matB, dataTABC beta, SparseMatrix<indexT, dataTABC> matC, cudaDataType computeType, CudaDeviceVariable<byte> buffer)
             where indexT : struct where dataTABC : struct
@@ -12985,6 +13136,77 @@ namespace ManagedCuda.CudaSparse
             }
         }
 
+        #endregion
+
+        #region GeMMReuse
+
+
+
+        public void GEMMreuse_workEstimation<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, SparseMatrix<indexT, dataTAB> matA,
+            SparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, ref SizeT bufferSize1, CudaDeviceVariable<byte> buffer1)
+            where indexT : struct where dataTAB : struct where dataTC : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpGEMMreuse_workEstimation(_handle, opA, opB, matA.Descr, matB.Descr, matC.Descr, alg, spgemmDescr.Descr, ref bufferSize1, buffer1.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMMreuse_workEstimation", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        public void GEMMreuse_nnz<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, SparseMatrix<indexT, dataTAB> matA,
+            SparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr,
+            ref SizeT bufferSize2, CudaDeviceVariable<byte> buffer2, ref SizeT bufferSize3, CudaDeviceVariable<byte> buffer3, ref SizeT bufferSize4, CudaDeviceVariable<byte> buffer4)
+            where indexT : struct where dataTAB : struct where dataTC : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpGEMMreuse_nnz(_handle, opA, opB, matA.Descr, matB.Descr, matC.Descr, alg, spgemmDescr.Descr,
+                ref bufferSize2, buffer2.DevicePointer, ref bufferSize3, buffer3.DevicePointer, ref bufferSize4, buffer4.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMMreuse_nnz", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        public void GEMMreuse_copy<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, SparseMatrix<indexT, dataTAB> matA,
+            SparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, ref SizeT bufferSize5, CudaDeviceVariable<byte> buffer5)
+            where indexT : struct where dataTAB : struct where dataTC : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpGEMMreuse_copy(_handle, opA, opB, matA.Descr, matB.Descr, matC.Descr, alg, spgemmDescr.Descr, ref bufferSize5, buffer5.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMMreuse_copy", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        public void GEMMreuse_compute<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, dataTAB alpha, SparseMatrix<indexT, dataTAB> matA,
+            SparseMatrix<indexT, dataTAB> matB, dataTC beta, SparseMatrix<indexT, dataTC> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
+            where indexT : struct where dataTAB : struct where dataTC : struct
+        {
+            IntPtr ptrAlpha = IntPtr.Zero;
+            IntPtr ptrBeta = IntPtr.Zero;
+            try
+            {
+                ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAB)));
+                ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTC)));
+                Marshal.StructureToPtr(alpha, ptrAlpha, false);
+                Marshal.StructureToPtr(beta, ptrBeta, false);
+                res = CudaSparseNativeMethods.cusparseSpGEMMreuse_compute(_handle, opA, opB, ptrAlpha, matA.Descr, matB.Descr, ptrBeta, matC.Descr, computeType, alg, spgemmDescr.Descr);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMMreuse_compute", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+            }
+            finally
+            {
+                //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+                Marshal.FreeHGlobal(ptrAlpha);
+                Marshal.FreeHGlobal(ptrBeta);
+            }
+        }
+
+        public void GEMMreuse_compute<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTAB> alpha, SparseMatrix<indexT, dataTAB> matA,
+            SparseMatrix<indexT, dataTAB> matB, CudaDeviceVariable<dataTC> beta, SparseMatrix<indexT, dataTC> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
+            where indexT : struct where dataTAB : struct where dataTC : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpGEMMreuse_compute(_handle, opA, opB, alpha.DevicePointer, matA.Descr, matB.Descr, beta.DevicePointer, matC.Descr, computeType, alg, spgemmDescr.Descr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpGEMMreuse_compute", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
         #endregion
 
         #region Sparse/Dense conversion

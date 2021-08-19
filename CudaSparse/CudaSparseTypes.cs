@@ -455,7 +455,9 @@ namespace ManagedCuda.CudaSparse
         /// <summary>
         /// 
         /// </summary>
-        Default = 0
+        Default = 0,
+        Deterministic = 1,
+        NonDeterministic = 2,
     }
 
     /// <summary>
@@ -510,6 +512,11 @@ namespace ManagedCuda.CudaSparse
         /// <summary>
         /// 
         /// </summary>
+        Default = 0,
+    }
+
+    public enum cusparseSpSMAlg
+    {
         Default = 0,
     }
     #endregion
@@ -747,6 +754,19 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct cusparseSpSVDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseSpSMDescr
     {
         /// <summary>
         /// 

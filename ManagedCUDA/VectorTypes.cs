@@ -372,7 +372,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(dim3 src, dim3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -1070,7 +1069,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuDoubleComplex src, cuDoubleComplex value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -1091,7 +1089,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuDoubleComplex src, cuDoubleReal value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -1112,7 +1109,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuDoubleReal src, cuDoubleComplex value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -1558,7 +1554,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuDoubleReal src, cuDoubleReal value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -2187,7 +2182,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuFloatComplex src, cuFloatComplex value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -2208,7 +2202,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuFloatComplex src, cuFloatReal value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -2229,7 +2222,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuFloatReal src, cuFloatComplex value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -2695,7 +2687,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(cuFloatReal src, cuFloatReal value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -3164,7 +3155,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(char1 src, char1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -3627,7 +3617,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(char2 src, char2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -4087,7 +4076,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(char3 src, char3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -4538,7 +4526,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(char4 src, char4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -5022,7 +5009,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uchar1 src, uchar1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -5485,7 +5471,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uchar2 src, uchar2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -5945,7 +5930,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uchar3 src, uchar3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -6396,7 +6380,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uchar4 src, uchar4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -6880,7 +6863,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(short1 src, short1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -7345,7 +7327,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(short2 src, short2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -7808,7 +7789,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(short3 src, short3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -8262,7 +8242,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(short4 src, short4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -8749,7 +8728,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ushort1 src, ushort1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -9214,7 +9192,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ushort2 src, ushort2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -9677,7 +9654,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ushort3 src, ushort3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -10131,7 +10107,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ushort4 src, ushort4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -10618,7 +10593,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(int1 src, int1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -11083,7 +11057,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(int2 src, int2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -11546,7 +11519,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(int3 src, int3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -12000,7 +11972,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(int4 src, int4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -12487,7 +12458,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uint1 src, uint1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -12952,7 +12922,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uint2 src, uint2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -13415,7 +13384,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uint3 src, uint3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -13869,7 +13837,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(uint4 src, uint4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -14356,7 +14323,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(long1 src, long1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -14803,7 +14769,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(long2 src, long2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -15248,7 +15213,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(long3 src, long3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -15702,7 +15666,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(long4 src, long4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -16171,7 +16134,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ulong1 src, ulong1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -16618,7 +16580,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ulong2 src, ulong2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -17063,7 +17024,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ulong3 src, ulong3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -17517,7 +17477,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(ulong4 src, ulong4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -17986,7 +17945,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(float1 src, float1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -18451,7 +18409,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(float2 src, float2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -18914,7 +18871,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(float3 src, float3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -19487,7 +19443,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(float4 src, float4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -19974,7 +19929,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(double1 src, double1 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -20421,7 +20375,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(double2 src, double2 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -20867,7 +20820,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(double3 src, double3 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>
@@ -21440,7 +21392,6 @@ namespace ManagedCuda.VectorTypes
 		/// <returns></returns>
 		public static bool operator ==(double4 src, double4 value)
 		{
-			if (object.ReferenceEquals(src, value)) return true;
 			return src.Equals(value);
 		}
 		/// <summary>

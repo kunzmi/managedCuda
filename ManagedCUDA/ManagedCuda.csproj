@@ -75,6 +75,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CudaManagedMemoryFixedTypes.tt</DependentUpon>
     </Compile>
+    <Compile Include="CudaMemoryPool.cs" />
     <Compile Include="CudaMipmappedArray.cs" />
     <Compile Include="CudaOccupancy.cs" />
     <Compile Include="CudaOccupancyException.cs" />

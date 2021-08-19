@@ -2706,64 +2706,94 @@ namespace ManagedCuda.CudaSolve
 
 
 
-
-        public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<float> A, int lda)
+        public void XsytrsBufferSize(
+                FillMode uplo,
+                DiagType diag,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost)
         {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnStrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnStrtri_bufferSize", res));
+            res = CudaSolveNativeMethods.Dense.cusolverDnXtrtri_bufferSize(_handle, uplo, diag, n, dataTypeA, A, lda, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXtrtri_bufferSize", res));
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<double> A, int lda)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnDtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDtrtri_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuFloatComplex> A, int lda)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnCtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCtrtri_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuDoubleComplex> A, int lda)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnZtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZtrtri_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
         }
 
-        public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> work, CudaDeviceVariable<int> devInfo)
+        public void Xsytrs(
+                FillMode uplo,
+                DiagType diag,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                CudaDeviceVariable<byte> work, byte[] workHost,
+                CudaDeviceVariable<int> info)
         {
-            res = CudaSolveNativeMethods.Dense.cusolverDnStrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnStrtri", res));
+            res = CudaSolveNativeMethods.Dense.cusolverDnXtrtri(_handle, uplo, diag, n, dataTypeA, A, lda,
+                work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXtrtri", res));
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
         }
-        public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> work, CudaDeviceVariable<int> devInfo)
-        {
-            res = CudaSolveNativeMethods.Dense.cusolverDnDtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDtrtri", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-        }
-        public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<cuFloatComplex> work, CudaDeviceVariable<int> devInfo)
-        {
-            res = CudaSolveNativeMethods.Dense.cusolverDnCtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCtrtri", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-        }
-        public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<cuDoubleComplex> work, CudaDeviceVariable<int> devInfo)
-        {
-            res = CudaSolveNativeMethods.Dense.cusolverDnZtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZtrtri", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-        }
+
+        //public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<float> A, int lda)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnStrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnStrtri_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<double> A, int lda)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnDtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDtrtri_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuFloatComplex> A, int lda)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnCtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCtrtri_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int trtri_bufferSize(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuDoubleComplex> A, int lda)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnZtrtri_bufferSize(_handle, uplo, diag, n, A.DevicePointer, lda, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZtrtri_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+
+        //public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<float> work, CudaDeviceVariable<int> devInfo)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnStrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnStrtri", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
+        //public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<double> work, CudaDeviceVariable<int> devInfo)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnDtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDtrtri", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
+        //public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<cuFloatComplex> work, CudaDeviceVariable<int> devInfo)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnCtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCtrtri", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
+        //public void trtri(FillMode uplo, DiagType diag, int n, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<cuDoubleComplex> work, CudaDeviceVariable<int> devInfo)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnZtrtri(_handle, uplo, diag, n, A.DevicePointer, lda, work.DevicePointer, work.Size, devInfo.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZtrtri", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
 
         #endregion
 
@@ -2831,82 +2861,121 @@ namespace ManagedCuda.CudaSolve
         #endregion
 
         #region Symmetric indefinite solve (SYTRS)
-        public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<float> A, int lda,
-            CudaDeviceVariable<int> ipiv, CudaDeviceVariable<float> B, int ldb)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnSsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
-                ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSsytrs_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<double> A, int lda,
-            CudaDeviceVariable<int> ipiv, CudaDeviceVariable<double> B, int ldb)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnDsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
-                ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDsytrs_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuFloatComplex> A, int lda,
-            CudaDeviceVariable<int> ipiv, CudaDeviceVariable<cuFloatComplex> B, int ldb)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnCsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
-                ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCsytrs_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
-        public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuDoubleComplex> A, int lda,
-            CudaDeviceVariable<int> ipiv, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
-        {
-            int lwork = 0;
-            res = CudaSolveNativeMethods.Dense.cusolverDnZsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
-                ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZsytrs_bufferSize", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-            return lwork;
-        }
 
-        public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<int> ipiv,
-            CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<float> work, CudaDeviceVariable<int> info)
+        public void XsytrsBufferSize(
+                FillMode uplo,
+                long n,
+                long nrhs,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                CudaDeviceVariable<long> ipiv,
+                cudaDataType dataTypeB,
+                CUdeviceptr B,
+                long ldb,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost)
         {
-            res = CudaSolveNativeMethods.Dense.cusolverDnSsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
-                B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSsytrs", res));
+            res = CudaSolveNativeMethods.Dense.cusolverDnXsytrs_bufferSize(_handle, uplo, n, nrhs, dataTypeA, A, lda, ipiv.DevicePointer, dataTypeB, B, ldb, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsytrs_bufferSize", res));
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
         }
 
-        public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<int> ipiv,
-            CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<double> work, CudaDeviceVariable<int> info)
+        public void Xsytrs(
+                FillMode uplo,
+                long n,
+                long nrhs,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                CudaDeviceVariable<long> ipiv,
+                cudaDataType dataTypeB,
+                CUdeviceptr B,
+                long ldb,
+                CudaDeviceVariable<byte> work, byte[] workHost,
+                CudaDeviceVariable<int> info)
         {
-            res = CudaSolveNativeMethods.Dense.cusolverDnDsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
-                B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDsytrs", res));
+            res = CudaSolveNativeMethods.Dense.cusolverDnXsytrs(_handle, uplo, n, nrhs, dataTypeA, A, lda, ipiv.DevicePointer, dataTypeB, B, ldb,
+                work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsytrs", res));
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
         }
+        //public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<float> A, int lda,
+        //    CudaDeviceVariable<int> ipiv, CudaDeviceVariable<float> B, int ldb)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnSsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
+        //        ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSsytrs_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<double> A, int lda,
+        //    CudaDeviceVariable<int> ipiv, CudaDeviceVariable<double> B, int ldb)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnDsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
+        //        ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDsytrs_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuFloatComplex> A, int lda,
+        //    CudaDeviceVariable<int> ipiv, CudaDeviceVariable<cuFloatComplex> B, int ldb)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnCsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
+        //        ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCsytrs_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
+        //public int sytrs_bufferSize(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuDoubleComplex> A, int lda,
+        //    CudaDeviceVariable<int> ipiv, CudaDeviceVariable<cuDoubleComplex> B, int ldb)
+        //{
+        //    int lwork = 0;
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnZsytrs_bufferSize(_handle, uplo, n, nrhs, A.DevicePointer, lda,
+        //        ipiv.DevicePointer, B.DevicePointer, ldb, ref lwork);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZsytrs_bufferSize", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //    return lwork;
+        //}
 
-        public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<int> ipiv,
-            CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<cuFloatComplex> work, CudaDeviceVariable<int> info)
-        {
-            res = CudaSolveNativeMethods.Dense.cusolverDnCsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
-                B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCsytrs", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-        }
+        //public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<float> A, int lda, CudaDeviceVariable<int> ipiv,
+        //    CudaDeviceVariable<float> B, int ldb, CudaDeviceVariable<float> work, CudaDeviceVariable<int> info)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnSsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
+        //        B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSsytrs", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
 
-        public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<int> ipiv,
-            CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<cuDoubleComplex> work, CudaDeviceVariable<int> info)
-        {
-            res = CudaSolveNativeMethods.Dense.cusolverDnZsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
-                B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZsytrs", res));
-            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
-        }
+        //public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<double> A, int lda, CudaDeviceVariable<int> ipiv,
+        //    CudaDeviceVariable<double> B, int ldb, CudaDeviceVariable<double> work, CudaDeviceVariable<int> info)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnDsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
+        //        B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnDsytrs", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
+
+        //public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuFloatComplex> A, int lda, CudaDeviceVariable<int> ipiv,
+        //    CudaDeviceVariable<cuFloatComplex> B, int ldb, CudaDeviceVariable<cuFloatComplex> work, CudaDeviceVariable<int> info)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnCsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
+        //        B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnCsytrs", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
+
+        //public void sytrs(FillMode uplo, int n, int nrhs, CudaDeviceVariable<cuDoubleComplex> A, int lda, CudaDeviceVariable<int> ipiv,
+        //    CudaDeviceVariable<cuDoubleComplex> B, int ldb, CudaDeviceVariable<cuDoubleComplex> work, CudaDeviceVariable<int> info)
+        //{
+        //    res = CudaSolveNativeMethods.Dense.cusolverDnZsytrs(_handle, uplo, n, nrhs, A.DevicePointer, lda, ipiv.DevicePointer,
+        //        B.DevicePointer, ldb, work.DevicePointer, work.Size, info.DevicePointer);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnZsytrs", res));
+        //    if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        //}
 
         #endregion
 

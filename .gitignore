@@ -46,6 +46,10 @@ Temporary Items
 *.dll
 *.exe
 
+**/build/
+**/obj/
+**/bin/
+
 # Program debug database
 *.pdb
 

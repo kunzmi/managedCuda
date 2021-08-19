@@ -141,6 +141,142 @@ namespace ManagedCuda.BasicTypes
         {
             return new CudaMemoryPool(this, true);
         }
+
+        /// <summary>
+        /// Return an UUID for the device (11.4+)<para/>
+        /// Returns 16-octets identifing the device \p dev in the structure
+        /// pointed by the \p uuid.If the device is in MIG mode, returns its
+        /// MIG UUID which uniquely identifies the subscribed MIG compute instance.
+        /// Returns 16-octets identifing the device \p dev in the structure pointed by the \p uuid.
+        /// </summary>
+        public CUuuid Uuid
+        {
+            get
+            {
+                CUuuid uuid = new CUuuid();
+                CUResult res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetUuid_v2(ref uuid, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetUuid_v2", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return uuid;
+            }
+        }
+
+        /// <summary>
+        /// Returns information about the execution affinity support of the device.<para/>
+        /// Returns in \p *pi whether execution affinity type \p type is supported by device \p dev.<para/>
+        /// The supported types are:<para/>
+        /// - ::CU_EXEC_AFFINITY_TYPE_SM_COUNT: 1 if context with limited SMs is supported by the device,
+        /// or 0 if not;
+        /// </summary>
+        public bool GetExecAffinitySupport(CUexecAffinityType type)
+        {
+            int pi = 0;
+            CUResult res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetExecAffinitySupport(ref pi, type, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetExecAffinitySupport", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return pi > 0;
+        }
+
+        /// <summary>
+        /// Free unused memory that was cached on the specified device for use with graphs back to the OS.<para/>
+        /// Blocks which are not in use by a graph that is either currently executing or scheduled to execute are freed back to the operating system.
+        /// </summary>
+        public void GraphMemTrim()
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuDeviceGraphMemTrim(this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGraphMemTrim", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Set asynchronous allocation attributes related to graphs<para/>
+        /// Valid attributes are:<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes, associated with graphs since the last time it was reset.High watermark can only be reset to zero.<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        /// </summary>
+        public void SetGraphMemAttribute(CUgraphMem_attribute attr, ulong value)
+        {
+
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuDeviceSetGraphMemAttribute(this, attr, ref value);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceSetGraphMemAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Query asynchronous allocation attributes related to graphs<para/>
+        /// Valid attributes are:<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT: Amount of memory, in bytes, currently associated with graphs<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes, associated with graphs since the last time it was reset.High watermark can only be reset to zero.<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT: Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.<para/>
+        /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        /// </summary>
+        public ulong GetGraphMemAttribute(CUgraphMem_attribute attr)
+        {
+            ulong value = 0;
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuDeviceGetGraphMemAttribute(this, attr, ref value);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetGraphMemAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return value;
+        }
+
+
+        #region operators
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator ==(CUdevice src, CUdevice value)
+        {
+            return src.Pointer == value.Pointer;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator !=(CUdevice src, CUdevice value)
+        {
+            return src.Pointer != value.Pointer;
+        }
+        #endregion
+
+        #region Override Methods
+        /// <summary>
+        /// Returns true if both objects are of type CUdevice and if both Pointer member are equal.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (!(obj is CUdevice)) return false;
+
+            CUdevice value = (CUdevice)obj;
+
+            return this.Pointer.Equals(value.Pointer);
+        }
+
+        /// <summary>
+        /// Overrides object.GetHashCode()
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return Pointer.GetHashCode();
+        }
+
+        /// <summary>
+        /// override ToString()
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Pointer.ToString();
+        }
+        #endregion
     }
 
     /// <summary>
@@ -1105,6 +1241,28 @@ namespace ManagedCuda.BasicTypes
         {
             CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphExternalSemaphoresWaitNodeGetParams(this, nodeParams);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExternalSemaphoresWaitNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns a memory alloc node's parameters
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUDA_MEM_ALLOC_NODE_PARAMS nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemAllocNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemAllocNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns a memory free node's parameters
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CUdeviceptr nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemFreeNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemFreeNodeGetParams", res));
             if (res != CUResult.Success) throw new CudaException(res);
         }
 

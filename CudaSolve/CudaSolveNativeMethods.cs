@@ -3900,92 +3900,119 @@ namespace ManagedCuda.CudaSolve
                 CUdeviceptr devInfo);
 
             [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnStrtri_bufferSize(
+            public static extern cusolverStatus cusolverDnXtrtri_bufferSize(
                 cusolverDnHandle handle,
                 FillMode uplo,
                 DiagType diag,
-                int n,
+                long n,
+                cudaDataType dataTypeA,
                 CUdeviceptr A,
-                int lda,
-                ref int lwork);
+                long lda,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnDtrtri_bufferSize(
+            public static extern cusolverStatus cusolverDnXtrtri(
                 cusolverDnHandle handle,
                 FillMode uplo,
                 DiagType diag,
-                int n,
+                long n,
+                cudaDataType dataTypeA,
                 CUdeviceptr A,
-                int lda,
-                ref int lwork);
-
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnCtrtri_bufferSize(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                ref int lwork);
-
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnZtrtri_bufferSize(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                ref int lwork);
-
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnStrtri(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                CUdeviceptr work,
-                int lwork,
+                long lda,
+                CUdeviceptr bufferOnDevice,
+                SizeT workspaceInBytesOnDevice,
+                byte[] bufferOnHost,
+                SizeT workspaceInBytesOnHost,
                 CUdeviceptr devInfo);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnDtrtri(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                CUdeviceptr work,
-                int lwork,
-                CUdeviceptr devInfo);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnStrtri_bufferSize(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnCtrtri(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                CUdeviceptr work,
-                int lwork,
-                CUdeviceptr devInfo);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnDtrtri_bufferSize(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnZtrtri(
-                cusolverDnHandle handle,
-                FillMode uplo,
-                DiagType diag,
-                int n,
-                CUdeviceptr A,
-                int lda,
-                CUdeviceptr work,
-                int lwork,
-                CUdeviceptr devInfo);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnCtrtri_bufferSize(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    ref int lwork);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnZtrtri_bufferSize(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    ref int lwork);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnStrtri(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    CUdeviceptr work,
+            //    int lwork,
+            //    CUdeviceptr devInfo);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnDtrtri(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    CUdeviceptr work,
+            //    int lwork,
+            //    CUdeviceptr devInfo);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnCtrtri(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    CUdeviceptr work,
+            //    int lwork,
+            //    CUdeviceptr devInfo);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnZtrtri(
+            //    cusolverDnHandle handle,
+            //    FillMode uplo,
+            //    DiagType diag,
+            //    int n,
+            //    CUdeviceptr A,
+            //    int lda,
+            //    CUdeviceptr work,
+            //    int lwork,
+            //    CUdeviceptr devInfo);
 
             #endregion
             #region lauum, auxiliar routine for s.p.d matrix inversion
@@ -4079,118 +4106,152 @@ namespace ManagedCuda.CudaSolve
             #endregion
 
             #region Symmetric indefinite solve (SYTRS)
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsytrs_bufferSize(
+                cusolverDnHandle handle,
+                FillMode uplo,
+                long n,
+                long nrhs,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                CUdeviceptr ipiv,
+                cudaDataType dataTypeB,
+                CUdeviceptr B,
+                long ldb,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
 
             [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnSsytrs_bufferSize(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    ref int lwork);
+            public static extern cusolverStatus cusolverDnXsytrs(
+                cusolverDnHandle handle,
+                FillMode uplo,
+                long n,
+                long nrhs,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                CUdeviceptr ipiv,
+                cudaDataType dataTypeB,
+                CUdeviceptr B,
+                long ldb,
+                CUdeviceptr bufferOnDevice,
+                SizeT workspaceInBytesOnDevice,
+                byte[] bufferOnHost,
+                SizeT workspaceInBytesOnHost,
+                CUdeviceptr info);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnDsytrs_bufferSize(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    ref int lwork);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnSsytrs_bufferSize(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnCsytrs_bufferSize(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    ref int lwork);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnDsytrs_bufferSize(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnZsytrs_bufferSize(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    ref int lwork);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnCsytrs_bufferSize(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnSsytrs(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    CUdeviceptr work,
-                    int lwork,
-                    CUdeviceptr info);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnZsytrs_bufferSize(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        ref int lwork);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnDsytrs(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    CUdeviceptr work,
-                    int lwork,
-                    CUdeviceptr info);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnSsytrs(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        CUdeviceptr work,
+            //        int lwork,
+            //        CUdeviceptr info);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnCsytrs(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    CUdeviceptr work,
-                    int lwork,
-                    CUdeviceptr info);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnDsytrs(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        CUdeviceptr work,
+            //        int lwork,
+            //        CUdeviceptr info);
 
-            [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnZsytrs(
-                    cusolverDnHandle handle,
-                    FillMode uplo,
-                    int n,
-                    int nrhs,
-                    CUdeviceptr A,
-                    int lda,
-                    CUdeviceptr ipiv,
-                    CUdeviceptr B,
-                    int ldb,
-                    CUdeviceptr work,
-                    int lwork,
-                    CUdeviceptr info);
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnCsytrs(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        CUdeviceptr work,
+            //        int lwork,
+            //        CUdeviceptr info);
+
+            //[DllImport(CUSOLVE_API_DLL_NAME)]
+            //public static extern cusolverStatus cusolverDnZsytrs(
+            //        cusolverDnHandle handle,
+            //        FillMode uplo,
+            //        int n,
+            //        int nrhs,
+            //        CUdeviceptr A,
+            //        int lda,
+            //        CUdeviceptr ipiv,
+            //        CUdeviceptr B,
+            //        int ldb,
+            //        CUdeviceptr work,
+            //        int lwork,
+            //        CUdeviceptr info);
 
             #endregion
             #region Symmetric indefinite inversion (sytri)

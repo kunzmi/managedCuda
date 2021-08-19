@@ -138,6 +138,7 @@ namespace ManagedCuda.CudaSparse
             return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
         }
         //CSR
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCreateCoo instead.")]
         public static SparseMatrix<indexT1, dataT1> CreateCooAoS<indexT1, dataT1>(
             long rows,
             long cols,
@@ -229,6 +230,7 @@ namespace ManagedCuda.CudaSparse
         /// <summary>
         /// 
         /// </summary>
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCooGet instead.")]
         public void CooAoSGet(out CudaDeviceVariable<indexT> cooInd,
             out CudaDeviceVariable<dataT> cooValues)
         {

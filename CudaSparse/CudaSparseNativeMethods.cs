@@ -1527,19 +1527,23 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCreateCsrsm2Info(ref csrsm2Info info);
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDestroyCsrsm2Info(csrsm2Info info);
 
         #region host memory
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, ref int position);
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1561,6 +1565,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1582,6 +1587,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1603,6 +1609,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1624,6 +1631,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1645,6 +1653,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1666,6 +1675,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1687,6 +1697,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1708,6 +1719,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1729,6 +1741,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1750,6 +1763,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1771,6 +1785,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1795,10 +1810,12 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, CUdeviceptr position);
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1820,6 +1837,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1841,6 +1859,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1862,6 +1881,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1883,6 +1903,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1904,6 +1925,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1925,6 +1947,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1946,6 +1969,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_analysis(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1967,6 +1991,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseScsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -1988,6 +2013,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseDcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -2009,6 +2035,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseCcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -2030,6 +2057,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
 		[DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
         public static extern cusparseStatus cusparseZcsrsm2_solve(
             cusparseContext handle,
             int algo, /* algo = 0, 1 */
@@ -8755,6 +8783,99 @@ namespace ManagedCuda.CudaSparse
 
         #endregion
 
+        #region SPARSE TRIANGULAR MATRIX SOLVE
+
+        // #############################################################################
+        // # SPARSE TRIANGULAR MATRIX SOLVE
+        // #############################################################################
+
+
+
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_createDescr(ref cusparseSpSMDescr descr);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_destroyDescr(cusparseSpSMDescr descr);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_bufferSize(cusparseContext handle,
+                        cusparseOperation opA,
+                        cusparseOperation opB,
+                        IntPtr alpha,
+                        cusparseSpMatDescr matA,
+                        cusparseDnMatDescr matB,
+                        cusparseDnMatDescr matC,
+                        cudaDataType computeType,
+                        cusparseSpSMAlg alg,
+                        cusparseSpSMDescr spsmDescr,
+                        ref SizeT bufferSize);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_analysis(cusparseContext handle,
+                        cusparseOperation opA,
+                        cusparseOperation opB,
+                        IntPtr alpha,
+                        cusparseSpMatDescr matA,
+                        cusparseDnMatDescr matB,
+                        cusparseDnMatDescr matC,
+                        cudaDataType computeType,
+                        cusparseSpSMAlg alg,
+                        cusparseSpSMDescr spsmDescr,
+                        CUdeviceptr externalBuffer);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_solve(cusparseContext handle,
+                    cusparseOperation opA,
+                    cusparseOperation opB,
+                    IntPtr alpha,
+                    cusparseSpMatDescr matA,
+                    cusparseDnMatDescr matB,
+                    cusparseDnMatDescr matC,
+                    cudaDataType computeType,
+                    cusparseSpSMAlg alg,
+                    cusparseSpSMDescr spsmDescr);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_bufferSize(cusparseContext handle,
+                        cusparseOperation opA,
+                        cusparseOperation opB,
+                        CUdeviceptr alpha,
+                        cusparseSpMatDescr matA,
+                        cusparseDnMatDescr matB,
+                        cusparseDnMatDescr matC,
+                        cudaDataType computeType,
+                        cusparseSpSMAlg alg,
+                        cusparseSpSMDescr spsmDescr,
+                        ref SizeT bufferSize);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_analysis(cusparseContext handle,
+                        cusparseOperation opA,
+                        cusparseOperation opB,
+                        CUdeviceptr alpha,
+                        cusparseSpMatDescr matA,
+                        cusparseDnMatDescr matB,
+                        cusparseDnMatDescr matC,
+                        cudaDataType computeType,
+                        cusparseSpSMAlg alg,
+                        cusparseSpSMDescr spsmDescr,
+                        CUdeviceptr externalBuffer);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_solve(cusparseContext handle,
+                    cusparseOperation opA,
+                    cusparseOperation opB,
+                    CUdeviceptr alpha,
+                    cusparseSpMatDescr matA,
+                    cusparseDnMatDescr matB,
+                    cusparseDnMatDescr matC,
+                    cudaDataType computeType,
+                    cusparseSpSMAlg alg,
+                    cusparseSpSMDescr spsmDescr);
+
+        #endregion
+
         #region SPARSE TRIANGULAR VECTOR SOLVE
 
 
@@ -9049,12 +9170,88 @@ namespace ManagedCuda.CudaSparse
                     cusparseSpGEMMAlg alg,
                     cusparseSpGEMMDescr spgemmDescr);
         #endregion
+
+        #region SPARSE MATRIX - SPARSE MATRIX MULTIPLICATION (SpGEMM) STRUCTURE REUSE
+
+        // #############################################################################
+        // # SPARSE MATRIX - SPARSE MATRIX MULTIPLICATION (SpGEMM) STRUCTURE REUSE
+        // #############################################################################
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMMreuse_workEstimation(cusparseContext handle,
+                                   cusparseOperation opA,
+                                   cusparseOperation opB,
+                                   cusparseSpMatDescr matA,
+                                   cusparseSpMatDescr matB,
+                                   cusparseSpMatDescr matC,
+                                   cusparseSpGEMMAlg alg,
+                                   cusparseSpGEMMDescr spgemmDescr,
+                                   ref SizeT bufferSize1,
+                                   CUdeviceptr externalBuffer1);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMMreuse_nnz(cusparseContext handle,
+                        cusparseOperation opA,
+                        cusparseOperation opB,
+                        cusparseSpMatDescr matA,
+                        cusparseSpMatDescr matB,
+                        cusparseSpMatDescr matC,
+                        cusparseSpGEMMAlg alg,
+                        cusparseSpGEMMDescr spgemmDescr,
+                        ref SizeT bufferSize2,
+                        CUdeviceptr externalBuffer2,
+                        ref SizeT bufferSize3,
+                        CUdeviceptr externalBuffer3,
+                        ref SizeT bufferSize4,
+                        CUdeviceptr externalBuffer4);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMMreuse_copy(cusparseContext handle,
+                         cusparseOperation opA,
+                         cusparseOperation opB,
+                         cusparseSpMatDescr matA,
+                         cusparseSpMatDescr matB,
+                         cusparseSpMatDescr matC,
+                         cusparseSpGEMMAlg alg,
+                         cusparseSpGEMMDescr spgemmDescr,
+                         ref SizeT bufferSize5,
+                         CUdeviceptr externalBuffer5);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMMreuse_compute(cusparseContext handle,
+                            cusparseOperation opA,
+                            cusparseOperation opB,
+                            IntPtr alpha,
+                            cusparseSpMatDescr matA,
+                            cusparseSpMatDescr matB,
+                            IntPtr beta,
+                            cusparseSpMatDescr matC,
+                            cudaDataType computeType,
+                            cusparseSpGEMMAlg alg,
+                            cusparseSpGEMMDescr spgemmDescr);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMMreuse_compute(cusparseContext handle,
+                            cusparseOperation opA,
+                            cusparseOperation opB,
+                            CUdeviceptr alpha,
+                            cusparseSpMatDescr matA,
+                            cusparseSpMatDescr matB,
+                            CUdeviceptr beta,
+                            cusparseSpMatDescr matC,
+                            cudaDataType computeType,
+                            cusparseSpGEMMAlg alg,
+                            cusparseSpGEMMDescr spgemmDescr);
+
+        #endregion
+
         #region GENERAL MATRIX-MATRIX PATTERN-CONSTRAINED MULTIPLICATION
         // #############################################################################
         // # GENERAL MATRIX-MATRIX PATTERN-CONSTRAINED MULTIPLICATION
         // #############################################################################
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public static extern cusparseStatus cusparseConstrainedGeMM(cusparseContext handle,
                         cusparseOperation opA,
                         cusparseOperation opB,
@@ -9070,6 +9267,7 @@ namespace ManagedCuda.CudaSparse
                         CUdeviceptr externalBuffer);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public static extern cusparseStatus cusparseConstrainedGeMM_bufferSize(cusparseContext handle,
                                    cusparseOperation opA,
                                    cusparseOperation opB,
@@ -9084,6 +9282,7 @@ namespace ManagedCuda.CudaSparse
                                    ref SizeT bufferSize);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public static extern cusparseStatus cusparseConstrainedGeMM(cusparseContext handle,
                         cusparseOperation opA,
                         cusparseOperation opB,
@@ -9099,6 +9298,7 @@ namespace ManagedCuda.CudaSparse
                         CUdeviceptr externalBuffer);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
         public static extern cusparseStatus cusparseConstrainedGeMM_bufferSize(cusparseContext handle,
                                    cusparseOperation opA,
                                    cusparseOperation opB,
@@ -9197,6 +9397,8 @@ namespace ManagedCuda.CudaSparse
               cusparseSDDMMAlg alg,
               CUdeviceptr externalBuffer);
         #endregion
+
+
         #endregion
     }
 }

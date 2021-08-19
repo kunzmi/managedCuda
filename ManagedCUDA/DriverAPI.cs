@@ -83,7 +83,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(11, 2); }
+            get { return new Version(11, 4); }
         }
 
         #region Initialization
@@ -167,6 +167,19 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDeviceGetUuid(ref CUuuid uuid, CUdevice dev);
+
+            /// <summary>
+            /// Return an UUID for the device (11.4+)<para/>
+            /// Returns 16-octets identifing the device \p dev in the structure
+            /// pointed by the \p uuid.If the device is in MIG mode, returns its
+            /// MIG UUID which uniquely identifies the subscribed MIG compute instance.
+            /// Returns 16-octets identifing the device \p dev in the structure pointed by the \p uuid.
+            /// </summary>
+            /// <param name="uuid">Returned UUID</param>
+            /// <param name="dev">Device to get identifier string for</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetUuid_v2(ref CUuuid uuid, CUdevice dev);
 
             /// <summary>
             /// Return an LUID and device node mask for the device. <para/>
@@ -425,6 +438,19 @@ namespace ManagedCuda
             public static extern CUResult cuIpcCloseMemHandle(CUdeviceptr dptr);
 
             #endregion
+
+            /// <summary>
+            /// Returns information about the execution affinity support of the device.<para/>
+            /// Returns in \p *pi whether execution affinity type \p type is supported by device \p dev.<para/>
+            /// The supported types are:<para/>
+            /// - ::CU_EXEC_AFFINITY_TYPE_SM_COUNT: 1 if context with limited SMs is supported by the device,
+            /// or 0 if not;
+            /// </summary>
+            /// <param name="pi">1 if the execution affinity type \p type is supported by the device, or 0 if not</param>
+            /// <param name="type">Execution affinity type to query</param>
+            /// <param name="dev">Device handle</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetExecAffinitySupport(ref int pi, CUexecAffinityType type, CUdevice dev);
         }
         #endregion
 
@@ -455,6 +481,36 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxCreate_v2(ref CUcontext pctx, CUCtxFlags flags, CUdevice dev);
+
+            /// <summary>
+            /// Create a CUDA context with execution affinity<para/>
+            /// Creates a new CUDA context with execution affinity and associates it with
+            /// the calling thread.The \p paramsArray and \p flags parameter are described below.
+            /// The context is created with a usage count of 1 and the caller of ::cuCtxCreate() must
+            /// call::cuCtxDestroy() or when done using the context.If a context is already
+            /// current to the thread, it is supplanted by the newly created context and may
+            /// be restored by a subsequent call to ::cuCtxPopCurrent().<para/>
+            /// The type and the amount of execution resource the context can use is limited by \p paramsArray
+            /// and \p numParams.The \p paramsArray is an array of \p CUexecAffinityParam and the \p numParams
+            /// describes the size of the array. If two \p CUexecAffinityParam in the array have the same type,
+            /// the latter execution affinity parameter overrides the former execution affinity parameter.
+            /// <para/>
+            /// The supported execution affinity types are:
+            /// ::CU_EXEC_AFFINITY_TYPE_SM_COUNT limits the portion of SMs that the context can use.The portion
+            /// of SMs is specified as the number of SMs via \p CUexecAffinitySmCount. This limit will be internally
+            /// rounded up to the next hardware-supported amount. Hence, it is imperative to query the actual execution
+            /// affinity of the context via \p cuCtxGetExecAffinity after context creation.Currently, this attribute
+            /// is only supported under Volta+ MPS.
+            /// </summary>
+            /// <param name="pctx">Returned context handle of the new context</param>
+            /// <param name="paramsArray"></param>
+            /// <param name="numParams"></param>
+            /// <param name="flags">Context creation flags. See <see cref="CUCtxFlags"/></param>
+            /// <param name="dev">Device to create context on</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxCreate_v3(ref CUcontext pctx, CUexecAffinityParam[] paramsArray, int numParams, CUCtxFlags flags, CUdevice dev);
+
 
             /// <summary>
             /// Destroys the CUDA context specified by <c>ctx</c>. The context <c>ctx</c> will be destroyed regardless of how many threads it is current to.
@@ -713,6 +769,17 @@ namespace ManagedCuda
             public static extern CUResult cuCtxResetPersistingL2Cache();
 
             /// <summary>
+            /// Returns the execution affinity setting for the current context.<para/>
+            /// Returns in \p *pExecAffinity the current value of \p type. The supported ::CUexecAffinityType values are:
+            /// - ::CU_EXEC_AFFINITY_TYPE_SM_COUNT: number of SMs the context is limited to use.
+            /// </summary>
+            /// <param name="pExecAffinity"></param>
+            /// <param name="type"></param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxGetExecAffinity(ref CUexecAffinityParam pExecAffinity, CUexecAffinityType type);
+
+            /// <summary>
             /// Returns the flags for the current context<para/>
             /// Returns in \p *flags the flags of the current context. See ::cuCtxCreate for flag values.
             /// </summary>
@@ -748,7 +815,7 @@ namespace ManagedCuda
             /// <param name="pctx">Returned context handle of the new context</param>
             /// <param name="dev">Device for which primary context is requested</param>
             /// <returns></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuDevicePrimaryCtxRetain(ref CUcontext pctx, CUdevice dev);
 
             /// <summary>
@@ -779,7 +846,7 @@ namespace ManagedCuda
             /// <param name="dev">Device for which the primary context flags are set</param>
             /// <param name="flags">New flags for the device</param>
             /// <returns></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuDevicePrimaryCtxSetFlags_v2")]
             public static extern CUResult cuDevicePrimaryCtxSetFlags(CUdevice dev, CUCtxFlags flags);
 
             /// <summary>
@@ -9651,6 +9718,7 @@ namespace ManagedCuda
             /// Gets a handle to the embedded graph in a child graph node. This call
             /// does not clone the graph. Changes to the graph will be reflected in
             /// the node, and the node retains ownership of the graph.
+            /// Allocation and free nodes cannot be added to the returned graph. Attempting to do so will return an error.<para/>
             /// </summary>
             /// <param name="hNode">Node to get the embedded graph for</param>
             /// <param name="phGraph">Location to store a handle to the graph</param>
@@ -9875,8 +9943,10 @@ namespace ManagedCuda
 
                     for (int i = 0; i < length; i++)
                     {
-                        array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
-                        array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreSignalParams>(ptr2 + (paramsSize * i));
+                        array1[i] = (CUexternalSemaphore)Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CUexternalSemaphore));
+                        array2[i] = (CudaExternalSemaphoreSignalParams)Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreSignalParams));
+                        //array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
+                        //array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreSignalParams>(ptr2 + (paramsSize * i));
                     }
 
                     params_out.extSemArray = array1;
@@ -10095,8 +10165,10 @@ namespace ManagedCuda
 
                     for (int i = 0; i < length; i++)
                     {
-                        array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
-                        array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreWaitParams>(ptr2 + (paramsSize * i));
+                        array1[i] = (CUexternalSemaphore)Marshal.PtrToStructure(ptr1 + (IntPtr.Size * i), typeof(CUexternalSemaphore));
+                        array2[i] = (CudaExternalSemaphoreWaitParams)Marshal.PtrToStructure(ptr2 + (paramsSize * i), typeof(CudaExternalSemaphoreWaitParams));
+                        //array1[i] = Marshal.PtrToStructure<CUexternalSemaphore>(ptr1 + (IntPtr.Size * i));
+                        //array2[i] = Marshal.PtrToStructure<CudaExternalSemaphoreWaitParams>(ptr2 + (paramsSize * i));
                     }
 
                     params_out.extSemArray = array1;
@@ -10190,8 +10262,136 @@ namespace ManagedCuda
                 return retVal;
             }
 
+            /// <summary/>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExternalSemaphoresWaitNodeSetParams")]
-            public static extern CUResult cuGraphExternalSemaphoresWaitNodeSetParamsInternal(CUgraphNode hNode, IntPtr nodeParams);
+            private static extern CUResult cuGraphExternalSemaphoresWaitNodeSetParamsInternal(CUgraphNode hNode, IntPtr nodeParams);
+
+
+            /// <summary>
+            /// Creates an allocation node and adds it to a graph<para/>
+            /// Creates a new allocation node and adds it to \p hGraph with \p numDependencies
+            /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+            /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+            /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+            /// to the new node will be returned in \p phGraphNode.<para/>
+            /// When::cuGraphAddMemAllocNode creates an allocation node, it returns the address of the allocation in
+            /// \param nodeParams.dptr.The allocation's address remains fixed across instantiations and launches.<para/>
+            /// If the allocation is freed in the same graph, by creating a free node using ::cuGraphAddMemFreeNode,
+            /// the allocation can be accessed by nodes ordered after the allocation node but before the free node.
+            /// These allocations cannot be freed outside the owning graph, and they can only be freed once in the
+            /// owning graph.<para/>
+            /// If the allocation is not freed in the same graph, then it can be accessed not only by nodes in the
+            /// graph which are ordered after the allocation node, but also by stream operations ordered after the
+            /// graph's execution but before the allocation is freed.<para/>
+            /// Allocations which are not freed in the same graph can be freed by:<para/>
+            /// - passing the allocation to ::cuMemFreeAsync or ::cuMemFree;<para/>
+            /// - launching a graph with a free node for that allocation; or<para/>
+            /// - specifying::CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH during instantiation, which makes
+            /// each launch behave as though it called::cuMemFreeAsync for every unfreed allocation.<para/>
+            /// It is not possible to free an allocation in both the owning graph and another graph.If the allocation
+            /// is freed in the same graph, a free node cannot be added to another graph.If the allocation is freed
+            /// in another graph, a free node can no longer be added to the owning graph.<para/>
+            /// The following restrictions apply to graphs which contain allocation and/or memory free nodes:<para/>
+            /// - Nodes and edges of the graph cannot be deleted.<para/>
+            /// - The graph cannot be used in a child node.<para/>
+            /// - Only one instantiation of the graph may exist at any point in time.<para/>
+            /// - The graph cannot be cloned.<para/>
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="nodeParams">Parameters for the node</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddMemAllocNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUDA_MEM_ALLOC_NODE_PARAMS nodeParams);
+
+            /// <summary>
+            /// Returns a memory alloc node's parameters<para/>
+            /// Returns the parameters of a memory alloc node \p hNode in \p params_out.
+            /// The \p poolProps and \p accessDescs returned in \p params_out, are owned by the
+            /// node.This memory remains valid until the node is destroyed.The returned
+            /// parameters must not be modified.
+            /// </summary>
+            /// <param name="hNode">Node to get the parameters for</param>
+            /// <param name="params_out">Pointer to return the parameters</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, ref CUDA_MEM_ALLOC_NODE_PARAMS params_out);
+
+            /// <summary>
+            /// Creates a memory free node and adds it to a graph<para/>
+            /// Creates a new memory free node and adds it to \p hGraph with \p numDependencies
+            /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+            /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+            /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+            /// to the new node will be returned in \p phGraphNode.<para/>
+            /// ::cuGraphAddMemFreeNode will return ::CUDA_ERROR_INVALID_VALUE if the user attempts to free:<para/>
+            /// - an allocation twice in the same graph.<para/>
+            /// - an address that was not returned by an allocation node.<para/>
+            /// - an invalid address.<para/>
+            /// The following restrictions apply to graphs which contain allocation and/or memory free nodes:<para/>
+            /// - Nodes and edges of the graph cannot be deleted.<para/>
+            /// - The graph cannot be used in a child node.<para/>
+            /// - Only one instantiation of the graph may exist at any point in time.<para/>
+            /// - The graph cannot be cloned.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="dptr">Address of memory to free</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddMemFreeNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, CUdeviceptr dptr);
+
+            /// <summary>
+            /// Returns a memory free node's parameters<para/>
+            /// Returns the address of a memory free node \p hNode in \p dptr_out.
+            /// </summary>
+            /// <param name="hNode">Node to get the parameters for</param>
+            /// <param name="dptr_out">Pointer to return the device address</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, ref CUdeviceptr dptr_out);
+
+            /// <summary>
+            /// Free unused memory that was cached on the specified device for use with graphs back to the OS.<para/>
+            /// Blocks which are not in use by a graph that is either currently executing or scheduled to execute are freed back to the operating system.
+            /// </summary>
+            /// <param name="device">The device for which cached memory should be freed.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGraphMemTrim(CUdevice device);
+
+            /// <summary>
+            /// Query asynchronous allocation attributes related to graphs<para/>
+            /// Valid attributes are:<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT: Amount of memory, in bytes, currently associated with graphs<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes, associated with graphs since the last time it was reset.High watermark can only be reset to zero.<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT: Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+            /// </summary>
+            /// <param name="device">Specifies the scope of the query</param>
+            /// <param name="attr">attribute to get</param>
+            /// <param name="value">retrieved value</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, ref ulong value);
+
+            /// <summary>
+            /// Set asynchronous allocation attributes related to graphs<para/>
+            /// Valid attributes are:<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes, associated with graphs since the last time it was reset.High watermark can only be reset to zero.<para/>
+            /// - ::CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+            /// </summary>
+            /// <param name="device">Specifies the scope of the query</param>
+            /// <param name="attr">attribute to get</param>
+            /// <param name="value">pointer to value to set</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, ref ulong value);
+
 
             /// <summary>
             /// Clones a graph<para/>
@@ -10325,7 +10525,8 @@ namespace ManagedCuda
             /// Elements in \p from and \p to at corresponding indices define a dependency.<para/>
             /// Each node in \p from and \p to must belong to \p hGraph.<para/>
             /// If \p numDependencies is 0, elements in \p from and \p to will be ignored.<para/>
-            /// Specifying a non-existing dependency will return an error.
+            /// Specifying a non-existing dependency will return an error.<para/>
+            /// Dependencies cannot be removed from graphs which contain allocation or free nodes. Any attempt to do so will return an error.
             /// </summary>
             /// <param name="hGraph">Graph from which to remove dependencies</param>
             /// <param name="from">Array of nodes that provide the dependencies</param>
@@ -10336,7 +10537,8 @@ namespace ManagedCuda
 
             /// <summary>
             /// Remove a node from the graph<para/>
-            /// Removes \p hNode from its graph. This operation also severs any dependencies of other nodes on \p hNode and vice versa.
+            /// Removes \p hNode from its graph. This operation also severs any dependencies of other nodes on \p hNode and vice versa.<para/>
+            /// Nodes which belong to a graph which contains allocation or free nodes cannot be destroyed. Any attempt to do so will return an error.
             /// </summary>
             /// <param name="hNode">Node to remove</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
@@ -10362,6 +10564,27 @@ namespace ManagedCuda
             /// <param name="bufferSize">Size of the log buffer in bytes</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphInstantiate_v2")]
             public static extern CUResult cuGraphInstantiate(ref CUgraphExec phGraphExec, CUgraph hGraph, ref CUgraphNode phErrorNode, [In, Out] byte[] logBuffer, SizeT bufferSize);
+
+            /// <summary>
+            /// Creates an executable graph from a graph<para/>
+            /// Instantiates \p hGraph as an executable graph. The graph is validated for any
+            /// structural constraints or intra-node constraints which were not previously
+            /// validated.If instantiation is successful, a handle to the instantiated graph
+            /// is returned in \p phGraphExec.<para/>
+            /// The \p flags parameter controls the behavior of instantiation and subsequent graph launches.Valid flags are: <para/>
+            /// - ::CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH, which configures a graph containing memory allocation nodes to automatically free any
+            /// unfreed memory allocations before the graph is relaunched.
+            /// <para/>If \p hGraph contains any allocation or free nodes, there can be at most one
+            /// executable graph in existence for that graph at a time.<para/>
+            /// An attempt to instantiate a second executable graph before destroying the first
+            /// with ::cuGraphExecDestroy will result in an error.
+            /// </summary>
+            /// <param name="phGraphExec">Returns instantiated graph</param>
+            /// <param name="hGraph">Graph to instantiate</param>
+            /// <param name="flags">Flags to control instantiation.  See ::CUgraphInstantiate_flags.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphInstantiateWithFlags(ref CUgraphExec phGraphExec, CUgraph hGraph, CUgraphInstantiate_flags flags);
 
 
             /// <summary>
@@ -10662,7 +10885,7 @@ namespace ManagedCuda
             }
 
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphExecExternalSemaphoresWaitNodeSetParams")]
-            public static extern CUResult cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(CUgraphExec hGraphExec, CUgraphNode hNode, IntPtr nodeParams);
+            private static extern CUResult cuGraphExecExternalSemaphoresWaitNodeSetParamsInternal(CUgraphExec hGraphExec, CUgraphNode hNode, IntPtr nodeParams);
 
 
             /// <summary>

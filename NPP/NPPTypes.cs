@@ -1451,7 +1451,6 @@ namespace ManagedCuda.NPP
         /// <returns></returns>
         public static bool operator ==(NppiPoint src, NppiPoint value)
         {
-            if (object.ReferenceEquals(src, value)) return true;
             return src.Equals(value);
         }
         /// <summary>
@@ -1830,7 +1829,6 @@ namespace ManagedCuda.NPP
         /// <returns></returns>
         public static bool operator ==(NppPointPolar src, NppPointPolar value)
         {
-            if (object.ReferenceEquals(src, value)) return true;
             return src.Equals(value);
         }
         /// <summary>
@@ -1962,6 +1960,18 @@ namespace ManagedCuda.NPP
         }
 
         /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiSize Add(NppiSize src, NppiPoint value)
+        {
+            NppiSize ret = new NppiSize(src.width + value.x, src.height + value.y);
+            return ret;
+        }
+
+        /// <summary>
         /// per element Substract
         /// </summary>
         /// <param name="src"></param>
@@ -1970,6 +1980,18 @@ namespace ManagedCuda.NPP
         public static NppiSize Subtract(NppiSize src, NppiSize value)
         {
             NppiSize ret = new NppiSize(src.width - value.width, src.height - value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiSize Subtract(NppiSize src, NppiPoint value)
+        {
+            NppiSize ret = new NppiSize(src.width - value.x, src.height - value.y);
             return ret;
         }
 
@@ -2092,6 +2114,16 @@ namespace ManagedCuda.NPP
         {
             return Add(src, value);
         }
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiSize operator +(NppiSize src, NppiPoint value)
+        {
+            return Add(src, value);
+        }
 
         /// <summary>
         /// per element
@@ -2111,6 +2143,17 @@ namespace ManagedCuda.NPP
         /// <param name="value"></param>
         /// <returns></returns>
         public static NppiSize operator -(NppiSize src, NppiSize value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiSize operator -(NppiSize src, NppiPoint value)
         {
             return Subtract(src, value);
         }
@@ -2211,7 +2254,6 @@ namespace ManagedCuda.NPP
         /// <returns></returns>
         public static bool operator ==(NppiSize src, NppiSize value)
         {
-            if (object.ReferenceEquals(src, value)) return true;
             return src.Equals(value);
         }
         /// <summary>
@@ -3059,7 +3101,6 @@ namespace ManagedCuda.NPP
         /// <returns></returns>
         public static bool operator ==(NppiRect src, NppiRect value)
         {
-            if (object.ReferenceEquals(src, value)) return true;
             return src.Equals(value);
         }
         /// <summary>
@@ -4006,6 +4047,203 @@ namespace ManagedCuda.NPP
         /// step size
         /// </summary>
         int nBufferSize;
+    }
+
+
+    /// <summary>
+    /// Provides details of uniquely labeled pixel regions of interest returned
+    /// by CompressedLabelMarkersUF function.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiCompressedMarkerLabelsInfo
+    {
+        /// <summary>
+        /// total number of pixels in this connected pixel region
+        /// </summary>
+        public uint nMarkerLabelPixelCount;
+        /// <summary>
+        /// total number of pixels in this connected pixel region contour
+        /// </summary>
+        public uint nContourPixelCount;
+        /// <summary>
+        /// total number of pixels in this connected pixel region contour found during geometry search
+        /// </summary>
+        public uint nContourPixelsFound;
+        /// <summary>
+        /// image geometric x and y location of the first pixel in the contour
+        /// </summary>
+        public NppiPoint oContourFirstPixelLocation;
+        /// <summary>
+        /// bounding box of this connected pixel region
+        /// </summary>
+        public NppiRect oMarkerLabelBoundingBox;
+    }
+
+    /// <summary>
+    /// Provides contour (boundary) geometry info of uniquely labeled pixel regions returned 
+    /// by nppiCompressedMarkerLabelsUFInfo function in host memory in counterclockwise order relative to contour interiors.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiContourPixelGeometryInfo
+    {
+        /// <summary>
+        /// image geometry X and Y location in requested output order
+        /// </summary>
+        public NppiPoint oContourOrderedGeometryLocation;
+        /// <summary>
+        /// image geometry X and Y location of previous contour pixel
+        /// </summary>
+        public NppiPoint oContourPrevPixelLocation;
+        /// <summary>
+        /// image geometry X and Y location of center contour pixel
+        /// </summary>
+        public NppiPoint oContourCenterPixelLocation;
+        /// <summary>
+        /// image geometry X and Y location of next contour pixel
+        /// </summary>
+        public NppiPoint oContourNextPixelLocation;
+        /// <summary>
+        /// contour pixel counterclockwise order index in geometry list
+        /// </summary>
+        public int nOrderIndex;
+        /// <summary>
+        /// contour pixel clockwise order index in geometry list
+        /// </summary>
+        public int nReverseOrderIndex;
+        /// <summary>
+        /// index of first ordered contour pixel in this subgroup
+        /// </summary>
+        public uint nFirstIndex;
+        /// <summary>
+        /// index of last ordered contour pixel in this subgroup
+        /// </summary>
+        public uint nLastIndex;
+        /// <summary>
+        /// index of next ordered contour pixel in NppiContourPixelGeometryInfo list
+        /// </summary>
+        public uint nNextContourPixelIndex;
+        /// <summary>
+        /// index of previous ordered contour pixel in NppiContourPixelGeometryInfo list
+        /// </summary>
+        public uint nPrevContourPixelIndex;
+        /// <summary>
+        /// this test pixel is has already been used
+        /// </summary>
+        public byte nPixelAlreadyUsed;
+        /// <summary>
+        /// this test pixel is already linked to center pixel
+        /// </summary>
+        public byte nAlreadyLinked;
+        /// <summary>
+        /// this pixel has already been output in geometry list
+        /// </summary>
+        public byte nAlreadyOutput;
+        /// <summary>
+        /// direction of contour region interior
+        /// </summary>
+        public NppContourDirection nContourInteriorDirection;
+    }
+
+
+    /// <summary>
+    /// Provides contour (boundary) direction info of uniquely labeled pixel regions returned 
+    /// by CompressedLabelMarkersUF function.
+    /// </summary>
+    [Flags]
+    public enum NppContourDirection : byte
+    {
+        /// <summary/>
+        None = 0,
+        /// <summary/>
+        SouthEast = 1,
+        /// <summary/>
+        South = 2,
+        /// <summary/>
+        SouthWest = 4,
+        /// <summary/>
+        West = 8,
+        /// <summary/>
+        East = 16,
+        /// <summary/>
+        NorthEast = 32,
+        /// <summary/>
+        North = 64,
+        /// <summary/>
+        NorthWest = 128,
+
+        /// <summary/>
+        AnyNorth = NorthEast | North | NorthWest,
+        /// <summary/>
+        AnyWest = NorthWest | West | SouthWest,
+        /// <summary/>
+        AnySouth = SouthEast | South | SouthWest,
+        /// <summary/>
+        AnyEast = NorthEast | East | SouthEast
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiContourPixelDirectionInfo
+    {
+        /// <summary>
+        /// MarkerLabelID of contour interior connected region
+        /// </summary>
+        public uint nMarkerLabelID;
+        /// <summary>
+        /// provides current center contour pixel input and output direction info
+        /// </summary>
+        public NppContourDirection nContourDirectionCenterPixel;
+        /// <summary>
+        /// provides current center contour pixel region interior direction info
+        /// </summary>
+        public NppContourDirection nContourInteriorDirectionCenterPixel;
+        /// <summary>
+        /// direction to directly connected contour pixels, 0 if not connected
+        /// </summary>
+        public NppContourDirection nConnected;
+        /// <summary/>
+        public byte nGeometryInfoIsValid;
+        /// <summary/>
+        public NppiContourPixelGeometryInfo oContourPixelGeometryInfo;
+        /// <summary/>
+        public NppiPoint nEast1, nNorthEast1, nNorth1, nNorthWest1, nWest1, nSouthWest1, nSouth1, nSouthEast1;
+        /// <summary/>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public NppContourDirection[] aContourInteriorDirection1;
+        /// <summary/>
+        public byte nTest1EastConnected;
+        /// <summary/>
+        public byte nTest1NorthEastConnected;
+        /// <summary/>
+        public byte nTest1NorthConnected;
+        /// <summary/>
+        public byte nTest1NorthWestConnected;
+        /// <summary/>
+        public byte nTest1WestConnected;
+        /// <summary/>
+        public byte nTest1SouthWestConnected;
+        /// <summary/>
+        public byte nTest1SouthConnected;
+        /// <summary/>
+        public byte nTest1SouthEastConnected;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiContourTotalsInfo
+    {
+        /// <summary>
+        /// total number of contour pixels in image
+        /// </summary>
+        public uint nTotalImagePixelContourCount;
+        /// <summary>
+        /// longest per contour pixel count in image
+        /// </summary>
+        public uint nLongestImageContourPixelCount;
     }
     #endregion
 }

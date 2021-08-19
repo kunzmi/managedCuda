@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DocumentationFile>J:\ManagedCuda\managedCuda.netCore\NPP\NPP.netCore.xml</DocumentationFile>
+    <DocumentationFile>NPP.netCore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

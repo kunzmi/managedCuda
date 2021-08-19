@@ -157,7 +157,7 @@ namespace ManagedCuda
             if (res != CUResult.Success)
                 throw new CudaException(res);
         }
-        
+
 
         /// <summary>
         /// Import a memory pool allocation from another process.<para/>
@@ -175,7 +175,7 @@ namespace ManagedCuda
         /// <typeparam name="T"></typeparam>
         /// <param name="shareData"></param>
         /// <returns></returns>
-        public CudaDeviceVariable<T> ImportPointer<T>(CUmemPoolPtrExportData shareData) where T: struct
+        public CudaDeviceVariable<T> ImportPointer<T>(CUmemPoolPtrExportData shareData) where T : struct
         {
             CUdeviceptr devPtr = new CUdeviceptr();
             res = DriverAPINativeMethods.MemoryManagement.cuMemPoolImportPointer(ref devPtr, _memoryPool, ref shareData);
@@ -229,7 +229,6 @@ namespace ManagedCuda
         /// <summary>
         /// Controls visibility of pools between devices
         /// </summary>
-        /// <param name="map">Array of access descriptors. Each descriptor instructs the access to enable for a single gpu.</param>
         public void SetAccess(CUmemAccessDesc[] accessDescs)
         {
             res = DriverAPINativeMethods.MemoryManagement.cuMemPoolSetAccess(_memoryPool, accessDescs, accessDescs.Length);

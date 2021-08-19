@@ -29,6 +29,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// Wrapper class for csrsm2Info
     /// </summary>
+    [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
     public class CudaSparseCsrsm2Info : IDisposable
     {
         private csrsm2Info _info;

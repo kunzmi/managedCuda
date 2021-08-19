@@ -193,7 +193,20 @@ namespace ManagedCuda
                 }
                 else
                 {
-                    _contextOwner = false;
+                    CUdevice deviceCheck = new CUdevice();
+                    res = DriverAPINativeMethods.ContextManagement.cuCtxGetDevice(ref deviceCheck);
+                    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetDevice", res));
+                    if (res != CUResult.Success)
+                        throw new CudaException(res);
+
+                    if (deviceCheck != _device) //the current context is bound to another device, we don't want this context
+                    {
+                        createNew = true; //create new context on that device
+                    }
+                    else
+                    {
+                        _contextOwner = false;
+                    }
                 }
             }
 
@@ -205,6 +218,60 @@ namespace ManagedCuda
                     throw new CudaException(res);
                 _contextOwner = true;
             }
+        }
+
+
+        /// <summary>
+        /// Create a new instace of managed Cuda with execution affinity
+        /// </summary>
+        /// <param name="deviceId">DeviceID.</param>
+        /// <param name="flags">Context creation flags.</param>
+        /// <param name="paramsArray"></param>
+        public CudaContext(int deviceId, CUCtxFlags flags, CUexecAffinityParam[] paramsArray)
+        {
+            CUResult res;
+            int deviceCount = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+
+            if (res == CUResult.ErrorNotInitialized)
+            {
+                res = DriverAPINativeMethods.cuInit(CUInitializationFlags.None);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuInit", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+
+                res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+            }
+            else if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            if (deviceCount == 0)
+            {
+                throw new CudaException(CUResult.ErrorNoDevice, "Cuda initialization error: There is no device supporting CUDA", null);
+            }
+
+            _deviceID = deviceId;
+
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGet(ref _device, deviceId);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGet", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            int paramsCount = 0;
+            if (paramsArray != null)
+            {
+                paramsCount = paramsArray.Length;
+            }
+
+            res = DriverAPINativeMethods.ContextManagement.cuCtxCreate_v3(ref _context, paramsArray, paramsCount, flags, _device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxCreate_v3", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+            _contextOwner = true;
         }
 
         /// <summary>
@@ -5736,11 +5803,14 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.MaximumSurfaceCubemapLayeredLayers = maximumSurfaceCubemapLayeredLayers;
 
+#pragma warning disable 0618 //warning that deprecated
             int maximumTexture1DLinearWidth = 0;
             res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maximumTexture1DLinearWidth, CUDeviceAttribute.MaximumTexture1DLinearWidth, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.MaximumTexture1DLinearWidth = maximumTexture1DLinearWidth;
+#pragma warning restore 0618
+
 
             int maximumTexture2DLinearWidth = 0;
             res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref maximumTexture2DLinearWidth, CUDeviceAttribute.MaximumTexture2DLinearWidth, device);
@@ -6117,6 +6187,20 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxResetPersistingL2Cache", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns the execution affinity setting for the current context.
+        /// </summary>
+        public static CUexecAffinityParam GetExecAffinity(CUexecAffinityType type)
+        {
+            CUResult res;
+            CUexecAffinityParam param = new CUexecAffinityParam();
+            res = DriverAPINativeMethods.ContextManagement.cuCtxGetExecAffinity(ref param, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetExecAffinity", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+            return param;
         }
 
         /// <summary>

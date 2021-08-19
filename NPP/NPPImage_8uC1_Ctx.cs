@@ -39,7 +39,7 @@ namespace ManagedCuda.NPP
         /// Image copy.
         /// </summary>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Copy(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MemCopy.nppiCopy_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -52,7 +52,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination image</param>
         /// <param name="mask">Mask image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Copy(NPPImage_8uC1 dst, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MemCopy.nppiCopy_8u_C1MR_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, mask.DevicePointerRoi, mask.Pitch, nppStreamCtx);
@@ -65,7 +65,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination image</param>
         /// <param name="channel">Channel number. This number is added to the dst pointer</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Copy(NPPImage_8uC3 dst, int channel, NppStreamContext nppStreamCtx)
         {
             if (channel < 0 | channel >= dst.Channels) throw new ArgumentOutOfRangeException("channel", "channel must be in range [0..2].");
@@ -79,7 +79,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination image</param>
         /// <param name="channel">Channel number. This number is added to the dst pointer</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Copy(NPPImage_8uC4 dst, int channel, NppStreamContext nppStreamCtx)
         {
             if (channel < 0 | channel >= dst.Channels) throw new ArgumentOutOfRangeException("channel", "channel must be in range [0..3].");
@@ -100,7 +100,7 @@ namespace ManagedCuda.NPP
         /// the destination ROI is implicitly defined by the size of the source ROI: nRightBorderWidth =
         /// oDstSizeROI.width - nLeftBorderWidth - oSrcSizeROI.width.</param>
         /// <param name="nValue">The pixel value to be set for border pixels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Copy(NPPImage_8uC1 dst, int nTopBorderHeight, int nLeftBorderWidth, byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.CopyConstBorder.nppiCopyConstBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, nTopBorderHeight, nLeftBorderWidth, nValue, nppStreamCtx);
@@ -114,7 +114,7 @@ namespace ManagedCuda.NPP
         /// Set pixel values to nValue.
         /// </summary>
         /// <param name="nValue">Value to be set</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Set(byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MemSet.nppiSet_8u_C1R_Ctx(nValue, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -130,7 +130,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nValue">Value to be set</param>
         /// <param name="mask">Mask image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Set(byte nValue, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MemSet.nppiSet_8u_C1MR_Ctx(nValue, _devPtrRoi, _pitch, _sizeRoi, mask.DevicePointerRoi, mask.Pitch, nppStreamCtx);
@@ -144,7 +144,7 @@ namespace ManagedCuda.NPP
         /// 8-bit unsigned to 16-bit signed conversion.
         /// </summary>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_16sC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -155,7 +155,7 @@ namespace ManagedCuda.NPP
         /// 8-bit unsigned to 16-bit unsigned conversion.
         /// </summary>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_16uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_8u16u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -166,7 +166,7 @@ namespace ManagedCuda.NPP
         /// 8-bit unsigned to 32-bit floating point conversion.
         /// </summary>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_8u32f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -179,7 +179,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         /// <param name="roundMode">Round mode</param>
         /// <param name="scaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_8sC1 dst, NppRoundMode roundMode, int scaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_8u8s_C1RSfs_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, roundMode, scaleFactor, nppStreamCtx);
@@ -190,7 +190,7 @@ namespace ManagedCuda.NPP
         /// 8-bit unsigned to 32-bit signed conversion.
         /// </summary>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_32sC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_8u32s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -205,7 +205,7 @@ namespace ManagedCuda.NPP
         /// image transpose
         /// </summary>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Transpose(NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Transpose.nppiTranspose_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -245,7 +245,7 @@ namespace ManagedCuda.NPP
         /// image sum with 64-bit double precision result. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="result">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sum(CudaDeviceVariable<double> result, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SumDoubleGetBufferHostSize(nppStreamCtx);
@@ -262,7 +262,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="result">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="SumDoubleGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sum(CudaDeviceVariable<double> result, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SumDoubleGetBufferHostSize(nppStreamCtx);
@@ -277,7 +277,7 @@ namespace ManagedCuda.NPP
         /// image sum with 64-bit long long result. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="result">Allocated device memory with size of at least 1 * sizeof(long)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sum(CudaDeviceVariable<long> result, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SumLongGetBufferHostSize(nppStreamCtx);
@@ -294,7 +294,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="result">Allocated device memory with size of at least 1 * sizeof(long)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="SumLongGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sum(CudaDeviceVariable<long> result, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SumLongGetBufferHostSize(nppStreamCtx);
@@ -313,7 +313,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Add(NPPImage_8uC1 src2, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Add.nppiAdd_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -325,7 +325,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Add(NPPImage_8uC1 src2, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Add.nppiAdd_8u_C1IRSfs_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -339,7 +339,7 @@ namespace ManagedCuda.NPP
         /// <param name="nConstant">Value to add</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Add(byte nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddConst.nppiAddC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -351,7 +351,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value to add</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Add(byte nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddConst.nppiAddC_8u_C1IRSfs_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -391,7 +391,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="stdDev">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MeanStdDev(CudaDeviceVariable<double> mean, CudaDeviceVariable<double> stdDev, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanStdDevGetBufferHostSize(nppStreamCtx);
@@ -409,7 +409,7 @@ namespace ManagedCuda.NPP
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="stdDev">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanStdDevGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MeanStdDev(CudaDeviceVariable<double> mean, CudaDeviceVariable<double> stdDev, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanStdDevGetBufferHostSize(nppStreamCtx);
@@ -426,7 +426,7 @@ namespace ManagedCuda.NPP
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="stdDev">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MeanStdDev(CudaDeviceVariable<double> mean, CudaDeviceVariable<double> stdDev, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanStdDevMaskedGetBufferHostSize(nppStreamCtx);
@@ -445,7 +445,7 @@ namespace ManagedCuda.NPP
         /// <param name="stdDev">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanStdDevMaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MeanStdDev(CudaDeviceVariable<double> mean, CudaDeviceVariable<double> stdDev, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanStdDevMaskedGetBufferHostSize(nppStreamCtx);
@@ -462,7 +462,7 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for HistogramEven.
         /// </summary>
         /// <param name="nLevels"></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// <returns></returns>
         public int HistogramEvenGetBufferSize(int nLevels, NppStreamContext nppStreamCtx)
         {
@@ -480,7 +480,7 @@ namespace ManagedCuda.NPP
         /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
         /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
         /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// <returns>An array of size nLevels which receives the levels being computed.</returns>
         public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
         {
@@ -497,7 +497,7 @@ namespace ManagedCuda.NPP
         /// <param name="histogram">Allocated device memory of size nLevels</param>
         /// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]</param>
         /// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void HistogramEven(CudaDeviceVariable<int> histogram, int nLowerLevel, int nUpperLevel, NppStreamContext nppStreamCtx)
         {
             int bufferSize = HistogramEvenGetBufferSize(histogram.Size + 1, nppStreamCtx);
@@ -516,7 +516,7 @@ namespace ManagedCuda.NPP
         /// <param name="nLowerLevel">Lower boundary of lowest level bin. E.g. 0 for [0..255]</param>
         /// <param name="nUpperLevel">Upper boundary of highest level bin. E.g. 256 for [0..255]</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="HistogramEvenGetBufferSize(int)"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void HistogramEven(CudaDeviceVariable<int> histogram, int nLowerLevel, int nUpperLevel, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = HistogramEvenGetBufferSize(histogram.Size + 1, nppStreamCtx);
@@ -531,7 +531,7 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for HistogramRange.
         /// </summary>
         /// <param name="nLevels"></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// <returns></returns>
         public int HistogramRangeGetBufferSize(int nLevels, NppStreamContext nppStreamCtx)
         {
@@ -547,7 +547,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="histogram">array that receives the computed histogram. The array must be of size nLevels-1.</param>
         /// <param name="pLevels">Array in device memory containing the level sizes of the bins. The array must be of size nLevels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void HistogramRange(CudaDeviceVariable<int> histogram, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             int bufferSize = HistogramRangeGetBufferSize(histogram.Size, nppStreamCtx);
@@ -565,7 +565,7 @@ namespace ManagedCuda.NPP
         /// <param name="histogram">array that receives the computed histogram. The array must be of size nLevels-1.</param>
         /// <param name="pLevels">Array in device memory containing the level sizes of the bins. The array must be of size nLevels</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int)"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void HistogramRange(CudaDeviceVariable<int> histogram, CudaDeviceVariable<int> pLevels, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = HistogramRangeGetBufferSize(histogram.Size, nppStreamCtx);
@@ -595,7 +595,7 @@ namespace ManagedCuda.NPP
         /// Image pixel minimum. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="min">Allocated device memory with size of at least 1 * sizeof(byte)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Min(CudaDeviceVariable<byte> min, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinGetBufferHostSize(nppStreamCtx);
@@ -612,7 +612,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="min">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Min(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinGetBufferHostSize(nppStreamCtx);
@@ -644,7 +644,7 @@ namespace ManagedCuda.NPP
         /// <param name="min">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="indexX">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="indexY">Allocated device memory with size of at least 1 * sizeof(int)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinIndexGetBufferHostSize(nppStreamCtx);
@@ -663,7 +663,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexX">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="indexY">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinIndexGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinIndexGetBufferHostSize(nppStreamCtx);
@@ -693,7 +693,7 @@ namespace ManagedCuda.NPP
         /// Image pixel maximum. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Max(CudaDeviceVariable<byte> max, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxGetBufferHostSize(nppStreamCtx);
@@ -710,7 +710,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Max(CudaDeviceVariable<byte> max, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxGetBufferHostSize(nppStreamCtx);
@@ -742,7 +742,7 @@ namespace ManagedCuda.NPP
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="indexX">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="indexY">Allocated device memory with size of at least 1 * sizeof(int)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxIndex(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxIndexGetBufferHostSize(nppStreamCtx);
@@ -761,7 +761,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexX">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="indexY">Allocated device memory with size of at least 1 * sizeof(int)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxIndexGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxIndex(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxIndexGetBufferHostSize(nppStreamCtx);
@@ -792,7 +792,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="min">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMax(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxGetBufferHostSize(nppStreamCtx);
@@ -810,7 +810,7 @@ namespace ManagedCuda.NPP
         /// <param name="min">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMax(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxGetBufferHostSize(nppStreamCtx);
@@ -856,7 +856,7 @@ namespace ManagedCuda.NPP
         /// <param name="max">Allocated device memory with size of at least 1 * sizeof(byte)</param>
         /// <param name="minIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="maxIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMaxIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<NppiPoint> minIndex, CudaDeviceVariable<NppiPoint> maxIndex, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxIndexGetBufferHostSize(nppStreamCtx);
@@ -876,7 +876,7 @@ namespace ManagedCuda.NPP
         /// <param name="minIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="maxIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxIndexGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMaxIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<NppiPoint> minIndex, CudaDeviceVariable<NppiPoint> maxIndex, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxIndexGetBufferHostSize(nppStreamCtx);
@@ -895,7 +895,7 @@ namespace ManagedCuda.NPP
         /// <param name="minIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="maxIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="mask">If the mask is filled with zeros, then all the returned values are zeros, i.e., pMinIndex = {0, 0}, pMaxIndex = {0, 0}, pMinValue = 0, pMaxValue = 0.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMaxIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<NppiPoint> minIndex, CudaDeviceVariable<NppiPoint> maxIndex, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxIndexGetBufferHostSize(nppStreamCtx);
@@ -916,7 +916,7 @@ namespace ManagedCuda.NPP
         /// <param name="maxIndex">Allocated device memory with size of at least 1 * sizeof(NppiPoint)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxIndexMaskedGetBufferHostSize()"/></param>
         /// <param name="mask">If the mask is filled with zeros, then all the returned values are zeros, i.e., pMinIndex = {0, 0}, pMaxIndex = {0, 0}, pMinValue = 0, pMaxValue = 0.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinMaxIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<NppiPoint> minIndex, CudaDeviceVariable<NppiPoint> maxIndex, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MinMaxIndexGetBufferHostSize(nppStreamCtx);
@@ -959,7 +959,7 @@ namespace ManagedCuda.NPP
         /// image mean with 64-bit double precision result. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mean(CudaDeviceVariable<double> mean, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanGetBufferHostSize(nppStreamCtx);
@@ -976,7 +976,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mean(CudaDeviceVariable<double> mean, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanGetBufferHostSize(nppStreamCtx);
@@ -992,7 +992,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">If the mask is filled with zeros, then all the returned values are zeros, i.e., pMinIndex = {0, 0}, pMaxIndex = {0, 0}, pMinValue = 0, pMaxValue = 0.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mean(CudaDeviceVariable<double> mean, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanMaskedGetBufferHostSize(nppStreamCtx);
@@ -1010,7 +1010,7 @@ namespace ManagedCuda.NPP
         /// <param name="mean">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanMaskedGetBufferHostSize()"/></param>
         /// <param name="mask">If the mask is filled with zeros, then all the returned values are zeros, i.e., pMinIndex = {0, 0}, pMaxIndex = {0, 0}, pMinValue = 0, pMaxValue = 0.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mean(CudaDeviceVariable<double> mean, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MeanMaskedGetBufferHostSize(nppStreamCtx);
@@ -1023,30 +1023,16 @@ namespace ManagedCuda.NPP
         #endregion
         #region Geometric Transforms
 
-        ///// <summary>
-        ///// Resizes images.
-        ///// </summary>
-        ///// <param name="dest">Destination image</param>
-        ///// <param name="xFactor">X scaling factor</param>
-        ///// <param name="yFactor">Y scaling factor</param>
-        ///// <param name="eInterpolation">Interpolation mode</param>
-        //public void Resize(NPPImage_8uC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-        //{
-        //	status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiResize_8u_C1R_Ctx(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation, nppStreamCtx);
-        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R_Ctx", status));
-        //	NPPException.CheckNppStatus(status, this);
-        //}
-
         /// <summary>
         /// Resizes images.
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eInterpolation">Interpolation mode</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Resize(NPPImage_8uC1 dest, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiResize_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointer, dest.Pitch, dest.Size, new NppiRect(dest.PointRoi, dest.SizeRoi), eInterpolation, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R_Ctx_Ctx", status));
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
 
@@ -1058,10 +1044,10 @@ namespace ManagedCuda.NPP
         /// <param name="nShiftX">Shift along horizontal axis</param>
         /// <param name="nShiftY">Shift along vertical axis</param>
         /// <param name="eInterpolation">Interpolation mode</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Rotate(NPPImage_8uC1 dest, double nAngle, double nShiftX, double nShiftY, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiRotate_8u_C1R_Ctx(_devPtr, _sizeRoi, _pitch, new NppiRect(_pointRoi, _sizeRoi),
+            status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiRotate_8u_C1R_Ctx(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi),
                 dest.DevicePointer, dest.Pitch, new NppiRect(dest.PointRoi, dest.SizeRoi), nAngle, nShiftX, nShiftY, eInterpolation, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRotate_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
@@ -1072,7 +1058,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="flip">Specifies the axis about which the image is to be mirrored.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mirror(NPPImage_8uC1 dest, NppiAxis flip, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiMirror_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, flip, nppStreamCtx);
@@ -1092,7 +1078,7 @@ namespace ManagedCuda.NPP
         /// <param name="aKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Filter(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, NppiSize aKernelSize, NppiPoint oAnchor, int nDivisor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Convolution.nppiFilter_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Kernel.DevicePointer, aKernelSize, oAnchor, nDivisor, nppStreamCtx);
@@ -1110,7 +1096,7 @@ namespace ManagedCuda.NPP
         /// <param name="nKernelSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">Y offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterColumn(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumn_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, nppStreamCtx);
@@ -1129,7 +1115,7 @@ namespace ManagedCuda.NPP
         /// <param name="nKernelSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterRow(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRow_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, nppStreamCtx);
@@ -1149,10 +1135,15 @@ namespace ManagedCuda.NPP
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterRowBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterRowBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRowBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRowBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRowBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -1163,7 +1154,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterBox(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LinearFixedFilters2D.nppiFilterBox_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, nppStreamCtx);
@@ -1177,7 +1168,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterMin(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMin_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, nppStreamCtx);
@@ -1191,7 +1182,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterMax(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMax_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, nppStreamCtx);
@@ -1209,7 +1200,7 @@ namespace ManagedCuda.NPP
         /// <param name="Mask">Pointer to the start address of the mask array.</param>
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Dilate(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MorphologyFilter2D.nppiDilate_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, nppStreamCtx);
@@ -1225,7 +1216,7 @@ namespace ManagedCuda.NPP
         /// <param name="Mask">Pointer to the start address of the mask array.</param>
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Erode(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MorphologyFilter2D.nppiErode_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, nppStreamCtx);
@@ -1242,10 +1233,15 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void DilateBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DilateBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.DilationWithBorderControl.nppiDilateBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.DilationWithBorderControl.nppiDilateBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDilateBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -1259,10 +1255,15 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void ErodeBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void ErodeBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ErosionWithBorderControl.nppiErodeBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ErosionWithBorderControl.nppiErodeBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiErodeBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -1272,10 +1273,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void Dilate3x3Border(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Dilate3x3Border(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.Dilate3x3Border.nppiDilate3x3Border_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.Dilate3x3Border.nppiDilate3x3Border_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDilate3x3Border_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -1285,10 +1291,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void Erode3x3Border(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Erode3x3Border(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.Erode3x3Border.nppiErode3x3Border_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.Erode3x3Border.nppiErode3x3Border_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiErode3x3Border_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -1300,7 +1311,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Constant</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LShiftC(uint nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LeftShiftConst.nppiLShiftC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1311,7 +1322,7 @@ namespace ManagedCuda.NPP
         /// image bit shift by constant (left), inplace.
         /// </summary>
         /// <param name="nConstant">Constant</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LShiftC(uint nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LeftShiftConst.nppiLShiftC_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1323,7 +1334,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Constant</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void RShiftC(uint nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.RightShiftConst.nppiRShiftC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1334,7 +1345,7 @@ namespace ManagedCuda.NPP
         /// image bit shift by constant (right), inplace.
         /// </summary>
         /// <param name="nConstant">Constant</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void RShiftC(uint nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.RightShiftConst.nppiRShiftC_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1347,7 +1358,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void And(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.And.nppiAnd_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1358,7 +1369,7 @@ namespace ManagedCuda.NPP
         /// In place image logical and.
         /// </summary>
         /// <param name="src2">2nd source image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void And(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.And.nppiAnd_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1371,7 +1382,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void And(byte nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AndConst.nppiAndC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1382,7 +1393,7 @@ namespace ManagedCuda.NPP
         /// In place image logical and with constant.
         /// </summary>
         /// <param name="nConstant">Value</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void And(byte nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AndConst.nppiAndC_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1395,7 +1406,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Or(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Or.nppiOr_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1406,7 +1417,7 @@ namespace ManagedCuda.NPP
         /// In place image logical Or.
         /// </summary>
         /// <param name="src2">2nd source image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Or(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Or.nppiOr_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1419,7 +1430,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Or(byte nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.OrConst.nppiOrC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1430,7 +1441,7 @@ namespace ManagedCuda.NPP
         /// In place image logical Or with constant.
         /// </summary>
         /// <param name="nConstant">Value</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Or(byte nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.OrConst.nppiOrC_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1443,7 +1454,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Xor(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Xor.nppiXor_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1454,7 +1465,7 @@ namespace ManagedCuda.NPP
         /// In place image logical Xor.
         /// </summary>
         /// <param name="src2">2nd source image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Xor(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Xor.nppiXor_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1467,7 +1478,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Xor(byte nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.XorConst.nppiXorC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1478,7 +1489,7 @@ namespace ManagedCuda.NPP
         /// In place image logical Xor with constant.
         /// </summary>
         /// <param name="nConstant">Value</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Xor(byte nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.XorConst.nppiXorC_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1491,7 +1502,7 @@ namespace ManagedCuda.NPP
         /// Image logical Not.
         /// </summary>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Not(NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Not.nppiNot_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1516,7 +1527,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sub(NPPImage_8uC1 src2, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sub.nppiSub_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1528,7 +1539,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sub(NPPImage_8uC1 src2, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sub.nppiSub_8u_C1IRSfs_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1542,7 +1553,7 @@ namespace ManagedCuda.NPP
         /// <param name="nConstant">Value to subtract</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sub(byte nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.SubConst.nppiSubC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1554,7 +1565,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value to subtract</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sub(byte nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.SubConst.nppiSubC_8u_C1IRSfs_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1570,7 +1581,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(NPPImage_8uC1 src2, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Mul.nppiMul_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1582,7 +1593,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(NPPImage_8uC1 src2, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Mul.nppiMul_8u_C1IRSfs_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1596,7 +1607,7 @@ namespace ManagedCuda.NPP
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(byte nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulConst.nppiMulC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1608,7 +1619,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(byte nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulConst.nppiMulC_8u_C1IRSfs_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1621,7 +1632,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulScale.nppiMulScale_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1632,7 +1643,7 @@ namespace ManagedCuda.NPP
         /// In place image multiplication and scale by max bit width value
         /// </summary>
         /// <param name="src2">2nd source image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulScale.nppiMulScale_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1645,7 +1656,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(byte nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulConstScale.nppiMulCScale_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1656,7 +1667,7 @@ namespace ManagedCuda.NPP
         /// Multiply constant to image and scale by max bit width value
         /// </summary>
         /// <param name="nConstant">Value</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mul(byte nConstant, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MulConstScale.nppiMulCScale_8u_C1IR_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1672,7 +1683,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(NPPImage_8uC1 src2, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Div.nppiDiv_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1684,7 +1695,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(NPPImage_8uC1 src2, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Div.nppiDiv_8u_C1IRSfs_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1698,7 +1709,7 @@ namespace ManagedCuda.NPP
         /// <param name="nConstant">Value</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(byte nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.DivConst.nppiDivC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1710,7 +1721,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(byte nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.DivConst.nppiDivC_8u_C1IRSfs_Ctx(nConstant, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1725,7 +1736,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="rndMode">Result Rounding mode to be used</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppRoundMode rndMode, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.DivRound.nppiDiv_Round_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, rndMode, nScaleFactor, nppStreamCtx);
@@ -1738,7 +1749,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="rndMode">Result Rounding mode to be used</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Div(NPPImage_8uC1 src2, NppRoundMode rndMode, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.DivRound.nppiDiv_Round_8u_C1IRSfs_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, rndMode, nScaleFactor, nppStreamCtx);
@@ -1753,7 +1764,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AbsDiff(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AbsDiff.nppiAbsDiff_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1766,7 +1777,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nConstant">Value to subtract</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AbsDiff(byte nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AbsDiffConst.nppiAbsDiffC_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nConstant, nppStreamCtx);
@@ -1781,7 +1792,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Exp(NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Exp.nppiExp_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1793,7 +1804,7 @@ namespace ManagedCuda.NPP
         /// Inplace exponential, scale by 2^(-nScaleFactor), then clamp to saturated value.
         /// </summary>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Exp(int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Exp.nppiExp_8u_C1IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1808,7 +1819,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Ln(NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Ln.nppiLn_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1820,7 +1831,7 @@ namespace ManagedCuda.NPP
         /// Natural logarithm, scale by 2^(-nScaleFactor), then clamp to saturated value.
         /// </summary>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Ln(int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Ln.nppiLn_8u_C1IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1835,7 +1846,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sqr(NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sqr.nppiSqr_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1847,7 +1858,7 @@ namespace ManagedCuda.NPP
         /// Inplace image squared, scale by 2^(-nScaleFactor), then clamp to saturated value.
         /// </summary>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sqr(int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sqr.nppiSqr_8u_C1IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1862,7 +1873,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sqrt(NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1874,7 +1885,7 @@ namespace ManagedCuda.NPP
         /// Inplace image square root, scale by 2^(-nScaleFactor), then clamp to saturated value.
         /// </summary>
         /// <param name="nScaleFactor">scaling factor</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Sqrt(int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Sqrt.nppiSqrt_8u_C1IRSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
@@ -1893,7 +1904,7 @@ namespace ManagedCuda.NPP
         /// <param name="alpha2">constant alpha for src2</param>
         /// <param name="dest">Destination image</param>
         /// <param name="nppAlphaOp">alpha compositing operation</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AlphaComp(byte alpha1, NPPImage_8uC1 src2, byte alpha2, NPPImage_8uC1 dest, NppiAlphaOp nppAlphaOp, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AlphaCompConst.nppiAlphaCompC_8u_C1R_Ctx(_devPtrRoi, _pitch, alpha1, src2.DevicePointerRoi, src2.Pitch, alpha2, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppAlphaOp, nppStreamCtx);
@@ -1906,7 +1917,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="alpha">alpha</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AlphaPremul(byte alpha, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AlphaPremulConst.nppiAlphaPremulC_8u_C1R_Ctx(_devPtrRoi, _pitch, alpha, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -1918,7 +1929,7 @@ namespace ManagedCuda.NPP
         /// In place alpha premultiplication using constant alpha.
         /// </summary>
         /// <param name="alpha">alpha</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AlphaPremul(byte alpha, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AlphaPremulConst.nppiAlphaPremulC_8u_C1IR_Ctx(alpha, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -1935,7 +1946,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="values">array of user defined OUTPUT values</param>
         /// <param name="levels">array of user defined INPUT values</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTLinear(NPPImage_8uC1 dest, CudaDeviceVariable<int> values, CudaDeviceVariable<int> levels, NppStreamContext nppStreamCtx)
         {
             if (values.Size != levels.Size) throw new ArgumentException("values and levels must have same size.");
@@ -1989,7 +2000,7 @@ namespace ManagedCuda.NPP
         /// Calculates affine transform coefficients given source rectangular ROI and its destination quadrangle projection
         /// </summary>
         /// <param name="quad">Destination quadrangle [4,2]</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// <returns>Affine transform coefficients [2,3]</returns>
         public double[,] GetAffineTransform(double[,] quad, NppStreamContext nppStreamCtx)
         {
@@ -2038,7 +2049,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="coeffs">Affine transform coefficients [2,3]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpAffine(NPPImage_8uC1 dest, double[,] coeffs, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2085,7 +2096,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="coeffs">Affine transform coefficients [2,3]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpAffineBack(NPPImage_8uC1 dest, double[,] coeffs, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2126,7 +2137,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="dstQuad">Destination quadrangle [4,2]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpAffineQuad(double[,] srcQuad, NPPImage_8uC1 dest, double[,] dstQuad, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2173,7 +2184,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="coeffs">Perspective transform coefficients [3,3]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpPerspective(NPPImage_8uC1 dest, double[,] coeffs, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2219,7 +2230,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="coeffs">Perspective transform coefficients [3,3]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpPerspectiveBack(NPPImage_8uC1 dest, double[,] coeffs, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2261,7 +2272,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="destQuad">Destination quadrangle [4,2]</param>
         /// <param name="eInterpolation">Interpolation mode: can be <see cref="InterpolationMode.NearestNeighbor"/>, <see cref="InterpolationMode.Linear"/> or <see cref="InterpolationMode.Cubic"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WarpPerspectiveQuad(double[,] srcQuad, NPPImage_8uC1 dest, double[,] destQuad, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect rectIn = new NppiRect(_pointRoi, _sizeRoi);
@@ -2299,7 +2310,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddProduct(NPPImage_8uC1 src2, NPPImage_32fC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddProduct.nppiAddProduct_8u32f_C1IR_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -2313,7 +2324,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="mask">Mask image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddProduct(NPPImage_8uC1 src2, NPPImage_32fC1 dest, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddProduct.nppiAddProduct_8u32f_C1IMR_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, mask.DevicePointerRoi, mask.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -2327,7 +2338,7 @@ namespace ManagedCuda.NPP
         /// One 8-bit unsigned char channel image squared then added to in place floating point destination image.
         /// </summary>
         /// <param name="dest">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddProduct(NPPImage_32fC1 dest, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddSquare.nppiAddSquare_8u32f_C1IR_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -2340,7 +2351,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="mask">Mask image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddProduct(NPPImage_32fC1 dest, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddSquare.nppiAddSquare_8u32f_C1IMR_Ctx(_devPtrRoi, _pitch, mask.DevicePointerRoi, mask.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
@@ -2355,7 +2366,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nAlpha">Alpha weight to be applied to source image pixels (0.0F to 1.0F)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddWeighted(NPPImage_32fC1 dest, float nAlpha, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddWeighted.nppiAddWeighted_8u32f_C1IR_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nAlpha, nppStreamCtx);
@@ -2369,7 +2380,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="mask">Mask image</param>
         /// <param name="nAlpha">Alpha weight to be applied to source image pixels (0.0F to 1.0F)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AddWeighted(NPPImage_32fC1 dest, NPPImage_8uC1 mask, float nAlpha, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.AddWeighted.nppiAddWeighted_8u32f_C1IMR_Ctx(_devPtrRoi, _pitch, mask.DevicePointerRoi, mask.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nAlpha, nppStreamCtx);
@@ -2391,7 +2402,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">Y offset of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SumWindowColumn(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowColumn_8u32f_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, nppStreamCtx);
@@ -2409,7 +2420,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SumWindowRow(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowRow_8u32f_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, nppStreamCtx);
@@ -2425,7 +2436,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">source2 packed pixel format image.</param>
         /// <param name="dest">Destination image</param>
         /// <param name="colorKeyConst">color key constant</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CompColorKey(NPPImage_8uC1 src2, NPPImage_8uC1 dest, byte colorKeyConst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.CompColorKey.nppiCompColorKey_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, colorKeyConst, nppStreamCtx);
@@ -2465,7 +2476,7 @@ namespace ManagedCuda.NPP
         /// image infinity norm. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormInf(CudaDeviceVariable<double> norm, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormInfGetBufferHostSize(nppStreamCtx);
@@ -2482,7 +2493,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormInfGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormInf(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormInfGetBufferHostSize(nppStreamCtx);
@@ -2498,7 +2509,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormInf(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -2516,7 +2527,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormInfMaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormInf(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -2558,7 +2569,7 @@ namespace ManagedCuda.NPP
         /// image L1 norm. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL1(CudaDeviceVariable<double> norm, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL1GetBufferHostSize(nppStreamCtx);
@@ -2575,7 +2586,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL1GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL1(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL1GetBufferHostSize(nppStreamCtx);
@@ -2591,7 +2602,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL1(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -2609,7 +2620,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL1MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL1(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -2651,7 +2662,7 @@ namespace ManagedCuda.NPP
         /// image L2 norm. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL2(CudaDeviceVariable<double> norm, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL2GetBufferHostSize(nppStreamCtx);
@@ -2668,7 +2679,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL2GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL2(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL2GetBufferHostSize(nppStreamCtx);
@@ -2684,7 +2695,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL2(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -2702,7 +2713,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 1 * sizeof(double)</param>
         /// <param name="mask">mask</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL2MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormL2(CudaDeviceVariable<double> norm, NPPImage_8uC1 mask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -2723,7 +2734,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="eComparisonOperation">eComparisonOperation. Only allowed values are <see cref="NppCmpOp.Less"/> and <see cref="NppCmpOp.Greater"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Threshold(NPPImage_8uC1 dest, byte nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, eComparisonOperation, nppStreamCtx);
@@ -2737,7 +2748,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="eComparisonOperation">eComparisonOperation. Only allowed values are <see cref="NppCmpOp.Less"/> and <see cref="NppCmpOp.Greater"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Threshold(byte nThreshold, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, eComparisonOperation, nppStreamCtx);
@@ -2754,7 +2765,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nThreshold">The threshold value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdGT(NPPImage_8uC1 dest, byte nThreshold, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_GT_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, nppStreamCtx);
@@ -2767,7 +2778,7 @@ namespace ManagedCuda.NPP
         /// to nThreshold, otherwise it is set to sourcePixel.
         /// </summary>
         /// <param name="nThreshold">The threshold value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdGT(byte nThreshold, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_GT_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, nppStreamCtx);
@@ -2784,7 +2795,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="nThreshold">The threshold value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLT(NPPImage_8uC1 dest, byte nThreshold, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LT_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, nppStreamCtx);
@@ -2797,7 +2808,7 @@ namespace ManagedCuda.NPP
         /// to nThreshold, otherwise it is set to sourcePixel.
         /// </summary>
         /// <param name="nThreshold">The threshold value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLT(byte nThreshold, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LT_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, nppStreamCtx);
@@ -2816,7 +2827,7 @@ namespace ManagedCuda.NPP
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
         /// <param name="eComparisonOperation">eComparisonOperation. Only allowed values are <see cref="NppCmpOp.Less"/> and <see cref="NppCmpOp.Greater"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Threshold(NPPImage_8uC1 dest, byte nThreshold, byte nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_Val_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
@@ -2831,7 +2842,7 @@ namespace ManagedCuda.NPP
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
         /// <param name="eComparisonOperation">eComparisonOperation. Only allowed values are <see cref="NppCmpOp.Less"/> and <see cref="NppCmpOp.Greater"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Threshold(byte nThreshold, byte nValue, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_Val_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, nValue, eComparisonOperation, nppStreamCtx);
@@ -2849,7 +2860,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdGT(NPPImage_8uC1 dest, byte nThreshold, byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_GTVal_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, nValue, nppStreamCtx);
@@ -2863,7 +2874,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdGT(byte nThreshold, byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_GTVal_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, nValue, nppStreamCtx);
@@ -2881,7 +2892,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLT(NPPImage_8uC1 dest, byte nThreshold, byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LTVal_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThreshold, nValue, nppStreamCtx);
@@ -2895,7 +2906,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nThreshold">The threshold value.</param>
         /// <param name="nValue">The threshold replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLT(byte nThreshold, byte nValue, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LTVal_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThreshold, nValue, nppStreamCtx);
@@ -2915,7 +2926,7 @@ namespace ManagedCuda.NPP
         /// <param name="nValueLT">The thresholdLT replacement value.</param>
         /// <param name="nThresholdGT">The thresholdGT value.</param>
         /// <param name="nValueGT">The thresholdGT replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLTGT(NPPImage_8uC1 dest, byte nThresholdLT, byte nValueLT, byte nThresholdGT, byte nValueGT, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LTValGTVal_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
@@ -2931,7 +2942,7 @@ namespace ManagedCuda.NPP
         /// <param name="nValueLT">The thresholdLT replacement value.</param>
         /// <param name="nThresholdGT">The thresholdGT value.</param>
         /// <param name="nValueGT">The thresholdGT replacement value.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ThresholdLTGT(byte nThresholdLT, byte nValueLT, byte nThresholdGT, byte nValueGT, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiThreshold_LTValGTVal_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nThresholdLT, nValueLT, nThresholdGT, nValueGT, nppStreamCtx);
@@ -2947,7 +2958,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dest">Destination image</param>
         /// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Compare(NPPImage_8uC1 src2, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Compare.nppiCompare_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation, nppStreamCtx);
@@ -2960,7 +2971,7 @@ namespace ManagedCuda.NPP
         /// <param name="nConstant">constant value</param>
         /// <param name="dest">Destination image</param>
         /// <param name="eComparisonOperation">Specifies the comparison operation to be used in the pixel comparison.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Compare(byte nConstant, NPPImage_8uC1 dest, NppCmpOp eComparisonOperation, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Compare.nppiCompareC_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eComparisonOperation, nppStreamCtx);
@@ -2990,7 +3001,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pDp">Pointer to the computed dot product of the two images. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="DotProdGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void DotProduct(NPPImage_8uC1 src2, CudaDeviceVariable<double> pDp, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = DotProdGetBufferHostSize(nppStreamCtx);
@@ -3006,7 +3017,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="pDp">Pointer to the computed dot product of the two images. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void DotProduct(NPPImage_8uC1 src2, CudaDeviceVariable<double> pDp, NppStreamContext nppStreamCtx)
         {
             int bufferSize = DotProdGetBufferHostSize(nppStreamCtx);
@@ -3030,7 +3041,7 @@ namespace ManagedCuda.NPP
         /// the destination ROI is implicitly defined by the size of the source ROI: nBottomBorderHeight =
         /// oDstSizeROI.height - nTopBorderHeight - oSrcSizeROI.height.</param>
         /// <param name="nLeftBorderWidth">Width (in pixels) of the left border. The width of the border at the right side of
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// the destination ROI is implicitly defined by the size of the source ROI: nRightBorderWidth =
         /// oDstSizeROI.width - nLeftBorderWidth - oSrcSizeROI.width.</param>
         public void CopyReplicateBorder(NPPImage_8uC1 dst, int nTopBorderHeight, int nLeftBorderWidth, NppStreamContext nppStreamCtx)
@@ -3047,7 +3058,7 @@ namespace ManagedCuda.NPP
         /// the destination ROI is implicitly defined by the size of the source ROI: nBottomBorderHeight =
         /// oDstSizeROI.height - nTopBorderHeight - oSrcSizeROI.height.</param>
         /// <param name="nLeftBorderWidth">Width (in pixels) of the left border. The width of the border at the right side of
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// the destination ROI is implicitly defined by the size of the source ROI: nRightBorderWidth =
         /// oDstSizeROI.width - nLeftBorderWidth - oSrcSizeROI.width.</param>
         public void CopyWrapBorder(NPPImage_8uC1 dst, int nTopBorderHeight, int nLeftBorderWidth, NppStreamContext nppStreamCtx)
@@ -3062,7 +3073,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="nDx">Fractional part of source image X coordinate.</param>
         /// <param name="nDy">Fractional part of source image Y coordinate.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CopySubpix(NPPImage_8uC1 dst, float nDx, float nDy, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.CopySubpix.nppiCopySubpix_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nDx, nDy, nppStreamCtx);
@@ -3079,7 +3090,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pValues">Pointer to an array of user defined OUTPUT values</param>
         /// <param name="pLevels">Pointer to an array of user defined INPUT values. pLevels.Size gives nLevels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUT(NPPImage_8uC1 dst, CudaDeviceVariable<int> pValues, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUT.nppiLUT_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pValues.DevicePointer, pLevels.DevicePointer, pLevels.Size, nppStreamCtx);
@@ -3093,7 +3104,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pValues">Pointer to an array of user defined OUTPUT values</param>
         /// <param name="pLevels">Pointer to an array of user defined INPUT values. pLevels.Size gives nLevels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTCubic(NPPImage_8uC1 dst, CudaDeviceVariable<int> pValues, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTCubic.nppiLUT_Cubic_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pValues.DevicePointer, pLevels.DevicePointer, pLevels.Size, nppStreamCtx);
@@ -3108,7 +3119,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pTable">Pointer to an array of user defined OUTPUT palette values</param>
         /// <param name="nBitSize">Number of least significant bits (must be &gt; 0 and &lt;= 8) of each source pixel value to use as index into palette table during conversion.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTPalette(NPPImage_8uC1 dst, CudaDeviceVariable<byte> pTable, int nBitSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTPalette.nppiLUTPalette_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pTable.DevicePointer, nBitSize, nppStreamCtx);
@@ -3123,7 +3134,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pTable">Pointer to an array of user defined OUTPUT palette values (3 bytes per pixel)</param>
         /// <param name="nBitSize">Number of least significant bits (must be &gt; 0 and &lt;= 8) of each source pixel value to use as index into palette table during conversion.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTPalette(NPPImage_8uC3 dst, CudaDeviceVariable<byte> pTable, int nBitSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTPalette.nppiLUTPalette_8u24u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pTable.DevicePointer, nBitSize, nppStreamCtx);
@@ -3138,7 +3149,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pTable">Pointer to an array of user defined OUTPUT palette values (4 bytes per pixel)</param>
         /// <param name="nBitSize">Number of least significant bits (must be &gt; 0 and &lt;= 8) of each source pixel value to use as index into palette table during conversion.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTPalette(NPPImage_8uC4 dst, CudaDeviceVariable<byte> pTable, int nBitSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTPalette.nppiLUTPalette_8u32u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pTable.DevicePointer, nBitSize, nppStreamCtx);
@@ -3153,7 +3164,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="pTable">Pointer to an array of user defined OUTPUT palette values (4 bytes per pixel)</param>
         /// <param name="nBitSize">Number of least significant bits (must be &gt; 0 and &lt;= 8) of each source pixel value to use as index into palette table during conversion.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTPalette(NPPImage_32uC1 dst, CudaDeviceVariable<uint> pTable, int nBitSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTPalette.nppiLUTPalette_8u32u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pTable.DevicePointer, nBitSize, nppStreamCtx);
@@ -3167,7 +3178,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="pValues">Pointer to an array of user defined OUTPUT values</param>
         /// <param name="pLevels">Pointer to an array of user defined INPUT values. pLevels.Size gives nLevels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUT(CudaDeviceVariable<int> pValues, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUT.nppiLUT_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, pValues.DevicePointer, pLevels.DevicePointer, pLevels.Size, nppStreamCtx);
@@ -3180,7 +3191,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="pValues">Pointer to an array of user defined OUTPUT values</param>
         /// <param name="pLevels">Pointer to an array of user defined INPUT values. pLevels.Size gives nLevels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTCubic(CudaDeviceVariable<int> pValues, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTCubic.nppiLUT_Cubic_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, pValues.DevicePointer, pLevels.DevicePointer, pLevels.Size, nppStreamCtx);
@@ -3193,7 +3204,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="pValues">Pointer to an array of user defined OUTPUT values</param>
         /// <param name="pLevels">Pointer to an array of user defined INPUT values. pLevels.Size gives nLevels.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LUTLinear(CudaDeviceVariable<int> pValues, CudaDeviceVariable<int> pLevels, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ColorLUTLinear.nppiLUT_Linear_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, pValues.DevicePointer, pLevels.DevicePointer, pLevels.Size, nppStreamCtx);
@@ -3209,7 +3220,7 @@ namespace ManagedCuda.NPP
         /// 3x3 dilation.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Dilate3x3(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MorphologyFilter2D.nppiDilate3x3_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3221,7 +3232,7 @@ namespace ManagedCuda.NPP
         /// 3x3 erosion.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Erode3x3(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MorphologyFilter2D.nppiErode3x3_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3238,7 +3249,7 @@ namespace ManagedCuda.NPP
         /// <param name="pKernel">Pointer to the start address of the kernel coefficient array. pKernel.Sizes gives kernel size<para/>
         /// Coefficients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">Y offset of the kernel origin frame of reference relative to the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterColumn(NPPImage_8uC1 dst, CudaDeviceVariable<float> pKernel, int nAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumn32f_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pKernel.DevicePointer, pKernel.Size, nAnchor, nppStreamCtx);
@@ -3252,7 +3263,7 @@ namespace ManagedCuda.NPP
         /// <param name="pKernel">Pointer to the start address of the kernel coefficient array. pKernel.Sizes gives kernel size<para/>
         /// Coefficients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference relative to the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterRow(NPPImage_8uC1 dst, CudaDeviceVariable<float> pKernel, int nAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRow32f_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pKernel.DevicePointer, pKernel.Size, nAnchor, nppStreamCtx);
@@ -3268,7 +3279,7 @@ namespace ManagedCuda.NPP
         /// Coefficients are expected to be stored in reverse order.</param>
         /// <param name="oKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Filter(NPPImage_8uC1 dst, CudaDeviceVariable<float> pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Convolution.nppiFilter32f_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pKernel.DevicePointer, oKernelSize, oAnchor, nppStreamCtx);
@@ -3284,7 +3295,7 @@ namespace ManagedCuda.NPP
         /// Coefficients are expected to be stored in reverse order.</param>
         /// <param name="oKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Filter(NPPImage_16sC1 dst, CudaDeviceVariable<float> pKernel, NppiSize oKernelSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Convolution.nppiFilter32f_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, pKernel.DevicePointer, oKernelSize, oAnchor, nppStreamCtx);
@@ -3296,7 +3307,7 @@ namespace ManagedCuda.NPP
         /// horizontal Prewitt filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterPrewittHoriz(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittHoriz_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3308,7 +3319,7 @@ namespace ManagedCuda.NPP
         /// vertical Prewitt filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterPrewittVert(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittVert_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3320,7 +3331,7 @@ namespace ManagedCuda.NPP
         /// horizontal Sobel filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SobelHoriz(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelHoriz_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3332,7 +3343,7 @@ namespace ManagedCuda.NPP
         /// vertical Sobel filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelVert(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelVert_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3345,7 +3356,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelHoriz(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelHoriz_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3358,7 +3369,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelVert(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelVert_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3371,7 +3382,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelHorizSecond(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelHorizSecond_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3384,7 +3395,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelVertSecond(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelVertSecond_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3397,7 +3408,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSobelCross(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSobelCross_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3411,7 +3422,7 @@ namespace ManagedCuda.NPP
         /// horizontal Roberts filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterRobertsDown(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsDown_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3422,7 +3433,7 @@ namespace ManagedCuda.NPP
         /// vertical Roberts filter..
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterRobertsUp(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsUp_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3434,7 +3445,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterLaplace(NPPImage_8uC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLaplace_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3446,7 +3457,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterGauss(NPPImage_8uC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterGauss_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3458,7 +3469,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterHighPass(NPPImage_8uC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterHighPass_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3470,7 +3481,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterLowPass(NPPImage_8uC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLowPass_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3481,7 +3492,7 @@ namespace ManagedCuda.NPP
         /// Sharpen filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterSharpen(NPPImage_8uC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSharpen_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3494,7 +3505,7 @@ namespace ManagedCuda.NPP
         /// horizontal Scharr filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterScharrHoriz(NPPImage_16sC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterScharrHoriz_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3506,7 +3517,7 @@ namespace ManagedCuda.NPP
         /// vertical Scharr filter.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterScharrVert(NPPImage_16sC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterScharrVert_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -3519,7 +3530,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterLaplace(NPPImage_16sC1 dst, MaskSize eMaskSize, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLaplace_8u16s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, nppStreamCtx);
@@ -3548,7 +3559,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffInfGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffInfGetBufferHostSize(nppStreamCtx);
@@ -3564,7 +3575,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffInfGetBufferHostSize(nppStreamCtx);
@@ -3596,7 +3607,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL1GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL1GetBufferHostSize(nppStreamCtx);
@@ -3612,7 +3623,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL1GetBufferHostSize(nppStreamCtx);
@@ -3644,7 +3655,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL2GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL2GetBufferHostSize(nppStreamCtx);
@@ -3660,7 +3671,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL2GetBufferHostSize(nppStreamCtx);
@@ -3693,7 +3704,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelInfGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelInfGetBufferHostSize(nppStreamCtx);
@@ -3709,7 +3720,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelInfGetBufferHostSize(nppStreamCtx);
@@ -3741,7 +3752,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL1GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL1GetBufferHostSize(nppStreamCtx);
@@ -3757,7 +3768,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL1GetBufferHostSize(nppStreamCtx);
@@ -3789,7 +3800,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL2GetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL2GetBufferHostSize(nppStreamCtx);
@@ -3805,7 +3816,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL2GetBufferHostSize(nppStreamCtx);
@@ -3840,7 +3851,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FullNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3856,7 +3867,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FullNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3889,7 +3900,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SameNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3905,7 +3916,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SameNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3939,7 +3950,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ValidNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3955,7 +3966,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ValidNormLevelGetBufferHostSize(nppStreamCtx);
@@ -3992,7 +4003,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelScaledGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FullNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4009,7 +4020,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FullNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4043,7 +4054,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelScaledGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SameNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4060,7 +4071,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             int bufferSize = SameNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4095,7 +4106,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelScaledGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ValidNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4112,7 +4123,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ValidNormLevelScaledGetBufferHostSize(nppStreamCtx);
@@ -4134,7 +4145,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceFull_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceFull_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4146,7 +4157,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceSame_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceSame_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4158,7 +4169,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceValid_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceValid_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4174,7 +4185,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceFull_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceFull_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4187,7 +4198,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceSame_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceSame_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4200,7 +4211,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SqrDistanceValid_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiSqrDistanceValid_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4216,7 +4227,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrFull_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4228,7 +4239,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrSame_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4240,7 +4251,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_Norm(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrValid_Norm_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4252,7 +4263,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrValid_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nppStreamCtx);
@@ -4269,7 +4280,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrFull_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrFull_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4282,7 +4293,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrSame_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrSame_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4295,7 +4306,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CrossCorrValid_Norm(NPPImage_8uC1 tpl, NPPImage_8uC1 dst, int nScaleFactor, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrValid_Norm_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointerRoi, dst.Pitch, nScaleFactor, nppStreamCtx);
@@ -4326,7 +4337,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffInfMaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -4343,7 +4354,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -4376,7 +4387,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL1MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -4393,7 +4404,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -4426,7 +4437,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL2MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -4443,7 +4454,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormDiff_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormDiff, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormDiffL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -4477,7 +4488,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelInfMaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -4494,7 +4505,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_Inf(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelInfMaskedGetBufferHostSize(nppStreamCtx);
@@ -4527,7 +4538,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL1MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -4544,7 +4555,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L1(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL1MaskedGetBufferHostSize(nppStreamCtx);
@@ -4577,7 +4588,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL2MaskedGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -4594,7 +4605,7 @@ namespace ManagedCuda.NPP
         /// <param name="tpl">template image.</param>
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (1 * sizeof(double))</param>
         /// <param name="pMask">Mask image.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void NormRel_L2(NPPImage_8uC1 tpl, CudaDeviceVariable<double> pNormRel, NPPImage_8uC1 pMask, NppStreamContext nppStreamCtx)
         {
             int bufferSize = NormRelL2MaskedGetBufferHostSize(nppStreamCtx);
@@ -4619,7 +4630,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nVal">The value to add to pDst image pixels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Integral(NPPImage_32fC1 dst, float nVal, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Integral.nppiIntegral_8u32f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nVal, nppStreamCtx);
@@ -4631,7 +4642,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="nVal">The value to add to pDst image pixels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Integral(NPPImage_32sC1 dst, int nVal, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Integral.nppiIntegral_8u32s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nVal, nppStreamCtx);
@@ -4648,7 +4659,7 @@ namespace ManagedCuda.NPP
         /// <param name="sqr">Destination-Image</param>
         /// <param name="nVal">The value to add to pDst image pixels</param>
         /// <param name="nValSqr">The value to add to pSqr image pixels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Integral(NPPImage_32fC1 dst, CudaPitchedDeviceVariable<double> sqr, float nVal, double nValSqr, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Integral.nppiSqrIntegral_8u32f64f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, sqr.DevicePointer, sqr.Pitch, _sizeRoi, nVal, nValSqr, nppStreamCtx);
@@ -4664,7 +4675,7 @@ namespace ManagedCuda.NPP
         /// <param name="sqr">Destination-Image</param>
         /// <param name="nVal">The value to add to pDst image pixels</param>
         /// <param name="nValSqr">The value to add to pSqr image pixels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Integral(NPPImage_32sC1 dst, NPPImage_32sC1 sqr, int nVal, int nValSqr, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Integral.nppiSqrIntegral_8u32s_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, sqr.DevicePointerRoi, sqr.Pitch, _sizeRoi, nVal, nValSqr, nppStreamCtx);
@@ -4681,7 +4692,7 @@ namespace ManagedCuda.NPP
         /// <param name="sqr">Destination-Image</param>
         /// <param name="nVal">The value to add to pDst image pixels</param>
         /// <param name="nValSqr">The value to add to pSqr image pixels</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Integral(NPPImage_32sC1 dst, CudaPitchedDeviceVariable<double> sqr, int nVal, double nValSqr, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Integral.nppiSqrIntegral_8u32s64f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, sqr.DevicePointer, sqr.Pitch, _sizeRoi, nVal, nValSqr, nppStreamCtx);
@@ -4711,7 +4722,7 @@ namespace ManagedCuda.NPP
         /// <param name="nLowerBound">Lower bound of the specified range.</param>
         /// <param name="nUpperBound">Upper bound of the specified range.</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="CountInRangeGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CountInRange(CudaDeviceVariable<int> pCounts, byte nLowerBound, byte nUpperBound, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = CountInRangeGetBufferHostSize(nppStreamCtx);
@@ -4728,7 +4739,7 @@ namespace ManagedCuda.NPP
         /// <param name="pCounts">Pointer to the number of pixels that fall into the specified range. (1 * sizeof(int))</param>
         /// <param name="nLowerBound">Lower bound of the specified range.</param>
         /// <param name="nUpperBound">Upper bound of the specified range.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CountInRange(CudaDeviceVariable<int> pCounts, byte nLowerBound, byte nUpperBound, NppStreamContext nppStreamCtx)
         {
             int bufferSize = CountInRangeGetBufferHostSize(nppStreamCtx);
@@ -4761,7 +4772,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="dst">Pointer to the quality index. (1 * sizeof(float))</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="QualityIndexGetBufferHostSize()"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void QualityIndex(NPPImage_8uC1 src2, CudaDeviceVariable<float> dst, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = QualityIndexGetBufferHostSize(nppStreamCtx);
@@ -4777,7 +4788,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="dst">Pointer to the quality index. (1 * sizeof(float))</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void QualityIndex(NPPImage_8uC1 src2, CudaDeviceVariable<float> dst, NppStreamContext nppStreamCtx)
         {
             int bufferSize = QualityIndexGetBufferHostSize(nppStreamCtx);
@@ -4801,12 +4812,12 @@ namespace ManagedCuda.NPP
         /// <param name="nXShift">Source pixel shift in x-direction.</param>
         /// <param name="nYShift">Source pixel shift in y-direction.</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ResizeSqrPixel(NPPImage_8uC1 dst, double nXFactor, double nYFactor, double nXShift, double nYShift, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
             NppiRect dstRect = new NppiRect(dst.PointRoi, dst.SizeRoi);
-            status = NPPNativeMethods_Ctx.NPPi.ResizeSqrPixel.nppiResizeSqrPixel_8u_C1R_Ctx(_devPtr, _sizeRoi, _pitch, srcRect, dst.DevicePointer, dst.Pitch, dstRect, nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.ResizeSqrPixel.nppiResizeSqrPixel_8u_C1R_Ctx(_devPtr, _sizeOriginal, _pitch, srcRect, dst.DevicePointer, dst.Pitch, dstRect, nXFactor, nYFactor, nXShift, nYShift, eInterpolation, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeSqrPixel_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4818,11 +4829,11 @@ namespace ManagedCuda.NPP
         /// <param name="pXMap">Device memory pointer to 2D image array of X coordinate values to be used when sampling source image. </param>
         /// <param name="pYMap">Device memory pointer to 2D image array of Y coordinate values to be used when sampling source image. </param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Remap(NPPImage_8uC1 dst, NPPImage_32fC1 pXMap, NPPImage_32fC1 pYMap, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
-            status = NPPNativeMethods_Ctx.NPPi.Remap.nppiRemap_8u_C1R_Ctx(_devPtr, _sizeRoi, _pitch, srcRect, pXMap.DevicePointerRoi, pXMap.Pitch, pYMap.DevicePointerRoi, pYMap.Pitch, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eInterpolation, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.Remap.nppiRemap_8u_C1R_Ctx(_devPtr, _sizeOriginal, _pitch, srcRect, pXMap.DevicePointerRoi, pXMap.Pitch, pYMap.DevicePointerRoi, pYMap.Pitch, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eInterpolation, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRemap_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4831,7 +4842,7 @@ namespace ManagedCuda.NPP
         /// image conversion.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Scale(NPPImage_16sC1 dst, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
@@ -4845,7 +4856,7 @@ namespace ManagedCuda.NPP
         /// image conversion.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Scale(NPPImage_16uC1 dst, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
@@ -4860,7 +4871,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="nMin">specifies the minimum saturation value to which every output value will be clamped.</param>
         /// <param name="nMax">specifies the maximum saturation value to which every output value will be clamped.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Scale(NPPImage_32fC1 dst, float nMin, float nMax, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
@@ -4873,7 +4884,7 @@ namespace ManagedCuda.NPP
         /// image conversion.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Scale(NPPImage_32sC1 dst, NppStreamContext nppStreamCtx)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
@@ -4889,7 +4900,7 @@ namespace ManagedCuda.NPP
         /// <param name="nXFactor">Factor by which x dimension is changed.</param>
         /// <param name="nYFactor">Factor by which y dimension is changed.</param>
         /// <param name="eInterpolationMode">The type of eInterpolation to perform resampling. Currently only supports NPPI_INTER_LANCZOS3_Advanced.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ResizeSqrPixelAdvanced(NPPImage_8uC1 dst, double nXFactor, double nYFactor, InterpolationMode eInterpolationMode, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ResizeAdvancedGetBufferHostSize(dst.SizeRoi, eInterpolationMode);
@@ -4910,7 +4921,7 @@ namespace ManagedCuda.NPP
         /// <param name="nYFactor">Factor by which y dimension is changed.</param>
         /// <param name="eInterpolationMode">The type of eInterpolation to perform resampling. Currently only supports NPPI_INTER_LANCZOS3_Advanced.</param>
         /// <param name="buffer">Device buffer that is used during calculations.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ResizeSqrPixelAdvanced(NPPImage_8uC1 dst, double nXFactor, double nYFactor, InterpolationMode eInterpolationMode, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = ResizeAdvancedGetBufferHostSize(dst.SizeRoi, eInterpolationMode);
@@ -4929,7 +4940,7 @@ namespace ManagedCuda.NPP
         /// image MinEvery
         /// </summary>
         /// <param name="src2">Source-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MinEvery(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MinMaxEvery.nppiMinEvery_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -4940,7 +4951,7 @@ namespace ManagedCuda.NPP
         /// image MaxEvery
         /// </summary>
         /// <param name="src2">Source-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxEvery(NPPImage_8uC1 src2, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.MinMaxEvery.nppiMaxEvery_8u_C1IR_Ctx(src2.DevicePointerRoi, src2.Pitch, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
@@ -4956,7 +4967,7 @@ namespace ManagedCuda.NPP
         /// Mirror image inplace.
         /// </summary>
         /// <param name="flip">Specifies the axis about which the image is to be mirrored.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Mirror(NppiAxis flip, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiMirror_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, flip, nppStreamCtx);
@@ -4970,7 +4981,7 @@ namespace ManagedCuda.NPP
         /// source image duplicated in all 3 channels of destination image.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Dup(NPPImage_8uC3 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Dup.nppiDup_8u_C1C3R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -4981,7 +4992,7 @@ namespace ManagedCuda.NPP
         /// source image duplicated in all 4 channels of destination image.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Dup(NPPImage_8uC4 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Dup.nppiDup_8u_C1C4R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -4992,7 +5003,7 @@ namespace ManagedCuda.NPP
         /// source image duplicated in 3 channels of 4 channel destination image with alpha channel unaffected.
         /// </summary>
         /// <param name="dst">Destination-Image</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void DupA(NPPImage_8uC4 dst, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.Dup.nppiDup_8u_C1AC4R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
@@ -5020,10 +5031,15 @@ namespace ManagedCuda.NPP
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided.
         /// If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterBorder.nppiFilterBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, nDivisor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterBorder.nppiFilterBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, nDivisor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5041,10 +5057,15 @@ namespace ManagedCuda.NPP
         /// <param name="nKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference relative to the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterBorder32f.nppiFilterBorder32f_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterBorder32f.nppiFilterBorder32f_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder32f_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5062,10 +5083,15 @@ namespace ManagedCuda.NPP
         /// <param name="nKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference relative to the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterBorder(NPPImage_16sC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBorder(NPPImage_16sC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterBorder32f.nppiFilterBorder32f_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterBorder32f.nppiFilterBorder32f_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder32f_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5078,7 +5104,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Median operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference relative to the source pixel.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterMedian(NPPImage_8uC1 dst, NppiSize oMaskSize, NppiPoint oAnchor, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FilterMedianGetBufferHostSize(oMaskSize, nppStreamCtx);
@@ -5096,7 +5122,7 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Median operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference relative to the source pixel.</param>
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterMedian(NPPImage_8uC1 dst, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = FilterMedianGetBufferHostSize(oMaskSize, nppStreamCtx);
@@ -5126,7 +5152,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
@@ -5143,7 +5169,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaxError operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
@@ -5173,7 +5199,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
             int bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
@@ -5190,7 +5216,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageError operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
@@ -5220,7 +5246,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaximumRelativeError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
@@ -5237,7 +5263,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaximumRelativeError operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaximumRelativeError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
@@ -5267,7 +5293,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageRelativeError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
             int bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
@@ -5284,7 +5310,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pError">Pointer to the computed error.</param>
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageRelativeError operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageRelativeError(NPPImage_8uC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
@@ -5314,10 +5340,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterScharrHorizBorder(NPPImage_16sC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterScharrHorizBorder(NPPImage_16sC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterScharrHorizBorder.nppiFilterScharrHorizBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterScharrHorizBorder.nppiFilterScharrHorizBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterScharrHorizBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5326,10 +5357,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterScharrVertBorder(NPPImage_16sC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterScharrVertBorder(NPPImage_16sC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterScharrVertBorder.nppiFilterScharrVertBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterScharrVertBorder.nppiFilterScharrVertBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterScharrVertBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5341,10 +5377,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelHorizBorder(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelHorizBorder(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizBorder.nppiFilterSobelHorizBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizBorder.nppiFilterSobelHorizBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelHorizBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5354,10 +5395,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelHorizBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelHorizBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizBorder.nppiFilterSobelHorizBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizBorder.nppiFilterSobelHorizBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelHorizBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5366,10 +5412,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelVertBorder(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelVertBorder(NPPImage_8uC1 dest, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelVertBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5379,10 +5430,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelVertBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelVertBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertBorder.nppiFilterSobelVertBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelVertBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5393,10 +5449,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelHorizSecondBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelHorizSecondBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizSecondBorder.nppiFilterSobelHorizSecondBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelHorizSecondBorder.nppiFilterSobelHorizSecondBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelHorizSecondBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5406,10 +5467,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelVertSecondBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelVertSecondBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertSecondBorder.nppiFilterSobelVertSecondBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelVertSecondBorder.nppiFilterSobelVertSecondBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelVertSecondBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5419,10 +5485,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSobelCrossBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSobelCrossBorder(NPPImage_16sC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterSobelCrossBorder.nppiFilterSobelCrossBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterSobelCrossBorder.nppiFilterSobelCrossBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSobelCrossBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5436,10 +5507,10 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="twistMatrix">The color twist matrix with floating-point pixel values [3,4].</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ColorTwist(NPPImage_8uC1 dest, float[,] twistMatrix, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.ColorProcessing.nppiColorTwist32f_8u_C1R_Ctx(_devPtr, _pitch, dest.DevicePointer, dest.Pitch, _sizeRoi, twistMatrix, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.ColorProcessing.nppiColorTwist32f_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, twistMatrix, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5451,10 +5522,10 @@ namespace ManagedCuda.NPP
         /// within ROI.
         /// </summary>
         /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void ColorTwist(float[,] aTwist, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.ColorProcessing.nppiColorTwist32f_8u_C1IR_Ctx(_devPtr, _pitch, _sizeRoi, aTwist, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.ColorProcessing.nppiColorTwist32f_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, aTwist, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_8u_C1IR_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5476,10 +5547,15 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterGaussBorder(NPPImage_8uC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterGaussBorder(NPPImage_8uC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterGaussBorder.nppiFilterGaussBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterGaussBorder.nppiFilterGaussBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5500,10 +5576,15 @@ namespace ManagedCuda.NPP
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterColumnBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterColumnBorder(NPPImage_8uC1 dest, CudaDeviceVariable<int> Kernel, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumnBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, nDivisor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumnBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, nDivisor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterColumnBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5519,10 +5600,15 @@ namespace ManagedCuda.NPP
         /// <param name="Kernel">Pointer to the start address of the kernel coefficient array. Coeffcients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterColumnBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterColumnBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumnBorder32f_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterColumnBorder32f_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterColumnBorder32f_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5540,10 +5626,15 @@ namespace ManagedCuda.NPP
         /// <param name="Kernel">Pointer to the start address of the kernel coefficient array. Coeffcients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterRowBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterRowBorder(NPPImage_8uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRowBorder32f_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFilter1D.nppiFilterRowBorder32f_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRowBorder32f_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5565,10 +5656,15 @@ namespace ManagedCuda.NPP
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">Y offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void SumWindowColumnBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void SumWindowColumnBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowColumnBorder_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowColumnBorder_8u32f_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nMaskSize, nAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumWindowColumnBorder_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5583,10 +5679,15 @@ namespace ManagedCuda.NPP
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void SumWindowRowBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void SumWindowRowBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowRowBorder_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.WindowSum1D.nppiSumWindowRowBorder_8u32f_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nMaskSize, nAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumWindowRowBorder_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5602,10 +5703,15 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterBoxBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBoxBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.LinearFixedFilters2D.nppiFilterBoxBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFixedFilters2D.nppiFilterBoxBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5622,10 +5728,15 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterMinBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterMinBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMinBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMinBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMinBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5637,10 +5748,15 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterMaxBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterMaxBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMaxBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.RankFilters.nppiFilterMaxBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMaxBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5654,10 +5770,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterPrewittHorizBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterPrewittHorizBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittHorizBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittHorizBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterPrewittHorizBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5667,10 +5788,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterPrewittVertBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterPrewittVertBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittVertBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterPrewittVertBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterPrewittVertBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5681,10 +5807,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterRobertsDownBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterRobertsDownBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsDownBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsDownBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRobertsDownBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5693,10 +5824,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterRobertsUpBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterRobertsUpBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsUpBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterRobertsUpBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRobertsUpBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5707,10 +5843,15 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterLaplaceBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterLaplaceBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLaplaceBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLaplaceBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterLaplaceBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5722,10 +5863,15 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterHighPassBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterHighPassBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterHighPassBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterHighPassBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHighPassBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5735,10 +5881,15 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterLowPassBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterLowPassBorder(NPPImage_8uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLowPassBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterLowPassBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eMaskSize, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterLowPassBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5747,10 +5898,15 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterSharpenBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterSharpenBorder(NPPImage_8uC1 dst, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSharpenBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterSharpenBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSharpenBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5780,13 +5936,13 @@ namespace ManagedCuda.NPP
         /// <param name="nThreshold">The threshold needed to apply the difference amount.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
         /// <param name="buffer">Pointer to the user-allocated device scratch buffer required for the unsharp operation.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterUnsharpBorder(NPPImage_8uC1 dst, float nRadius, float nSigma, float nWeight, float nThreshold, NppiBorderType eBorderType, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             if (buffer.Size < FilterUnsharpGetBufferSize(nRadius, nSigma))
                 throw new NPPException("Provided buffer is too small.");
 
-            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterUnsharpBorder_8u_C1R_Ctx(_devPtr, _pitch, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nRadius, nSigma, nWeight, nThreshold, eBorderType, buffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterUnsharpBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, new NppiPoint(), dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, nRadius, nSigma, nWeight, nThreshold, eBorderType, buffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterUnsharpBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5800,7 +5956,7 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="Kernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F, where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterGauss(NPPImage_8uC1 dst, CudaDeviceVariable<float> Kernel, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.FixedFilters.nppiFilterGaussAdvanced_8u_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, nppStreamCtx);
@@ -5814,10 +5970,15 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="Kernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F, where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterGaussBorder(NPPImage_8uC1 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterGaussBorder(NPPImage_8uC1 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussAdvancedBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5835,10 +5996,10 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eGrid">enumeration value specifying bayer grid registration position at location oSrcROI.x, oSrcROI.y relative to pSrc.</param>
         /// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CFAToRGB(NPPImage_8uC3 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGB_8u_C1C3R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGB_8u_C1C3R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGB_8u_C1C3R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5852,10 +6013,10 @@ namespace ManagedCuda.NPP
         /// <param name="eGrid">enumeration value specifying bayer grid registration position at location oSrcROI.x, oSrcROI.y relative to pSrc.</param>
         /// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
         /// <param name="nAlpha">constant alpha value to be written to each destination pixel</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void CFAToRGB(NPPImage_8uC4 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation, byte nAlpha, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGBA_8u_C1AC4R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nAlpha, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGBA_8u_C1AC4R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nAlpha, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGBA_8u_C1AC4R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5870,10 +6031,15 @@ namespace ManagedCuda.NPP
         /// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterGaussPyramidLayerDownBorder(NPPImage_8uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterGaussPyramidLayerDownBorder(NPPImage_8uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerDownBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5886,10 +6052,15 @@ namespace ManagedCuda.NPP
         /// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterGaussPyramidLayerUpBorder(NPPImage_8uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterGaussPyramidLayerUpBorder(NPPImage_8uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerUpBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5908,10 +6079,15 @@ namespace ManagedCuda.NPP
         /// <param name="nValSquareSigma">The square of the sigma for the relative intensity distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
         /// <param name="nPosSquareSigma">The square of the sigma for the relative geometric distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterBilateralGaussBorder(NPPImage_8uC1 dest, int nRadius, int nStepBetweenSrcPixels, float nValSquareSigma, float nPosSquareSigma, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBilateralGaussBorder(NPPImage_8uC1 dest, int nRadius, int nStepBetweenSrcPixels, float nValSquareSigma, float nPosSquareSigma, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterBilateralGaussBorder.nppiFilterBilateralGaussBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRadius, nStepBetweenSrcPixels, nValSquareSigma, nPosSquareSigma, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterBilateralGaussBorder.nppiFilterBilateralGaussBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRadius, nStepBetweenSrcPixels, nValSquareSigma, nPosSquareSigma, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBilateralGaussBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5931,10 +6107,49 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void GradientVectorPrewittBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void GradientVectorPrewittBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorPrewittBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5953,10 +6168,49 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void GradientVectorScharrBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void GradientVectorScharrBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorScharrBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5975,10 +6229,49 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void GradientVectorSobelBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void GradientVectorSobelBorder(NPPImage_16sC1 destX, NPPImage_16sC1 destY, NPPImage_16sC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_8u16s_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_8u16s_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_8u16s_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5996,12 +6289,17 @@ namespace ManagedCuda.NPP
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
         /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterCannyBorderGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterCannyBorder(NPPImage_8uC1 dest, DifferentialKernel eFilterType,
                      MaskSize eMaskSize, short nLowThreshold, short nHighThreshold, NppiNorm eNorm,
-                     NppiBorderType eBorderType, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
+                     NppiBorderType eBorderType, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterCannyBorder.nppiFilterCannyBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm, eBorderType, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterCannyBorder.nppiFilterCannyBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm, eBorderType, pDeviceBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterCannyBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6019,12 +6317,17 @@ namespace ManagedCuda.NPP
         /// <param name="nScale">output is scaled by this scale factor.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
         /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterHarrisCornersBorderGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterHarrisCornersBorder(NPPImage_32fC1 dest, DifferentialKernel eFilterType,
                                         MaskSize eMaskSize, MaskSize eAvgWindowSize, float nK, float nScale,
-                                        NppiBorderType eBorderType, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
+                                        NppiBorderType eBorderType, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterHarrisCornersBorder.nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eFilterType, eMaskSize, eAvgWindowSize, nK, nScale, eBorderType, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterHarrisCornersBorder.nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eFilterType, eMaskSize, eAvgWindowSize, nK, nScale, eBorderType, pDeviceBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHarrisCornersBorder_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6043,12 +6346,17 @@ namespace ManagedCuda.NPP
         /// <param name="nValGT">Destination output value if source pixel is greater than average.</param>
         /// <param name="nValLE">Destination output value if source pixel is less than or equal to average.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterThresholdAdaptiveBoxBorder(NPPImage_8uC1 dest, DifferentialKernel eFilterType,
                      NppiSize oMaskSize, float nDelta, byte nValGT, byte nValLE,
-                     NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+                     NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterThresholdAdaptiveBoxBorder.nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, nDelta, nValGT, nValLE, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterThresholdAdaptiveBoxBorder.nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, nDelta, nValGT, nValLE, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterThresholdAdaptiveBoxBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6061,10 +6369,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">Positive X and Y relative offsets of primary pixel in region of interest surrounding the source pixel relative to bottom right of oMaskSize.</param>
         /// <param name="aNoise">Fixed size array of per-channel noise variance level value in range of 0.0F to 1.0F.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void FilterWienerBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, float aNoise, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterWienerBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, float aNoise, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterWienerBorder.nppiFilterWienerBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, aNoise, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterWienerBorder.nppiFilterWienerBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, aNoise, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterWienerBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6081,10 +6394,10 @@ namespace ManagedCuda.NPP
         /// <param name="pDeviceLines">Device pointer to (nMaxLineCount * sizeof(NppPointPolar) line objects.</param>
         /// <param name="pDeviceLineCount">The number of lines detected by this function up to nMaxLineCount.</param>
         /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterHoughLineGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterHoughLine(NppPointPolar nDelta, int nThreshold, CudaDeviceVariable<NppPointPolar> pDeviceLines, CudaDeviceVariable<int> pDeviceLineCount, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterHoughLine.nppiFilterHoughLine_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FilterHoughLine.nppiFilterHoughLine_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHoughLine_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6103,10 +6416,10 @@ namespace ManagedCuda.NPP
         /// <param name="oDstROI">Region limits with oDstROI[0].rho &lt;= accepted rho &lt;= oDstROI[1].rho and oDstROI[0].theta &lt;= accepted theta &lt;= oDstROI[1].theta.</param>
         /// <param name="pDeviceLineCount">The number of lines detected by this function up to nMaxLineCount.</param>
         /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterHoughLineGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void FilterHoughLine(NppPointPolar nDelta, int nThreshold, CudaDeviceVariable<NppPointPolar> pDeviceLines, NppPointPolar[] oDstROI, CudaDeviceVariable<int> pDeviceLineCount, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.FilterHoughLine.nppiFilterHoughLineRegion_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, oDstROI, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FilterHoughLine.nppiFilterHoughLineRegion_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, nDelta, nThreshold, pDeviceLines.DevicePointer, oDstROI, pDeviceLines.Size, pDeviceLineCount.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHoughLineRegion_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6123,10 +6436,15 @@ namespace ManagedCuda.NPP
         /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
         /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6137,7 +6455,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pMSE">Pointer to the computed MSE of two images. </param>
         /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiMSEGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MSE(NPPImage_8uC1 src2, CudaDeviceVariable<float> pMSE, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.IQA.nppiMSE_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pMSE.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
@@ -6151,7 +6469,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pPSNR">Pointer to the computed PSNR of two images. </param>
         /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiPSNRGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void PSNR(NPPImage_8uC1 src2, CudaDeviceVariable<float> pPSNR, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.IQA.nppiPSNR_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pPSNR.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
@@ -6165,7 +6483,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pSSIM">Pointer to the computed SSIM of two images. </param>
         /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiSSIMGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SSIM(NPPImage_8uC1 src2, CudaDeviceVariable<float> pSSIM, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.IQA.nppiSSIM_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pSSIM.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
@@ -6179,7 +6497,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pMSSSIM">Pointer to the computed SSIM of two images. </param>
         /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiMSSSIMGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         [Obsolete("This function will be deprecated in a future release use the WMSSSIM functions instead.")]
         public void MSSSIM(NPPImage_8uC1 src2, CudaDeviceVariable<float> pMSSSIM, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
@@ -6192,7 +6510,7 @@ namespace ManagedCuda.NPP
         /// One-channel 8-bit unsigned image MS-SSIM*.
         /// This function uses the algorithm described in the paper by Wang et.al.
         /// Wang, Z., Simoncelli, E.P., Bovik, A.C.Multiscale Structural Similarity for Image Quality Assessment.In: The
-        /// Thirty-Seventh Asilomar Conference on Signals, Systems & Computers, 2003, 13981402. Pacific Grove, CA, USA: IEEE,
+        /// Thirty-Seventh Asilomar Conference on Signals, Systems and Computers, 2003, 13981402. Pacific Grove, CA, USA: IEEE,
         /// 2003. https://doi.org/10.1109/ACSSC.2003.1292216. <para/>
         /// NOTE: this API call can only process oSizeROI dimensions 16px by 16px and above.Any oSizeROI dimensions less than 16px by 16px
         /// will result in undefined behaviour.
@@ -6200,7 +6518,7 @@ namespace ManagedCuda.NPP
         /// <param name="src2">2nd source image</param>
         /// <param name="pMSSSIM">Pointer to the computed SSIM of two images. </param>
         /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiWMSSSIMGetBufferHostSize_8u_C1R to compute the required size (in bytes).</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void WMSSSIM(NPPImage_8uC1 src2, CudaDeviceVariable<float> pMSSSIM, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.IQA.nppiWMSSSIM_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pMSSSIM.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
@@ -6279,10 +6597,15 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void GrayDilateBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void GrayDilateBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.DilationWithBorderControl.nppiGrayDilateBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.DilationWithBorderControl.nppiGrayDilateBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayDilateBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6295,76 +6618,16 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void GrayErodeBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void GrayErodeBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ErosionWithBorderControl.nppiGrayErodeBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ErosionWithBorderControl.nppiGrayErodeBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGrayErodeBorder_8u_C1R_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-        }
-
-        /// <summary>
-        /// 1 channel 8-bit unsigned integer in place label markers image generation.
-        /// </summary>
-        /// <param name="nMinVal">Pixel values less than or equal to nMinVal will be excluded as members of any connected region and given a label ID of 0.</param>
-        /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
-        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>The maximum generated marker label ID will be returned.</returns>
-        public int LabelMarkers(byte nMinVal, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
-        {
-            int pNumber = 0;
-            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkers_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nMinVal, eNorm, ref pNumber, pBuffer.DevicePointer, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkers_8u_C1IR_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return pNumber;
-        }
-
-
-        /// <summary>
-        /// 1 channel 8-bit to 32-bit unsigned integer label markers image generation.
-        /// </summary>
-        /// <param name="dest">Destination image</param>
-        /// <param name="nMinVal">Pixel values less than or equal to nMinVal will be excluded as members of any connected region and given a label ID of 0.</param>
-        /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
-        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>The maximum generated marker label ID will be returned.</returns>
-        public int LabelMarkers(NPPImage_32uC1 dest, byte nMinVal, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
-        {
-            int pNumber = 0;
-            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkers_8u32u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMinVal, eNorm, ref pNumber, pBuffer.DevicePointer, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkers_8u32u_C1R_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return pNumber;
-        }
-
-        /// <summary>
-        /// 1 channel 8-bit unsigned integer in place connected region marker label renumbering with numbering sparseness elimination.
-        /// </summary>
-        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
-        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding CompressMarkerLabelsGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>The maximum renumbered marker label ID will be returned.</returns>
-        public int CompressMarkerLabels(int nStartingNumber, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
-        {
-            int pNewNumber = 0;
-            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiCompressMarkerLabels_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nStartingNumber, ref pNewNumber, pBuffer.DevicePointer, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabels_8u_C1IR_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return pNewNumber;
-        }
-
-
-        /// <summary>
-        /// 1 channel 8-bit unsigned integer in place region boundary border image generation.
-        /// </summary>
-        /// <param name="nBorderVal">Pixel value to be used at connected region boundary borders</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void BoundSegments(byte nBorderVal, NppStreamContext nppStreamCtx)
-        {
-            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiBoundSegments_8u_C1IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, nBorderVal, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBoundSegments_8u_C1IR_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
 
@@ -6380,10 +6643,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void MorphCloseBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void MorphCloseBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6398,10 +6666,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void MorphOpenBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void MorphOpenBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6415,10 +6688,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void MorphTopHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void MorphTopHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6432,10 +6710,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void MorphBlackHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void MorphBlackHatBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6449,10 +6732,15 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void MorphGradientBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void MorphGradientBorder(NPPImage_8uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_8u_C1R_Ctx(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_8u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6470,7 +6758,7 @@ namespace ManagedCuda.NPP
         /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
         /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void ResizeBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiSize oSmallestDstSize, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiResizeBatchCXR> pBatchList, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiResizeBatch_8u_C1R_Ctx(oSmallestSrcSize, oSrcRectROI, oSmallestDstSize, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size, nppStreamCtx);
@@ -6488,7 +6776,7 @@ namespace ManagedCuda.NPP
         /// <param name="nBatchSize">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
         /// <param name="pBatchROI">Device pointer to NppiResizeBatchROI_Advanced list of per-image variable ROIs.User needs to initialize this structure and copy it to device.</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void ResizeBatchAdvanced(int nMaxWidth, int nMaxHeight, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc, CudaDeviceVariable<NppiImageDescriptor> pBatchDst,
                                         CudaDeviceVariable<NppiResizeBatchROI_Advanced> pBatchROI, uint nBatchSize, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
@@ -6509,7 +6797,7 @@ namespace ManagedCuda.NPP
         /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
         /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void WarpAffineBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiWarpAffineBatch_8u_C1R_Ctx(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size, nppStreamCtx);
@@ -6525,7 +6813,7 @@ namespace ManagedCuda.NPP
         /// <param name="oDstRectROI">Region of interest in the destination images (may overlap destination image size width and height).</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling. Currently limited to NPPI_INTER_NN, NPPI_INTER_LINEAR, NPPI_INTER_CUBIC, or NPPI_INTER_SUPER. </param>
         /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiWarpAffineBatchCXR structures.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void WarpPerspectiveBatch(NppiSize oSmallestSrcSize, NppiRect oSrcRectROI, NppiRect oDstRectROI, InterpolationMode eInterpolation, CudaDeviceVariable<NppiWarpAffineBatchCXR> pBatchList, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiWarpPerspectiveBatch_8u_C1R_Ctx(oSmallestSrcSize, oSrcRectROI, oDstRectROI, eInterpolation, pBatchList.DevicePointer, pBatchList.Size, nppStreamCtx);
@@ -6539,7 +6827,7 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void LabelMarkersUF(NPPImage_32uC1 dest, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiLabelMarkersUF_8u32u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eNorm, pBuffer.DevicePointer, nppStreamCtx);
@@ -6557,7 +6845,7 @@ namespace ManagedCuda.NPP
         /// <param name="nMax">Maximum saturation and clamp value.</param>
         /// <param name="oSizeROI"></param>
         /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void ColorTwistBatch(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C1R_Ctx(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size, nppStreamCtx);
@@ -6575,7 +6863,7 @@ namespace ManagedCuda.NPP
         /// <param name="nMax">Maximum saturation and clamp value.</param>
         /// <param name="oSizeROI"></param>
         /// <param name="pBatchList">Device memory pointer to nBatchSize list of NppiColorTwistBatchCXR structures.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void ColorTwistBatchI(float nMin, float nMax, NppiSize oSizeROI, CudaDeviceVariable<NppiColorTwistBatchCXR> pBatchList, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.ColorTwistBatch.nppiColorTwistBatch32f_8u_C1IR_Ctx(nMin, nMax, oSizeROI, pBatchList.DevicePointer, pBatchList.Size, nppStreamCtx);
@@ -6593,7 +6881,7 @@ namespace ManagedCuda.NPP
         /// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
         /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void LabelMarkersUFBatch(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
                               NppiSize oSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
         {
@@ -6609,7 +6897,7 @@ namespace ManagedCuda.NPP
         /// <param name="pDstBatchList">destination_batch_images_pointer device memory pointer to the list of device memory destination image descriptors, oSize element is ignored.</param>
         /// <param name="oMaxSizeROI">maximum ROI width and height of ALL images in the batch.</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void LabelMarkersUFBatch_Advanced(CudaDeviceVariable<NppiImageDescriptor> pSrcBatchList, CudaDeviceVariable<NppiImageDescriptor> pDstBatchList,
                               NppiSize oMaxSizeROI, NppiNorm eNorm, NppStreamContext nppStreamCtx)
         {
@@ -6625,7 +6913,7 @@ namespace ManagedCuda.NPP
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="eSegmentBoundaryType">Type of segment boundaries, if any, to be added to output image. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding SegmentWatershedGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public void SegmentWatershed(NPPImage_32uC1 pMarkerLabels, NppiNorm eNorm, NppiWatershedSegmentBoundaryType eSegmentBoundaryType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr ptrMarker = new CUdeviceptr();
@@ -6652,7 +6940,7 @@ namespace ManagedCuda.NPP
         /// <param name="nNewValue">Image pixel values to be used to replace matching pixels.</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte nNewValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6670,7 +6958,7 @@ namespace ManagedCuda.NPP
         /// <param name="nBoundaryValue">Image pixel values to be used for region boundary. </param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte nNewValue, byte nBoundaryValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6689,7 +6977,7 @@ namespace ManagedCuda.NPP
         /// <param name="nNewValue">Image pixel values to be used to replace matching pixels.</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte nMin, byte nMax, byte nNewValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6709,7 +6997,7 @@ namespace ManagedCuda.NPP
         /// <param name="nBoundaryValue">Image pixel values to be used for region boundary. </param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte nMin, byte nMax, byte nNewValue, byte nBoundaryValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6732,7 +7020,7 @@ namespace ManagedCuda.NPP
         /// <param name="nNewValue">Image pixel values to be used to replace matching pixels.</param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFillGradient(NppiPoint oSeed, byte nMin, byte nMax, byte nNewValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6751,7 +7039,7 @@ namespace ManagedCuda.NPP
         /// <param name="nBoundaryValue">Image pixel values to be used for region boundary. </param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         public NppiConnectedRegion FloodFillGradient(NppiPoint oSeed, byte nMin, byte nMax, byte nNewValue, byte nBoundaryValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
@@ -6767,18 +7055,25 @@ namespace ManagedCuda.NPP
         /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional unsigned 16-bit truncated integer transform.
         /// </summary>
-        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
-        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
-        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
             int pitchVoronoi = 0;
             int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
 
             if (pDstVoronoi != null)
             {
@@ -6790,8 +7085,18 @@ namespace ManagedCuda.NPP
                 dstTransform = pDstTransform.DevicePointerRoi;
                 pitchTransform = pDstTransform.Pitch;
             }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
+            }
 
-            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u16u_C1R_Ctx(_devPtr, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u16u_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_8u16u_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6800,18 +7105,25 @@ namespace ManagedCuda.NPP
         /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional 32-bit floating point transform.
         /// </summary>
-        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
-        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
-        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
             int pitchVoronoi = 0;
             int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
 
             if (pDstVoronoi != null)
             {
@@ -6823,8 +7135,18 @@ namespace ManagedCuda.NPP
                 dstTransform = pDstTransform.DevicePointerRoi;
                 pitchTransform = pDstTransform.Pitch;
             }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
+            }
 
-            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u32f_C1R_Ctx(_devPtr, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u32f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -6843,7 +7165,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pMSE">Device memory pointer to output array of the computed MSE for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one MSEBatchGetBufferHostSize call.</param>
         public static void MSEBatch(NppiSize oSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pMSE,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
@@ -6862,7 +7184,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pMSE">Device memory pointer to output array of the computed MSE for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one MSEBatchGetBufferHostSize call.</param>
         public static void MSEBatchAdvanced(NppiSize oMaxSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pMSE,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
@@ -6895,7 +7217,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pPSNR">Device memory pointer to output array of the computed PSNR for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one PSNRBatchGetBufferHostSize call.</param>
         public static void PSNRBatch(NppiSize oSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pPSNR,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
@@ -6914,7 +7236,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pPSNR">Device memory pointer to output array of the computed PSNR for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one PSNRBatchGetBufferHostSize call.</param>
         public static void PSNRBatchAdvanced(NppiSize oMaxSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pPSNR,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
@@ -6947,7 +7269,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pWMSSSIM">Device memory pointer to output array of the computed WMSSSIM for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one WMSSSIMBatchGetBufferHostSize call.</param>
         public static void WMSSSIMBatch(NppiSize oSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pWMSSSIM,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
@@ -6966,7 +7288,7 @@ namespace ManagedCuda.NPP
         /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
         /// <param name="pWMSSSIM">Device memory pointer to output array of the computed WMSSSIM for nBatchSize* sizeof(Npp32f)* 1 image pairs.</param>
         /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
-		/// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
         /// memory buffer pointers and size as returned by at least one WMSSSIMBatchGetBufferHostSize call.</param>
         public static void WMSSSIMBatchAdvanced(NppiSize oMaxSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pWMSSSIM,
                                         CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)

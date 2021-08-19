@@ -1023,7 +1023,52 @@ namespace ManagedCuda.BasicTypes
         /// Option type: unsigned int<para/>
         /// Applies to: dynamic linker only
         /// </summary>
-        GlobalSymbolCount
+        GlobalSymbolCount,
+
+        /// <summary>
+        /// Enable link-time optimization (-dlto) for device code (0: false, default)<para/>
+        /// Option type: int<para/>
+        /// Applies to: compiler and linker
+        /// </summary>
+        Lto,
+
+        /// <summary>
+        /// Control single-precision denormals (-ftz) support (0: false, default).<para/>
+        /// 1 : flushes denormal values to zero<para/>
+        /// 0 : preserves denormal values<para/>
+        /// Option type: int<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        Ftz,
+
+        /// <summary>
+        /// Control single-precision floating-point division and reciprocals<para/>
+        /// (-prec-div) support (1: true, default).<para/>
+        /// 1 : Enables the IEEE round-to-nearest mode<para/>
+        /// 0 : Enables the fast approximation mode<para/>
+        /// Option type: int<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        PrecDiv,
+
+        /// <summary>
+        /// Control single-precision floating-point square root<para/>
+        /// (-prec-sqrt) support (1: true, default).<para/>
+        /// 1 : Enables the IEEE round-to-nearest mode<para/>
+        /// 0 : Enables the fast approximation mode<para/>
+        /// Option type: int\n<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        PrecSqrt,
+
+        /// <summary>
+        /// Enable/Disable the contraction of floating-point multiplies<para/>
+        /// and adds/subtracts into floating-point multiply-add (-fma)<para/>
+        /// operations (1: Enable, default; 0: Disable).<para/>
+        /// Option type: int\n<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        /// </summary>
+        Fma
     }
 
     /// <summary>
@@ -1201,7 +1246,13 @@ namespace ManagedCuda.BasicTypes
         /// Archive of host objects with embedded device code
         /// <para>Applicable options: PTX compiler options, ::CU_JIT_FALLBACK_STRATEGY</para>
         /// </summary>
-        Library
+        Library,
+
+        /// <summary>
+        /// High-level intermediate code for link-time optimization
+        /// Applicable options: NVVM compiler options, PTX compiler options
+        /// </summary>
+        NVVM
     }
 
     /// <summary>
@@ -1528,6 +1579,11 @@ namespace ManagedCuda.BasicTypes
         JITCompilationDisabled = 223,
 
         /// <summary>
+        /// This indicates that the ::CUexecAffinityType passed to the API call is not supported by the active device.
+        /// </summary>
+        UnsupportedExecAffinity = 224,
+
+        /// <summary>
         /// Invalid source
         /// </summary>
         ErrorInvalidSource = 300,
@@ -1768,6 +1824,32 @@ namespace ManagedCuda.BasicTypes
         /// environment variable.
         /// </summary>
         ErrorCompatNotSupportedOnDevice = 804,
+
+
+        /// <summary>
+        /// This error indicates that the MPS client failed to connect to the MPS control daemon or the MPS server.
+        /// </summary>
+        MpsConnectionFailed = 805,
+
+        /// <summary>
+        /// This error indicates that the remote procedural call between the MPS server and the MPS client failed.
+        /// </summary>
+        MpsRpcFailure = 806,
+
+        /// <summary>
+        /// This error indicates that the MPS server is not ready to accept new MPS client requests. This error can be returned when the MPS server is in the process of recovering from a fatal failure.
+        /// </summary>
+        MpsServerNotReady = 807,
+
+        /// <summary>
+        /// This error indicates that the hardware resources required to create MPS client have been exhausted.
+        /// </summary>
+        MpsMaxClientsReached = 808,
+
+        /// <summary>
+        /// This error indicates the the hardware resources required to support device connections have been exhausted.
+        /// </summary>
+        MpsMaxConnectionsReached = 809,
 
         /// <summary>
         /// This error indicates that the operation is not permitted when the stream is capturing.
@@ -2523,9 +2605,13 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         ExtSemasWait = 9,
         /// <summary>
-        /// 
+        /// Memory Allocation Node
         /// </summary>
-        CU_GRAPH_NODE_TYPE_COUNT
+        MemAlloc = 10,
+        /// <summary>
+        /// Memory Free Node
+        /// </summary>
+        MemFree = 11
     }
 
     /// <summary>
@@ -2885,13 +2971,21 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     public enum CUmemPool_attribute
     {
+        /// <summary/>
         ReuseFollowEventDependencies = 1,
+        /// <summary/>
         ReuseAllowOpportunistic,
+        /// <summary/>
         ReuseAllowInternalDependencies,
+        /// <summary/>
         ReleaseThreshold,
+        /// <summary/>
         ReservedMemCurrent,
+        /// <summary/>
         ReservedMemHigh,
+        /// <summary/>
         UsedMemCurrent,
+        /// <summary/>
         UsedMemHigh
     }
 
@@ -2973,5 +3067,50 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         CurrentCtx = 0
     }
+
+
+    /// <summary>
+    /// Execution Affinity Types 
+    /// </summary>
+    public enum CUexecAffinityType
+    {
+        /// <summary>
+        /// Create a context with limited SMs.
+        /// </summary>
+        SMCount = 0,
+        /// <summary/>
+        Max
+    }
+
+
+    /// <summary/>
+    public enum CUgraphMem_attribute
+    {
+        /// <summary>
+        /// (value type = cuuint64_t)<para/>
+        /// Amount of memory, in bytes, currently associated with graphs
+        /// </summary>
+        UsedMemCurrent,
+
+        /// <summary>
+        /// (value type = cuuint64_t)<para/>
+        /// High watermark of memory, in bytes, associated with graphs since the last time it was reset.  High watermark can only be reset to zero.
+        /// </summary>
+        UsedMemHigh,
+
+        /// <summary>
+        /// (value type = cuuint64_t)<para/>
+        /// Amount of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        /// </summary>
+        ReservedMemCurrent,
+
+        /// <summary>
+        /// (value type = cuuint64_t)<para/>
+        /// High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+        /// </summary>
+        ReservedMemHigh
+    }
+
+
     #endregion
 }

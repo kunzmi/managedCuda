@@ -112,6 +112,7 @@ namespace ManagedCuda.NvJpeg
         CSS_411 = 4,
         CSS_410 = 5,
         CSS_Gray = 6,
+        CSS_410V = 7,
         CSS_Unknown = -1
     }
 

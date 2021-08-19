@@ -456,7 +456,6 @@ namespace ManagedCuda
         /// duplicate entries. A handle to the new node will be returned in \p phGraphNode.
         /// </summary>
         /// <param name="dependencies">Dependencies of the node</param>
-        /// <param name="numDependencies">Number of dependencies</param>
         /// <param name="nodeParams">Parameters for the node</param>
         /// <returns>Returns newly created node</returns>
         public CUgraphNode AddExternalSemaphoresSignalNode(CUgraphNode[] dependencies, CudaExtSemSignalNodeParams nodeParams)
@@ -482,7 +481,6 @@ namespace ManagedCuda
         /// to the new node will be returned in \p phGraphNode.
         /// </summary>
         /// <param name="dependencies">Dependencies of the node</param>
-        /// <param name="numDependencies">Number of dependencies</param>
         /// <param name="nodeParams">Parameters for the node</param>
         /// <returns>Returns newly created node</returns>
         public CUgraphNode AddExternalSemaphoresWaitNode(CUgraphNode[] dependencies, CudaExtSemWaitNodeParams nodeParams)
@@ -500,6 +498,55 @@ namespace ManagedCuda
         }
 
 
+        /// <summary>
+        /// Creates an allocation node and adds it to a graph<para/>
+        /// Creates a new allocation node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+        /// to the new node will be returned in \p phGraphNode.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="nodeParams">Parameters for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddMemAllocNode(CUgraphNode[] dependencies, ref CUDA_MEM_ALLOC_NODE_PARAMS nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddMemAllocNode(ref node, _graph, dependencies, numDependencies, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddMemAllocNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates a memory free node and adds it to a graph<para/>
+        /// Creates a new memory free node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+        /// to the new node will be returned in \p phGraphNode.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="dptr">Parameters for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddMemFreeNode(CUgraphNode[] dependencies, CUdeviceptr dptr)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddMemFreeNode(ref node, _graph, dependencies, numDependencies, dptr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddMemFreeNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
 
 
 
@@ -676,6 +723,22 @@ namespace ManagedCuda
                 string message = Encoding.ASCII.GetString(logBuffer);
                 throw new CudaException(res, message, null);
             }
+            return new CudaGraphExec(graphExec);
+        }
+
+        /// <summary>
+        /// Creates an executable graph from a graph<para/>
+        /// Instantiates \p hGraph as an executable graph. The graph is validated for any
+        /// structural constraints or intra-node constraints which were not previously
+        /// validated.If instantiation is successful, a handle to the instantiated graph
+        /// is returned in \p phGraphExec.
+        /// </summary>
+        public CudaGraphExec Instantiate(CUgraphInstantiate_flags flags)
+        {
+            CUgraphExec graphExec = new CUgraphExec();
+            res = DriverAPINativeMethods.GraphManagment.cuGraphInstantiateWithFlags(ref graphExec, _graph, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphInstantiateWithFlags", res));
+            if (res != CUResult.Success) throw new CudaException(res);
             return new CudaGraphExec(graphExec);
         }
 

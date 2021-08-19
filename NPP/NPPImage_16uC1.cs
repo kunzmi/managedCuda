@@ -531,7 +531,7 @@ namespace ManagedCuda.NPP
         /// <param name="eInterpolation">Interpolation mode</param>
         public void Rotate(NPPImage_16uC1 dest, double nAngle, double nShiftX, double nShiftY, InterpolationMode eInterpolation)
         {
-            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiRotate_16u_C1R(_devPtr, _sizeRoi, _pitch, new NppiRect(_pointRoi, _sizeRoi),
+            status = NPPNativeMethods.NPPi.GeometricTransforms.nppiRotate_16u_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi),
                 dest.DevicePointer, dest.Pitch, new NppiRect(dest.PointRoi, dest.SizeRoi), nAngle, nShiftX, nShiftY, eInterpolation);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRotate_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3330,9 +3330,14 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void DilateBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void DilateBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.DilationWithBorderControl.nppiDilateBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.DilationWithBorderControl.nppiDilateBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDilateBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -3346,9 +3351,14 @@ namespace ManagedCuda.NPP
         /// <param name="aMaskSize">Width and Height mask array.</param>
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void ErodeBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void ErodeBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> Mask, NppiSize aMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ErosionWithBorderControl.nppiErodeBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ErosionWithBorderControl.nppiErodeBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Mask.DevicePointer, aMaskSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiErodeBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -3358,9 +3368,14 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void Dilate3x3Border(NPPImage_16uC1 dest, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void Dilate3x3Border(NPPImage_16uC1 dest, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.Dilate3x3Border.nppiDilate3x3Border_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.Dilate3x3Border.nppiDilate3x3Border_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDilate3x3Border_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -3370,9 +3385,14 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dest">Destination image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void Erode3x3Border(NPPImage_16uC1 dest, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void Erode3x3Border(NPPImage_16uC1 dest, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.Erode3x3Border.nppiErode3x3Border_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.Erode3x3Border.nppiErode3x3Border_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiErode3x3Border_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -3442,9 +3462,14 @@ namespace ManagedCuda.NPP
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterRowBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterRowBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> Kernel, int nKernelSize, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterRowBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterRowBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, nKernelSize, nAnchor, nDivisor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRowBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4153,23 +4178,11 @@ namespace ManagedCuda.NPP
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
             NppiRect dstRect = new NppiRect(dst.PointRoi, dst.SizeRoi);
-            status = NPPNativeMethods.NPPi.ResizeSqrPixel.nppiResizeSqrPixel_16u_C1R(_devPtr, _sizeRoi, _pitch, srcRect, dst.DevicePointer, dst.Pitch, dstRect, nXFactor, nYFactor, nXShift, nYShift, eInterpolation);
+            status = NPPNativeMethods.NPPi.ResizeSqrPixel.nppiResizeSqrPixel_16u_C1R(_devPtr, _sizeOriginal, _pitch, srcRect, dst.DevicePointer, dst.Pitch, dstRect, nXFactor, nYFactor, nXShift, nYShift, eInterpolation);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeSqrPixel_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
-        ///// <summary>
-        ///// Resizes images.
-        ///// </summary>
-        ///// <param name="dest">Destination image</param>
-        ///// <param name="xFactor">X scaling factor</param>
-        ///// <param name="yFactor">Y scaling factor</param>
-        ///// <param name="eInterpolation">Interpolation mode</param>
-        //public void Resize(NPPImage_16uC1 dest, double xFactor, double yFactor, InterpolationMode eInterpolation)
-        //{
-        //	status = NPPNativeMethods.NPPi.GeometricTransforms.nppiResize_16u_C1R(_devPtr, _sizeOriginal, _pitch, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, xFactor, yFactor, eInterpolation);
-        //	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResize_16u_C1R", status));
-        //	NPPException.CheckNppStatus(status, this);
-        //}
+
         /// <summary>
         /// Resizes images.
         /// </summary>
@@ -4192,7 +4205,7 @@ namespace ManagedCuda.NPP
         public void Remap(NPPImage_16uC1 dst, NPPImage_32fC1 pXMap, NPPImage_32fC1 pYMap, InterpolationMode eInterpolation)
         {
             NppiRect srcRect = new NppiRect(_pointRoi, _sizeRoi);
-            status = NPPNativeMethods.NPPi.Remap.nppiRemap_16u_C1R(_devPtr, _sizeRoi, _pitch, srcRect, pXMap.DevicePointerRoi, pXMap.Pitch, pYMap.DevicePointerRoi, pYMap.Pitch, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eInterpolation);
+            status = NPPNativeMethods.NPPi.Remap.nppiRemap_16u_C1R(_devPtr, _sizeOriginal, _pitch, srcRect, pXMap.DevicePointerRoi, pXMap.Pitch, pYMap.DevicePointerRoi, pYMap.Pitch, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eInterpolation);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRemap_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4496,9 +4509,14 @@ namespace ManagedCuda.NPP
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided.
         /// If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, int nDivisor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, int nDivisor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterBorder.nppiFilterBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, nDivisor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterBorder.nppiFilterBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, nDivisor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4516,9 +4534,14 @@ namespace ManagedCuda.NPP
         /// <param name="nKernelSize">Width and Height of the rectangular kernel.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference relative to the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> pKernel, NppiSize nKernelSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterBorder32f.nppiFilterBorder32f_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterBorder32f.nppiFilterBorder32f_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pKernel.DevicePointer, nKernelSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder32f_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4535,7 +4558,7 @@ namespace ManagedCuda.NPP
         /// <param name="twistMatrix">The color twist matrix with floating-point pixel values [3,4].</param>
         public void ColorTwist(NPPImage_16uC1 dest, float[,] twistMatrix)
         {
-            status = NPPNativeMethods.NPPi.ColorProcessing.nppiColorTwist32f_16u_C1R(_devPtr, _pitch, dest.DevicePointer, dest.Pitch, _sizeRoi, twistMatrix);
+            status = NPPNativeMethods.NPPi.ColorProcessing.nppiColorTwist32f_16u_C1R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, twistMatrix);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4549,7 +4572,7 @@ namespace ManagedCuda.NPP
         /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
         public void ColorTwist(float[,] aTwist)
         {
-            status = NPPNativeMethods.NPPi.ColorProcessing.nppiColorTwist32f_16u_C1IR(_devPtr, _pitch, _sizeRoi, aTwist);
+            status = NPPNativeMethods.NPPi.ColorProcessing.nppiColorTwist32f_16u_C1IR(_devPtrRoi, _pitch, _sizeRoi, aTwist);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16u_C1IR", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4570,9 +4593,14 @@ namespace ManagedCuda.NPP
         /// <param name="dest">Destination image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterGaussBorder(NPPImage_16uC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterGaussBorder(NPPImage_16uC1 dest, MaskSize eMaskSize, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eMaskSize, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4594,9 +4622,14 @@ namespace ManagedCuda.NPP
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="nDivisor">The factor by which the convolved summation from the Filter operation should be divided. If equal to the sum of coefficients, this will keep the maximum result value within full scale.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterColumnBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> Kernel, int nAnchor, int nDivisor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterColumnBorder(NPPImage_16uC1 dest, CudaDeviceVariable<int> Kernel, int nAnchor, int nDivisor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterColumnBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, nDivisor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterColumnBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, nDivisor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterColumnBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4612,9 +4645,14 @@ namespace ManagedCuda.NPP
         /// <param name="Kernel">Pointer to the start address of the kernel coefficient array. Coeffcients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterColumnBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterColumnBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterColumnBorder32f_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterColumnBorder32f_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterColumnBorder32f_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4632,9 +4670,14 @@ namespace ManagedCuda.NPP
         /// <param name="Kernel">Pointer to the start address of the kernel coefficient array. Coeffcients are expected to be stored in reverse order.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterRowBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterRowBorder(NPPImage_16uC1 dest, CudaDeviceVariable<float> Kernel, int nAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterRowBorder32f_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFilter1D.nppiFilterRowBorder32f_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, Kernel.DevicePointer, Kernel.Size, nAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterRowBorder32f_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4656,9 +4699,14 @@ namespace ManagedCuda.NPP
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">Y offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void SumWindowColumnBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void SumWindowColumnBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.WindowSum1D.nppiSumWindowColumnBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.WindowSum1D.nppiSumWindowColumnBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nMaskSize, nAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumWindowColumnBorder_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4673,9 +4721,14 @@ namespace ManagedCuda.NPP
         /// <param name="nMaskSize">Length of the linear kernel array.</param>
         /// <param name="nAnchor">X offset of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void SumWindowRowBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void SumWindowRowBorder(NPPImage_32fC1 dest, int nMaskSize, int nAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.WindowSum1D.nppiSumWindowRowBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nMaskSize, nAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.WindowSum1D.nppiSumWindowRowBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nMaskSize, nAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumWindowRowBorder_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4691,9 +4744,14 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterBoxBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterBoxBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.LinearFixedFilters2D.nppiFilterBoxBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFixedFilters2D.nppiFilterBoxBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4710,9 +4768,14 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterMinBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterMinBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.RankFilters.nppiFilterMinBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.RankFilters.nppiFilterMinBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMinBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4724,9 +4787,14 @@ namespace ManagedCuda.NPP
         /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
         /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterMaxBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterMaxBorder(NPPImage_16uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.RankFilters.nppiFilterMaxBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, oMaskSize, oAnchor, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.RankFilters.nppiFilterMaxBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMaxBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4741,9 +4809,14 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterHighPassBorder(NPPImage_16uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterHighPassBorder(NPPImage_16uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterHighPassBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterHighPassBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eMaskSize, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterHighPassBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4753,9 +4826,14 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="eMaskSize">Enumeration value specifying the mask size.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterLowPassBorder(NPPImage_16uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterLowPassBorder(NPPImage_16uC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterLowPassBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterLowPassBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eMaskSize, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterLowPassBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4764,9 +4842,14 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="dst">Destination-Image</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterSharpenBorder(NPPImage_16uC1 dst, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterSharpenBorder(NPPImage_16uC1 dst, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterSharpenBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterSharpenBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterSharpenBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4817,7 +4900,7 @@ namespace ManagedCuda.NPP
             if (buffer.Size < FilterUnsharpGetBufferSize(nRadius, nSigma))
                 throw new NPPException("Provided buffer is too small.");
 
-            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterUnsharpBorder_16u_C1R(_devPtr, _pitch, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nRadius, nSigma, nWeight, nThreshold, eBorderType, buffer.DevicePointer);
+            status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterUnsharpBorder_16u_C1R(_devPtrRoi, _pitch, new NppiPoint(), dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, nRadius, nSigma, nWeight, nThreshold, eBorderType, buffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterUnsharpBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4844,9 +4927,14 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination-Image</param>
         /// <param name="Kernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F, where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterGaussBorder(NPPImage_16uC1 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterGaussBorder(NPPImage_16uC1 dst, CudaDeviceVariable<float> Kernel, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterGaussBorder.nppiFilterGaussAdvancedBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dst.DevicePointerRoi, dst.Pitch, dst.SizeRoi, Kernel.Size, Kernel.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussAdvancedBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4866,7 +4954,7 @@ namespace ManagedCuda.NPP
         /// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
         public void CFAToRGB(NPPImage_16uC3 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation)
         {
-            status = NPPNativeMethods.NPPi.ColorDebayer.nppiCFAToRGB_16u_C1C3R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation);
+            status = NPPNativeMethods.NPPi.ColorDebayer.nppiCFAToRGB_16u_C1C3R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGB_16u_C1C3R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4882,7 +4970,7 @@ namespace ManagedCuda.NPP
         /// <param name="nAlpha">constant alpha value to be written to each destination pixel</param>
         public void CFAToRGB(NPPImage_16uC4 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation, ushort nAlpha)
         {
-            status = NPPNativeMethods.NPPi.ColorDebayer.nppiCFAToRGBA_16u_C1AC4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nAlpha);
+            status = NPPNativeMethods.NPPi.ColorDebayer.nppiCFAToRGBA_16u_C1AC4R(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nAlpha);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGBA_16u_C1AC4R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4934,9 +5022,14 @@ namespace ManagedCuda.NPP
         /// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterGaussPyramidLayerDownBorder(NPPImage_16uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterGaussPyramidLayerDownBorder(NPPImage_16uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerDownBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerDownBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4949,9 +5042,14 @@ namespace ManagedCuda.NPP
         /// <param name="nFilterTaps">The number of filter taps where nFilterTaps =  2 * ((int)((float)ceil(radius) + 0.5F) ) + 1.</param>
         /// <param name="pKernel">Pointer to an array of nFilterTaps kernel coefficients which sum to 1.0F. </param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterGaussPyramidLayerUpBorder(NPPImage_16uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterGaussPyramidLayerUpBorder(NPPImage_16uC1 dest, float nRate, int nFilterTaps, CudaDeviceVariable<float> pKernel, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterGaussPyramid.nppiFilterGaussPyramidLayerUpBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRate, nFilterTaps, pKernel.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterGaussPyramidLayerUpBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4970,9 +5068,14 @@ namespace ManagedCuda.NPP
         /// <param name="nValSquareSigma">The square of the sigma for the relative intensity distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
         /// <param name="nPosSquareSigma">The square of the sigma for the relative geometric distance between a source image pixel in the filter kernel and the source image pixel at the center of the filter kernel.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void FilterBilateralGaussBorder(NPPImage_16uC1 dest, int nRadius, int nStepBetweenSrcPixels, float nValSquareSigma, float nPosSquareSigma, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterBilateralGaussBorder(NPPImage_16uC1 dest, int nRadius, int nStepBetweenSrcPixels, float nValSquareSigma, float nPosSquareSigma, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.FilterBilateralGaussBorder.nppiFilterBilateralGaussBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nRadius, nStepBetweenSrcPixels, nValSquareSigma, nPosSquareSigma, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.FilterBilateralGaussBorder.nppiFilterBilateralGaussBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, nRadius, nStepBetweenSrcPixels, nValSquareSigma, nPosSquareSigma, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBilateralGaussBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -4993,9 +5096,48 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void GradientVectorPrewittBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void GradientVectorPrewittBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.GradientVectorPrewittBorder.nppiGradientVectorPrewittBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorPrewittBorder_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5015,9 +5157,48 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void GradientVectorScharrBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void GradientVectorScharrBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.GradientVectorScharrBorder.nppiGradientVectorScharrBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorScharrBorder_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5037,9 +5218,48 @@ namespace ManagedCuda.NPP
         /// <param name="eMaskSize">fixed filter mask size to use.</param>
         /// <param name="eNorm">gradient distance method to use.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void GradientVectorSobelBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void GradientVectorSobelBorder(NPPImage_32fC1 destX, NPPImage_32fC1 destY, NPPImage_32fC1 destMag, NPPImage_32fC1 destAngle, MaskSize eMaskSize, NppiNorm eNorm, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, destX.DevicePointerRoi, destX.Pitch, destY.DevicePointerRoi, destY.Pitch, destMag.DevicePointerRoi, destMag.Pitch, destAngle.DevicePointerRoi, destAngle.Pitch, _sizeRoi, eMaskSize, eNorm, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            NppiSize roi = _sizeRoi;
+            int destXPitch = 0;
+            CUdeviceptr destXPtr = new CUdeviceptr(0);
+            int destYPitch = 0;
+            CUdeviceptr destYPtr = new CUdeviceptr(0);
+            int destMagPitch = 0;
+            CUdeviceptr destMagPtr = new CUdeviceptr(0);
+            int destAngPitch = 0;
+            CUdeviceptr destAngPtr = new CUdeviceptr(0);
+
+            if (destX != null)
+            {
+                destXPitch = destX.Pitch;
+                destXPtr = destX.DevicePointerRoi;
+                roi = destX.SizeRoi;
+            }
+            if (destY != null)
+            {
+                destYPitch = destY.Pitch;
+                destYPtr = destY.DevicePointerRoi;
+                roi = destY.SizeRoi;
+            }
+            if (destMag != null)
+            {
+                destMagPitch = destMag.Pitch;
+                destMagPtr = destMag.DevicePointerRoi;
+                roi = destMag.SizeRoi;
+            }
+            if (destAngle != null)
+            {
+                destAngPitch = destAngle.Pitch;
+                destAngPtr = destAngle.DevicePointerRoi;
+                roi = destAngle.SizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.GradientVectorSobelBorder.nppiGradientVectorSobelBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, destXPtr, destXPitch, destYPtr, destYPitch, destMagPtr, destMagPitch, destAngPtr, destAngPitch, roi, eMaskSize, eNorm, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGradientVectorSobelBorder_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5060,82 +5280,15 @@ namespace ManagedCuda.NPP
         /// <param name="oHOGConfig">Requested HOG configuration parameters structure.</param>
         /// <param name="pScratchBuffer">Device memory buffer pointer of size hpBufferSize bytes to scratch memory buffer (see nppiHistogramOfGradientsBorderGetBufferSize() above).</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void HistogramOfGradientsBorder(NppiPoint[] hpLocations, CudaDeviceVariable<byte> pDstWindowDescriptorBuffer, NppiHOGConfig oHOGConfig, CudaDeviceVariable<byte> pScratchBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_16u32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.HistogramOfOrientedGradientsBorder.nppiHistogramOfGradientsBorder_16u32f_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, hpLocations, hpLocations.Length, pDstWindowDescriptorBuffer.DevicePointer, _sizeRoi, oHOGConfig, pScratchBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramOfGradientsBorder_16u32f_C1R", status));
-            NPPException.CheckNppStatus(status, this);
-        }
-
-
-
-        /// <summary>
-        /// Calculate scratch buffer size needed for 1 channel 16-bit unsigned integer LabelMarkers function based on destination image oSizeROI width and height.
-        /// </summary>
-        /// <returns>Required buffer size in bytes.</returns>
-        public int LabelMarkersGetBufferSize()
-        {
-            int ret = 0;
-            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkersGetBufferSize_16u_C1R(_sizeRoi, ref ret);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkersGetBufferSize_16u_C1R", status));
-            NPPException.CheckNppStatus(status, this);
-            return ret;
-        }
-
-        /// <summary>
-        /// 1 channel 16-bit unsigned integer in place label markers image generation.
-        /// </summary>
-        /// <param name="nMinVal">Pixel values less than or equal to nMinVal will be excluded as members of any connected region and given a label ID of 0.</param>
-        /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
-        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersGetBufferSize call.</param>
-        /// <returns>the maximum generated marker label ID will be returned.</returns>
-        public int LabelMarkers(ushort nMinVal, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
-        {
-            int pNumber = 0;
-            status = NPPNativeMethods.NPPi.LabelMarkers.nppiLabelMarkers_16u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nMinVal, eNorm, ref pNumber, pBuffer.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiLabelMarkers_16u_C1IR", status));
-            NPPException.CheckNppStatus(status, this);
-            return pNumber;
-        }
-
-        /// <summary>
-        /// Calculate scratch buffer size needed for 1 channel 16-bit unsigned integer CompressMarkerLabels function based on the number returned in pNumber from a previous nppiLabelMarkers call.
-        /// </summary>
-        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_16u function.</param>
-        /// <returns>Required buffer size in bytes.</returns>
-        public int CompressMarkerLabelsGetBufferSize(int nStartingNumber)
-        {
-            int ret = 0;
-            status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabelsGetBufferSize_16u_C1R(nStartingNumber, ref ret);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabelsGetBufferSize_16u_C1R", status));
-            NPPException.CheckNppStatus(status, this);
-            return ret;
-        }
-
-        /// <summary>
-        /// 1 channel 16-bit unsigned integer in place connected region marker label renumbering with numbering sparseness elimination.
-        /// </summary>
-        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_8u32u function.</param>
-        /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding CompressMarkerLabelsGetBufferSize call.</param>
-        /// <returns>the maximum renumbered marker label ID will be returned.</returns>
-        public int CompressMarkerLabels(int nStartingNumber, CudaDeviceVariable<byte> pBuffer)
-        {
-            int pNewNumber = 0;
-            status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabels_16u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nStartingNumber, ref pNewNumber, pBuffer.DevicePointer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabels_16u_C1IR", status));
-            NPPException.CheckNppStatus(status, this);
-            return pNewNumber;
-        }
-
-
-        /// <summary>
-        /// 1 channel 16-bit unsigned integer in place region boundary border image generation.
-        /// </summary>
-        /// <param name="nBorderVal">Pixel value to be used at connected region boundary borders</param>
-        public void BoundSegments(ushort nBorderVal)
-        {
-            status = NPPNativeMethods.NPPi.LabelMarkers.nppiBoundSegments_16u_C1IR(_devPtrRoi, _pitch, _sizeRoi, nBorderVal);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiBoundSegments_16u_C1IR", status));
             NPPException.CheckNppStatus(status, this);
         }
 
@@ -5166,9 +5319,14 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void MorphCloseBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void MorphCloseBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphCloseBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphCloseBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5183,9 +5341,14 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void MorphOpenBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void MorphOpenBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphOpenBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphOpenBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5199,9 +5362,14 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void MorphTopHatBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void MorphTopHatBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphTopHatBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphTopHatBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5215,9 +5383,14 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void MorphBlackHatBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void MorphBlackHatBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphBlackHatBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphBlackHatBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5231,9 +5404,14 @@ namespace ManagedCuda.NPP
         /// <param name="oAnchor">X and Y offsets of the mask origin frame of reference w.r.t the source pixel.</param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding MorphGetBufferSize call.</param>
         /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
-        public void MorphGradientBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType)
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void MorphGradientBorder(NPPImage_16uC1 dest, CudaDeviceVariable<byte> pMask, NppiSize oMaskSize, NppiPoint oAnchor, CudaDeviceVariable<byte> pBuffer, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
         {
-            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_16u_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ComplexImageMorphology.nppiMorphGradientBorder_16u_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, pMask.DevicePointer, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMorphGradientBorder_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5476,17 +5654,24 @@ namespace ManagedCuda.NPP
         /// 1 channel 16-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional unsigned 16-bit truncated integer transform.
         /// </summary>
-        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
-        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
-        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
-        public void DistanceTransformPBA(ushort nMinSiteValue, ushort nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        public void DistanceTransformPBA(ushort nMinSiteValue, ushort nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
             int pitchVoronoi = 0;
             int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
 
             if (pDstVoronoi != null)
             {
@@ -5498,8 +5683,18 @@ namespace ManagedCuda.NPP
                 dstTransform = pDstTransform.DevicePointerRoi;
                 pitchTransform = pDstTransform.Pitch;
             }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
+            }
 
-            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16u16u_C1R(_devPtr, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16u16u_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_16u16u_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
@@ -5508,17 +5703,24 @@ namespace ManagedCuda.NPP
         /// 1 channel 16-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional 32-bit floating point transform.
         /// </summary>
-        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
-        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and <= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
-        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
-        public void DistanceTransformPBA(ushort nMinSiteValue, ushort nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        public void DistanceTransformPBA(ushort nMinSiteValue, ushort nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
             int pitchVoronoi = 0;
             int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
 
             if (pDstVoronoi != null)
             {
@@ -5530,8 +5732,18 @@ namespace ManagedCuda.NPP
                 dstTransform = pDstTransform.DevicePointerRoi;
                 pitchTransform = pDstTransform.Pitch;
             }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
+            }
 
-            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16u32f_C1R(_devPtr, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16u32f_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_16u32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }

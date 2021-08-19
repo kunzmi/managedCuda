@@ -29,41 +29,41 @@ using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public partial class NPPImage_16fC2 : NPPImageBase
-	{
-		#region ColorTwist
-		/// <summary>
-		/// An input color twist matrix with floating-point pixel values is applied
-		/// within ROI.
-		/// </summary>
-		/// <param name="dest">Destination image</param>
-		/// <param name="twistMatrix">The color twist matrix with floating-point pixel values [3,4].</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-		public void ColorTwist(NPPImage_16fC2 dest, float[,] twistMatrix, NppStreamContext nppStreamCtx)
-		{
-			status = NPPNativeMethods_Ctx.NPPi.ColorTwist.nppiColorTwist32f_16f_C2R_Ctx(_devPtr, _pitch, dest.DevicePointer, dest.Pitch, _sizeRoi, twistMatrix, nppStreamCtx);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2R_Ctx", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+    /// <summary>
+    /// 
+    /// </summary>
+    public partial class NPPImage_16fC2 : NPPImageBase
+    {
+        #region ColorTwist
+        /// <summary>
+        /// An input color twist matrix with floating-point pixel values is applied
+        /// within ROI.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="twistMatrix">The color twist matrix with floating-point pixel values [3,4].</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void ColorTwist(NPPImage_16fC2 dest, float[,] twistMatrix, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ColorTwist.nppiColorTwist32f_16f_C2R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, twistMatrix, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
 
-		/// <summary>
-		/// in place color twist.
-		/// 
-		/// An input color twist matrix with floating-point coefficient values is applied
-		/// within ROI.
-		/// </summary>
-		/// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
-		/// <param name="nppStreamCtx">NPP stream context.</param>
-		public void ColorTwist(float[,] aTwist, NppStreamContext nppStreamCtx)
-		{
-			status = NPPNativeMethods_Ctx.NPPi.ColorTwist.nppiColorTwist32f_16f_C2IR_Ctx(_devPtr, _pitch, _sizeRoi, aTwist, nppStreamCtx);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2IR_Ctx", status));
-			NPPException.CheckNppStatus(status, this);
-		}
+        /// <summary>
+        /// in place color twist.
+        /// 
+        /// An input color twist matrix with floating-point coefficient values is applied
+        /// within ROI.
+        /// </summary>
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void ColorTwist(float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ColorTwist.nppiColorTwist32f_16f_C2IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
