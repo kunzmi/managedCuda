@@ -1607,6 +1607,19 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMax_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
+
+		/// <summary>
+		/// Image pixel minimum and maximum. No additional buffer is allocated.
+		/// </summary>
+		/// <param name="min">Allocated device memory with size of at least 1 * sizeof(float)</param>
+		/// <param name="max">Allocated device memory with size of at least 1 * sizeof(float)</param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxGetBufferHostSize()"/></param>
+		public void MinMaxUnsafe(CudaDeviceVariable<float> min, CudaDeviceVariable<float> max, CudaDeviceVariable<byte> buffer)
+		{
+			status = NPPNativeMethods.NPPi.MinMaxNew.nppiMinMax_32f_C1R(_devPtrRoi, _pitch, _sizeRoi, min.DevicePointer, max.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMax_32f_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
 		#endregion
 
 		#region MinMaxIndex
@@ -4689,6 +4702,13 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterLaplaceBorder_32f_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
+		//public void FilterLaplaceBorder(NPPImage_32fC1 dst, MaskSize eMaskSize, NppiBorderType eBorderType, NppiRect filterArea = new NppiRect())
+		//{
+		//	if (filterArea.IsEmpty)
+		//	status = NPPNativeMethods.NPPi.FixedFilters.nppiFilterLaplaceBorder_32f_C1R(_devPtr, _pitch, _sizeOriginal, _pointRoi, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, eMaskSize, eBorderType);
+		//	Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterLaplaceBorder_32f_C1R", status));
+		//	NPPException.CheckNppStatus(status, this);
+		//}
 
 
 		/// <summary>

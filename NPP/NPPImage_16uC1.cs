@@ -1827,6 +1827,18 @@ namespace ManagedCuda.NPP
 			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMax_16u_C1R", status));
 			NPPException.CheckNppStatus(status, this);
 		}
+		/// <summary>
+		/// Image pixel minimum and maximum. No additional buffer is allocated.
+		/// </summary>
+		/// <param name="min">Allocated device memory with size of at least 1 * sizeof(ushort)</param>
+		/// <param name="max">Allocated device memory with size of at least 1 * sizeof(ushort)</param>
+		/// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxGetBufferHostSize()"/></param>
+		public void MinMaxUnsafe(CudaDeviceVariable<ushort> min, CudaDeviceVariable<ushort> max, CudaDeviceVariable<byte> buffer)
+		{
+			status = NPPNativeMethods.NPPi.MinMaxNew.nppiMinMax_16u_C1R(_devPtrRoi, _pitch, _sizeRoi, min.DevicePointer, max.DevicePointer, buffer.DevicePointer);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMax_16u_C1R", status));
+			NPPException.CheckNppStatus(status, this);
+		}
 		#endregion
 
 		#region MinMaxIndex
