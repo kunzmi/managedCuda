@@ -1,28 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
@@ -35,7 +38,7 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     public static class CudaSparseNativeMethods
     {
-        internal const string CUSPARSE_API_DLL_NAME = "cusparse64_11";
+        internal const string CUSPARSE_API_DLL_NAME = "cusparse64_12";
 
 #if (NETCOREAPP)
         internal const string CUSPARSE_API_DLL_NAME_LINUX = "cusparse";
@@ -53,7 +56,12 @@ namespace ManagedCuda.CudaSparse
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    NativeLibrary.TryLoad(CUSPARSE_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    bool res = NativeLibrary.TryLoad(CUSPARSE_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + CUSPARSE_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + CUSPARSE_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
                 }
             }
             //On Windows, use the default library name
@@ -101,9 +109,6 @@ namespace ManagedCuda.CudaSparse
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDestroyMatDescr(cusparseMatDescr descrA);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCopyMatDescr(cusparseMatDescr dest, cusparseMatDescr src);
 
 
         /// <summary/>
@@ -135,15 +140,6 @@ namespace ManagedCuda.CudaSparse
         public static extern IndexBase cusparseGetMatIndexBase(cusparseMatDescr descrA);
         #endregion
 
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseCreateCsrsv2Info(ref csrsv2Info info);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseDestroyCsrsv2Info(csrsv2Info info);
 
         #region incomplete Cholesky
         /// <summary/>
@@ -227,268 +223,7 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseDestroyPruneInfo(pruneInfo info);
         #endregion
 
-        #region Csrgemm2Info
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCreateCsrgemm2Info(ref csrgemm2Info info);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDestroyCsrgemm2Info(csrgemm2Info info);
-        #endregion
-
-        #region Sparse Level 1 routines
-        /* Description: Addition of a scalar multiple of a sparse vector x  
-		and a dense vector y. */
-        #region ref host
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSaxpyi(cusparseContext handle, int nnz, ref float alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDaxpyi(cusparseContext handle, int nnz, ref double alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCaxpyi(cusparseContext handle, int nnz, ref cuFloatComplex alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZaxpyi(cusparseContext handle, int nnz, ref cuDoubleComplex alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-        #endregion
-        #region ref device
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZaxpyi(cusparseContext handle, int nnz, CUdeviceptr alpha, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-        #endregion
-
-
-
-
-
-        /* Description: Gather of non-zero elements from dense vector y into 
-		sparse vector x. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZgthr(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /* Description: Gather of non-zero elements from desne vector y into 
-		sparse vector x (also replacing these elements in y by zeros). */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZgthrz(cusparseContext handle, int nnz, CUdeviceptr y, CUdeviceptr xVal, CUdeviceptr xInd, IndexBase idxBase);
-
-        /* Description: Scatter of elements of the sparse vector x into 
-		dense vector y. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZsctr(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, IndexBase idxBase);
-
-        /* Description: Givens rotation, where c and s are cosine and sine, 
-		x and y are sparse and dense vectors, respectively. */
-        #region ref host
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, ref float c, ref float s, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, ref double c, ref double s, IndexBase idxBase);
-        #endregion
-        #region ref device
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, CUdeviceptr c, CUdeviceptr s, IndexBase idxBase);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDroti(cusparseContext handle, int nnz, CUdeviceptr xVal, CUdeviceptr xInd, CUdeviceptr y, CUdeviceptr c, CUdeviceptr s, IndexBase idxBase);
-        #endregion
-
-        #endregion
-
         #region Sparse Level 2 routines
-        //new in Cuda 8.0
-
-        #region ref host
-        //Returns number of bytes
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpMV instead.")]
-        public static extern cusparseStatus cusparseCsrmvEx_bufferSize(cusparseContext handle,
-                                                        cusparseAlgMode alg,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int n,
-                                                        int nnz,
-                                                        IntPtr alpha,
-                                                        cudaDataType alphatype,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        cudaDataType csrValAtype,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        CUdeviceptr x,
-                                                        cudaDataType xtype,
-                                                        IntPtr beta,
-                                                        cudaDataType betatype,
-                                                        CUdeviceptr y,
-                                                        cudaDataType ytype,
-                                                        cudaDataType executiontype,
-                                                        ref SizeT bufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpMV instead.")]
-        public static extern cusparseStatus cusparseCsrmvEx(cusparseContext handle,
-                                             cusparseAlgMode alg,
-                                             cusparseOperation transA,
-                                             int m,
-                                             int n,
-                                             int nnz,
-                                             IntPtr alpha,
-                                             cudaDataType alphatype,
-                                             cusparseMatDescr descrA,
-                                             CUdeviceptr csrValA,
-                                             cudaDataType csrValAtype,
-                                             CUdeviceptr csrRowPtrA,
-                                             CUdeviceptr csrColIndA,
-                                             CUdeviceptr x,
-                                             cudaDataType xtype,
-                                             IntPtr beta,
-                                             cudaDataType betatype,
-                                             CUdeviceptr y,
-                                             cudaDataType ytype,
-                                             cudaDataType executiontype,
-                                             CUdeviceptr buffer);
-
-
-        #endregion
-
-        #region ref device
-        //Returns number of bytes
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCsrmvEx_bufferSize(cusparseContext handle,
-                                                        cusparseAlgMode alg,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int n,
-                                                        int nnz,
-                                                        CUdeviceptr alpha,
-                                                        cudaDataType alphatype,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        cudaDataType csrValAtype,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        CUdeviceptr x,
-                                                        cudaDataType xtype,
-                                                        CUdeviceptr beta,
-                                                        cudaDataType betatype,
-                                                        CUdeviceptr y,
-                                                        cudaDataType ytype,
-                                                        cudaDataType executiontype,
-                                                        ref SizeT bufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCsrmvEx(cusparseContext handle,
-                                             cusparseAlgMode alg,
-                                             cusparseOperation transA,
-                                             int m,
-                                             int n,
-                                             int nnz,
-                                             CUdeviceptr alpha,
-                                             cudaDataType alphatype,
-                                             cusparseMatDescr descrA,
-                                             CUdeviceptr csrValA,
-                                             cudaDataType csrValAtype,
-                                             CUdeviceptr csrRowPtrA,
-                                             CUdeviceptr csrColIndA,
-                                             CUdeviceptr x,
-                                             cudaDataType xtype,
-                                             CUdeviceptr beta,
-                                             cudaDataType betatype,
-                                             CUdeviceptr y,
-                                             cudaDataType ytype,
-                                             cudaDataType executiontype,
-                                             CUdeviceptr buffer);
-
-
-        #endregion
-
-
         //new in Cuda 7.5
         #region ref host
         /// <summary/>
@@ -653,181 +388,6 @@ namespace ManagedCuda.CudaSparse
 
         #endregion
 
-
-
-
-
-
-
-
-        /* Description: Solution of triangular linear system op(A) * y = alpha * x, 
-		   where A is a sparse matrix in CSR storage format, x and y are dense vectors. 
-		   The new API provides utility function to query size of buffer used. */
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrsv2_bufferSize(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref int pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrsv2_bufferSize(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref int pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrsv2_bufferSize(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref int pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrsv2_bufferSize(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref int pBufferSize);
-
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrsv2_bufferSizeExt(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref SizeT pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrsv2_bufferSizeExt(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref SizeT pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrsv2_bufferSizeExt(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref SizeT pBufferSize);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrsv2_bufferSizeExt(cusparseContext handle,
-                                                        cusparseOperation transA,
-                                                        int m,
-                                                        int nnz,
-                                                        cusparseMatDescr descrA,
-                                                        CUdeviceptr csrValA,
-                                                        CUdeviceptr csrRowPtrA,
-                                                        CUdeviceptr csrColIndA,
-                                                        csrsv2Info info,
-                                                        ref SizeT pBufferSize);
-
-
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrsv2_analysis(cusparseContext handle,
-                                                      cusparseOperation transA,
-                                                      int m,
-                                                      int nnz,
-                                                      cusparseMatDescr descrA,
-                                                      CUdeviceptr csrValA,
-                                                      CUdeviceptr csrRowPtrA,
-                                                      CUdeviceptr csrColIndA,
-                                                      csrsv2Info info,
-                                                      cusparseSolvePolicy policy,
-                                                      CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrsv2_analysis(cusparseContext handle,
-                                                      cusparseOperation transA,
-                                                      int m,
-                                                      int nnz,
-                                                      cusparseMatDescr descrA,
-                                                      CUdeviceptr csrValA,
-                                                      CUdeviceptr csrRowPtrA,
-                                                      CUdeviceptr csrColIndA,
-                                                      csrsv2Info info,
-                                                      cusparseSolvePolicy policy,
-                                                      CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrsv2_analysis(cusparseContext handle,
-                                                      cusparseOperation transA,
-                                                      int m,
-                                                      int nnz,
-                                                      cusparseMatDescr descrA,
-                                                      CUdeviceptr csrValA,
-                                                      CUdeviceptr csrRowPtrA,
-                                                      CUdeviceptr csrColIndA,
-                                                      csrsv2Info info,
-                                                      cusparseSolvePolicy policy,
-                                                      CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrsv2_analysis(cusparseContext handle,
-                                                      cusparseOperation transA,
-                                                      int m,
-                                                      int nnz,
-                                                      cusparseMatDescr descrA,
-                                                      CUdeviceptr csrValA,
-                                                      CUdeviceptr csrRowPtrA,
-                                                      CUdeviceptr csrColIndA,
-                                                      csrsv2Info info,
-                                                      cusparseSolvePolicy policy,
-                                                      CUdeviceptr pBuffer);
 
 
         /// <summary/>
@@ -1019,84 +579,6 @@ namespace ManagedCuda.CudaSparse
         #region ref host
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseXcsrsv2_zeroPivot(cusparseContext handle,
-                                                       csrsv2Info info,
-                                                       ref int position);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseScsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   ref float alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseDcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   ref double alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseCcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   ref cuFloatComplex alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseZcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   ref cuDoubleComplex alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseXbsrsv2_zeroPivot(cusparseContext handle,
                                                        bsrsv2Info info,
                                                        ref int position);
@@ -1182,84 +664,6 @@ namespace ManagedCuda.CudaSparse
         #endregion
 
         #region ref device
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseXcsrsv2_zeroPivot(cusparseContext handle,
-                                                       csrsv2Info info,
-                                                       CUdeviceptr position);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseScsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   CUdeviceptr alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseDcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   CUdeviceptr alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseCcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   CUdeviceptr alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSpSV instead.")]
-        public static extern cusparseStatus cusparseZcsrsv2_solve(cusparseContext handle,
-                                                   cusparseOperation transA,
-                                                   int m,
-                                                   int nnz,
-                                                   CUdeviceptr alpha,
-                                                   cusparseMatDescr descra,
-                                                   CUdeviceptr csrValA,
-                                                   CUdeviceptr csrRowPtrA,
-                                                   CUdeviceptr csrColIndA,
-                                                   csrsv2Info info,
-                                                   CUdeviceptr x,
-                                                   CUdeviceptr y,
-                                                   cusparseSolvePolicy policy,
-                                                   CUdeviceptr pBuffer);
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -1346,738 +750,12 @@ namespace ManagedCuda.CudaSparse
                                                    cusparseSolvePolicy policy,
                                                    CUdeviceptr pBuffer);
         #endregion
-
-
-
-
-
-
-
-
-
-
 
 
 
         #endregion
 
         #region Sparse Level 3 routines
-
-        //new in Cuda 8.0
-
-        /* Description: dense - sparse matrix multiplication C = alpha * A * B  + beta * C, 
-		   where A is column-major dense matrix, B is a sparse matrix in CSC format, 
-		   and C is column-major dense matrix. */
-        #region ref host
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             ref float alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             ref float beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             ref double alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             ref double beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             ref cuFloatComplex alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             ref cuFloatComplex beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             ref cuDoubleComplex alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             ref cuDoubleComplex beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        #endregion
-        #region ref device
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseSgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             CUdeviceptr alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             CUdeviceptr beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseDgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             CUdeviceptr alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             CUdeviceptr beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseCgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             CUdeviceptr alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             CUdeviceptr beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated in Cuda version 11.1")]
-        public static extern cusparseStatus cusparseZgemmi(cusparseContext handle,
-                                             int m,
-                                             int n,
-                                             int k,
-                                             int nnz,
-                                             CUdeviceptr alpha, /* host or device pointer */
-                                             CUdeviceptr A,
-                                             int lda,
-                                             CUdeviceptr cscValB,
-                                             CUdeviceptr cscColPtrB,
-                                             CUdeviceptr cscRowIndB,
-                                             CUdeviceptr beta, /* host or device pointer */
-                                             CUdeviceptr C,
-                                             int ldc);
-
-        #endregion
-
-
-
-
-
-
-
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCreateCsrsm2Info(ref csrsm2Info info);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDestroyCsrsm2Info(csrsm2Info info);
-
-        #region host memory
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, ref int position);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref float alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref double alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuFloatComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuDoubleComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref float alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref double alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuFloatComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuDoubleComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref float alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref double alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuFloatComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            ref cuDoubleComplex alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-        #endregion
-
-        #region device memory
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseXcsrsm2_zeroPivot(cusparseContext handle, csrsm2Info info, CUdeviceptr position);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_bufferSizeExt(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            ref SizeT pBufferSize);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_analysis(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseScsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseDcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseCcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-
-        /// <summary/>
-		[DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.4 on. Use cusparseSpSM instead.")]
-        public static extern cusparseStatus cusparseZcsrsm2_solve(
-            cusparseContext handle,
-            int algo, /* algo = 0, 1 */
-            cusparseOperation transA,
-            cusparseOperation transB,
-            int m,
-            int nrhs,
-            int nnz,
-            CUdeviceptr alpha,
-            cusparseMatDescr descrA,
-            CUdeviceptr csrSortedValA,
-            CUdeviceptr csrSortedRowPtrA,
-            CUdeviceptr csrSortedColIndA,
-            CUdeviceptr B,
-            int ldb,
-            csrsm2Info info,
-            cusparseSolvePolicy policy,
-            CUdeviceptr pBuffer);
-        #endregion
-
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -4246,95 +2924,6 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseZnnz(cusparseContext handle, cusparseDirection dirA, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRowCol, CUdeviceptr nnzTotalDevHostPtr);
         #endregion
 
-        /* Description: This routine converts a dense matrix to a sparse matrix 
-		   in the CSR storage format, using the information computed by the 
-		   nnz routine. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseSdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseDdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseCdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseZdense2csr(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerRow, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA);
-
-        /* Description: This routine converts a sparse matrix in CSR storage format
-		   to a dense matrix. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseScsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseDcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseCcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseZcsr2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr csrValA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr A, int lda);
-
-        /* Description: This routine converts a dense matrix to a sparse matrix 
-		   in the CSC storage format, using the information computed by the 
-		   nnz routine. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseSdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseDdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseCdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseDenseToSparse instead.")]
-        public static extern cusparseStatus cusparseZdense2csc(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr A, int lda, CUdeviceptr nnzPerCol, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA);
-
-        /* Description: This routine converts a sparse matrix in CSC storage format
-		   to a dense matrix. */
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
-        public static extern cusparseStatus cusparseScsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
-        public static extern cusparseStatus cusparseDcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
-        public static extern cusparseStatus cusparseCcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.2 on. Use cusparseSparseToDense instead.")]
-        public static extern cusparseStatus cusparseZcsc2dense(cusparseContext handle, int m, int n, cusparseMatDescr descrA, CUdeviceptr cscValA, CUdeviceptr cscRowIndA, CUdeviceptr cscColPtrA, CUdeviceptr A, int lda);
 
         /* Description: This routine compresses the indecis of rows or columns.
 		   It can be interpreted as a conversion from COO to CSR sparse storage
@@ -4379,500 +2968,6 @@ namespace ManagedCuda.CudaSparse
 
         /* Description: Compute sparse - sparse matrix multiplication for matrices 
    stored in CSR format. */
-
-        #region ref host
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             ref float alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             ref float beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             ref double alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             ref double beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             ref cuFloatComplex alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             ref cuFloatComplex beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             ref cuDoubleComplex alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             ref cuDoubleComplex beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               ref float alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               ref float beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               ref double alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               ref double beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               ref cuFloatComplex alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               ref cuFloatComplex beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               ref cuDoubleComplex alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               ref cuDoubleComplex beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseXcsrgemm2Nnz(cusparseContext handle,
-                                                  int m,
-                                                  int n,
-                                                  int k,
-                                                  cusparseMatDescr descrA,
-                                                  int nnzA,
-                                                  CUdeviceptr csrSortedRowPtrA,
-                                                  CUdeviceptr csrSortedColIndA,
-                                                  cusparseMatDescr descrB,
-                                                  int nnzB,
-                                                  CUdeviceptr csrSortedRowPtrB,
-                                                  CUdeviceptr csrSortedColIndB,
-                                                  cusparseMatDescr descrD,
-                                                  int nnzD,
-                                                  CUdeviceptr csrSortedRowPtrD,
-                                                  CUdeviceptr csrSortedColIndD,
-                                                  cusparseMatDescr descrC,
-                                                  CUdeviceptr csrSortedRowPtrC,
-                                                  ref int nnzTotalDevHostPtr,
-                                                  csrgemm2Info info,
-                                                  CUdeviceptr pBuffer);
-        #endregion
-        #region ref device
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             CUdeviceptr alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             CUdeviceptr beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             CUdeviceptr alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             CUdeviceptr beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             CUdeviceptr alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             CUdeviceptr beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrgemm2_bufferSizeExt(cusparseContext handle,
-                                                             int m,
-                                                             int n,
-                                                             int k,
-                                                             CUdeviceptr alpha,
-                                                             cusparseMatDescr descrA,
-                                                             int nnzA,
-                                                             CUdeviceptr csrSortedRowPtrA,
-                                                             CUdeviceptr csrSortedColIndA,
-                                                             cusparseMatDescr descrB,
-                                                             int nnzB,
-                                                             CUdeviceptr csrSortedRowPtrB,
-                                                             CUdeviceptr csrSortedColIndB,
-                                                             CUdeviceptr beta,
-                                                             cusparseMatDescr descrD,
-                                                             int nnzD,
-                                                             CUdeviceptr csrSortedRowPtrD,
-                                                             CUdeviceptr csrSortedColIndD,
-                                                             csrgemm2Info info,
-                                                             ref SizeT pBufferSizeInBytes);
-
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseScsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               CUdeviceptr alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               CUdeviceptr beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               CUdeviceptr alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               CUdeviceptr beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseCcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               CUdeviceptr alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               CUdeviceptr beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseZcsrgemm2(cusparseContext handle,
-                                               int m,
-                                               int n,
-                                               int k,
-                                               CUdeviceptr alpha,
-                                               cusparseMatDescr descrA,
-                                               int nnzA,
-                                               CUdeviceptr csrSortedValA,
-                                               CUdeviceptr csrSortedRowPtrA,
-                                               CUdeviceptr csrSortedColIndA,
-                                               cusparseMatDescr descrB,
-                                               int nnzB,
-                                               CUdeviceptr csrSortedValB,
-                                               CUdeviceptr csrSortedRowPtrB,
-                                               CUdeviceptr csrSortedColIndB,
-                                               CUdeviceptr beta,
-                                               cusparseMatDescr descrD,
-                                               int nnzD,
-                                               CUdeviceptr csrSortedValD,
-                                               CUdeviceptr csrSortedRowPtrD,
-                                               CUdeviceptr csrSortedColIndD,
-                                               cusparseMatDescr descrC,
-                                               CUdeviceptr csrSortedValC,
-                                               CUdeviceptr csrSortedRowPtrC,
-                                               CUdeviceptr csrSortedColIndC,
-                                               csrgemm2Info info,
-                                               CUdeviceptr pBuffer);
-
-
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseXcsrgemm2Nnz(cusparseContext handle,
-                                                  int m,
-                                                  int n,
-                                                  int k,
-                                                  cusparseMatDescr descrA,
-                                                  int nnzA,
-                                                  CUdeviceptr csrSortedRowPtrA,
-                                                  CUdeviceptr csrSortedColIndA,
-                                                  cusparseMatDescr descrB,
-                                                  int nnzB,
-                                                  CUdeviceptr csrSortedRowPtrB,
-                                                  CUdeviceptr csrSortedColIndB,
-                                                  cusparseMatDescr descrD,
-                                                  int nnzD,
-                                                  CUdeviceptr csrSortedRowPtrD,
-                                                  CUdeviceptr csrSortedColIndD,
-                                                  cusparseMatDescr descrC,
-                                                  CUdeviceptr csrSortedRowPtrC,
-                                                  CUdeviceptr nnzTotalDevHostPtr,
-                                                  csrgemm2Info info,
-                                                  CUdeviceptr pBuffer);
-        #endregion
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -8281,7 +6376,18 @@ namespace ManagedCuda.CudaSparse
                     cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDestroySpVec(cusparseSpVecDescr spVecDescr);
+        public static extern cusparseStatus cusparseCreateConstSpVec(ref cusparseConstSpVecDescr spVecDescr,
+                    long size,
+                    long nnz,
+                    CUdeviceptr indices,
+                    CUdeviceptr values,
+                    IndexType idxType,
+                    IndexBase idxBase,
+                    cudaDataType valueType);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseDestroySpVec(cusparseConstSpVecDescr spVecDescr);
+
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVecGet(cusparseSpVecDescr spVecDescr,
@@ -8292,13 +6398,25 @@ namespace ManagedCuda.CudaSparse
                  ref IndexType idxType,
                  ref IndexBase idxBase,
                  ref cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstSpVecGet(cusparseConstSpVecDescr spVecDescr,
+                 ref long size,
+                 ref long nnz,
+                 ref CUdeviceptr indices,
+                 ref CUdeviceptr values,
+                 ref IndexType idxType,
+                 ref IndexBase idxBase,
+                 ref cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpVecGetIndexBase(cusparseSpVecDescr spVecDescr,
+        public static extern cusparseStatus cusparseSpVecGetIndexBase(cusparseConstSpVecDescr spVecDescr,
                           ref IndexBase idxBase);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVecGetValues(cusparseSpVecDescr spVecDescr,
+                        ref CUdeviceptr values);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstSpVecGetValues(cusparseConstSpVecDescr spVecDescr,
                         ref CUdeviceptr values);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -8317,18 +6435,31 @@ namespace ManagedCuda.CudaSparse
                     long size,
                     CUdeviceptr values,
                     cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstDnVec(ref cusparseConstDnVecDescr dnVecDescr,
+                    long size,
+                    CUdeviceptr values,
+                    cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDestroyDnVec(cusparseDnVecDescr dnVecDescr);
+        public static extern cusparseStatus cusparseDestroyDnVec(cusparseConstDnVecDescr dnVecDescr);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDnVecGet(cusparseDnVecDescr dnVecDescr,
                  ref long size,
                  ref CUdeviceptr values,
                  ref cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstDnVecGet(cusparseConstDnVecDescr dnVecDescr,
+                 ref long size,
+                 ref CUdeviceptr values,
+                 ref cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDnVecGetValues(cusparseDnVecDescr dnVecDescr,
+                       ref CUdeviceptr values);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstDnVecGetValues(cusparseConstDnVecDescr dnVecDescr,
                        ref CUdeviceptr values);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -8342,18 +6473,21 @@ namespace ManagedCuda.CudaSparse
         // #############################################################################
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDestroySpMat(cusparseSpMatDescr spMatDescr);
+        public static extern cusparseStatus cusparseDestroySpMat(cusparseConstSpMatDescr spMatDescr);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetFormat(cusparseSpMatDescr spMatDescr,
+        public static extern cusparseStatus cusparseSpMatGetFormat(cusparseConstSpMatDescr spMatDescr,
                        ref Format format);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetIndexBase(cusparseSpMatDescr spMatDescr,
+        public static extern cusparseStatus cusparseSpMatGetIndexBase(cusparseConstSpMatDescr spMatDescr,
                           ref IndexBase idxBase);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpMatGetValues(cusparseSpMatDescr spMatDescr,
+                       ref CUdeviceptr values);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstSpMatGetValues(cusparseConstSpMatDescr spMatDescr,
                        ref CUdeviceptr values);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -8361,18 +6495,18 @@ namespace ManagedCuda.CudaSparse
                        CUdeviceptr values);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetSize(cusparseSpMatDescr spMatDescr,
+        public static extern cusparseStatus cusparseSpMatGetSize(cusparseConstSpMatDescr spMatDescr,
                      ref long rows,
                      ref long cols,
                      ref long nnz);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatSetStridedBatch(cusparseSpMatDescr spMatDescr,
-                             int batchCount);
+        public static extern cusparseStatus cusparseSpMatGetStridedBatch(cusparseConstSpMatDescr spMatDescr,
+                             ref int batchCount);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetStridedBatch(cusparseSpMatDescr spMatDescr,
-                             ref int batchCount);
+        public static extern cusparseStatus cusparseSpMatSetStridedBatch(cusparseSpMatDescr spMatDescr,
+                             int batchCount);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseCooSetStridedBatch(cusparseSpMatDescr spMatDescr,
@@ -8387,7 +6521,7 @@ namespace ManagedCuda.CudaSparse
 
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetAttribute(cusparseSpMatDescr spMatDescr,
+        public static extern cusparseStatus cusparseSpMatGetAttribute(cusparseConstSpMatDescr spMatDescr,
                           cusparseSpMatAttribute attribute,
                           ref cusparseDiagType data,
                           SizeT dataSize);
@@ -8399,7 +6533,7 @@ namespace ManagedCuda.CudaSparse
                           ref cusparseDiagType data,
                           SizeT dataSize);
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSpMatGetAttribute(cusparseSpMatDescr spMatDescr,
+        public static extern cusparseStatus cusparseSpMatGetAttribute(cusparseConstSpMatDescr spMatDescr,
                           cusparseSpMatAttribute attribute,
                           ref cusparseFillMode data,
                           SizeT dataSize);
@@ -8425,10 +6559,34 @@ namespace ManagedCuda.CudaSparse
                   IndexType csrColIndType,
                   IndexBase idxBase,
                   cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstCsr(ref cusparseConstSpMatDescr spMatDescr,
+                  long rows,
+                  long cols,
+                  long nnz,
+                  CUdeviceptr csrRowOffsets,
+                  CUdeviceptr csrColInd,
+                  CUdeviceptr csrValues,
+                  IndexType csrRowOffsetsType,
+                  IndexType csrColIndType,
+                  IndexBase idxBase,
+                  cudaDataType valueType);
 
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseCreateCsc(ref cusparseSpMatDescr spMatDescr,
+                  long rows,
+                  long cols,
+                  long nnz,
+                  CUdeviceptr cscColOffsets,
+                  CUdeviceptr cscRowInd,
+                  CUdeviceptr cscValues,
+                  IndexType cscColOffsetsType,
+                  IndexType cscRowIndType,
+                  IndexBase idxBase,
+                  cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstCsc(ref cusparseConstSpMatDescr spMatDescr,
                   long rows,
                   long cols,
                   long nnz,
@@ -8453,6 +6611,44 @@ namespace ManagedCuda.CudaSparse
                ref IndexType csrColIndType,
                ref IndexBase idxBase,
                ref cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstCsrGet(cusparseConstSpMatDescr spMatDescr,
+               ref long rows,
+               ref long cols,
+               ref long nnz,
+               ref CUdeviceptr csrRowOffsets,
+               ref CUdeviceptr csrColInd,
+               ref CUdeviceptr csrValues,
+               ref IndexType csrRowOffsetsType,
+               ref IndexType csrColIndType,
+               ref IndexBase idxBase,
+               ref cudaDataType valueType);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCscGet(cusparseSpMatDescr spMatDescr,
+               ref long rows,
+               ref long cols,
+               ref long nnz,
+               ref CUdeviceptr cscColOffsets,
+               ref CUdeviceptr cscRowInd,
+               ref CUdeviceptr cscValues,
+               ref IndexType cscColOffsetsType,
+               ref IndexType cscRowIndType,
+               ref IndexBase idxBase,
+               ref cudaDataType valueType);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstCscGet(cusparseConstSpMatDescr spMatDescr,
+                    ref long rows,
+                    ref long cols,
+                    ref long nnz,
+                    ref CUdeviceptr cscColOffsets,
+                    ref CUdeviceptr cscRowInd,
+                    ref CUdeviceptr cscValues,
+                    ref IndexType cscColOffsetsType,
+                    ref IndexType cscRowIndType,
+                    ref IndexBase idxBase,
+                    ref cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseCsrSetPointers(cusparseSpMatDescr spMatDescr,
@@ -8481,19 +6677,18 @@ namespace ManagedCuda.CudaSparse
                   IndexType cooIdxType,
                   IndexBase idxBase,
                   cudaDataType valueType);
-
-
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCreateCoo instead.")]
-        public static extern cusparseStatus cusparseCreateCooAoS(ref cusparseSpMatDescr spMatDescr,
-                     long rows,
-                     long cols,
-                     long nnz,
-                     CUdeviceptr cooInd,
-                     CUdeviceptr cooValues,
-                     IndexType cooIdxType,
-                     IndexBase idxBase,
-                     cudaDataType valueType);
+        public static extern cusparseStatus cusparseCreateConstCoo(ref cusparseConstSpMatDescr spMatDescr,
+                  long rows,
+                  long cols,
+                  long nnz,
+                  CUdeviceptr cooRowInd,
+                  CUdeviceptr cooColInd,
+                  CUdeviceptr cooValues,
+                  IndexType cooIdxType,
+                  IndexBase idxBase,
+                  cudaDataType valueType);
+
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseCooGet(cusparseSpMatDescr spMatDescr,
@@ -8506,18 +6701,18 @@ namespace ManagedCuda.CudaSparse
                ref IndexType idxType,
                ref IndexBase idxBase,
                ref cudaDataType valueType);
-
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCooGet instead.")]
-        public static extern cusparseStatus cusparseCooAoSGet(cusparseSpMatDescr spMatDescr,
-                  ref long rows,
-                  ref long cols,
-                  ref long nnz,
-                  ref CUdeviceptr cooInd,     // COO indices
-                  ref CUdeviceptr cooValues,  // COO values
-                  ref IndexType idxType,
-                  ref IndexBase idxBase,
-                  ref cudaDataType valueType);
+        public static extern cusparseStatus cusparseConstCooGet(cusparseConstSpMatDescr spMatDescr,
+               ref long rows,
+               ref long cols,
+               ref long nnz,
+               ref CUdeviceptr cooRowInd,  // COO row indices
+               ref CUdeviceptr cooColInd,  // COO column indices
+               ref CUdeviceptr cooValues,  // COO values
+               ref IndexType idxType,
+               ref IndexBase idxBase,
+               ref cudaDataType valueType);
+
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseCooSetPointers(cusparseSpMatDescr spMatDescr,
@@ -8541,10 +6736,34 @@ namespace ManagedCuda.CudaSparse
                          IndexType ellIdxType,
                          IndexBase idxBase,
                          cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus
+        cusparseCreateConstBlockedEll(ref cusparseConstSpMatDescr spMatDescr,
+                         long rows,
+                         long cols,
+                         long ellBlockSize,
+                         long ellCols,
+                         CUdeviceptr ellColInd,
+                         CUdeviceptr ellValue,
+                         IndexType ellIdxType,
+                         IndexBase idxBase,
+                         cudaDataType valueType);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus
         cusparseBlockedEllGet(cusparseSpMatDescr spMatDescr,
+                      ref long rows,
+                      ref long cols,
+                      ref long ellBlockSize,
+                      ref long ellCols,
+                      ref CUdeviceptr ellColInd,
+                      ref CUdeviceptr ellValue,
+                      ref IndexType ellIdxType,
+                      ref IndexBase idxBase,
+                      ref cudaDataType valueType);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus
+        cusparseConstBlockedEllGet(cusparseConstSpMatDescr spMatDescr,
                       ref long rows,
                       ref long cols,
                       ref long ellBlockSize,
@@ -8577,21 +6796,21 @@ namespace ManagedCuda.CudaSparse
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDenseToSparse_bufferSize(cusparseContext handle,
-                                 cusparseDnMatDescr matA,
+                                 cusparseConstDnMatDescr matA,
                                  cusparseSpMatDescr matB,
                                  cusparseDenseToSparseAlg alg,
                                  ref SizeT bufferSize);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDenseToSparse_analysis(cusparseContext handle,
-                               cusparseDnMatDescr matA,
+                               cusparseConstDnMatDescr matA,
                                cusparseSpMatDescr matB,
                                cusparseDenseToSparseAlg alg,
                                CUdeviceptr buffer);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDenseToSparse_convert(cusparseContext handle,
-                              cusparseDnMatDescr matA,
+                              cusparseConstDnMatDescr matA,
                               cusparseSpMatDescr matB,
                               cusparseDenseToSparseAlg alg,
                               CUdeviceptr buffer);
@@ -8610,9 +6829,17 @@ namespace ManagedCuda.CudaSparse
                     CUdeviceptr values,
                     cudaDataType valueType,
                     Order order);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstDnMat(ref cusparseConstDnMatDescr dnMatDescr,
+                    long rows,
+                    long cols,
+                    long ld,
+                    CUdeviceptr values,
+                    cudaDataType valueType,
+                    Order order);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDestroyDnMat(cusparseDnMatDescr dnMatDescr);
+        public static extern cusparseStatus cusparseDestroyDnMat(cusparseConstDnMatDescr dnMatDescr);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDnMatGet(cusparseDnMatDescr dnMatDescr,
@@ -8622,9 +6849,20 @@ namespace ManagedCuda.CudaSparse
                  ref CUdeviceptr values,
                  ref cudaDataType type,
                  ref Order order);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstDnMatGet(cusparseConstDnMatDescr dnMatDescr,
+                 ref long rows,
+                 ref long cols,
+                 ref long ld,
+                 ref CUdeviceptr values,
+                 ref cudaDataType type,
+                 ref Order order);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDnMatGetValues(cusparseDnMatDescr dnMatDescr,
+                       ref CUdeviceptr values);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseConstDnMatGetValues(cusparseConstDnMatDescr dnMatDescr,
                        ref CUdeviceptr values);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -8637,7 +6875,7 @@ namespace ManagedCuda.CudaSparse
                              long batchStride);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseDnMatGetStridedBatch(cusparseDnMatDescr dnMatDescr,
+        public static extern cusparseStatus cusparseDnMatGetStridedBatch(cusparseConstDnMatDescr dnMatDescr,
                              ref int batchCount,
                              ref long batchStride);
 
@@ -8650,24 +6888,24 @@ namespace ManagedCuda.CudaSparse
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
               IntPtr alpha,
-              cusparseSpVecDescr vecX,
+              cusparseConstSpVecDescr vecX,
               IntPtr beta,
               cusparseDnVecDescr vecY);
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
               CUdeviceptr alpha,
-              cusparseSpVecDescr vecX,
+              cusparseConstSpVecDescr vecX,
               CUdeviceptr beta,
               cusparseDnVecDescr vecY);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseGather(cusparseContext handle,
-               cusparseDnVecDescr vecY,
+               cusparseConstDnVecDescr vecY,
                cusparseSpVecDescr vecX);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseScatter(cusparseContext handle,
-                cusparseSpVecDescr vecX,
+                cusparseConstSpVecDescr vecX,
                 cusparseDnVecDescr vecY);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
@@ -8687,8 +6925,8 @@ namespace ManagedCuda.CudaSparse
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVV_bufferSize(cusparseContext handle,
                         cusparseOperation opX,
-                        cusparseSpVecDescr vecX,
-                        cusparseDnVecDescr vecY,
+                        cusparseConstSpVecDescr vecX,
+                        cusparseConstDnVecDescr vecY,
 
                         IntPtr result,
                         cudaDataType computeType,
@@ -8696,8 +6934,8 @@ namespace ManagedCuda.CudaSparse
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVV_bufferSize(cusparseContext handle,
                         cusparseOperation opX,
-                        cusparseSpVecDescr vecX,
-                        cusparseDnVecDescr vecY,
+                        cusparseConstSpVecDescr vecX,
+                        cusparseConstDnVecDescr vecY,
 
                         CUdeviceptr result,
                         cudaDataType computeType,
@@ -8706,16 +6944,16 @@ namespace ManagedCuda.CudaSparse
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVV(cusparseContext handle,
              cusparseOperation opX,
-             cusparseSpVecDescr vecX,
-             cusparseDnVecDescr vecY,
+             cusparseConstSpVecDescr vecX,
+             cusparseConstDnVecDescr vecY,
              IntPtr result,
              cudaDataType computeType,
              CUdeviceptr externalBuffer);
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpVV(cusparseContext handle,
              cusparseOperation opX,
-             cusparseSpVecDescr vecX,
-             cusparseDnVecDescr vecY,
+             cusparseConstSpVecDescr vecX,
+             cusparseConstDnVecDescr vecY,
              CUdeviceptr result,
              cudaDataType computeType,
              CUdeviceptr externalBuffer);
@@ -8730,8 +6968,8 @@ namespace ManagedCuda.CudaSparse
              cusparseOperation opA,
 
              IntPtr alpha,
-             cusparseSpMatDescr matA,
-             cusparseDnVecDescr vecX,
+             cusparseConstSpMatDescr matA,
+             cusparseConstDnVecDescr vecX,
 
              IntPtr beta,
              cusparseDnVecDescr vecY,
@@ -8744,8 +6982,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
 
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnVecDescr vecX,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
 
                         IntPtr beta,
                         cusparseDnVecDescr vecY,
@@ -8758,8 +6996,8 @@ namespace ManagedCuda.CudaSparse
              cusparseOperation opA,
 
              CUdeviceptr alpha,
-             cusparseSpMatDescr matA,
-             cusparseDnVecDescr vecX,
+             cusparseConstSpMatDescr matA,
+             cusparseConstDnVecDescr vecX,
 
              CUdeviceptr beta,
              cusparseDnVecDescr vecY,
@@ -8772,8 +7010,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
 
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnVecDescr vecX,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
 
                         CUdeviceptr beta,
                         cusparseDnVecDescr vecY,
@@ -8803,8 +7041,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
                         cusparseSpSMAlg alg,
@@ -8816,8 +7054,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
                         cusparseSpSMAlg alg,
@@ -8829,8 +7067,8 @@ namespace ManagedCuda.CudaSparse
                     cusparseOperation opA,
                     cusparseOperation opB,
                     IntPtr alpha,
-                    cusparseSpMatDescr matA,
-                    cusparseDnMatDescr matB,
+                    cusparseConstSpMatDescr matA,
+                    cusparseConstDnMatDescr matB,
                     cusparseDnMatDescr matC,
                     cudaDataType computeType,
                     cusparseSpSMAlg alg,
@@ -8841,8 +7079,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
                         cusparseSpSMAlg alg,
@@ -8854,8 +7092,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
                         cusparseSpSMAlg alg,
@@ -8867,8 +7105,8 @@ namespace ManagedCuda.CudaSparse
                     cusparseOperation opA,
                     cusparseOperation opB,
                     CUdeviceptr alpha,
-                    cusparseSpMatDescr matA,
-                    cusparseDnMatDescr matB,
+                    cusparseConstSpMatDescr matA,
+                    cusparseConstDnMatDescr matB,
                     cusparseDnMatDescr matC,
                     cudaDataType computeType,
                     cusparseSpSMAlg alg,
@@ -8893,8 +7131,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_bufferSize(cusparseContext handle,
                         cusparseOperation opA,
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnVecDescr vecX,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
                         cusparseDnVecDescr vecY,
                         cudaDataType computeType,
                         cusparseSpSVAlg alg,
@@ -8906,8 +7144,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_bufferSize(cusparseContext handle,
                         cusparseOperation opA,
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnVecDescr vecX,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
                         cusparseDnVecDescr vecY,
                         cudaDataType computeType,
                         cusparseSpSVAlg alg,
@@ -8919,8 +7157,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_analysis(cusparseContext handle,
                       cusparseOperation opA,
                       IntPtr alpha,
-                      cusparseSpMatDescr matA,
-                      cusparseDnVecDescr vecX,
+                      cusparseConstSpMatDescr matA,
+                      cusparseConstDnVecDescr vecX,
                       cusparseDnVecDescr vecY,
                       cudaDataType computeType,
                       cusparseSpSVAlg alg,
@@ -8932,8 +7170,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_analysis(cusparseContext handle,
                       cusparseOperation opA,
                       CUdeviceptr alpha,
-                      cusparseSpMatDescr matA,
-                      cusparseDnVecDescr vecX,
+                      cusparseConstSpMatDescr matA,
+                      cusparseConstDnVecDescr vecX,
                       cusparseDnVecDescr vecY,
                       cudaDataType computeType,
                       cusparseSpSVAlg alg,
@@ -8945,8 +7183,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_solve(cusparseContext handle,
                    cusparseOperation opA,
                    IntPtr alpha,
-                   cusparseSpMatDescr matA,
-                   cusparseDnVecDescr vecX,
+                   cusparseConstSpMatDescr matA,
+                   cusparseConstDnVecDescr vecX,
                    cusparseDnVecDescr vecY,
                    cudaDataType computeType,
                    cusparseSpSVAlg alg,
@@ -8957,8 +7195,8 @@ namespace ManagedCuda.CudaSparse
         cusparseSpSV_solve(cusparseContext handle,
                    cusparseOperation opA,
                    CUdeviceptr alpha,
-                   cusparseSpMatDescr matA,
-                   cusparseDnVecDescr vecX,
+                   cusparseConstSpMatDescr matA,
+                   cusparseConstDnVecDescr vecX,
                    cusparseDnVecDescr vecY,
                    cudaDataType computeType,
                    cusparseSpSVAlg alg,
@@ -8976,8 +7214,8 @@ namespace ManagedCuda.CudaSparse
              cusparseOperation opB,
 
              IntPtr alpha,
-             cusparseSpMatDescr matA,
-             cusparseDnMatDescr matB,
+             cusparseConstSpMatDescr matA,
+             cusparseConstDnMatDescr matB,
 
              IntPtr beta,
              cusparseDnMatDescr matC,
@@ -8992,8 +7230,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         IntPtr beta,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
@@ -9007,8 +7245,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opB,
 
                         IntPtr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
 
                         IntPtr beta,
                         cusparseDnMatDescr matC,
@@ -9022,8 +7260,8 @@ namespace ManagedCuda.CudaSparse
              cusparseOperation opB,
 
              CUdeviceptr alpha,
-             cusparseSpMatDescr matA,
-             cusparseDnMatDescr matB,
+             cusparseConstSpMatDescr matA,
+             cusparseConstDnMatDescr matB,
 
              CUdeviceptr beta,
              cusparseDnMatDescr matC,
@@ -9037,8 +7275,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opA,
                         cusparseOperation opB,
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
                         CUdeviceptr beta,
                         cusparseDnMatDescr matC,
                         cudaDataType computeType,
@@ -9051,8 +7289,8 @@ namespace ManagedCuda.CudaSparse
                         cusparseOperation opB,
 
                         CUdeviceptr alpha,
-                        cusparseSpMatDescr matA,
-                        cusparseDnMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnMatDescr matB,
 
                         CUdeviceptr beta,
                         cusparseDnMatDescr matC,
@@ -9073,13 +7311,51 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseSpGEMM_destroyDescr(cusparseSpGEMMDescr descr);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMM_getNumProducts(cusparseSpGEMMDescr spgemmDescr,
+                              ref long num_prods);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMM_estimateMemory(cusparseContext handle,
+                              cusparseOperation opA,
+                              cusparseOperation opB,
+                              IntPtr alpha,
+                              cusparseConstSpMatDescr matA,
+                              cusparseConstSpMatDescr matB,
+                              IntPtr beta,
+                              cusparseSpMatDescr matC,
+                              cudaDataType computeType,
+                              cusparseSpGEMMAlg alg,
+                              cusparseSpGEMMDescr spgemmDescr,
+                              float chunk_fraction,
+                              ref SizeT bufferSize3,
+                              CUdeviceptr externalBuffer3,
+                              ref SizeT bufferSize2);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpGEMM_estimateMemory(cusparseContext handle,
+                              cusparseOperation opA,
+                              cusparseOperation opB,
+                              CUdeviceptr alpha,
+                              cusparseConstSpMatDescr matA,
+                              cusparseConstSpMatDescr matB,
+                              CUdeviceptr beta,
+                              cusparseSpMatDescr matC,
+                              cudaDataType computeType,
+                              cusparseSpGEMMAlg alg,
+                              cusparseSpGEMMDescr spgemmDescr,
+                              float chunk_fraction,
+                              ref SizeT bufferSize3,
+                              CUdeviceptr externalBuffer3,
+                              ref SizeT bufferSize2);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpGEMM_workEstimation(cusparseContext handle,
                               cusparseOperation opA,
                               cusparseOperation opB,
 
                               IntPtr alpha,
-                              cusparseSpMatDescr matA,
-                              cusparseSpMatDescr matB,
+                              cusparseConstSpMatDescr matA,
+                              cusparseConstSpMatDescr matB,
 
                               IntPtr beta,
                               cusparseSpMatDescr matC,
@@ -9095,8 +7371,8 @@ namespace ManagedCuda.CudaSparse
                        cusparseOperation opB,
 
                        IntPtr alpha,
-                       cusparseSpMatDescr matA,
-                       cusparseSpMatDescr matB,
+                       cusparseConstSpMatDescr matA,
+                       cusparseConstSpMatDescr matB,
 
                        IntPtr beta,
                        cusparseSpMatDescr matC,
@@ -9112,8 +7388,8 @@ namespace ManagedCuda.CudaSparse
                     cusparseOperation opB,
 
                     IntPtr alpha,
-                    cusparseSpMatDescr matA,
-                    cusparseSpMatDescr matB,
+                    cusparseConstSpMatDescr matA,
+                    cusparseConstSpMatDescr matB,
 
                     IntPtr beta,
                     cusparseSpMatDescr matC,
@@ -9127,8 +7403,8 @@ namespace ManagedCuda.CudaSparse
                               cusparseOperation opB,
 
                               CUdeviceptr alpha,
-                              cusparseSpMatDescr matA,
-                              cusparseSpMatDescr matB,
+                              cusparseConstSpMatDescr matA,
+                              cusparseConstSpMatDescr matB,
 
                               CUdeviceptr beta,
                               cusparseSpMatDescr matC,
@@ -9144,8 +7420,8 @@ namespace ManagedCuda.CudaSparse
                        cusparseOperation opB,
 
                        CUdeviceptr alpha,
-                       cusparseSpMatDescr matA,
-                       cusparseSpMatDescr matB,
+                       cusparseConstSpMatDescr matA,
+                       cusparseConstSpMatDescr matB,
 
                        CUdeviceptr beta,
                        cusparseSpMatDescr matC,
@@ -9161,8 +7437,8 @@ namespace ManagedCuda.CudaSparse
                     cusparseOperation opB,
 
                     CUdeviceptr alpha,
-                    cusparseSpMatDescr matA,
-                    cusparseSpMatDescr matB,
+                    cusparseConstSpMatDescr matA,
+                    cusparseConstSpMatDescr matB,
 
                     CUdeviceptr beta,
                     cusparseSpMatDescr matC,
@@ -9181,8 +7457,8 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseSpGEMMreuse_workEstimation(cusparseContext handle,
                                    cusparseOperation opA,
                                    cusparseOperation opB,
-                                   cusparseSpMatDescr matA,
-                                   cusparseSpMatDescr matB,
+                                   cusparseConstSpMatDescr matA,
+                                   cusparseConstSpMatDescr matB,
                                    cusparseSpMatDescr matC,
                                    cusparseSpGEMMAlg alg,
                                    cusparseSpGEMMDescr spgemmDescr,
@@ -9193,8 +7469,8 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseSpGEMMreuse_nnz(cusparseContext handle,
                         cusparseOperation opA,
                         cusparseOperation opB,
-                        cusparseSpMatDescr matA,
-                        cusparseSpMatDescr matB,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstSpMatDescr matB,
                         cusparseSpMatDescr matC,
                         cusparseSpGEMMAlg alg,
                         cusparseSpGEMMDescr spgemmDescr,
@@ -9209,8 +7485,8 @@ namespace ManagedCuda.CudaSparse
         public static extern cusparseStatus cusparseSpGEMMreuse_copy(cusparseContext handle,
                          cusparseOperation opA,
                          cusparseOperation opB,
-                         cusparseSpMatDescr matA,
-                         cusparseSpMatDescr matB,
+                         cusparseConstSpMatDescr matA,
+                         cusparseConstSpMatDescr matB,
                          cusparseSpMatDescr matC,
                          cusparseSpGEMMAlg alg,
                          cusparseSpGEMMDescr spgemmDescr,
@@ -9222,8 +7498,8 @@ namespace ManagedCuda.CudaSparse
                             cusparseOperation opA,
                             cusparseOperation opB,
                             IntPtr alpha,
-                            cusparseSpMatDescr matA,
-                            cusparseSpMatDescr matB,
+                            cusparseConstSpMatDescr matA,
+                            cusparseConstSpMatDescr matB,
                             IntPtr beta,
                             cusparseSpMatDescr matC,
                             cudaDataType computeType,
@@ -9235,8 +7511,8 @@ namespace ManagedCuda.CudaSparse
                             cusparseOperation opA,
                             cusparseOperation opB,
                             CUdeviceptr alpha,
-                            cusparseSpMatDescr matA,
-                            cusparseSpMatDescr matB,
+                            cusparseConstSpMatDescr matA,
+                            cusparseConstSpMatDescr matB,
                             CUdeviceptr beta,
                             cusparseSpMatDescr matC,
                             cudaDataType computeType,
@@ -9251,76 +7527,13 @@ namespace ManagedCuda.CudaSparse
         // #############################################################################
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
-        public static extern cusparseStatus cusparseConstrainedGeMM(cusparseContext handle,
-                        cusparseOperation opA,
-                        cusparseOperation opB,
-
-                        IntPtr alpha,
-                        cusparseDnMatDescr matA,
-                        cusparseDnMatDescr matB,
-
-                        IntPtr beta,
-                        cusparseSpMatDescr matC,
-                        cudaDataType computeType,
-
-                        CUdeviceptr externalBuffer);
-
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
-        public static extern cusparseStatus cusparseConstrainedGeMM_bufferSize(cusparseContext handle,
-                                   cusparseOperation opA,
-                                   cusparseOperation opB,
-
-                                   IntPtr alpha,
-                                   cusparseDnMatDescr matA,
-                                   cusparseDnMatDescr matB,
-
-                                   IntPtr beta,
-                                   cusparseSpMatDescr matC,
-                                   cudaDataType computeType,
-                                   ref SizeT bufferSize);
-
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
-        public static extern cusparseStatus cusparseConstrainedGeMM(cusparseContext handle,
-                        cusparseOperation opA,
-                        cusparseOperation opB,
-
-                        CUdeviceptr alpha,
-                        cusparseDnMatDescr matA,
-                        cusparseDnMatDescr matB,
-
-                        CUdeviceptr beta,
-                        cusparseSpMatDescr matC,
-                        cudaDataType computeType,
-
-                        CUdeviceptr externalBuffer);
-
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseSDDMM instead.")]
-        public static extern cusparseStatus cusparseConstrainedGeMM_bufferSize(cusparseContext handle,
-                                   cusparseOperation opA,
-                                   cusparseOperation opB,
-
-                                   CUdeviceptr alpha,
-                                   cusparseDnMatDescr matA,
-                                   cusparseDnMatDescr matB,
-
-                                   CUdeviceptr beta,
-                                   cusparseSpMatDescr matC,
-                                   cudaDataType computeType,
-                                   ref SizeT bufferSize);
-
-
-        [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus
         cusparseSDDMM_bufferSize(cusparseContext handle,
                          cusparseOperation opA,
                          cusparseOperation opB,
                          IntPtr alpha,
-                         cusparseDnMatDescr matA,
-                         cusparseDnMatDescr matB,
+                         cusparseConstDnMatDescr matA,
+                         cusparseConstDnMatDescr matB,
                          IntPtr beta,
                          cusparseSpMatDescr matC,
                          cudaDataType computeType,
@@ -9333,8 +7546,8 @@ namespace ManagedCuda.CudaSparse
                          cusparseOperation opA,
                          cusparseOperation opB,
                          IntPtr alpha,
-                         cusparseDnMatDescr matA,
-                         cusparseDnMatDescr matB,
+                         cusparseConstDnMatDescr matA,
+                         cusparseConstDnMatDescr matB,
                          IntPtr beta,
                          cusparseSpMatDescr matC,
                          cudaDataType computeType,
@@ -9347,8 +7560,8 @@ namespace ManagedCuda.CudaSparse
               cusparseOperation opA,
               cusparseOperation opB,
               IntPtr alpha,
-              cusparseDnMatDescr matA,
-              cusparseDnMatDescr matB,
+              cusparseConstDnMatDescr matA,
+              cusparseConstDnMatDescr matB,
               IntPtr beta,
               cusparseSpMatDescr matC,
               cudaDataType computeType,
@@ -9361,8 +7574,8 @@ namespace ManagedCuda.CudaSparse
                          cusparseOperation opA,
                          cusparseOperation opB,
                          CUdeviceptr alpha,
-                         cusparseDnMatDescr matA,
-                         cusparseDnMatDescr matB,
+                         cusparseConstDnMatDescr matA,
+                         cusparseConstDnMatDescr matB,
                          CUdeviceptr beta,
                          cusparseSpMatDescr matC,
                          cudaDataType computeType,
@@ -9375,8 +7588,8 @@ namespace ManagedCuda.CudaSparse
                          cusparseOperation opA,
                          cusparseOperation opB,
                          CUdeviceptr alpha,
-                         cusparseDnMatDescr matA,
-                         cusparseDnMatDescr matB,
+                         cusparseConstDnMatDescr matA,
+                         cusparseConstDnMatDescr matB,
                          CUdeviceptr beta,
                          cusparseSpMatDescr matC,
                          cudaDataType computeType,
@@ -9389,8 +7602,8 @@ namespace ManagedCuda.CudaSparse
               cusparseOperation opA,
               cusparseOperation opB,
               CUdeviceptr alpha,
-              cusparseDnMatDescr matA,
-              cusparseDnMatDescr matB,
+              cusparseConstDnMatDescr matA,
+              cusparseConstDnMatDescr matB,
               CUdeviceptr beta,
               cusparseSpMatDescr matC,
               cudaDataType computeType,
@@ -9398,7 +7611,53 @@ namespace ManagedCuda.CudaSparse
               CUdeviceptr externalBuffer);
         #endregion
 
+        #region GENERIC APIs WITH CUSTOM OPERATORS (PREVIEW)
 
+
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMMOp_createPlan(cusparseContext handle,
+                          ref cusparseSpMMOpPlan plan,
+                          cusparseOperation opA,
+                          cusparseOperation opB,
+                          cusparseConstSpMatDescr matA,
+                          cusparseConstDnMatDescr matB,
+                          cusparseDnMatDescr matC,
+                          cudaDataType computeType,
+                          cusparseSpMMOpAlg alg,
+                          byte[] addOperationNvvmBuffer,
+                          SizeT addOperationBufferSize,
+                          byte[] mulOperationNvvmBuffer,
+                          SizeT mulOperationBufferSize,
+                          byte[] epilogueNvvmBuffer,
+                          SizeT epilogueBufferSize,
+                          ref SizeT SpMMWorkspaceSize);
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMMOp_createPlan(cusparseContext handle,
+                          ref cusparseSpMMOpPlan plan,
+                          cusparseOperation opA,
+                          cusparseOperation opB,
+                          cusparseConstSpMatDescr matA,
+                          cusparseConstDnMatDescr matB,
+                          cusparseDnMatDescr matC,
+                          cudaDataType computeType,
+                          cusparseSpMMOpAlg alg,
+                          IntPtr addOperationNvvmBuffer,
+                          SizeT addOperationBufferSize,
+                          IntPtr mulOperationNvvmBuffer,
+                          SizeT mulOperationBufferSize,
+                          IntPtr epilogueNvvmBuffer,
+                          SizeT epilogueBufferSize,
+                          ref SizeT SpMMWorkspaceSize);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMMOp(cusparseSpMMOpPlan plan,
+               CUdeviceptr externalBuffer);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMMOp_destroyPlan(cusparseSpMMOpPlan plan);
+
+        #endregion
         #endregion
     }
 }

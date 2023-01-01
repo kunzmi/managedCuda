@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -820,7 +823,23 @@ namespace ManagedCuda
                         case CUJITOption.JITCacheMode:
                             valuesIntPtr[i] = (IntPtr)(Convert.ToUInt32(values[i], System.Globalization.CultureInfo.InvariantCulture));
                             break;
+                        case CUJITOption.FastCompile:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToUInt32(values[i], System.Globalization.CultureInfo.InvariantCulture));
+                            break;
+                        case CUJITOption.GlobalSymbolNames:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToInt64(values[i], System.Globalization.CultureInfo.InvariantCulture));
+                            break;
+                        case CUJITOption.GlobalSymbolAddresses:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToInt64(values[i], System.Globalization.CultureInfo.InvariantCulture));
+                            break;
+                        case CUJITOption.GlobalSymbolCount:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToUInt32(values[i], System.Globalization.CultureInfo.InvariantCulture));
+                            break;
+                        case CUJITOption.PositionIndependentCode:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToUInt32(values[i], System.Globalization.CultureInfo.InvariantCulture));
+                            break;
                         default:
+                            valuesIntPtr[i] = (IntPtr)(Convert.ToInt64(values[i], System.Globalization.CultureInfo.InvariantCulture));
                             break;
                     }
                 }
@@ -952,7 +971,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModule(modulePath);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -970,7 +989,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(modulePath, options, values);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -987,7 +1006,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(modulePath, options);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1003,7 +1022,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(modulePath, null, null);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1021,7 +1040,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, options, values);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1038,7 +1057,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, options);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1056,7 +1075,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, options, values);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1073,7 +1092,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, options);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1089,7 +1108,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, null, null);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1105,7 +1124,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModulePTX(moduleImage, null, null);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1164,7 +1183,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModuleFatBin(moduleImage);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1180,7 +1199,7 @@ namespace ManagedCuda
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUmodule hcuModule = LoadModuleFatBin(moduleImage);
 
-            CudaKernel kernel = new CudaKernel(kernelName, hcuModule, this);
+            CudaKernel kernel = new CudaKernel(kernelName, hcuModule);
 
             return kernel;
         }
@@ -1330,7 +1349,7 @@ namespace ManagedCuda
         {
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUResult res;
-            res = DriverAPINativeMethods.Memset.cuMemsetD2D32_v2(aPtr, aValue, aValue, aWidth, aHeight);
+            res = DriverAPINativeMethods.Memset.cuMemsetD2D32_v2(aPtr, aPitch, aValue, aWidth, aHeight);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemsetD2D32", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
@@ -1440,7 +1459,7 @@ namespace ManagedCuda
         {
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUResult res;
-            res = DriverAPINativeMethods.MemsetAsync.cuMemsetD2D32Async(aPtr, aValue, aValue, aWidth, aHeight, stream);
+            res = DriverAPINativeMethods.MemsetAsync.cuMemsetD2D32Async(aPtr, aPitch, aValue, aWidth, aHeight, stream);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemsetD2D32Async", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
@@ -5935,11 +5954,11 @@ namespace ManagedCuda
             props.CanUseHostPointerForRegisteredMem = canUseHostPointerForRegisteredMem > 0;
 
 
-            int canUseStreamMemOps = 0;
-            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUseStreamMemOps, CUDeviceAttribute.CanUseStreamMemOps, device);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
-            if (res != CUResult.Success) throw new CudaException(res);
-            props.CanUseStreamMemOps = canUseStreamMemOps > 0;
+            //int canUseStreamMemOps = 0;
+            //res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUseStreamMemOps, CUDeviceAttribute.CanUseStreamMemOpsV1, device);
+            //Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            //if (res != CUResult.Success) throw new CudaException(res);
+            //props.CanUseStreamMemOps = canUseStreamMemOps > 0;
 
             int canUse64BitStreamMemOps = 0;
             res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref canUse64BitStreamMemOps, CUDeviceAttribute.CanUse64BitStreamMemOps, device);
@@ -6085,6 +6104,50 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.MempoolSupportedHandleTypes = (CUmemAllocationHandleType)mempoolSupportedHandleTypes;
+
+
+            int clusterLaunch = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref clusterLaunch, CUDeviceAttribute.ClusterLaunch, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.ClusterLaunch = clusterLaunch != 0;
+
+            int deferredMappingCudaArraySupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref deferredMappingCudaArraySupported, CUDeviceAttribute.DeferredMappingCudaArraySupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.DeferredMappingCudaArraySupported = deferredMappingCudaArraySupported != 0;
+
+            int dmaBufSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref dmaBufSupported, CUDeviceAttribute.DmaBufSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.DmaBufSupported = dmaBufSupported != 0;
+
+            int ipcEventSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref ipcEventSupported, CUDeviceAttribute.IPCEventSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.IPCEventSupported = ipcEventSupported != 0;
+
+            int memSyncDomainCount = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref memSyncDomainCount, CUDeviceAttribute.MemSyncDomainCount, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MemSyncDomainCount = memSyncDomainCount;
+
+            int tensorMapAccessSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref tensorMapAccessSupported, CUDeviceAttribute.TensorMapAccessSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.TensorMapAccessSupported = tensorMapAccessSupported != 0;
+
+            int unifiedFunctionPointers = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref unifiedFunctionPointers, CUDeviceAttribute.UnifiedFunctionPointers, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.UnifiedFunctionPointers = unifiedFunctionPointers != 0;
+
             return props;
         }
 
@@ -6210,9 +6273,8 @@ namespace ManagedCuda
         /// </summary>
         /// <param name="format">Texture format.</param>
         /// <param name="numChannels">Number of channels per texture element.</param>
-        /// <param name="dev"></param>
         /// <returns>Returned maximum number of texture elements allocatable for given \p format and \p numChannels.</returns>
-        public SizeT GetTexture1DLinearMaxWidth(CUArrayFormat format, uint numChannels, CUdevice dev)
+        public SizeT GetTexture1DLinearMaxWidth(CUArrayFormat format, uint numChannels)
         {
             CUResult res;
             SizeT maxWidthInElements = new SizeT();
@@ -6258,7 +6320,7 @@ namespace ManagedCuda
         }
 
         /// <summary>
-        /// Gets the Id of the Cuda device.
+        /// Returns the flags for the current context.
         /// </summary>
         public CUCtxFlags Flags
         {
@@ -6271,6 +6333,24 @@ namespace ManagedCuda
                 Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetFlags", res));
                 if (res != CUResult.Success) throw new CudaException(res);
                 return flags;
+            }
+        }
+
+        /// <summary>
+        /// Returns the unique Id associated with the context supplied<para/>
+        /// The Id is unique for the life of the program for this instance of CUDA.
+        /// </summary>
+        public ulong ID
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                CUResult res;
+                ulong id = 0;
+                res = DriverAPINativeMethods.ContextManagement.cuCtxGetId(_context, ref id);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetId", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return id;
             }
         }
         #endregion

@@ -1,30 +1,33 @@
-﻿//	Copyright (c) 2020, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda.NvJpeg
 {
@@ -33,7 +36,7 @@ namespace ManagedCuda.NvJpeg
     /// </summary>
     public class NvJpegNativeMethods
     {
-        internal const string NVJPEG_API_DLL_NAME = "nvjpeg64_11";
+        internal const string NVJPEG_API_DLL_NAME = "nvjpeg64_12";
 
 #if (NETCOREAPP)
         internal const string NVJPEG_API_DLL_NAME_LINUX = "nvjpeg";
@@ -51,7 +54,12 @@ namespace ManagedCuda.NvJpeg
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    NativeLibrary.TryLoad(NVJPEG_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    bool res = NativeLibrary.TryLoad(NVJPEG_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + NVJPEG_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + NVJPEG_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
                 }
             }
             //On Windows, use the default library name
@@ -142,6 +150,66 @@ namespace ManagedCuda.NvJpeg
                 uint flags,
                 ref nvjpegHandle handle);
 
+        /// <summary>
+        /// Initalization of nvjpeg handle with additional parameters. This handle is used for all consecutive nvjpeg calls
+        /// </summary>
+        /// <param name="backend">Backend to use. Currently Default or Hybrid (which is the same at the moment) is supported.</param>
+        /// <param name="dev_allocator">Pointer to nvjpegDevAllocator. If NULL - use default cuda calls (cudaMalloc/cudaFree)</param>
+        /// <param name="pinned_allocator">Pointer to nvjpegPinnedAllocator. If NULL - use default cuda calls (cudaHostAlloc/cudaFreeHost)</param>
+        /// <param name="flags">Parameters for the operation. Must be 0.</param>
+        /// <param name="handle">Codec instance, use for other calls</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegCreateExV2(nvjpegBackend backend,
+                ref nvjpegDevAllocatorV2 dev_allocator,
+                ref nvjpegPinnedAllocatorV2 pinned_allocator,
+                uint flags,
+                ref nvjpegHandle handle);
+
+        /// <summary>
+        /// Initalization of nvjpeg handle with additional parameters. This handle is used for all consecutive nvjpeg calls
+        /// </summary>
+        /// <param name="backend">Backend to use. Currently Default or Hybrid (which is the same at the moment) is supported.</param>
+        /// <param name="dev_allocator">Pointer to nvjpegDevAllocator. If NULL - use default cuda calls (cudaMalloc/cudaFree)</param>
+        /// <param name="pinned_allocator">Pointer to nvjpegPinnedAllocator. If NULL - use default cuda calls (cudaHostAlloc/cudaFreeHost)</param>
+        /// <param name="flags">Parameters for the operation. Must be 0.</param>
+        /// <param name="handle">Codec instance, use for other calls</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegCreateExV2(nvjpegBackend backend,
+                IntPtr dev_allocator,
+                ref nvjpegPinnedAllocatorV2 pinned_allocator,
+                uint flags,
+                ref nvjpegHandle handle);
+
+        /// <summary>
+        /// Initalization of nvjpeg handle with additional parameters. This handle is used for all consecutive nvjpeg calls
+        /// </summary>
+        /// <param name="backend">Backend to use. Currently Default or Hybrid (which is the same at the moment) is supported.</param>
+        /// <param name="dev_allocator">Pointer to nvjpegDevAllocator. If NULL - use default cuda calls (cudaMalloc/cudaFree)</param>
+        /// <param name="pinned_allocator">Pointer to nvjpegPinnedAllocator. If NULL - use default cuda calls (cudaHostAlloc/cudaFreeHost)</param>
+        /// <param name="flags">Parameters for the operation. Must be 0.</param>
+        /// <param name="handle">Codec instance, use for other calls</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegCreateExV2(nvjpegBackend backend,
+                ref nvjpegDevAllocatorV2 dev_allocator,
+                IntPtr pinned_allocator,
+                uint flags,
+                ref nvjpegHandle handle);
+
+        /// <summary>
+        /// Initalization of nvjpeg handle with additional parameters. This handle is used for all consecutive nvjpeg calls
+        /// </summary>
+        /// <param name="backend">Backend to use. Currently Default or Hybrid (which is the same at the moment) is supported.</param>
+        /// <param name="dev_allocator">Pointer to nvjpegDevAllocator. If NULL - use default cuda calls (cudaMalloc/cudaFree)</param>
+        /// <param name="pinned_allocator">Pointer to nvjpegPinnedAllocator. If NULL - use default cuda calls (cudaHostAlloc/cudaFreeHost)</param>
+        /// <param name="flags">Parameters for the operation. Must be 0.</param>
+        /// <param name="handle">Codec instance, use for other calls</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegCreateExV2(nvjpegBackend backend,
+                IntPtr dev_allocator,
+                IntPtr pinned_allocator,
+                uint flags,
+                ref nvjpegHandle handle);
+
 
         /// <summary>
         /// Release the handle and resources.
@@ -185,6 +253,17 @@ namespace ManagedCuda.NvJpeg
         /// <param name="handle">instance handle to release</param>
         [DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegGetPinnedMemoryPadding(ref SizeT padding, nvjpegHandle handle);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="num_engines"></param>
+        /// <param name="num_cores_per_engine"></param>
+        /// <returns></returns>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegGetHardwareDecoderInfo(nvjpegHandle handle, ref uint num_engines, ref uint num_cores_per_engine);
 
 
         /// <summary>
@@ -300,6 +379,34 @@ namespace ManagedCuda.NvJpeg
                   nvjpegChromaSubsampling chroma_subsampling,
                   nvjpegOutputFormat output_format);
 
+
+        /// <summary>
+        /// Allocates the internal buffers as a pre-allocation step
+        /// </summary>
+        /// <param name="handle">Library handle</param>
+        /// <param name="jpeg_handle">Decoded jpeg image state handle</param>
+        /// <param name="data">jpeg bitstream containing huffman and quantization tables</param>
+        /// <param name="length">bitstream size in bytes</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedParseJpegTables(
+                  nvjpegHandle handle,
+                  nvjpegJpegState jpeg_handle,
+                  byte[] data,
+                  SizeT length);
+
+        /// <summary>
+        /// Allocates the internal buffers as a pre-allocation step
+        /// </summary>
+        /// <param name="handle">Library handle</param>
+        /// <param name="jpeg_handle">Decoded jpeg image state handle</param>
+        /// <param name="data">jpeg bitstream containing huffman and quantization tables</param>
+        /// <param name="length">bitstream size in bytes</param>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeBatchedParseJpegTables(
+                  nvjpegHandle handle,
+                  nvjpegJpegState jpeg_handle,
+                  IntPtr data,
+                  SizeT length);
 
         /// <summary>
         /// Decodes batch of images. Output buffers should be large enough to be able to store 
@@ -463,6 +570,13 @@ namespace ManagedCuda.NvJpeg
             ref nvjpegBufferPinned buffer);
 
         /// <summary>
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegBufferPinnedCreateV2(nvjpegHandle handle,
+            ref nvjpegPinnedAllocatorV2 pinned_allocator,
+            ref nvjpegBufferPinned buffer);
+
+        /// <summary>
 		/// </summary>
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegBufferPinnedDestroy(nvjpegBufferPinned buffer);
@@ -473,6 +587,13 @@ namespace ManagedCuda.NvJpeg
 		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegBufferDeviceCreate(nvjpegHandle handle,
             ref nvjpegDevAllocator device_allocator,
+            ref nvjpegBufferDevice buffer);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegBufferDeviceCreateV2(nvjpegHandle handle,
+            ref nvjpegDevAllocatorV2 device_allocator,
             ref nvjpegBufferDevice buffer);
 
         /// <summary>
@@ -563,6 +684,24 @@ namespace ManagedCuda.NvJpeg
             SizeT length,
             nvjpegJpegStream jpeg_stream);
 
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamParseTables(
+            nvjpegHandle handle,
+            IntPtr data,
+            SizeT length,
+            nvjpegJpegStream jpeg_stream);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamParseTables(
+            nvjpegHandle handle,
+            byte[] data,
+            SizeT length,
+            nvjpegJpegStream jpeg_stream);
+
 
         /// <summary>
         /// </summary>
@@ -594,6 +733,10 @@ namespace ManagedCuda.NvJpeg
             uint component,
             ref uint width,
             ref uint height);
+
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamGetExifOrientation(
+            nvjpegJpegStream jpeg_stream, ref nvjpegExifOrientation orientation_flag);
 
 
         /// <summary>
@@ -657,6 +800,15 @@ namespace ManagedCuda.NvJpeg
         public static extern nvjpegStatus nvjpegDecodeParamsSetScaleFactor(
             nvjpegDecodeParams decode_params,
             nvjpegScaleFactor scale_factor);
+
+
+        /// <summary>
+        /// set the orientation flag to the decode parameters
+        /// </summary>
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegDecodeParamsSetExifOrientation(
+            nvjpegDecodeParams decode_params,
+            nvjpegExifOrientation orientation);
 
         ///////////////////////////////////////////////////////////////////////////////////
         // Decoder helper functions //

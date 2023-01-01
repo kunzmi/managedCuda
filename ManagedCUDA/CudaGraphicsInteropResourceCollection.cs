@@ -1,30 +1,33 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace ManagedCuda
@@ -35,9 +38,9 @@ namespace ManagedCuda
     /// </summary>
     public class CudaGraphicsInteropResourceCollection : ICollection<ICudaGraphicsInteropResource>, IDisposable
     {
-        List<ICudaGraphicsInteropResource> _resources;
-        List<CUgraphicsResource> _CUResources;
-        bool disposed;
+        private List<ICudaGraphicsInteropResource> _resources;
+        private List<CUgraphicsResource> _CUResources;
+        private bool disposed;
 
         #region Constructors
         /// <summary>
@@ -79,7 +82,7 @@ namespace ManagedCuda
         public void Add(ICudaGraphicsInteropResource item)
         {
             if (!_resources.Contains(item))
-            _resources.Add(item);
+                _resources.Add(item);
             _CUResources.Add(item.GetCUgraphicsResource());
         }
 
@@ -203,7 +206,7 @@ namespace ManagedCuda
         {
             if (disposed) throw new ObjectDisposedException(this.ToString());
             CUResult res;
-            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsMapResources((uint) _CUResources.Count, _CUResources.ToArray(), stream);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsMapResources((uint)_CUResources.Count, _CUResources.ToArray(), stream);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsMapResources", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);

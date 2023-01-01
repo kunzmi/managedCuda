@@ -1,29 +1,31 @@
-﻿//	Copyright (c) 2014, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace ManagedCuda
@@ -34,7 +36,6 @@ namespace ManagedCuda
     /// </summary>
     public class PrimaryContext : CudaContext
     {
-
         #region Constructors
         /// <summary>
         /// Create a new instace of managed Cuda. Retains the primary cuda context of device with ID 0.
@@ -86,6 +87,63 @@ namespace ManagedCuda
                 throw new CudaException(res);
 
 
+
+            res = DriverAPINativeMethods.ContextManagement.cuDevicePrimaryCtxRetain(ref _context, _device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevicePrimaryCtxRetain", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Create a new instace of managed Cuda. Retains the primary cuda context of the given device. The device object can be obtained for example from the OpenGL or DirectX API.
+        /// Using <see cref="CUCtxFlags.SchedAuto"/>
+        /// </summary>
+        /// <param name="device">Device to use</param>
+        public PrimaryContext(CUdevice device)
+            : base(true, 0)
+        {
+            CUResult res;
+            int deviceCount = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+
+            if (res == CUResult.ErrorNotInitialized) //unlikely as we already obtained an CUdevice, but one never knows
+            {
+                res = DriverAPINativeMethods.cuInit(CUInitializationFlags.None);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuInit", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+
+                res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+            }
+            else if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            if (deviceCount == 0)
+            {
+                throw new CudaException(CUResult.ErrorNoDevice, "Cuda initialization error: There is no device supporting CUDA", null);
+            }
+
+            //find the corresponding device ID:
+            int deviceOrdinal = -1;
+            for (int id = 0; id < deviceCount; id++)
+            {
+                if (GetCUdevice(id) == device)
+                {
+                    deviceOrdinal = id;
+                    break;
+                }
+            }
+            if (deviceOrdinal < 0)
+            {
+                throw new CudaException(CUResult.ErrorNoDevice, "Couldn't find corresponding device ordinal", null);
+            }
+
+            _deviceID = deviceOrdinal;
+            _device = device;
 
             res = DriverAPINativeMethods.ContextManagement.cuDevicePrimaryCtxRetain(ref _context, _device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevicePrimaryCtxRetain", res));

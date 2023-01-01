@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -77,322 +80,147 @@ namespace ManagedCuda.CudaFFT
             SetStream(stream);
         }
 
-  //      /// <summary>
-		///// Creates a new 3D FFT plan (old API)
-  //      /// </summary>
-  //      /// <param name="nx">The transform size in the X dimension</param>
-  //      /// <param name="ny">The transform size in the Y dimension</param>
-  //      /// <param name="nz">The transform size in the Z dimension</param>
-  //      /// <param name="type">The transform data type (e.g., R2C for real to complex)</param>
-  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-  //      public CudaFFTPlan3D(int nx, int ny, int nz, cufftType type, Compatibility mode)
-  //          : this(nx, ny, nz, type)
-  //      {
-  //          SetCompatibilityMode(mode);
-  //      }
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="size"></param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, ref SizeT size)
+        {
+            _handle = handle;
+            _nx = nx;
+            _type = type;
+            res = CudaFFTNativeMethods.cufftMakePlan3d(_handle, nx, ny, nz, type, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftMakePlan3d", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
 
-  //      /// <summary>
-		///// Creates a new 3D FFT plan (old API)
-  //      /// </summary>
-  //      /// <param name="nx">The transform size in the X dimension</param>
-  //      /// <param name="ny">The transform size in the Y dimension</param>
-  //      /// <param name="nz">The transform size in the Z dimension</param>
-  //      /// <param name="type">The transform data type (e.g., R2C for real to complex)</param>
-  //      /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-  //      /// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-  //      public CudaFFTPlan3D(int nx, int ny, int nz, cufftType type, CUstream stream, Compatibility mode)
-  //          : this(nx, ny, nz, type)
-  //      {
-  //          SetStream(stream);
-  //          SetCompatibilityMode(mode);
-  //      }
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type)
+        {
+            SizeT size = new SizeT();
+            _handle = handle;
+            _nx = nx;
+            _type = type;
+            res = CudaFFTNativeMethods.cufftMakePlan3d(_handle, nx, ny, nz, type, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftMakePlan3d", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
 
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="size"></param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, ref SizeT size)
-		{
-			_handle = handle;
-			_nx = nx;
-			_type = type;
-			res = CudaFFTNativeMethods.cufftMakePlan2d(_handle, nx, ny, type, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftMakePlan2d", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-		}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream)
+            : this(handle, nx, ny, nz, type)
+        {
+            SetStream(stream);
+        }
 
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type)
-		{
-			SizeT size = new SizeT();
-			_handle = handle;
-			_nx = nx;
-			_type = type;
-			res = CudaFFTNativeMethods.cufftMakePlan2d(_handle, nx, ny, type, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftMakePlan2d", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-		}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+        /// <param name="size"></param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, ref SizeT size)
+            : this(handle, nx, ny, nz, type, ref size)
+        {
+            SetStream(stream);
+        }
 
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream)
-			: this(handle, nx, ny, nz, type)
-		{
-			SetStream(stream);
-		}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+        /// work areas for plans that have been generated.</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, bool autoAllocate)
+            : this(handle, nx, ny, nz, type)
+        {
+            SetAutoAllocation(autoAllocate);
+        }
 
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, Compatibility mode)
-		//	: this(handle, nx, ny, nz, type)
-		//{
-		//	SetCompatibilityMode(mode);
-		//}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="size"></param>
+        /// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+        /// work areas for plans that have been generated.</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, ref SizeT size, bool autoAllocate)
+            : this(handle, nx, ny, nz, type, ref size)
+        {
+            SetAutoAllocation(autoAllocate);
+        }
 
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, Compatibility mode)
-		//	: this(handle, nx, ny, nz, type)
-		//{
-		//	SetStream(stream);
-		//	SetCompatibilityMode(mode);
-		//}
-
-
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="size"></param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, ref SizeT size)
-			: this(handle, nx, ny, nz, type, ref size)
-		{
-			SetStream(stream);
-		}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="size"></param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, Compatibility mode, ref SizeT size)
-		//	: this(handle, nx, ny, nz, type, ref size)
-		//{
-		//	SetCompatibilityMode(mode);
-		//}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="size"></param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, Compatibility mode, ref SizeT size)
-		//	: this(handle, nx, ny, nz, type, ref size)
-		//{
-		//	SetStream(stream);
-		//	SetCompatibilityMode(mode);
-		//}
-
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, bool autoAllocate)
-			: this(handle, nx, ny, nz, type)
-		{
-			SetAutoAllocation(autoAllocate);
-		}
-
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, ref SizeT size, bool autoAllocate)
-			: this(handle, nx, ny, nz, type, ref size)
-		{
-			SetAutoAllocation(autoAllocate);
-		}
-
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, bool autoAllocate)
-			: this(handle, nx, ny, nz, type)
-		{
-			SetStream(stream);
-			SetAutoAllocation(autoAllocate);
-		}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		///// work areas for plans that have been generated.</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, Compatibility mode, bool autoAllocate)
-		//	: this(handle, nx, ny, nz, type)
-		//{
-		//	SetCompatibilityMode(mode);
-		//	SetAutoAllocation(autoAllocate);
-		//}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		///// work areas for plans that have been generated.</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, Compatibility mode, bool autoAllocate)
-		//	: this(handle, nx, ny, nz, type)
-		//{
-		//	SetStream(stream);
-		//	SetCompatibilityMode(mode);
-		//	SetAutoAllocation(autoAllocate);
-		//}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+        /// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+        /// work areas for plans that have been generated.</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, bool autoAllocate)
+            : this(handle, nx, ny, nz, type)
+        {
+            SetStream(stream);
+            SetAutoAllocation(autoAllocate);
+        }
 
 
-		/// <summary>
-		/// Creates a new 3D FFT plan (new API)
-		/// </summary>
-		/// <param name="handle">cufftHandle object</param>
-		/// <param name="nx">The transform size in the X dimension</param>
-		/// <param name="ny">The transform size in the Y dimension</param>
-		/// <param name="nz">The transform size in the Z dimension</param>
-		/// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		/// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		/// <param name="size"></param>
-		/// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated.</param>
-		public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, ref SizeT size, bool autoAllocate)
-			: this(handle, nx, ny, nz, type, ref size)
-		{
-			SetStream(stream);
-			SetAutoAllocation(autoAllocate);
-		}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="size"></param>
-		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		///// work areas for plans that have been generated.</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, Compatibility mode, ref SizeT size, bool autoAllocate)
-		//	: this(handle, nx, ny, nz, type, ref size)
-		//{
-		//	SetCompatibilityMode(mode);
-		//	SetAutoAllocation(autoAllocate);
-		//}
-
-		///// <summary>
-		///// Creates a new 3D FFT plan (new API)
-		///// </summary>
-		///// <param name="handle">cufftHandle object</param>
-		///// <param name="nx">The transform size in the X dimension</param>
-		///// <param name="ny">The transform size in the Y dimension</param>
-		///// <param name="nz">The transform size in the Z dimension</param>
-		///// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
-		///// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
-		///// <param name="mode">The <see cref="Compatibility"/> option to be used</param>
-		///// <param name="size"></param>
-		///// <param name="autoAllocate">indicates that the caller intends to allocate and manage
-		///// work areas for plans that have been generated.</param>
-		//public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, Compatibility mode, ref SizeT size, bool autoAllocate)
-		//	: this(handle, nx, ny, nz, type, ref size)
-		//{
-		//	SetStream(stream);
-		//	SetCompatibilityMode(mode);
-		//	SetAutoAllocation(autoAllocate);
-		//}
+        /// <summary>
+        /// Creates a new 3D FFT plan (new API)
+        /// </summary>
+        /// <param name="handle">cufftHandle object</param>
+        /// <param name="nx">The transform size in the X dimension</param>
+        /// <param name="ny">The transform size in the Y dimension</param>
+        /// <param name="nz">The transform size in the Z dimension</param>
+        /// <param name="type">The transform data type (e.g., C2R for complex to real)</param>
+        /// <param name="stream">A valid CUDA stream created with cudaStreamCreate() (or 0 for the default stream)</param>
+        /// <param name="size"></param>
+        /// <param name="autoAllocate">indicates that the caller intends to allocate and manage
+        /// work areas for plans that have been generated.</param>
+        public CudaFFTPlan3D(cufftHandle handle, int nx, int ny, int nz, cufftType type, CUstream stream, ref SizeT size, bool autoAllocate)
+            : this(handle, nx, ny, nz, type, ref size)
+        {
+            SetStream(stream);
+            SetAutoAllocation(autoAllocate);
+        }
 
         /// <summary>
         /// For dispose
@@ -431,98 +259,98 @@ namespace ManagedCuda.CudaFFT
         }
         #endregion
 
-		#region Methods
-		/// <summary>
-		/// This call gives a more accurate estimate of the work area size required for a plan than
-		/// cufftEstimate1d(), given the specified parameters, and taking into account any plan
-		/// settings that may have been made.
-		/// </summary>
-		/// <returns></returns>
-		public SizeT GetSize()
-		{
-			SizeT size = new SizeT();
-			res = CudaFFTNativeMethods.cufftGetSize3d(_handle, _nx, _ny, _nz, _type, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftGetSize3d", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-			return size;
-		}
+        #region Methods
+        /// <summary>
+        /// This call gives a more accurate estimate of the work area size required for a plan than
+        /// cufftEstimate1d(), given the specified parameters, and taking into account any plan
+        /// settings that may have been made.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT GetSize()
+        {
+            SizeT size = new SizeT();
+            res = CudaFFTNativeMethods.cufftGetSize3d(_handle, _nx, _ny, _nz, _type, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftGetSize3d", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+            return size;
+        }
 
-		/// <summary>
-		/// During plan execution, CUFFT requires a work area for temporary storage of
-		/// intermediate results. This call returns an estimate for the size of the work area required,
-		/// given the specified parameters, and assuming default plan settings. Note that changing
-		/// some plan settings, such as compatibility mode, may alter the size required for the work
-		/// area.
-		/// </summary>
-		/// <param name="nx">The transform size in the x dimension</param>
-		/// <param name="ny">The transform size in the y dimension</param>
-		/// <param name="nz">The transform size in the z dimension</param>
-		/// <param name="type">The transform data type (e.g., CUFFT_C2C for single
-		/// precision complex to complex)</param>
-		/// <returns></returns>
-		public static SizeT EstimateSize(int nx, int ny, int nz, cufftType type)
-		{
-			SizeT size = new SizeT();
-			cufftResult res = CudaFFTNativeMethods.cufftEstimate3d(nx, ny, nz, type, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftEstimate3d", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-			return size;
-		}
+        /// <summary>
+        /// During plan execution, CUFFT requires a work area for temporary storage of
+        /// intermediate results. This call returns an estimate for the size of the work area required,
+        /// given the specified parameters, and assuming default plan settings. Note that changing
+        /// some plan settings, such as compatibility mode, may alter the size required for the work
+        /// area.
+        /// </summary>
+        /// <param name="nx">The transform size in the x dimension</param>
+        /// <param name="ny">The transform size in the y dimension</param>
+        /// <param name="nz">The transform size in the z dimension</param>
+        /// <param name="type">The transform data type (e.g., CUFFT_C2C for single
+        /// precision complex to complex)</param>
+        /// <returns></returns>
+        public static SizeT EstimateSize(int nx, int ny, int nz, cufftType type)
+        {
+            SizeT size = new SizeT();
+            cufftResult res = CudaFFTNativeMethods.cufftEstimate3d(nx, ny, nz, type, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftEstimate3d", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+            return size;
+        }
 
-		/// <summary>
-		/// Once plan generation has been done, either with the original API or the extensible API,
-		/// this call returns the actual size of the work area required to support the plan. Callers
-		/// who choose to manage work area allocation within their application must use this call
-		/// after plan generation, and after any cufftSet*() calls subsequent to plan generation, if
-		/// those calls might alter the required work space size.
-		/// </summary>
-		/// <returns></returns>
-		public SizeT GetActualSize()
-		{
-			SizeT size = new SizeT();
-			res = CudaFFTNativeMethods.cufftGetSize(_handle, ref size);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftGetSize", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-			return size;
-		}
+        /// <summary>
+        /// Once plan generation has been done, either with the original API or the extensible API,
+        /// this call returns the actual size of the work area required to support the plan. Callers
+        /// who choose to manage work area allocation within their application must use this call
+        /// after plan generation, and after any cufftSet*() calls subsequent to plan generation, if
+        /// those calls might alter the required work space size.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT GetActualSize()
+        {
+            SizeT size = new SizeT();
+            res = CudaFFTNativeMethods.cufftGetSize(_handle, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftGetSize", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+            return size;
+        }
 
-		/// <summary>
-		/// SetWorkArea() overrides the work area pointer associated with a plan.
-		/// If the work area was auto-allocated, CUFFT frees the auto-allocated space. The
-		/// cufftExecute*() calls assume that the work area pointer is valid and that it points to
-		/// a contiguous region in device memory that does not overlap with any other work area. If
-		/// this is not the case, results are indeterminate.
-		/// </summary>
-		/// <param name="workArea"></param>
-		public void SetWorkArea(CUdeviceptr workArea)
-		{
-			res = CudaFFTNativeMethods.cufftSetWorkArea(_handle, workArea);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetWorkArea", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-		}
+        /// <summary>
+        /// SetWorkArea() overrides the work area pointer associated with a plan.
+        /// If the work area was auto-allocated, CUFFT frees the auto-allocated space. The
+        /// cufftExecute*() calls assume that the work area pointer is valid and that it points to
+        /// a contiguous region in device memory that does not overlap with any other work area. If
+        /// this is not the case, results are indeterminate.
+        /// </summary>
+        /// <param name="workArea"></param>
+        public void SetWorkArea(CUdeviceptr workArea)
+        {
+            res = CudaFFTNativeMethods.cufftSetWorkArea(_handle, workArea);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetWorkArea", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
 
-		/// <summary>
-		/// SetAutoAllocation() indicates that the caller intends to allocate and manage
-		/// work areas for plans that have been generated. CUFFT default behavior is to allocate
-		/// the work area at plan generation time. If cufftSetAutoAllocation() has been called
-		/// with autoAllocate set to "false" prior to one of the cufftMakePlan*() calls, CUFFT
-		/// does not allocate the work area. This is the preferred sequence for callers wishing to
-		/// manage work area allocation.
-		/// </summary>
-		/// <param name="autoAllocate"></param>
-		public void SetAutoAllocation(bool autoAllocate)
-		{
-			int auto = 0;
-			if (autoAllocate) auto = 1;
-			res = CudaFFTNativeMethods.cufftSetAutoAllocation(_handle, auto);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetAutoAllocation", res));
-			if (res != cufftResult.Success)
-				throw new CudaFFTException(res);
-		}
+        /// <summary>
+        /// SetAutoAllocation() indicates that the caller intends to allocate and manage
+        /// work areas for plans that have been generated. CUFFT default behavior is to allocate
+        /// the work area at plan generation time. If cufftSetAutoAllocation() has been called
+        /// with autoAllocate set to "false" prior to one of the cufftMakePlan*() calls, CUFFT
+        /// does not allocate the work area. This is the preferred sequence for callers wishing to
+        /// manage work area allocation.
+        /// </summary>
+        /// <param name="autoAllocate"></param>
+        public void SetAutoAllocation(bool autoAllocate)
+        {
+            int auto = 0;
+            if (autoAllocate) auto = 1;
+            res = CudaFFTNativeMethods.cufftSetAutoAllocation(_handle, auto);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetAutoAllocation", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
 
 
         /// <summary>
@@ -743,13 +571,13 @@ namespace ManagedCuda.CudaFFT
             get { return _type; }
         }
 
-		/// <summary>
-		/// Handle
-		/// </summary>
-		public cufftHandle Handle
-		{
-			get { return _handle; }
-		}
+        /// <summary>
+        /// Handle
+        /// </summary>
+        public cufftHandle Handle
+        {
+            get { return _handle; }
+        }
         #endregion
     }
 }

@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -31,8 +34,8 @@ namespace ManagedCuda
     /// <summary>
     /// Number of channels in array
     /// </summary>
-    public enum CudaArray2DNumChannels 
-    { 
+    public enum CudaArray2DNumChannels
+    {
         /// <summary>
         /// One channel, e.g. float1, int1, float, int
         /// </summary>
@@ -46,7 +49,7 @@ namespace ManagedCuda
         /// </summary>
         Four = 4
     }
-      
+
     /// <summary>
     /// A two dimensional CUDA array
     /// </summary>
@@ -91,7 +94,7 @@ namespace ManagedCuda
         public CudaArray2D(CUarray cuArray)
             : this(cuArray, false)
         {
-            
+
         }
 
         /// <summary>
@@ -110,13 +113,13 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             _isOwner = isOwner;
         }
-        
+
         /// <summary>
         /// For dispose
         /// </summary>
         ~CudaArray2D()
         {
-            Dispose (false);            
+            Dispose(false);
         }
         #endregion
 
@@ -134,22 +137,22 @@ namespace ManagedCuda
         /// For IDisposable
         /// </summary>
         /// <param name="fDisposing"></param>
-        protected virtual void Dispose (bool fDisposing)
+        protected virtual void Dispose(bool fDisposing)
         {
-           if (fDisposing && !disposed) 
-           {
-               if (_isOwner)
-               {
-                   res = DriverAPINativeMethods.ArrayManagement.cuArrayDestroy(_cuArray);
-                   Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuArrayDestroy", res));
-               }
-               disposed = true;
-           }
-           if (!fDisposing && !disposed)
-               Debug.WriteLine(String.Format("ManagedCUDA not-disposed warning: {0}", this.GetType()));
+            if (fDisposing && !disposed)
+            {
+                if (_isOwner)
+                {
+                    res = DriverAPINativeMethods.ArrayManagement.cuArrayDestroy(_cuArray);
+                    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuArrayDestroy", res));
+                }
+                disposed = true;
+            }
+            if (!fDisposing && !disposed)
+                Debug.WriteLine(String.Format("ManagedCUDA not-disposed warning: {0}", this.GetType()));
         }
         #endregion
-        
+
         #region Methods
         /// <summary>
         /// A raw data copy method
@@ -271,7 +274,7 @@ namespace ManagedCuda
             {
                 handle.Free();
             }
-            
+
             if (res != CUResult.Success)
                 throw new CudaException(res);
         }
@@ -281,7 +284,7 @@ namespace ManagedCuda
         /// </summary>
         /// <typeparam name="T">device variable base type</typeparam>
         /// <param name="aDeviceVariable">Source</param>
-        public void CopyFromDeviceToThis<T>(CudaPitchedDeviceVariable<T> aDeviceVariable) where T:struct
+        public void CopyFromDeviceToThis<T>(CudaPitchedDeviceVariable<T> aDeviceVariable) where T : struct
         {
             CUDAMemCpy2D copyParams = new CUDAMemCpy2D();
             copyParams.srcDevice = aDeviceVariable.DevicePointer;
@@ -358,6 +361,14 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemcpy2D", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns the memory requirements of a CUDA array
+        /// </summary>
+        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
+        {
+            return _cuArray.GetMemoryRequirements(device);
         }
         #endregion        
 

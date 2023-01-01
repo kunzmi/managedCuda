@@ -1,29 +1,31 @@
-//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 #define ADD_MISSING_CTX
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -2326,7 +2328,7 @@ namespace ManagedCuda.NPP
         /// <param name="histogram">array that receives the computed histogram. The CudaDeviceVariable must be of size nLevels-1. Array size = 3</param>
         /// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 3</param>
         /// <param name="nppStreamCtx">NPP stream context.</param>
-        public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, NppStreamContext nppStreamCtx)
+        public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<float>[] pLevels, NppStreamContext nppStreamCtx)
         {
             int[] size = new int[] { histogram[0].Size, histogram[1].Size, histogram[2].Size };
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
@@ -2348,7 +2350,7 @@ namespace ManagedCuda.NPP
         /// <param name="pLevels">Array in device memory containing the level sizes of the bins. The CudaDeviceVariable must be of size nLevels. Array size = 3</param>
         /// <param name="buffer">Allocated device memory with size of at <see cref="HistogramRangeGetBufferSize(int[])"/></param>
         /// <param name="nppStreamCtx">NPP stream context.</param>
-        public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<int>[] pLevels, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
+        public void HistogramRange(CudaDeviceVariable<int>[] histogram, CudaDeviceVariable<float>[] pLevels, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
             int[] size = new int[] { histogram[0].Size, histogram[1].Size, histogram[2].Size };
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
@@ -5564,18 +5566,233 @@ namespace ManagedCuda.NPP
         /// <param name="nMaxHeight">Region of interest in the source images (may overlap source image size width and height).</param>
         /// <param name="pBatchSrc">Size in pixels of the entire smallest destination image width and height, may be from different images.</param>
         /// <param name="pBatchDst">Region of interest in the destination images (may overlap destination image size width and height).</param>
-        /// <param name="nBatchSize">Device memory pointer to nBatchSize list of NppiResizeBatchCXR structures.</param>
         /// <param name="pBatchROI">Device pointer to NppiResizeBatchROI_Advanced list of per-image variable ROIs.User needs to initialize this structure and copy it to device.</param>
         /// <param name="eInterpolation">The type of eInterpolation to perform resampling.</param>
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public static void ResizeBatchAdvanced(int nMaxWidth, int nMaxHeight, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc, CudaDeviceVariable<NppiImageDescriptor> pBatchDst,
-                                        CudaDeviceVariable<NppiResizeBatchROI_Advanced> pBatchROI, uint nBatchSize, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
+                                        CudaDeviceVariable<NppiResizeBatchROI_Advanced> pBatchROI, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
         {
             NppStatus status = NPPNativeMethods_Ctx.NPPi.GeometricTransforms.nppiResizeBatch_32f_C3R_Advanced_Ctx(nMaxWidth, nMaxHeight, pBatchSrc.DevicePointer, pBatchDst.DevicePointer,
                 pBatchROI.DevicePointer, pBatchDst.Size, eInterpolation, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiResizeBatch_32f_C3R_Advanced_Ctx", status));
             NPPException.CheckNppStatus(status, null);
         }
+        #endregion
+        #region New in Cuda 12.0
+#if ADD_MISSING_CTX
+
+        /// <summary>
+        /// median filter scratch memory size.
+        /// </summary>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public uint FilterMedianBorderGetBufferSize(NppiSize oMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        {
+            uint bufferSize = 0;
+            status = NPPNativeMethods_Ctx.NPPi.ImageMedianFilter.nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx(_sizeRoi, oMaskSize, ref bufferSize, eBorderType, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorderGetBufferSize_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        #region Add
+        /// <summary>
+        /// Add constant to image.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<float> nConstant, NPPImage_32fC3 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_32f_C3R_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Add constant to image. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<float> nConstant, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_32f_C3IR_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_32f_C3IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Sub
+
+        /// <summary>
+        /// Subtract constant to image.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<float> nConstant, NPPImage_32fC3 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_32f_C3R_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Subtract constant to image. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<float> nConstant, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_32f_C3IR_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_32f_C3IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Mul
+
+        /// <summary>
+        /// Multiply constant to image.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<float> nConstant, NPPImage_32fC3 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_32f_C3R_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Multiply constant to image. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<float> nConstant, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_32f_C3IR_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_32f_C3IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Div
+
+        /// <summary>
+        /// Divide constant to image.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<float> nConstant, NPPImage_32fC3 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_32f_C3R_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Divide constant to image. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<float> nConstant, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_32f_C3IR_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_32f_C3IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        /// <summary>
+        /// median filter with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterMedianBorder(NPPImage_32fC3 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ImageMedianFilter.nppiFilterMedianBorder_32f_C3R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorder_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Box filter with border control. 
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBoxBorderAdvanced(NPPImage_32fC3 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFixedFilters2D.nppiFilterBoxBorderAdvanced_32f_C3R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, pBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorderAdvanced_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// CrossCorrFull_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrFull_NormLevel(NPPImage_32fC3 tpl, NPPImage_32fC3 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrFull_NormLevelAdvanced_32f_C3R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrFull_NormLevelAdvanced_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrSame_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrSame_NormLevel(NPPImage_32fC3 tpl, NPPImage_32fC3 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrSame_NormLevelAdvanced_32f_C3R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrSame_NormLevelAdvanced_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrValid_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrValid_NormLevel(NPPImage_32fC3 tpl, NPPImage_32fC3 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrValid_NormLevelAdvanced_32f_C3R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrValid_NormLevelAdvanced_32f_C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+#endif
         #endregion
     }
 }

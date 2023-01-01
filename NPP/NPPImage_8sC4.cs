@@ -1,28 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -1283,6 +1285,89 @@ namespace ManagedCuda.NPP
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBorder32f_8s16s_AC4R", status));
             NPPException.CheckNppStatus(status, this);
         }
+        #endregion
+
+        #region New in Cuda 12.0
+
+        /// <summary>
+        /// Buffer size (in bytes) for nppiCrossCorrFull_NormLevelAdvanced functions.
+        /// </summary>
+        /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
+        public int CrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        {
+            int bufferSize = 0;
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        /// <summary>
+        /// Buffer size (in bytes) for nppiCrossCorrSame_NormLevelAdvanced functions.
+        /// </summary>
+        /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
+        public int CrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        {
+            int bufferSize = 0;
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        /// <summary>
+        /// Buffer size (in bytes) for nppiCrossCorrValid_NormLevelAdvanced functions.
+        /// </summary>
+        /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
+        public int CrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        {
+            int bufferSize = 0;
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+#if ADD_MISSING_CTX
+
+        /// <summary>
+        /// CrossCorrFull_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize</param>
+        public void CrossCorrFull_NormLevel(NPPImage_8sC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced)
+        {
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevelAdvanced_8s32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrFull_NormLevelAdvanced_8s32f_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrSame_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize</param>
+        public void CrossCorrSame_NormLevel(NPPImage_8sC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced)
+        {
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevelAdvanced_8s32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrSame_NormLevelAdvanced_8s32f_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrValid_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize</param>
+        public void CrossCorrValid_NormLevel(NPPImage_8sC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced)
+        {
+            status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevelAdvanced_8s32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrValid_NormLevelAdvanced_8s32f_C4R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+#endif
         #endregion
     }
 }

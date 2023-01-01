@@ -1,29 +1,31 @@
-//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 #define ADD_MISSING_CTX
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -1956,61 +1958,7 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, this);
         }
         #endregion
-
-        //#region NormDiffOld
-        ///// <summary>
-        ///// Infinity Norm of pixel differences.
-        ///// </summary>
-        ///// <param name="src2">2nd source image</param>
-        ///// <param name="retVal">Contains computed Inf-norm of differences.</param>
-        //public void NormDiffInf(NPPImage_8uC1 src2, CudaDeviceVariable<double> retVal)
-        //{
-        //    //status = NPPNativeMethods_Ctx.NPPi.NormDiff.nppiNormDiff_Inf_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, retVal.DevicePointer, nppStreamCtx);
-        //    //Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiff_Inf_8u_C1R_Ctx", status));
-        //    //NPPException.CheckNppStatus(status, this);
-        //}
-
-        ///// <summary>
-        ///// L1 Norm of pixel differences.
-        ///// </summary>
-        ///// <param name="src2">2nd source image</param>
-        ///// <param name="retVal">Contains computed L1-norm of differences.</param>
-        //public void NormDiffL1(NPPImage_8uC1 src2, CudaDeviceVariable<double> retVal)
-        //{
-        //    //status = NPPNativeMethods_Ctx.NPPi.NormDiff.nppiNormDiff_L1_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, retVal.DevicePointer, nppStreamCtx);
-        //    //Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiff_L1_8u_C1R_Ctx", status));
-        //    //NPPException.CheckNppStatus(status, this);
-        //}
-
-        ///// <summary>
-        ///// L2 Norm of pixel differences.
-        ///// </summary>
-        ///// <param name="src2">2nd source image</param>
-        ///// <param name="retVal">Contains computed L2-norm of differences.</param>
-        //public void NormDiffL2(NPPImage_8uC1 src2, CudaDeviceVariable<double> retVal)
-        //{
-        //    //status = NPPNativeMethods_Ctx.NPPi.NormDiff.nppiNormDiff_L2_8u_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, retVal.DevicePointer, nppStreamCtx);
-        //    //Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiff_L2_8u_C1R_Ctx", status));
-        //    //NPPException.CheckNppStatus(status, this);
-        //}
-        //#endregion
-
         #region Affine Transformations
-        /// <summary>
-        /// Calculates affine transform coefficients given source rectangular ROI and its destination quadrangle projection
-        /// </summary>
-        /// <param name="quad">Destination quadrangle [4,2]</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>Affine transform coefficients [2,3]</returns>
-        public double[,] GetAffineTransform(double[,] quad, NppStreamContext nppStreamCtx)
-        {
-            double[,] coeffs = new double[2, 3];
-            NppiRect rect = new NppiRect(_pointRoi, _sizeRoi);
-            status = NPPNativeMethods.NPPi.AffinTransforms.nppiGetAffineTransform(rect, quad, coeffs);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiGetAffineTransform", status));
-            NPPException.CheckNppStatus(status, this);
-            return coeffs;
-        }
 
         /// <summary>
         /// Affine transform of an image. <para/>This
@@ -7050,7 +6998,7 @@ namespace ManagedCuda.NPP
         }
         #endregion
         #region New in Cuda 11.2
-#if (ADD_MISSING_CTX)
+#if ADD_MISSING_CTX
         /// <summary>
         /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional unsigned 16-bit truncated integer transform.
@@ -7103,7 +7051,7 @@ namespace ManagedCuda.NPP
 
         /// <summary>
         /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
-        /// optional 32-bit floating point transform.
+        /// optional unsigned 16-bit truncated integer transform.
         /// </summary>
         /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
@@ -7113,8 +7061,8 @@ namespace ManagedCuda.NPP
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
         /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
         /// <param name="nppStreamCtx">NPP stream context.</param>
-        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
-                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        public void DistanceTransformAbsPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
@@ -7146,13 +7094,667 @@ namespace ManagedCuda.NPP
                 pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
             }
 
-            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u32f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_8u32f_C1R_Ctx", status));
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_8u16u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or  
+        /// optional 64-bit floating point transform with optional absolute Manhattan distances
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiAbsoluteManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformAbsPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                  NPPImage_16sC1 pDstVoronoiAbsoluteManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiAbsoluteManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.Pitch;
+            }
+
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_8u32f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_8u32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
 #endif
         #endregion
 
+
+        #region New in Cuda 12.0
+#if ADD_MISSING_CTX
+        #region Add
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_8u_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<byte> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_8u_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_8u_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+        #region Sub
+
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_8u_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<byte> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_8u_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_8u_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Mul
+
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_8u_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<byte> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_8u_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_8u_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Multiply constant to image and scale by max bit width value
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConstScale.nppiMulDeviceCScale_8u_C1R_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceCScale_8u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Multiply constant to image and scale by max bit width value
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<byte> nConstant, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConstScale.nppiMulDeviceCScale_8u_C1IR_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceCScale_8u_C1IR_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Div
+
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_8u_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_8u_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<byte> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_8u_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_8u_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region AbsDiff
+
+        /// <summary>
+        /// Absolute difference with constant.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void AbsDiff(CudaDeviceVariable<byte> nConstant, NPPImage_8uC1 dest, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AbsDiffDeviceConst.nppiAbsDiffDeviceC_8u_C1R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nConstant.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAbsDiffDeviceC_8u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+#endif
+        #endregion
+
+
+
+        #region New in Cuda 12.0
+
+        /// <summary>
+        /// Scratch-buffer size for SignedDistanceTransformPBA.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGetBufferSize(NppStreamContext nppStreamCtx)
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGetBufferSize_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGetBufferSize_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+        /// <summary>
+        /// Scratch-buffer size for SignedDistanceTransformPBA 64 bit floating point output.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGet64BufferSize(NppStreamContext nppStreamCtx)
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGet64fBufferSize_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGet64fBufferSize_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        /// <summary>
+        /// Calculate scratch buffer size needed for the SignedDistanceTransformPBA function based antialiasing on destination image SizeROI width and height.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGetAntialiasingBufferSize(NppStreamContext nppStreamCtx)
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGetAntialiasingBufferSize_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGetAntialiasingBufferSize_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+
+
+
+
+#if ADD_MISSING_CTX
+
+        /// <summary>
+        /// median filter scratch memory size.
+        /// </summary>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public uint FilterMedianBorderGetBufferSize(NppiSize oMaskSize, NppiBorderType eBorderType, NppStreamContext nppStreamCtx)
+        {
+            uint bufferSize = 0;
+            status = NPPNativeMethods_Ctx.NPPi.ImageMedianFilter.nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx(_sizeRoi, oMaskSize, ref bufferSize, eBorderType, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorderGetBufferSize_8u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
+        /// optional 64-bit floating point transform with optional relative Manhattan distances.
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanRelativeDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiSignedDistanceTransformPBAGet64fBufferSize() above)</param>
+        /// <param name="pAntialiasingDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpAntialiasingBufferSize (see nppiSignedDistanceTransformPBAGetAntialiasingBufferSize() above) or NULL if not Antialiasing</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanRelativeDistances, NPPImage_64fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<byte> pAntialiasingDeviceBuffer, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            CUdeviceptr antiAlias = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanRelativeDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.Pitch;
+            }
+            if (pAntialiasingDeviceBuffer != null)
+            {
+                antiAlias = pAntialiasingDeviceBuffer.DevicePointer;
+            }
+
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u64f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, antiAlias, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_8u64f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or  
+        /// optional 64-bit floating point transform with optional absolute Manhattan distances
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiAbsoluteManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGet64fBufferSize() above)</param>
+        /// <param name="pAntialiasingDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpAntialiasingBufferSize (see nppiDistanceTransformPBAGetAntialiasingBufferSize() above) or NULL if not Antialiasing</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformAbsPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                  NPPImage_16sC1 pDstVoronoiAbsoluteManhattanDistances, NPPImage_64fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<byte> pAntialiasingDeviceBuffer, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            CUdeviceptr antiAlias = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiAbsoluteManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.Pitch;
+            }
+            if (pAntialiasingDeviceBuffer != null)
+            {
+                antiAlias = pAntialiasingDeviceBuffer.DevicePointer;
+            }
+
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, antiAlias, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_8u64f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 8-bit unsigned grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
+        /// optional 32-bit floating point transform with optional relative Manhattan distances.
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanRelativeDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiSignedDistanceTransformPBAGetBufferSize() above)</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void DistanceTransformPBA(byte nMinSiteValue, byte nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanRelativeDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanRelativeDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.Pitch;
+            }
+
+            status = NPPNativeMethods_Ctx.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_8u32f_C1R_Ctx(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_8u32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// 1 channel integer coordinate based contours image to marching squares bilinear interpolated coordinates contours image.<para/>
+        /// Apply Marching Squares bilinear interpolation to all contour pixels in a contours image where contour pixels have values of 0 and non-contour pixels have values of 255.<para/>
+        /// Note that ALL input and output data for the function MUST be in device memory except where noted otherwise.<para/>
+        /// Also nFirstContourID and nLastContourID allow only a portion of the contour geometry lists in the image to be output.<para/>
+        ///
+        /// Note that the geometry list for each contour will begin at pContoursGeometryListsHost[pContoursPixelStartingOffsetHost[nContourID] * sizeof(NppiContourPixelGeometryInfo). 
+        /// <para/>
+        /// Note that to significantly improve performance by default a contour that contains more than 256K pixels will be bypassed when generating the 
+        /// output geometry list.The contour ID and number of contour pixels will be output in the contour list however. You can still get this function
+        /// to output the geometry of this size contour howver by calling the function with a starting contour ID of that contour ID and and ending contour 
+        /// ID of that contour ID + 1.  Note that doing so for contours approaching a million pixels can take many minutes.Also, due to the structure of
+        /// some images contour ID 0 can contain ALL contours in the image so setting the starting contour ID to 1 can significantly increase output 
+        /// preprocessing performance. 
+        /// <para/>
+        /// Also note that the ordered contour geometry list is contained in the oContourOrderedGeometryLocation object within the NppiContourPixelGeometryInfo 
+        /// object for each contour pixel and that this location information is the only valid information in the object relevent to that ordered pixel. 
+        /// <para/>
+        /// Note that for a particular contour geometry pixel list the bounding box for that contour will be contained in the following
+        /// elements of first pixel (pixel 0) of the corresponding contour pixel list.
+        /// <para/>
+        /// \code<para/>
+        /// pixel[0].oContourPrevPixelLocation.x will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.x upper left x<para/>
+        /// pixel[0].oContourPrevPixelLocation.y will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.y upper left y<para/>
+        /// pixel[0].oContourNextPixelLocation.x will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.width lower right x<para/>
+        /// pixel[0].oContourNextPixelLocation.y will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.height lower right y<para/>
+        /// \endcode<para/>
+        /// <para/>
+        /// Note that while the bounding box is relatively accurate occasionally a few contour pixels may extend beyond the bounding box limits. 
+        /// </summary>
+        /// <param name="pContoursInterpolatedImageDev">pointer to device memory image of at least oSizeROI.width * sizeof(NppiPoint32f) * OSizeROI.height bytes.</param>
+        /// <param name="pContoursDirectionImageDev">source_image_pointer to output image in device memory containing per contour pixel direction info around each uniquely labeled connected pixel region returned by corresponding nppiCompressedMarkerLabelsUFInfo call. </param>
+        /// <param name="pContoursPixelGeometryListsDev">pointer to device memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call.</param>
+        /// <param name="pContoursPixelGeometryListsHost">pointer to host memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call. </param>
+        /// <param name="pContoursInterpolatedGeometryListsDev">pointer to device memory buffer allocated to be at least nTotalImagePixelContourCount * sizeof(NppPoint32f) bytes. </param>
+        /// <param name="pContoursPixelsFoundListHost">host memory pointer to array of nMaxMarkerLabelID unsigned integers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx.</param>
+        /// <param name="pContoursPixelsStartingOffsetDev">device memory pointer to array of unsigned integers returned by this call representing the starting offset index of each contour found during geometry list generation. </param>
+        /// <param name="pContoursPixelsStartingOffsetHost">host memory pointer to array of unsigned integers returned by this call representing the starting offset index of each contour found during geometry list generation.</param>
+        /// <param name="nTotalImagePixelContourCount">the total number of contour pixels in the image returned by nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx() call. </param>
+        /// <param name="nMaxMarkerLabelID">the value of the maximum marker label ID returned by corresponding compress marker labels UF call.</param>
+        /// <param name="nFirstContourGeometryListID">the ID of the first contour geometry list to output. </param>
+        /// <param name="nLastContourGeometryListID">the ID of the last contour geometry list to output, last ID MUST be greater than first ID.</param>
+        /// <param name="pContoursBlockSegmentListDev">device memory pointer to array of NppiContourBlockSegment objects, contents will be initialized by NPP. </param>
+        /// <param name="pContoursBlockSegmentListHost">host memory pointer to array of NppiContourBlockSegment objects, contents will be intialized by NPP. </param>
+        /// <param name="oSizeROI">Region-of-Interest (ROI) for the images, must be the same as used in previous calls.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <returns></returns>
+        public void ContoursImageMarchingSquaresInterpolation(CudaPitchedDeviceVariable<NppiPoint32f> pContoursInterpolatedImageDev, CudaPitchedDeviceVariable<NppiContourPixelDirectionInfo> pContoursDirectionImageDev,
+                                                               CudaDeviceVariable<NppiContourPixelGeometryInfo> pContoursPixelGeometryListsDev, NppiContourPixelGeometryInfo[] pContoursPixelGeometryListsHost,
+                                                               CudaDeviceVariable<NppiPoint32f> pContoursInterpolatedGeometryListsDev, uint[] pContoursPixelsFoundListHost, CudaDeviceVariable<uint> pContoursPixelsStartingOffsetDev,
+                                                               uint[] pContoursPixelsStartingOffsetHost, uint nTotalImagePixelContourCount, uint nMaxMarkerLabelID, uint nFirstContourGeometryListID, uint nLastContourGeometryListID,
+                                                               CudaDeviceVariable<NppiContourBlockSegment> pContoursBlockSegmentListDev, NppiContourBlockSegment[] pContoursBlockSegmentListHost, NppiSize oSizeROI, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx(_devPtrRoi, _pitch, pContoursInterpolatedImageDev.DevicePointer, pContoursInterpolatedImageDev.Pitch,
+                pContoursDirectionImageDev.DevicePointer, pContoursDirectionImageDev.Pitch, pContoursPixelGeometryListsDev.DevicePointer, pContoursPixelGeometryListsHost, pContoursInterpolatedGeometryListsDev.DevicePointer,
+                pContoursPixelsFoundListHost, pContoursPixelsStartingOffsetDev.DevicePointer, pContoursPixelsStartingOffsetHost, nTotalImagePixelContourCount, nMaxMarkerLabelID, nFirstContourGeometryListID, nLastContourGeometryListID,
+                pContoursBlockSegmentListDev.DevicePointer, pContoursBlockSegmentListHost, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiContoursImageMarchingSquaresInterpolation_32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel integer coordinate based contours image to marching squares bilinear interpolated coordinates contours image.<para/>
+        /// Apply Marching Squares bilinear interpolation to all contour pixels in a contours image where contour pixels have values of 0 and non-contour pixels have values of 255.<para/>
+        /// Note that ALL input and output data for the function MUST be in device memory except where noted otherwise.<para/>
+        /// Also nFirstContourID and nLastContourID allow only a portion of the contour geometry lists in the image to be output.<para/>
+        ///
+        /// Note that the geometry list for each contour will begin at pContoursGeometryListsHost[pContoursPixelStartingOffsetHost[nContourID] * sizeof(NppiContourPixelGeometryInfo). 
+        /// <para/>
+        /// Note that to significantly improve performance by default a contour that contains more than 256K pixels will be bypassed when generating the 
+        /// output geometry list.The contour ID and number of contour pixels will be output in the contour list however. You can still get this function
+        /// to output the geometry of this size contour howver by calling the function with a starting contour ID of that contour ID and and ending contour 
+        /// ID of that contour ID + 1.  Note that doing so for contours approaching a million pixels can take many minutes.Also, due to the structure of
+        /// some images contour ID 0 can contain ALL contours in the image so setting the starting contour ID to 1 can significantly increase output 
+        /// preprocessing performance. 
+        /// <para/>
+        /// Also note that the ordered contour geometry list is contained in the oContourOrderedGeometryLocation object within the NppiContourPixelGeometryInfo 
+        /// object for each contour pixel and that this location information is the only valid information in the object relevent to that ordered pixel. 
+        /// <para/>
+        /// Note that for a particular contour geometry pixel list the bounding box for that contour will be contained in the following
+        /// elements of first pixel (pixel 0) of the corresponding contour pixel list.
+        /// <para/>
+        /// \code<para/>
+        /// pixel[0].oContourPrevPixelLocation.x will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.x upper left x<para/>
+        /// pixel[0].oContourPrevPixelLocation.y will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.y upper left y<para/>
+        /// pixel[0].oContourNextPixelLocation.x will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.width lower right x<para/>
+        /// pixel[0].oContourNextPixelLocation.y will contain pCurMarkerLabelsInfo->oMarkerLabelBoundingBox.height lower right y<para/>
+        /// \endcode<para/>
+        /// <para/>
+        /// Note that while the bounding box is relatively accurate occasionally a few contour pixels may extend beyond the bounding box limits. 
+        /// </summary>
+        /// <param name="pContoursInterpolatedImageDev">pointer to device memory image of at least oSizeROI.width * sizeof(NppiPoint64f) * OSizeROI.height bytes.</param>
+        /// <param name="pContoursDirectionImageDev">source_image_pointer to output image in device memory containing per contour pixel direction info around each uniquely labeled connected pixel region returned by corresponding nppiCompressedMarkerLabelsUFInfo call. </param>
+        /// <param name="pContoursPixelGeometryListsDev">pointer to device memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call.</param>
+        /// <param name="pContoursPixelGeometryListsHost">pointer to host memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call. </param>
+        /// <param name="pContoursInterpolatedGeometryListsDev">pointer to device memory buffer allocated to be at least nTotalImagePixelContourCount * sizeof(NppPoint64f) bytes. </param>
+        /// <param name="pContoursPixelsFoundListHost">host memory pointer to array of nMaxMarkerLabelID unsigned integers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx.</param>
+        /// <param name="pContoursPixelsStartingOffsetDev">device memory pointer to array of unsigned integers returned by this call representing the starting offset index of each contour found during geometry list generation. </param>
+        /// <param name="pContoursPixelsStartingOffsetHost">host memory pointer to array of unsigned integers returned by this call representing the starting offset index of each contour found during geometry list generation.</param>
+        /// <param name="nTotalImagePixelContourCount">the total number of contour pixels in the image returned by nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx() call. </param>
+        /// <param name="nMaxMarkerLabelID">the value of the maximum marker label ID returned by corresponding compress marker labels UF call.</param>
+        /// <param name="nFirstContourGeometryListID">the ID of the first contour geometry list to output. </param>
+        /// <param name="nLastContourGeometryListID">the ID of the last contour geometry list to output, last ID MUST be greater than first ID.</param>
+        /// <param name="pContoursBlockSegmentListDev">device memory pointer to array of NppiContourBlockSegment objects, contents will be initialized by NPP. </param>
+        /// <param name="pContoursBlockSegmentListHost">host memory pointer to array of NppiContourBlockSegment objects, contents will be intialized by NPP. </param>
+        /// <param name="oSizeROI">Region-of-Interest (ROI) for the images, must be the same as used in previous calls.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        /// <returns></returns>
+        public void ContoursImageMarchingSquaresInterpolation(CudaPitchedDeviceVariable<NppiPoint64f> pContoursInterpolatedImageDev, CudaPitchedDeviceVariable<NppiContourPixelDirectionInfo> pContoursDirectionImageDev,
+                                                               CudaDeviceVariable<NppiContourPixelGeometryInfo> pContoursPixelGeometryListsDev, NppiContourPixelGeometryInfo[] pContoursPixelGeometryListsHost,
+                                                               CudaDeviceVariable<NppiPoint64f> pContoursInterpolatedGeometryListsDev, uint[] pContoursPixelsFoundListHost, CudaDeviceVariable<uint> pContoursPixelsStartingOffsetDev,
+                                                               uint[] pContoursPixelsStartingOffsetHost, uint nTotalImagePixelContourCount, uint nMaxMarkerLabelID, uint nFirstContourGeometryListID, uint nLastContourGeometryListID,
+                                                               CudaDeviceVariable<NppiContourBlockSegment> pContoursBlockSegmentListDev, NppiContourBlockSegment[] pContoursBlockSegmentListHost, NppiSize oSizeROI, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.LabelMarkers.nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx(_devPtrRoi, _pitch, pContoursInterpolatedImageDev.DevicePointer, pContoursInterpolatedImageDev.Pitch,
+                pContoursDirectionImageDev.DevicePointer, pContoursDirectionImageDev.Pitch, pContoursPixelGeometryListsDev.DevicePointer, pContoursPixelGeometryListsHost, pContoursInterpolatedGeometryListsDev.DevicePointer,
+                pContoursPixelsFoundListHost, pContoursPixelsStartingOffsetDev.DevicePointer, pContoursPixelsStartingOffsetHost, nTotalImagePixelContourCount, nMaxMarkerLabelID, nFirstContourGeometryListID, nLastContourGeometryListID,
+                pContoursBlockSegmentListDev.DevicePointer, pContoursBlockSegmentListHost, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiContoursImageMarchingSquaresInterpolation_64f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// median filter with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterMedianBorder(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.ImageMedianFilter.nppiFilterMedianBorder_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorder_8u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Box filter with border control. 
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterBoxBorderAdvanced(NPPImage_8uC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.LinearFixedFilters2D.nppiFilterBoxBorderAdvanced_8u_C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, pBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorderAdvanced_8u_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// CrossCorrFull_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrFull_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrFull_NormLevelAdvanced_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrFull_NormLevelAdvanced_8u32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrSame_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrSame_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrSame_NormLevelAdvanced_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrSame_NormLevelAdvanced_8u32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// CrossCorrValid_NormLevel.
+        /// </summary>
+        /// <param name="tpl">template image.</param>
+        /// <param name="dst">Destination image</param>
+        /// <param name="buffer">Pointer to the required device memory allocation. </param>
+        /// <param name="bufferAdvanced">Pointer to the required device memory allocation. See nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CrossCorrValid_NormLevel(NPPImage_8uC1 tpl, NPPImage_32fC1 dst, CudaDeviceVariable<byte> buffer, CudaDeviceVariable<byte> bufferAdvanced, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ImageProximity.nppiCrossCorrValid_NormLevelAdvanced_8u32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer, bufferAdvanced.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrValid_NormLevelAdvanced_8u32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+#endif
+        #endregion
 
 
         /// <summary>

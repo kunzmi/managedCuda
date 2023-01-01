@@ -1,28 +1,32 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -35,15 +39,15 @@ namespace ManagedCuda
     /// <typeparam name="T">variable base type</typeparam>
     public class CudaPageLockedHostMemory3D<T> : IDisposable, IEnumerable<T> where T : struct
     {
-        IntPtr _intPtr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _depth = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+        private IntPtr _intPtr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _depth = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -215,17 +219,17 @@ namespace ManagedCuda
         /// <returns></returns>
         public T this[SizeT x, SizeT y, SizeT z]
         {
-            get 
+            get
             {
                 SizeT index = _pitchInBytes * _height * z + _pitchInBytes * y + x * _typeSize;
-				IntPtr position = new IntPtr((long)index + _intPtr.ToInt64());
+                IntPtr position = new IntPtr((long)index + _intPtr.ToInt64());
                 T ret = (T)Marshal.PtrToStructure(position, typeof(T));
                 return ret;
             }
             set
             {
                 SizeT index = _pitchInBytes * _height * z + _pitchInBytes * y + x * _typeSize;
-				IntPtr position = new IntPtr((long)index + _intPtr.ToInt64());
+                IntPtr position = new IntPtr((long)index + _intPtr.ToInt64());
                 Marshal.StructureToPtr(value, position, false);
             }
         }
@@ -574,20 +578,20 @@ namespace ManagedCuda
         /// <returns></returns>
         public bool MoveNext()
         {
-            _currentX+=1;
-			if ((long)_currentX >= (long)_memory.Width)
+            _currentX += 1;
+            if ((long)_currentX >= (long)_memory.Width)
             {
                 _currentX = 0;
-                _currentY+=1;
+                _currentY += 1;
 
-				if ((long)_currentY >= (long)_memory.Height)
+                if ((long)_currentY >= (long)_memory.Height)
                 {
                     _currentY = 0;
-                    _currentZ+=1;
+                    _currentZ += 1;
                 }
             }
 
-			if ((long)_currentZ >= (long)_memory.Depth)
+            if ((long)_currentZ >= (long)_memory.Depth)
                 return false;
             else
                 return true;

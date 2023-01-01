@@ -1,27 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using System.Runtime.InteropServices;
@@ -36,15 +40,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_byte: IDisposable, IEnumerable<byte>
 	{
-		IntPtr _intPtr;
-		byte* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private byte* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -703,15 +707,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uchar1: IDisposable, IEnumerable<uchar1>
 	{
-		IntPtr _intPtr;
-		uchar1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uchar1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -1370,15 +1374,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uchar2: IDisposable, IEnumerable<uchar2>
 	{
-		IntPtr _intPtr;
-		uchar2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uchar2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -2037,15 +2041,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uchar3: IDisposable, IEnumerable<uchar3>
 	{
-		IntPtr _intPtr;
-		uchar3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uchar3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -2704,15 +2708,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uchar4: IDisposable, IEnumerable<uchar4>
 	{
-		IntPtr _intPtr;
-		uchar4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uchar4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -3371,15 +3375,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_sbyte: IDisposable, IEnumerable<sbyte>
 	{
-		IntPtr _intPtr;
-		sbyte* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private sbyte* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -4038,15 +4042,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_char1: IDisposable, IEnumerable<char1>
 	{
-		IntPtr _intPtr;
-		char1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private char1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -4705,15 +4709,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_char2: IDisposable, IEnumerable<char2>
 	{
-		IntPtr _intPtr;
-		char2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private char2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -5372,15 +5376,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_char3: IDisposable, IEnumerable<char3>
 	{
-		IntPtr _intPtr;
-		char3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private char3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -6039,15 +6043,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_char4: IDisposable, IEnumerable<char4>
 	{
-		IntPtr _intPtr;
-		char4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private char4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -6706,15 +6710,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_short: IDisposable, IEnumerable<short>
 	{
-		IntPtr _intPtr;
-		short* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private short* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -7373,15 +7377,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_short1: IDisposable, IEnumerable<short1>
 	{
-		IntPtr _intPtr;
-		short1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private short1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -8040,15 +8044,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_short2: IDisposable, IEnumerable<short2>
 	{
-		IntPtr _intPtr;
-		short2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private short2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -8707,15 +8711,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_short3: IDisposable, IEnumerable<short3>
 	{
-		IntPtr _intPtr;
-		short3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private short3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -9374,15 +9378,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_short4: IDisposable, IEnumerable<short4>
 	{
-		IntPtr _intPtr;
-		short4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private short4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -10041,15 +10045,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ushort: IDisposable, IEnumerable<ushort>
 	{
-		IntPtr _intPtr;
-		ushort* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ushort* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -10708,15 +10712,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ushort1: IDisposable, IEnumerable<ushort1>
 	{
-		IntPtr _intPtr;
-		ushort1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ushort1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -11375,15 +11379,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ushort2: IDisposable, IEnumerable<ushort2>
 	{
-		IntPtr _intPtr;
-		ushort2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ushort2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -12042,15 +12046,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ushort3: IDisposable, IEnumerable<ushort3>
 	{
-		IntPtr _intPtr;
-		ushort3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ushort3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -12709,15 +12713,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ushort4: IDisposable, IEnumerable<ushort4>
 	{
-		IntPtr _intPtr;
-		ushort4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ushort4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -13376,15 +13380,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_int: IDisposable, IEnumerable<int>
 	{
-		IntPtr _intPtr;
-		int* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private int* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -14043,15 +14047,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_int1: IDisposable, IEnumerable<int1>
 	{
-		IntPtr _intPtr;
-		int1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private int1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -14710,15 +14714,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_int2: IDisposable, IEnumerable<int2>
 	{
-		IntPtr _intPtr;
-		int2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private int2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -15377,15 +15381,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_int3: IDisposable, IEnumerable<int3>
 	{
-		IntPtr _intPtr;
-		int3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private int3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -16044,15 +16048,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_int4: IDisposable, IEnumerable<int4>
 	{
-		IntPtr _intPtr;
-		int4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private int4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -16711,15 +16715,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uint: IDisposable, IEnumerable<uint>
 	{
-		IntPtr _intPtr;
-		uint* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uint* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -17378,15 +17382,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uint1: IDisposable, IEnumerable<uint1>
 	{
-		IntPtr _intPtr;
-		uint1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uint1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -18045,15 +18049,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uint2: IDisposable, IEnumerable<uint2>
 	{
-		IntPtr _intPtr;
-		uint2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uint2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -18712,15 +18716,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uint3: IDisposable, IEnumerable<uint3>
 	{
-		IntPtr _intPtr;
-		uint3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uint3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -19379,15 +19383,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_uint4: IDisposable, IEnumerable<uint4>
 	{
-		IntPtr _intPtr;
-		uint4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private uint4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -20046,15 +20050,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_long: IDisposable, IEnumerable<long>
 	{
-		IntPtr _intPtr;
-		long* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private long* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -20713,15 +20717,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_long1: IDisposable, IEnumerable<long1>
 	{
-		IntPtr _intPtr;
-		long1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private long1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -21380,15 +21384,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_long2: IDisposable, IEnumerable<long2>
 	{
-		IntPtr _intPtr;
-		long2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private long2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -22047,15 +22051,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ulong: IDisposable, IEnumerable<ulong>
 	{
-		IntPtr _intPtr;
-		ulong* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ulong* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -22714,15 +22718,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ulong1: IDisposable, IEnumerable<ulong1>
 	{
-		IntPtr _intPtr;
-		ulong1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ulong1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -23381,15 +23385,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_ulong2: IDisposable, IEnumerable<ulong2>
 	{
-		IntPtr _intPtr;
-		ulong2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private ulong2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -24048,15 +24052,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_float: IDisposable, IEnumerable<float>
 	{
-		IntPtr _intPtr;
-		float* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private float* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -24715,15 +24719,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_float1: IDisposable, IEnumerable<float1>
 	{
-		IntPtr _intPtr;
-		float1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private float1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -25382,15 +25386,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_float2: IDisposable, IEnumerable<float2>
 	{
-		IntPtr _intPtr;
-		float2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private float2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -26049,15 +26053,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_float3: IDisposable, IEnumerable<float3>
 	{
-		IntPtr _intPtr;
-		float3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private float3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -26716,15 +26720,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_float4: IDisposable, IEnumerable<float4>
 	{
-		IntPtr _intPtr;
-		float4* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private float4* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -27383,15 +27387,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_double: IDisposable, IEnumerable<double>
 	{
-		IntPtr _intPtr;
-		double* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private double* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -28050,15 +28054,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_double1: IDisposable, IEnumerable<double1>
 	{
-		IntPtr _intPtr;
-		double1* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private double1* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -28717,15 +28721,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_double2: IDisposable, IEnumerable<double2>
 	{
-		IntPtr _intPtr;
-		double2* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private double2* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -29384,15 +29388,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_cuDoubleComplex: IDisposable, IEnumerable<cuDoubleComplex>
 	{
-		IntPtr _intPtr;
-		cuDoubleComplex* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private cuDoubleComplex* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -30051,15 +30055,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_cuDoubleReal: IDisposable, IEnumerable<cuDoubleReal>
 	{
-		IntPtr _intPtr;
-		cuDoubleReal* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private cuDoubleReal* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -30718,15 +30722,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_cuFloatComplex: IDisposable, IEnumerable<cuFloatComplex>
 	{
-		IntPtr _intPtr;
-		cuFloatComplex* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private cuFloatComplex* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -31385,15 +31389,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_cuFloatReal: IDisposable, IEnumerable<cuFloatReal>
 	{
-		IntPtr _intPtr;
-		cuFloatReal* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private cuFloatReal* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>
@@ -32052,15 +32056,15 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaPageLockedHostMemory2D_dim3: IDisposable, IEnumerable<dim3>
 	{
-		IntPtr _intPtr;
-		dim3* _ptr;
-        SizeT _sizeInBytes = 0;
-        SizeT _width = 0;
-        SizeT _pitchInBytes = 0;
-        SizeT _height = 0;
-        SizeT _typeSize = 0;
-        CUResult res;
-        bool disposed;
+		private IntPtr _intPtr;
+		private dim3* _ptr;
+        private SizeT _sizeInBytes = 0;
+        private SizeT _width = 0;
+        private SizeT _pitchInBytes = 0;
+        private SizeT _height = 0;
+        private SizeT _typeSize = 0;
+        private CUResult res;
+        private bool disposed;
 
         #region Constructor
         /// <summary>

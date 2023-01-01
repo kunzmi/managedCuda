@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30002.166
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedCuda.netCore", "ManagedCUDA\ManagedCuda.netCore.csproj", "{F5A866CC-151E-472A-8020-75F62D74D687}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NVRTC.netCore", "NVRTC\NVRTC.netCore.csproj", "{BFA8C8F7-BF75-4AB3-9AFC-3B0D1E2F1EEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NvJpeg.netCore", "NvJpeg\NvJpeg.netCore.csproj", "{5B10137E-03C9-4D68-BF7C-E0B5634F4B97}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NvJitLink.netCore", "NvJitLink\NvJitLink.netCore.csproj", "{400D7C05-2D00-483A-977E-1F4CE9975904}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,14 @@ Global
 		{5B10137E-03C9-4D68-BF7C-E0B5634F4B97}.Release|Any CPU.Build.0 = Release|x64
 		{5B10137E-03C9-4D68-BF7C-E0B5634F4B97}.Release|x64.ActiveCfg = Release|x64
 		{5B10137E-03C9-4D68-BF7C-E0B5634F4B97}.Release|x64.Build.0 = Release|x64
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Debug|x64.ActiveCfg = Debug|x64
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Debug|x64.Build.0 = Debug|x64
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Release|x64.ActiveCfg = Release|x64
+		{400D7C05-2D00-483A-977E-1F4CE9975904}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

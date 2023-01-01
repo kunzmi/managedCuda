@@ -1,26 +1,29 @@
-﻿//	Copyright (c) 2020, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 
@@ -48,6 +51,14 @@ namespace ManagedCuda.NvJpeg
         /// 
         /// </summary>
         public const int NVJPEG_FLAGS_BITSTREAM_STRICT = 1 << 2;
+        /// <summary>
+        /// 
+        /// </summary>
+        public const int NVJPEG_FLAGS_REDUCED_MEMORY_DECODE = 1 << 3;
+        /// <summary>
+        /// 
+        /// </summary>
+        public const int NVJPEG_FLAGS_REDUCED_MEMORY_DECODE_ZERO_COPY = 1 << 4;
     }
 
     /// <summary>
@@ -95,6 +106,27 @@ namespace ManagedCuda.NvJpeg
         /// Not supported.
         /// </summary>
         ImplementationNotSupported = 9,
+        /// <summary>
+        /// Incomplete bit stream.
+        /// </summary>
+        IncompleteBitstream = 10,
+    }
+
+
+    /// <summary>
+    /// Enums for EXIF Orientation
+    /// </summary>
+    public enum nvjpegExifOrientation
+    {
+        Unknown = 0,
+        Normal = 1,
+        FlipHorizontal = 2,
+        Rotate180 = 3,
+        FlipVertical = 4,
+        Transpose = 5,
+        Rotate90 = 6,
+        Transverse = 7,
+        Rotate270 = 8
     }
 
 
@@ -192,13 +224,21 @@ namespace ManagedCuda.NvJpeg
         Hybrid = 1,
         /// <summary>
         /// uses GPU assisted Huffman decode. nvjpegDecodeBatched will use GPU decoding for baseline JPEG bitstreams with
-        /// interleaved scan when batch size is bigger than 100
+        /// interleaved scan when batch size is bigger than 50
         /// </summary>
         GPUHybrid = 2,
         /// <summary>
         /// supports baseline JPEG bitstream with single scan. 410 and 411 sub-samplings are not supported
         /// </summary>
-        Hardware = 3
+        Hardware = 3,
+        /// <summary>
+        /// nvjpegDecodeBatched will support bitstream input on device memory
+        /// </summary>
+        GPUHybridDevice = 4,
+        /// <summary>
+        /// nvjpegDecodeBatched will support bitstream input on device memory
+        /// </summary>
+        HardwareDevice = 5
     }
 
 
@@ -252,9 +292,31 @@ namespace ManagedCuda.NvJpeg
     public delegate int tPinnedMalloc(ref IntPtr ptr, SizeT size, uint flags);
 
     /// <summary>
-    /// Prototype for device memory release
+    /// Prototype for pinned memory release
     /// </summary>
     public delegate int tPinnedFree(IntPtr ptr);
+
+
+    /// <summary>
+    /// Prototype for device memory allocation, modelled after cudaMalloc()
+    /// </summary>
+    public delegate int tDevMallocV2(IntPtr ctx, ref CUdeviceptr ptr, SizeT size, CUstream stream);
+
+    /// <summary>
+    /// Prototype for device memory release
+    /// </summary>
+    public delegate int tDevFreeV2(IntPtr ctx, CUdeviceptr ptr, SizeT size, CUstream stream);
+
+
+    /// <summary>
+    /// Prototype for pinned memory allocation, modelled after cudaHostAlloc()
+    /// </summary>
+    public delegate int tPinnedMallocV2(IntPtr ctx, ref IntPtr ptr, SizeT size, CUstream stream);
+
+    /// <summary>
+    /// Prototype for pinned memory release
+    /// </summary>
+    public delegate int tPinnedFreeV2(IntPtr ctx, IntPtr ptr, SizeT size, CUstream stream);
 
     /// <summary>
     /// Output descriptor.
@@ -316,6 +378,32 @@ namespace ManagedCuda.NvJpeg
     {
         public tPinnedMalloc pinned_malloc;
         public tPinnedFree pinned_free;
+    }
+
+    /// <summary>
+    /// Memory allocator using mentioned prototypes, provided to nvjpegCreateEx
+    /// This allocator will be used for all device memory allocations inside library
+    /// In any way library is doing smart allocations (reallocates memory only if needed)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct nvjpegDevAllocatorV2
+    {
+        tDevMallocV2 dev_malloc;
+        tDevFreeV2 dev_free;
+        IntPtr dev_ctx;
+    }
+
+    /// <summary>
+    /// Pinned memory allocator using mentioned prototypes, provided to nvjpegCreate
+    /// This allocator will be used for all pinned host memory allocations inside library
+    /// In any way library is doing smart allocations (reallocates memory only if needed)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct nvjpegPinnedAllocatorV2
+    {
+        tPinnedMallocV2 pinned_malloc;
+        tPinnedFreeV2 pinned_free;
+        IntPtr pinned_ctx;
     }
 
 

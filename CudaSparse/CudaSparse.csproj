@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ManagedCuda.CudaSparse</RootNamespace>
     <AssemblyName>CudaSparse</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,7 @@
     <DocumentationFile>
     </DocumentationFile>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -51,6 +53,7 @@
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
     <DocumentationFile>bin\x64\Release\CudaSparse.XML</DocumentationFile>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -77,11 +80,8 @@
     <Compile Include="CudaSparseBsrsv2Info.cs" />
     <Compile Include="CudaSparseColorInfo.cs" />
     <Compile Include="CudaSparseContext.cs" />
-    <Compile Include="CudaSparseCsrgemm2Info.cs" />
     <Compile Include="CudaSparseCsric02Info.cs" />
     <Compile Include="CudaSparseCsrilu02Info.cs" />
-    <Compile Include="CudaSparseCsrsm2Info.cs" />
-    <Compile Include="CudaSparseCsrsv2Info.cs" />
     <Compile Include="CudaSparseCsru2csrInfo.cs" />
     <Compile Include="CudaSparseException.cs" />
     <Compile Include="CudaSparseMatrixDescriptor.cs" />
@@ -95,6 +95,7 @@
     <Compile Include="SparseMatrix.cs" />
     <Compile Include="SparseVector.cs" />
     <Compile Include="SpGEMMDescr.cs" />
+    <Compile Include="SpMMOpPlan.cs" />
     <Compile Include="SpSMDescr.cs" />
     <Compile Include="SpSVDescr.cs" />
   </ItemGroup>

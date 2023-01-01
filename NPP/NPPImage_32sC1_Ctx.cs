@@ -1,31 +1,32 @@
-//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 #define ADD_MISSING_CTX
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -1428,6 +1429,125 @@ namespace ManagedCuda.NPP
         }
 
 
+        #endregion
+
+
+        #region New in Cuda 12.0
+#if ADD_MISSING_CTX
+        #region Add
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<int> nConstant, NPPImage_32sC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_32s_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_32s_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Add(CudaDeviceVariable<int> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.AddDeviceConst.nppiAddDeviceC_32s_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_32s_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+        #region Sub
+
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<int> nConstant, NPPImage_32sC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_32s_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_32s_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Sub(CudaDeviceVariable<int> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.SubDeviceConst.nppiSubDeviceC_32s_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_32s_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Mul
+
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<int> nConstant, NPPImage_32sC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_32s_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_32s_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Mul(CudaDeviceVariable<int> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.MulDeviceConst.nppiMulDeviceC_32s_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_32s_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Div
+
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<int> nConstant, NPPImage_32sC1 dest, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_32s_C1RSfs_Ctx(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_32s_C1RSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void Div(CudaDeviceVariable<int> nConstant, int nScaleFactor, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.DivDeviceConst.nppiDivDeviceC_32s_C1IRSfs_Ctx(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_32s_C1IRSfs_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+#endif
         #endregion
     }
 }

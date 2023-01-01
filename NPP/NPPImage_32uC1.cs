@@ -1,28 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -602,6 +604,18 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, pSrcBatchList);
         }
 
+        /// <summary>
+        /// Calculate scratch buffer size needed for 1 channel 32-bit unsigned integer CompressMarkerLabels function based on the number returned in pNumber from a previous nppiLabelMarkers call.
+        /// </summary>
+        /// <param name="nStartingNumber">The value returned from a previous call to the nppiLabelMarkers_32u function.</param>
+        public static int CompressMarkerLabelsGetBufferSize(int nStartingNumber)
+        {
+            int ret = 0;
+            NppStatus status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressMarkerLabelsGetBufferSize_32u_C1R(nStartingNumber, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressMarkerLabelsGetBufferSize_32u_C1R", status));
+            NPPException.CheckNppStatus(status, null);
+            return ret;
+        }
 
         /// <summary>
         /// 1 channel 32-bit unsigned integer in place connected region marker label renumbering for output from nppiLabelMarkersUF functions only with numbering sparseness elimination.<para/>
@@ -619,6 +633,7 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, this);
             return pNewNumber;
         }
+
         #endregion
 
         #region New in Cuda 11.1
@@ -769,60 +784,8 @@ namespace ManagedCuda.NPP
             return ret;
         }
 
-        /// <summary>
-        /// 1 channel connected region contours image to output contours geometry list in host memory. 
-        ///  <para/>
-        /// Note that ALL input and output data for the function MUST be in host memory. 
-        /// Also nFirstContourID and nLastContourID allow only a portion of the contour geometry lists in the image to be output. 
-        ///  <para/>
-        /// Note that the geometry list for each contour will begin at pContoursGeometryListsHost[pContoursPixelStartingOffsetHost[nContourID]		/// sizeof(NppiContourPixelGeometryInfo). 
-        ///  <para/>
-        /// Also note that the ordered contour geometry list is contained in the oContourOrderedGeometryLocation object within the NppiContourPixelGeometryInfo 
-        /// object for each contour pixel and that this location information is the only valid information in the object relevent to that ordered pixel. 
-        ///  <para/>
-        /// Note that for a particular contour geometry pixel list the bounding box for that contour will be contained in the following
-        /// elements of first pixel (pixel 0) of the corresponding contour pixel list.
-        ///  <para/>
-        /// 
-        /// Note that while the bounding box is relatively accurate occasionally a few contour pixels may extend beyond the bounding box limits. 
-        /// <para/> 
-        /// Due to the nature of some imput images contour ID 0 can sometimes contain ALL contours in the image which 
-        /// can significantly increase the time taken to output the geometry lists.  In these cases setting nFirstContourGeometryListID to >= 1 
-        /// significantly speed up geometry list output performance and all individual contours will still be output. 
-        ///  <para/>
-        /// Once nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx() has been called with a particular 
-        /// range of contour IDs nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R() can be recalled any number of times 
-        /// with any range of contour IDs that were included in the preceeding corresponding 
-        /// nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx() call. 
-        ///  <para/>
-        /// In general a few contour pixels can escape insertion into the ordered geometry list.  When geometry output is in clockwise order the 
-        /// extra pixels will be at the end of the geometry list otherwise they will be at the start of the list.
-        /// </summary>
-        /// <param name="pContoursPixelGeometryListsHost">pointer to host memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call. </param>
-        /// <param name="pMarkerLabelsInfoListHost">pointer to host memory buffer containing pMarkerLabelsInfoListHost output from nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R_Ctx.</param>
-        /// <param name="pContoursGeometryImageHost">optional pointer to host memory image of at least oSizeROI.width * sizeof(Npp8u) * oSizeROI.height bytes, NULL if not needed.</param>
-        /// <param name="nContoursGeometryImageStep">geometry image line step. </param>
-        /// <param name="pContoursPixelCountsListHost">host memory pointer to array of nMaxMarkerLabelID uintegers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx </param>
-        /// <param name="pContoursPixelsFoundListHost">host memory pointer to array of nMaxMarkerLabelID uintegers returned by this call representing the number of contour pixels found during geometry list generation </param>
-        /// <param name="pContoursPixelsStartingOffsetHost">host memory pointer to array of uintegers returned by this call representing the starting offset index of each contour found during geometry list generation </param>
-        /// <param name="nMaxMarkerLabelID">the value of the maximum marker label ID returned by corresponding compress marker labels UF call. </param>
-        /// <param name="nFirstContourGeometryListID">the ID of the first contour geometry list to output. </param>
-        /// <param name="nLastContourGeometryListID">the ID of the last contour geometry list to output. </param>
-        /// <param name="bOutputInCounterclockwiseOrder">if nonzero then output geometry list for each contour in counterclockwise order, otherwise clockwise. </param>
-        /// <param name="oSizeROI">Region-of-Interest (ROI) for the images, must be the same as used in previous calls. </param>
-        public static void CompressedMarkerLabelsUFContoursOutputGeometryLists(NppiContourPixelGeometryInfo[] pContoursPixelGeometryListsHost, NppiCompressedMarkerLabelsInfo[] pMarkerLabelsInfoListHost,
-            byte[] pContoursGeometryImageHost, int nContoursGeometryImageStep, uint[] pContoursPixelCountsListHost, uint[] pContoursPixelsFoundListHost, uint[] pContoursPixelsStartingOffsetHost,
-            uint nMaxMarkerLabelID, uint nFirstContourGeometryListID, uint nLastContourGeometryListID, uint bOutputInCounterclockwiseOrder, NppiSize oSizeROI)
-        {
-            NppStatus status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R(pContoursPixelGeometryListsHost, pMarkerLabelsInfoListHost,
-            pContoursGeometryImageHost, nContoursGeometryImageStep, pContoursPixelCountsListHost, pContoursPixelsFoundListHost, pContoursPixelsStartingOffsetHost,
-            nMaxMarkerLabelID, nFirstContourGeometryListID, nLastContourGeometryListID, bOutputInCounterclockwiseOrder, oSizeROI);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressedMarkerLabelsUFContoursOutputGeometryLists_C1R", status));
-            NPPException.CheckNppStatus(status, null);
-        }
 
-
-#if (ADD_MISSING_CTX)
+#if ADD_MISSING_CTX
         /// <summary>
         /// 1 channel 32-bit uinteger connected region marker label renumbered from a previous call to nppiCompressMarkerLabelsUF or 
         /// nppiCmpressMarkerLabelsUFBatch functions to eliminate label ID sparseness.
@@ -890,24 +853,60 @@ namespace ManagedCuda.NPP
         /// <param name="pMarkerLabelsInfoListHost">pointer to host memory buffer which will be output by this function with additional information added.</param>
         /// <param name="pContoursDirectionImageDev">Source-Image Pointer to output image in device memory containing per contour pixel direction info around each uniquely labeled connected pixel region returned by corresponding nppiCompressedMarkerLabelsUFInfo call. </param>
         /// <param name="pContoursPixelGeometryListsHost">pointer to host memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call. </param>
-        /// <param name="pContoursPixelCountsListHost">host memory pointer to array of nMaxMarkerLabelID uintegers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx. </param>
         /// <param name="pContoursPixelsFoundListHost">host memory pointer to array of nMaxMarkerLabelID uintegers returned by this call representing the number of contour pixels found during geometry list generation. </param>
         /// <param name="pContoursPixelsStartingOffsetHost">host memory pointer to array of uintegers returned by this call representing the starting offset index of each contour found during geometry list generation. </param>
         /// <param name="nMaxMarkerLabelID">the value of the maximum marker label ID returned by corresponding compress marker labels UF call. </param>
         /// <param name="nFirstContourGeometryListID">the ID of the first contour geometry list to output. </param>
         /// <param name="nLastContourGeometryListID">the ID of the last contour geometry list to output.  </param>
+        /// <param name="pContoursPixelGeometryListsDev">pointer to device memory buffer allocated to be at least as big as size returned by corresponding nppiCompressedMarkerLabelsUFGetGeometryListsSize call. </param>
+        /// <param name="pContoursGeometryImageHost">optional pointer to host memory image of at least oSizeROI.width * sizeof(Npp8u) * oSizeROI.height bytes, NULL if not needed.</param>
+        /// <param name="nContoursGeometryImageStep">geometry image line step. </param>
+        /// <param name="pContoursPixelCountsListDev">device memory pointer to array of nMaxMarkerLabelID unsigned integers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx.</param>
+        /// <param name="pContoursPixelsFoundListDev">device memory pointer to array of nMaxMarkerLabelID unsigned integers returned by previous call to nppiCompressedMarkerLabelsUFContoursPixelGeometryLists_C1R_Ctx.</param>
+        /// <param name="pContoursPixelsStartingOffsetDev">device memory pointer to array of unsigned integers returned by this call representing the starting offset index of each contour found during geometry list generation. </param>
+        /// <param name="nTotalImagePixelContourCount">the total number of contour pixels in the image returned by nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx() call. </param>
+        /// <param name="pContoursBlockSegmentListDev">device memory pointer to array of NppiContourBlockSegment objects, contents will be initialized by NPP. </param>
+        /// <param name="pContoursBlockSegmentListHost">host memory pointer to array of NppiContourBlockSegment objects, contents will be intialized by NPP.</param>
+        /// <param name="bOutputInCounterclockwiseOrder">if nonzero then output geometry list for each contour in counterclockwise order, otherwise clockwise.</param>
         public void CompressedMarkerLabelsUFContoursGenerateGeometryLists(CudaDeviceVariable<NppiCompressedMarkerLabelsInfo> pMarkerLabelsInfoListDev, NppiCompressedMarkerLabelsInfo[] pMarkerLabelsInfoListHost,
-            CudaPitchedDeviceVariable<NppiContourPixelDirectionInfo> pContoursDirectionImageDev, NppiContourPixelGeometryInfo[] pContoursPixelGeometryListsHost,
-            uint[] pContoursPixelCountsListHost, uint[] pContoursPixelsFoundListHost, uint[] pContoursPixelsStartingOffsetHost, uint nMaxMarkerLabelID, uint nFirstContourGeometryListID,
-            uint nLastContourGeometryListID)
+            CudaPitchedDeviceVariable<NppiContourPixelDirectionInfo> pContoursDirectionImageDev, CudaDeviceVariable<NppiContourPixelGeometryInfo> pContoursPixelGeometryListsDev, NppiContourPixelGeometryInfo[] pContoursPixelGeometryListsHost,
+                                                              byte[] pContoursGeometryImageHost, int nContoursGeometryImageStep, CudaDeviceVariable<uint> pContoursPixelCountsListDev, CudaDeviceVariable<uint> pContoursPixelsFoundListDev,
+                                                              uint[] pContoursPixelsFoundListHost, CudaDeviceVariable<uint> pContoursPixelsStartingOffsetDev, uint[] pContoursPixelsStartingOffsetHost, uint nTotalImagePixelContourCount,
+                                                              uint nMaxMarkerLabelID, uint nFirstContourGeometryListID, uint nLastContourGeometryListID, CudaDeviceVariable<NppiContourBlockSegment> pContoursBlockSegmentListDev,
+                                                              NppiContourBlockSegment[] pContoursBlockSegmentListHost, uint bOutputInCounterclockwiseOrder)
         {
             status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R(pMarkerLabelsInfoListDev.DevicePointer, pMarkerLabelsInfoListHost,
-                pContoursDirectionImageDev.DevicePointer, pContoursDirectionImageDev.Pitch, pContoursPixelGeometryListsHost, pContoursPixelCountsListHost,
-                pContoursPixelsFoundListHost, pContoursPixelsStartingOffsetHost, nMaxMarkerLabelID, nFirstContourGeometryListID, nLastContourGeometryListID, _sizeRoi);
+                pContoursDirectionImageDev.DevicePointer, pContoursDirectionImageDev.Pitch, pContoursPixelGeometryListsDev.DevicePointer, pContoursPixelGeometryListsHost, pContoursGeometryImageHost,
+                nContoursGeometryImageStep, pContoursPixelCountsListDev.DevicePointer, pContoursPixelsFoundListDev.DevicePointer, pContoursPixelsFoundListHost, pContoursPixelsStartingOffsetDev.DevicePointer,
+                pContoursPixelsStartingOffsetHost, nTotalImagePixelContourCount, nMaxMarkerLabelID, nFirstContourGeometryListID, nLastContourGeometryListID, pContoursBlockSegmentListDev.DevicePointer,
+                pContoursBlockSegmentListHost, bOutputInCounterclockwiseOrder, _sizeRoi);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressedMarkerLabelsUFContoursGenerateGeometryLists_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
 #endif
+        #endregion
+
+        #region New in Cuda 12
+
+        /// <summary>
+        /// Calculate the size of memory needed for the geometry list generation function. 
+        /// </summary>
+        /// <param name="pContoursPixelCountsListHost">Host memory pointer to list returned by CompressedMarkerLabelsUFInfo_32u call.</param>
+        /// <param name="nTotalImagePixelContourCount">the total label count returned by the nppiCompressMarkerLabelsUF function. </param>
+        /// <param name="nCompressedLabelCount">the total number of contour pixels in the image from the NppiContourTotalsInfo object returned from nppiCompressedMarkerLabelsUFInfo_32u_C1R_Ctx() call.</param>
+        /// <param name="nFirstContourGeometryListID">the ID of the first contour geometry list to process. </param>
+        /// <param name="nLastContourGeometryListID">the ID of the last contour geometry list to process, last ID MUST be greater than first ID.</param>
+        public static uint CompressedMarkerLabelsUFGetContoursBlockSegmentListSize(uint[] pContoursPixelCountsListHost, uint nTotalImagePixelContourCount, uint nCompressedLabelCount,
+                                                                    uint nFirstContourGeometryListID, uint nLastContourGeometryListID)
+        {
+            uint ret = 0;
+            NppStatus status = NPPNativeMethods.NPPi.LabelMarkers.nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R(pContoursPixelCountsListHost, nTotalImagePixelContourCount,
+                                                                        nCompressedLabelCount, nFirstContourGeometryListID, nLastContourGeometryListID, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCompressedMarkerLabelsUFGetContoursBlockSegmentListSize_C1R", status));
+            NPPException.CheckNppStatus(status, null);
+            return ret;
+        }
+
         #endregion
     }
 }

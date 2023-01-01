@@ -1,9 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
+//
+// This file is part of ManagedCuda.
+//
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NVRTC
@@ -13,9 +37,10 @@ namespace ManagedCuda.NVRTC
     /// </summary>
     public class CudaRuntimeCompiler : IDisposable
     {
-        nvrtcProgram _program;
-        bool disposed = false;
-        nvrtcResult res;
+        private nvrtcProgram _program;
+        private bool disposed = false;
+        private nvrtcResult res;
+
         #region Contructors
         /// <summary>
         /// Creates a runtime compiler instance.
@@ -239,6 +264,7 @@ namespace ManagedCuda.NVRTC
         }
 
         /// <summary/>
+        [Obsolete("This function will be removed in a future release. Please use GetLTOIR instead.")]
         public byte[] GetNVVM()
         {
             SizeT nvvmSize = new SizeT();
@@ -256,6 +282,46 @@ namespace ManagedCuda.NVRTC
                 throw new NVRTCException(res);
 
             return nvvmCode;
+        }
+
+        /// <summary/>
+        public byte[] GetLTOIR()
+        {
+            SizeT ltoirSize = new SizeT();
+
+            res = NVRTCNativeMethods.nvrtcGetLTOIRSize(_program, ref ltoirSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetLTOIRSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            byte[] ltoirCode = new byte[ltoirSize];
+
+            res = NVRTCNativeMethods.nvrtcGetLTOIR(_program, ltoirCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetLTOIR", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            return ltoirCode;
+        }
+
+        /// <summary/>
+        public byte[] GetOptiXIR()
+        {
+            SizeT optiXIRSize = new SizeT();
+
+            res = NVRTCNativeMethods.nvrtcGetOptiXIRSize(_program, ref optiXIRSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetOptiXIRSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            byte[] optiXIRCode = new byte[optiXIRSize];
+
+            res = NVRTCNativeMethods.nvrtcGetOptiXIR(_program, optiXIRCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetOptiXIR", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            return optiXIRCode;
         }
 
         /// <summary/>

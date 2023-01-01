@@ -1,34 +1,33 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 namespace ManagedCuda.BasicTypes
 {
-
-
     #region Enums
     /// <summary>
     /// Texture reference addressing modes
@@ -104,7 +103,111 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// 8-bit YUV planar format, with 4:2:0 sampling
         /// </summary>
-        NV12 = 0xb0
+        NV12 = 0xb0,
+        /// <summary>
+        /// 1 channel unsigned 8-bit normalized integer
+        /// </summary>
+        UNormInt8X1 = 0xc0,
+        /// <summary>
+        /// 2 channel unsigned 8-bit normalized integer
+        /// </summary>
+        UNormInt8X2 = 0xc1,
+        /// <summary>
+        /// 4 channel unsigned 8-bit normalized integer
+        /// </summary>
+        UNormInt8X4 = 0xc2,
+        /// <summary>
+        /// 1 channel unsigned 16-bit normalized integer
+        /// </summary>
+        UNormInt16X1 = 0xc3,
+        /// <summary>
+        /// 2 channel unsigned 16-bit normalized integer
+        /// </summary>
+        UNormInt16X2 = 0xc4,
+        /// <summary>
+        /// 4 channel unsigned 16-bit normalized integer
+        /// </summary>
+        UNormInt16X4 = 0xc5,
+        /// <summary>
+        /// 1 channel signed 8-bit normalized integer
+        /// </summary>
+        SNormInt8X1 = 0xc6,
+        /// <summary>
+        /// 2 channel signed 8-bit normalized integer
+        /// </summary>
+        SNormInt8X2 = 0xc7,
+        /// <summary>
+        /// 4 channel signed 8-bit normalized integer
+        /// </summary>
+        SNormInt8X4 = 0xc8,
+        /// <summary>
+        /// 1 channel signed 16-bit normalized integer
+        /// </summary>
+        SNormInt16X1 = 0xc9,
+        /// <summary>
+        /// 2 channel signed 16-bit normalized integer
+        /// </summary>
+        SNormInt16X2 = 0xca,
+        /// <summary>
+        /// 4 channel signed 16-bit normalized integer 
+        /// </summary>
+        SNormInt16X4 = 0xcb,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC1 compression) format
+        /// </summary>
+        BC1UNorm = 0x91,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC1 compression) format with sRGB encoding
+        /// </summary>
+        BC1UNormSRGB = 0x92,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC2 compression) format
+        /// </summary>
+        BC2UNorm = 0x93,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC2 compression) format with sRGB encoding
+        /// </summary>
+        BC2UNormSRGB = 0x94,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC3 compression) format
+        /// </summary>
+        BC3UNorm = 0x95,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC3 compression) format with sRGB encoding
+        /// </summary>
+        BC3UNormSRGB = 0x96,
+        /// <summary>
+        /// 1 channel unsigned normalized block-compressed (BC4 compression) format
+        /// </summary>
+        BC4UNorm = 0x97,
+        /// <summary>
+        /// 1 channel signed normalized block-compressed (BC4 compression) format
+        /// </summary>
+        BC4SNorm = 0x98,
+        /// <summary>
+        /// 2 channel unsigned normalized block-compressed (BC5 compression) format
+        /// </summary>
+        BC5UNorm = 0x99,
+        /// <summary>
+        /// 2 channel signed normalized block-compressed (BC5 compression) format
+        /// </summary>
+        BC5SNorm = 0x9a,
+        /// <summary>
+        /// 3 channel unsigned half-float block-compressed (BC6H compression) format
+        /// </summary>
+        BC6HUF16 = 0x9b,
+        /// <summary>
+        /// 3 channel signed half-float block-compressed (BC6H compression) format
+        /// </summary>
+        BC6HSF16 = 0x9c,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC7 compression) format
+        /// </summary>
+        BC7UNorm = 0x9d,
+        /// <summary>
+        /// 4 channel unsigned normalized block-compressed (BC7 compression) format with sRGB encoding
+        /// </summary>
+        BC7UNormSRGB = 0x9e
     }
 
     /// <summary>
@@ -597,15 +700,18 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// ::cuStreamBatchMemOp and related APIs are supported.
         /// </summary>
-        CanUseStreamMemOps = 92,
+        [Obsolete("Deprecated, along with v1 MemOps API, ::cuStreamBatchMemOp and related APIs are supported.")]
+        CanUseStreamMemOpsV1 = 92,
         /// <summary>
         /// 64-bit operations are supported in ::cuStreamBatchMemOp and related APIs.
         /// </summary>
-        CanUse64BitStreamMemOps = 93,
+        [Obsolete("Deprecated, along with v1 MemOps API, 64-bit operations are supported in ::cuStreamBatchMemOp and related APIs.")]
+        CanUse64BitStreamMemOpsV1 = 93,
         /// <summary>
         /// ::CU_STREAM_WAIT_VALUE_NOR is supported.
         /// </summary>
-        CanUseStreamWaitValueNOr = 94,
+        [Obsolete("Deprecated, along with v1 MemOps API, ::CU_STREAM_WAIT_VALUE_NOR is supported.")]
+        CanUseStreamWaitValueNOrV1 = 94,
         /// <summary>
         /// Device supports launching cooperative kernels via ::cuLaunchCooperativeKernel
         /// </summary>
@@ -714,6 +820,43 @@ namespace ManagedCuda.BasicTypes
 
 
         /// <summary>
+        /// Indicates device supports cluster launch
+        /// </summary>
+        ClusterLaunch = 120,
+        /// <summary>
+        /// Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays
+        /// </summary>
+        DeferredMappingCudaArraySupported = 121,
+        /// <summary>
+        /// 64-bit operations are supported in ::cuStreamBatchMemOp and related MemOp APIs.
+        /// </summary>
+        CanUse64BitStreamMemOps = 122,
+        /// <summary>
+        /// ::CU_STREAM_WAIT_VALUE_NOR is supported by MemOp APIs.
+        /// </summary>
+        CanUseStreamWaitValueNOR = 123,
+        /// <summary>
+        /// Device supports buffer sharing with dma_buf mechanism.
+        /// </summary>
+        DmaBufSupported = 124,
+        /// <summary>
+        /// Device supports IPC Events.
+        /// </summary>
+        IPCEventSupported = 125,
+        /// <summary>
+        /// Number of memory domains the device supports.
+        /// </summary>
+        MemSyncDomainCount = 126,
+        /// <summary>
+        /// Device supports accessing memory using Tensor Map.
+        /// </summary>
+        TensorMapAccessSupported = 127,
+        /// <summary>
+        /// Device supports unified function pointers.
+        /// </summary>
+        UnifiedFunctionPointers = 129,
+
+        /// <summary>
         /// Max elems...
         /// </summary>
         MAX
@@ -808,6 +951,62 @@ namespace ManagedCuda.BasicTypes
         PreferredSharedMemoryCarveout = 9,
 
         /// <summary>
+        /// If this attribute is set, the kernel must launch with a valid cluster size specified.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        ClusterSizeMustBeSet = 10,
+
+        /// <summary>
+        /// The required cluster width in blocks. The values must either all be 0 or all be positive. 
+        /// The validity of the cluster dimensions is otherwise checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        RequiredClusterWidth = 11,
+
+        /// <summary>
+        /// The required cluster height in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        RequiredClusterHeight = 12,
+
+        /// <summary>
+        /// The required cluster depth in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        RequiredClusterDepth = 13,
+
+        /// <summary>
+        /// Whether the function can be launched with non-portable cluster size. 1 is
+        /// allowed, 0 is disallowed. A non-portable cluster size may only function
+        /// on the specific SKUs the program is tested on. The launch might fail if
+        /// the program is run on a different hardware platform.<para/>
+        /// CUDA API provides cudaOccupancyMaxActiveClusters to assist with checking
+        /// whether the desired size can be launched on the current device.<para/>
+        /// Portable Cluster Size<para/>
+        /// A portable cluster size is guaranteed to be functional on all compute
+        /// capabilities higher than the target compute capability. The portable
+        /// cluster size for sm_90 is 8 blocks per cluster. This value may increase
+        /// for future compute capabilities.<para/>
+        /// The specific hardware unit may support higher cluster sizes that's not
+        /// guaranteed to be portable.<para/>
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        NonPortableClusterSizeAllowed = 14,
+
+        /// <summary>
+        /// The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        ClusterSchedulingPolicyPreference = 15,
+
+        /// <summary>
         /// No descritption found...
         /// </summary>
         Max
@@ -876,7 +1075,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int</para>
         /// <para>Applies to: compiler only</para>
         /// </summary>
-        ThreadsPerBlock,
+        ThreadsPerBlock = 1,
 
         /// <summary>
         /// Returns a float value in the option of the wall clock time, in
@@ -884,7 +1083,7 @@ namespace ManagedCuda.BasicTypes
         /// Option type: float
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        WallTime,
+        WallTime = 2,
 
         /// <summary>
         /// <para>Pointer to a buffer in which to print any log messsages from PTXAS
@@ -893,7 +1092,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: char*</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        InfoLogBuffer,
+        InfoLogBuffer = 3,
 
         /// <summary>
         /// <para>IN: Log buffer size in bytes.  Log messages will be capped at this size
@@ -902,7 +1101,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        InfoLogBufferSizeBytes,
+        InfoLogBufferSizeBytes = 4,
 
         /// <summary>
         /// <para>Pointer to a buffer in which to print any log messages from PTXAS that
@@ -911,7 +1110,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: char*</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        ErrorLogBuffer,
+        ErrorLogBuffer = 5,
 
         /// <summary>
         /// <para>IN: Log buffer size in bytes.  Log messages will be capped at this size
@@ -920,7 +1119,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        ErrorLogBufferSizeBytes,
+        ErrorLogBufferSizeBytes = 6,
 
 
         /// <summary>
@@ -929,7 +1128,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int</para>
         /// <para>Applies to: compiler only</para>
         /// </summary>
-        OptimizationLevel,
+        OptimizationLevel = 7,
 
         /// <summary>
         /// <para>No option value required. Determines the target based on the current
@@ -937,7 +1136,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: No option value needed</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        TargetFromContext,
+        TargetFromContext = 8,
 
         /// <summary>
         /// <para>Target is chosen based on supplied ::CUjit_target_enum. This option cannot be
@@ -945,7 +1144,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int for enumerated type ::CUjit_target_enum</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        Target,
+        Target = 9,
 
         /// <summary>
         /// <para>Specifies choice of fallback strategy if matching cubin is not found.
@@ -953,28 +1152,28 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int for enumerated type ::CUjit_fallback_enum</para>
         /// <para>Applies to: compiler only</para>
         /// </summary>
-        FallbackStrategy,
+        FallbackStrategy = 10,
 
         /// <summary>
         /// Specifies whether to create debug information in output (-g) <para/> (0: false, default)
         /// <para>Option type: int</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        GenerateDebugInfo,
+        GenerateDebugInfo = 11,
 
         /// <summary>
         /// Generate verbose log messages <para/> (0: false, default)
         /// <para>Option type: int</para>
         /// <para>Applies to: compiler and linker</para>
         /// </summary>
-        LogVerbose,
+        LogVerbose = 12,
 
         /// <summary>
         /// Generate line number information (-lineinfo) <para/> (0: false, default)
         /// <para>Option type: int</para>
         /// <para>Applies to: compiler only</para>
         /// </summary>
-        GenerateLineInfo,
+        GenerateLineInfo = 13,
 
         /// <summary>
         /// Specifies whether to enable caching explicitly (-dlcm)<para/>
@@ -982,17 +1181,18 @@ namespace ManagedCuda.BasicTypes
         /// <para>Option type: unsigned int for enumerated type ::CUjit_cacheMode_enum</para>
         /// <para>Applies to: compiler only</para>
         /// </summary>
-        JITCacheMode,
+        JITCacheMode = 14,
 
         /// <summary>
         /// The below jit options are used for internal purposes only, in this version of CUDA
         /// </summary>
-        NewSM3XOpt,
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        NewSM3XOpt = 15,
 
         /// <summary>
-        /// The below jit options are used for internal purposes only, in this version of CUDA
+        /// This jit option is used for internal purpose only.
         /// </summary>
-        FastCompile,
+        FastCompile = 16,
 
         /// <summary>
         /// Array of device symbol names that will be relocated to the corresponing
@@ -1006,7 +1206,7 @@ namespace ManagedCuda.BasicTypes
         /// Option type: const char **<para/>
         /// Applies to: dynamic linker only
         /// </summary>
-        GlobalSymbolNames,
+        GlobalSymbolNames = 17,
 
         /// <summary>
         /// Array of host addresses that will be used to relocate corresponding
@@ -1015,7 +1215,7 @@ namespace ManagedCuda.BasicTypes
         /// Option type: void **<para/>
         /// Applies to: dynamic linker only
         /// </summary>
-        GlobalSymbolAddresses,
+        GlobalSymbolAddresses = 18,
 
         /// <summary>
         /// Number of entries in ::CU_JIT_GLOBAL_SYMBOL_NAMES and
@@ -1023,14 +1223,15 @@ namespace ManagedCuda.BasicTypes
         /// Option type: unsigned int<para/>
         /// Applies to: dynamic linker only
         /// </summary>
-        GlobalSymbolCount,
+        GlobalSymbolCount = 19,
 
         /// <summary>
         /// Enable link-time optimization (-dlto) for device code (0: false, default)<para/>
         /// Option type: int<para/>
         /// Applies to: compiler and linker
         /// </summary>
-        Lto,
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        Lto = 20,
 
         /// <summary>
         /// Control single-precision denormals (-ftz) support (0: false, default).<para/>
@@ -1039,7 +1240,8 @@ namespace ManagedCuda.BasicTypes
         /// Option type: int<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
-        Ftz,
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        Ftz = 21,
 
         /// <summary>
         /// Control single-precision floating-point division and reciprocals<para/>
@@ -1049,7 +1251,8 @@ namespace ManagedCuda.BasicTypes
         /// Option type: int<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
-        PrecDiv,
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        PrecDiv = 22,
 
         /// <summary>
         /// Control single-precision floating-point square root<para/>
@@ -1059,7 +1262,8 @@ namespace ManagedCuda.BasicTypes
         /// Option type: int\n<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
-        PrecSqrt,
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        PrecSqrt = 23,
 
         /// <summary>
         /// Enable/Disable the contraction of floating-point multiplies<para/>
@@ -1068,7 +1272,90 @@ namespace ManagedCuda.BasicTypes
         /// Option type: int\n<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
-        Fma
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        Fma = 24,
+
+        /// <summary>
+        /// Array of kernel names that should be preserved at link time while others
+        /// can be removed.\n
+        /// Must contain ::CU_JIT_REFERENCED_KERNEL_COUNT entries.\n
+        /// Note that kernel names can be mangled by the compiler in which case the
+        /// mangled name needs to be specified.\n
+        /// Wildcard "*" can be used to represent zero or more characters instead of
+        /// specifying the full or mangled name.\n
+        /// It is important to note that the wildcard "*" is also added implicitly.
+        /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+        /// thus preserve all kernels with those names. This can be avoided by providing
+        /// a more specific name like "barfoobaz".\n
+        /// Option type: const char **\n
+        /// Applies to: dynamic linker only
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        ReferencedKernelNames = 25,
+
+        /// <summary>
+        /// Number of entries in ::CU_JIT_REFERENCED_KERNEL_NAMES array.\n
+        /// Option type: unsigned int\n
+        /// Applies to: dynamic linker only
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        ReferencedKernelCount = 26,
+
+        /// <summary>
+        /// Array of variable names (__device__ and/or __constant__) that should be
+        /// preserved at link time while others can be removed.\n
+        /// Must contain ::CU_JIT_REFERENCED_VARIABLE_COUNT entries.\n
+        /// Note that variable names can be mangled by the compiler in which case the
+        /// mangled name needs to be specified.\n
+        /// Wildcard "*" can be used to represent zero or more characters instead of
+        /// specifying the full or mangled name.\n
+        /// It is important to note that the wildcard "*" is also added implicitly.
+        /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+        /// thus preserve all variables with those names. This can be avoided by providing
+        /// a more specific name like "barfoobaz".\n
+        /// Option type: const char **\n
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        ReferencedVariableNames = 27,
+
+        /// <summary>
+        /// Number of entries in ::CU_JIT_REFERENCED_VARIABLE_NAMES array.\n
+        /// Option type: unsigned int\n
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        ReferencedVariableCount = 28,
+
+        /// <summary>
+        /// This option serves as a hint to enable the JIT compiler/linker
+        /// to remove constant (__constant__) and device (__device__) variables
+        /// unreferenced in device code (Disabled by default).\n
+        /// Note that host references to constant and device variables using APIs like
+        /// ::cuModuleGetGlobal() with this option specified may result in undefined behavior unless
+        /// the variables are explicitly specified using ::CU_JIT_REFERENCED_VARIABLE_NAMES.\n
+        /// Option type: int\n
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        [Obsolete("This jit option is deprecated and should not be used.")]
+        OptimizeUnusedDeviceVariables = 29,
+
+        /// <summary>
+        /// Generate position independent code (0: false)\n
+        /// Option type: int\n
+        /// Applies to: compiler only
+        /// </summary>
+        PositionIndependentCode = 30,
     }
 
     /// <summary>
@@ -1076,16 +1363,6 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     public enum CUJITTarget
     {
-        /// <summary>
-        /// Compute device class 2.0
-        /// </summary>
-        Compute_20 = 20,
-
-        /// <summary>
-        /// Compute device class 2.1
-        /// </summary>
-        Compute_21 = 21,
-
         /// <summary>
         /// Compute device class 3.0
         /// </summary>
@@ -1160,7 +1437,26 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Compute device class 8.6.
         /// </summary>
-        Compute_86 = 86
+        Compute_86 = 86,
+        /// <summary>
+        /// Compute device class 8.7.
+        /// </summary>
+        Compute_87 = 87,
+        /// <summary>
+        /// Compute device class 8.9.
+        /// </summary>
+        Compute_89 = 89,
+        /// <summary>
+        /// Compute device class 9.0.
+        /// </summary>
+        Compute_90 = 90,
+
+        /// <summary>
+        /// Compute device class 9.0. with accelerated features.
+        /// </summary>
+        Compute_90A = 0x10000 + Compute_90
+        // Indicates that compute device class supports accelerated features.
+        // #define CU_COMPUTE_ACCELERATED_TARGET_BASE   0x10000
     }
 
     /// <summary>
@@ -1252,6 +1548,7 @@ namespace ManagedCuda.BasicTypes
         /// High-level intermediate code for link-time optimization
         /// Applicable options: NVVM compiler options, PTX compiler options
         /// </summary>
+        [Obsolete("Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0")]
         NVVM
     }
 
@@ -1447,6 +1744,12 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         ErrorStubLibrary = 34,
 
+        /// <summary>
+        /// This indicates that requested CUDA device is unavailable at the current
+        /// time. Devices are often unavailable due to use of
+        /// ::CU_COMPUTEMODE_EXCLUSIVE_PROCESS or ::CU_COMPUTEMODE_PROHIBITED.
+        /// </summary>
+        ErrorDeviceUnavailable = 46,
 
         /// <summary>
         /// No CUDA-capable device available
@@ -1584,7 +1887,8 @@ namespace ManagedCuda.BasicTypes
         UnsupportedExecAffinity = 224,
 
         /// <summary>
-        /// Invalid source
+        /// This indicates that the device kernel source is invalid. This includes
+        /// compilation/linker errors encountered in device code or user error.
         /// </summary>
         ErrorInvalidSource = 300,
 
@@ -1852,6 +2156,21 @@ namespace ManagedCuda.BasicTypes
         MpsMaxConnectionsReached = 809,
 
         /// <summary>
+        /// This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.
+        /// </summary>
+        ErrorMPSClinetTerminated = 810,
+
+        /// <summary>
+        /// This error indicates that the module is using CUDA Dynamic Parallelism, but the current configuration, like MPS, does not support it.
+        /// </summary>
+        ErrorCDPNotSupported = 811,
+
+        /// <summary>
+        /// This error indicates that a module contains an unsupported interaction between different versions of CUDA Dynamic Parallelism.
+        /// </summary>
+        ErrorCDPVersionMismatch = 812,
+
+        /// <summary>
         /// This error indicates that the operation is not permitted when the stream is capturing.
         /// </summary>
         ErrorStreamCaptureUnsupported = 900,
@@ -1913,6 +2232,20 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         ErrorGraphExecUpdateFailure = 910,
 
+        /// <summary>
+        /// This indicates that an async error has occurred in a device outside of CUDA.
+        /// If CUDA was waiting for an external device's signal before consuming shared data,
+        /// the external device signaled an error indicating that the data is not valid for
+        /// consumption. This leaves the process in an inconsistent state and any further CUDA
+        /// work will return the same error. To continue using CUDA, the process must be
+        /// terminated and relaunched.
+        /// </summary>
+        ErrorExternalDevice = 911,
+
+        /// <summary>
+        /// Indicates a kernel launch error due to cluster misconfiguration.
+        /// </summary>
+        ErrorInvalidClusterSize = 912,
         /// <summary>
         /// Unknown error
         /// </summary>
@@ -2074,7 +2407,20 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Returns the mempool handle for the allocation if it was allocated from a mempool. Otherwise returns NULL.
         /// </summary>
-        MempoolHandle = 17
+        MempoolHandle = 17,
+        /// <summary>
+        /// Size of the actual underlying mapping that the pointer belongs to
+        /// </summary>
+        MappingSize = 18,
+        /// <summary>
+        /// The start address of the mapping that the pointer belongs to
+        /// </summary>
+        BaseAddr = 19,
+        /// <summary>
+        /// A process-wide unique id corresponding to the physical allocation the pointer belongs to
+        /// </summary>
+        MemoryBlockID = 20
+
     }
 
     /// <summary>
@@ -2512,6 +2858,10 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         WriteValue64 = 5,
         /// <summary>
+        /// Insert a memory barrier of the specified type
+        /// </summary>
+        Barrier = 6,
+        /// <summary>
         /// This has the same effect as ::CU_STREAM_WAIT_VALUE_FLUSH, but as a standalone operation.
         /// </summary>
         FlushRemoteWrites = 3
@@ -2611,7 +2961,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Memory Free Node
         /// </summary>
-        MemFree = 11
+        MemFree = 11,
+        /// <summary>
+        /// Batch MemOp Node
+        /// </summary>
+        BatchMemOp = 12
     }
 
     /// <summary>
@@ -2808,7 +3162,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// The update failed because the function of a kernel node changed in an unsupported way
         /// </summary>
-        ErrorUnsupportedFunctionChange = 0x7
+        ErrorUnsupportedFunctionChange = 0x7,
+        /// <summary>
+        /// The update failed because the node attributes changed in a way that is not supported
+        /// </summary>
+        ErrorAttributesChanged = 0x8
     }
 
     /// <summary>
@@ -3111,6 +3469,291 @@ namespace ManagedCuda.BasicTypes
         ReservedMemHigh
     }
 
+    /// <summary>
+    /// CUDA Lazy Loading status
+    /// </summary>
+    public enum CUmoduleLoadingMode
+    {
+        /// <summary>
+        /// Lazy Kernel Loading is not enabled
+        /// </summary>
+        EagerLoading = 0x1,
+        /// <summary>
+        /// Lazy Kernel Loading is enabled
+        /// </summary>
+        LazyLoading = 0x2,
+    }
 
+    /// <summary>
+    /// Specifies the handle type for address range
+    /// </summary>
+    public enum CUmemRangeHandleType
+    {
+        /// <summary/>
+        DMA_BUF_FD = 0x1,
+        /// <summary/>
+        MAX = 0x7FFFFFFF,
+    }
+
+    /// <summary>
+    /// Tensor map data type
+    /// </summary>
+    public enum CUtensorMapDataType
+    {
+        /// <summary/>
+        UInt8 = 0,
+        /// <summary/>
+        UInt16,
+        /// <summary/>
+        UInt32,
+        /// <summary/>
+        Int32,
+        /// <summary/>
+        UInt64,
+        /// <summary/>
+        Int64,
+        /// <summary/>
+        Float16,
+        /// <summary/>
+        Float32,
+        /// <summary/>
+        Float64,
+        /// <summary/>
+        BFloat16,
+        /// <summary/>
+        Float32_FTZ,
+        /// <summary/>
+        TFloat32,
+        /// <summary/>
+        TFloat32_FTZ
+    }
+
+    /// <summary>
+    /// Tensor map interleave layout type
+    /// </summary>
+    public enum CUtensorMapInterleave
+    {
+        /// <summary/>
+        None = 0,
+        /// <summary/>
+        Interleave16B,
+        /// <summary/>
+        Interleave32B
+    }
+
+    /// <summary>
+    /// Tensor map swizzling mode of shared memory banks
+    /// </summary>
+    public enum CUtensorMapSwizzle
+    {
+        /// <summary/>
+        None = 0,
+        /// <summary/>
+        Swizzle32B,
+        /// <summary/>
+        Swizzle64B,
+        /// <summary/>
+        Swizzle128B
+    }
+
+    /// <summary>
+    /// Tensor map L2 promotion type
+    /// </summary>
+    public enum CUtensorMapL2promotion
+    {
+        /// <summary/>
+        NONE = 0,
+        /// <summary/>
+        L2_64B,
+        /// <summary/>
+        L2_128B,
+        /// <summary/>
+        L2_256B
+    }
+
+    /// <summary>
+    /// Tensor map out-of-bounds fill type
+    /// </summary>
+    public enum CUtensorMapFloatOOBfill
+    {
+        /// <summary/>
+        None = 0,
+        /// <summary/>
+        NanRequestZeroFMA
+    }
+
+
+    /// <summary>
+    /// Flags for ::cuStreamMemoryBarrier
+    /// </summary>
+    public enum CUstreamMemoryBarrier_flags
+    {
+        /// <summary>
+        /// System-wide memory barrier.
+        /// </summary>
+        Sys = 0x0,
+        /// <summary>
+        /// Limit memory barrier scope to the GPU.
+        /// </summary>
+        Gpu = 0x1
+    }
+
+
+    /// <summary>
+    /// Graph instantiation results
+    /// </summary>
+    public enum CUgraphInstantiateResult
+    {
+        /// <summary>
+        /// Instantiation succeeded
+        /// </summary>
+        Success = 0,
+        /// <summary>
+        /// Instantiation failed for an unexpected reason which is described in the return value of the function
+        /// </summary>
+        Error = 1,
+        /// <summary>
+        /// Instantiation failed due to invalid structure, such as cycles 
+        /// </summary>
+        InvalidStructure = 2,
+        /// <summary>
+        /// Instantiation for device launch failed because the graph contained an unsupported operation
+        /// </summary>
+        NodeOperationNotSupported = 3,
+        /// <summary>
+        /// Instantiation for device launch failed due to the nodes belonging to different contexts
+        /// </summary>
+        MultipleCtxsNotSupported = 4
+    }
+
+
+
+    /// <summary>
+    ///  Cluster scheduling policies. These may be passed to ::cuFuncSetAttribute or ::cuKernelSetAttribute
+    /// </summary>
+    public enum CUclusterSchedulingPolicy
+    {
+        /// <summary>
+        /// the default policy
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// spread the blocks within a cluster to the SMs
+        /// </summary>
+        Spread = 1,
+        /// <summary>
+        /// allow the hardware to load-balance the blocks in a cluster to the SMs
+        /// </summary>
+        LoadBalancing = 2
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUlaunchMemSyncDomain
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        Remote = 1
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUlaunchAttributeID
+    {
+        /// <summary>
+        /// Ignored entry, for convenient composition
+        /// </summary>
+        Ignore = 0,
+        /// <summary>
+        /// Valid for streams, graph nodes, launches.
+        /// </summary>
+        AccessPolicyWindow = 1,
+        /// <summary>
+        /// Valid for graph nodes, launches.
+        /// </summary>
+        Cooperative = 2,
+        /// <summary>
+        /// Valid for streams.
+        /// </summary>
+        SynchronizationPolicy = 3,
+        /// <summary>
+        /// Valid for graph nodes, launches.
+        /// </summary>
+        ClusterDimension = 4,
+        /// <summary>
+        /// Valid for graph nodes, launches.
+        /// </summary>
+        ClusterSchedulingPolicyPreference = 5,
+        /// <summary>
+        /// Valid for launches. Setting programmaticStreamSerializationAllowed to non-0
+        /// signals that the kernel will use programmatic means to resolve its stream dependency, so that
+        /// the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous
+        /// kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait
+        /// on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        /// </summary>
+        ProgrammaticStreamSerialization = 6,
+        /// <summary>
+        /// Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger
+        /// after all block in the associated kernel trigger the event. A block can trigger the event through
+        /// PTX launchdep.release or CUDA builtin function cudaTriggerProgrammaticLaunchCompletion(). A trigger 
+        /// can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. 
+        /// The dependent launches can choose to wait on the dependency using the programmatic sync 
+        /// (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the
+        /// CPU thread calling cuEventSynchronize()) are not guaranteed to observe the release precisely when it is 
+        /// released.  For example, cuEventSynchronize() may only observe the event trigger long after the associated 
+        /// kernel has completed. This recording type is primarily meant for establishing programmatic dependency 
+        /// between device tasks. The event supplied must not be an interprocess or interop event. The event must 
+        /// disable timing (i.e. created with ::CU_EVENT_DISABLE_TIMING flag set).
+        /// </summary>
+        ProgrammaticEvent = 7,
+        /// <summary>
+        /// Valid for streams, graph nodes, launches.
+        /// </summary>
+        Priority = 8,
+        /// <summary>
+        /// 
+        /// </summary>
+        MemSyncDomainMap = 9,
+        /// <summary>
+        /// 
+        /// </summary>
+        MemSyncDomain = 10
+    }
+
+
+
+    /// <summary>
+    /// Library options to be specified with ::cuLibraryLoadData() or ::cuLibraryLoadFromFile()
+    /// </summary>
+    public enum CUlibraryOption
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        HostUniversalFunctionAndDataTable = 0,
+
+        /// <summary>
+        /// Specifes that the argument \p code passed to ::cuLibraryLoadData() will be preserved.
+        /// Specifying this option will let the driver know that \p code can be accessed at any point
+        /// until ::cuLibraryUnload(). The default behavior is for the driver to allocate and
+        /// maintain its own copy of \p code. Note that this is only a memory usage optimization
+        /// hint and the driver can choose to ignore it if required.
+        /// Specifying this option with ::cuLibraryLoadFromFile() is invalid and
+        /// will return ::CUDA_ERROR_INVALID_VALUE.
+        /// </summary>
+        BinaryIsPreserved = 1,
+        /// <summary>
+        /// 
+        /// </summary>
+        NumOptions
+    }
     #endregion
 }

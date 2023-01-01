@@ -1,29 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 namespace ManagedCuda.BasicTypes
 {
@@ -115,7 +116,12 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Disable any trilinear filtering optimizations.
         /// </summary>
-        DisableTrilinearOptimization = 0x20
+        DisableTrilinearOptimization = 0x20,
+
+        /// <summary>
+        /// Enable seamless cube map filtering.
+        /// </summary>
+        SeamlessCubeMap = 0x40
     }
 
     /// <summary>
@@ -247,7 +253,12 @@ namespace ManagedCuda.BasicTypes
         /// This flag if set indicates that the CUDA array or CUDA mipmapped array
         /// is a sparse CUDA array or CUDA mipmapped array respectively
         /// </summary>
-        Sparse = 0x40
+        Sparse = 0x40,
+
+        /// <summary>
+        /// This flag if set indicates that the CUDA array or CUDA mipmapped array will allow deferred memory mapping
+        /// </summary>
+        DeferredMapping = 0x80
     }
 
     /// <summary>
@@ -749,7 +760,15 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Adds memory free node parameters to output
         /// </summary>
-        MemFreeNodeParams = 1 << 12
+        MemFreeNodeParams = 1 << 12,
+        /// <summary>
+        /// Adds batch mem op node parameters to output
+        /// </summary>
+        BatchMemOpNodeParams = 1 << 13,
+        /// <summary>
+        /// Adds edge numbering information
+        /// </summary>
+        ExtraTopoInfo = 1 << 14
 
     }
 
@@ -785,14 +804,26 @@ namespace ManagedCuda.BasicTypes
     /// Flags for instantiating a graph
     /// </summary>
     [Flags]
-    public enum CUgraphInstantiate_flags
+    public enum CUgraphInstantiate_flags : ulong
     {
         /// <summary/>
         None = 0,
         /// <summary>
         /// Automatically free memory allocated in a graph before relaunching.
         /// </summary>
-        AutoFreeOnLaunch = 1
+        AutoFreeOnLaunch = 1,
+        /// <summary>
+        /// Automatically upload the graph after instantiaton.
+        /// </summary>
+        Upload = 2,
+        /// <summary>
+        /// Instantiate the graph to be launchable from the device.
+        /// </summary>
+        DeviceLaunch = 4,
+        /// <summary>
+        /// Run the graph using the per-node priority attributes rather than the priority of the stream it is launched into.
+        /// </summary>
+        UseNodePriority = 8
     }
     #endregion
 

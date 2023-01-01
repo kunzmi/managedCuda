@@ -1,29 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace ManagedCuda
@@ -33,14 +35,14 @@ namespace ManagedCuda
     /// </summary>
     public class CudaDirectXInteropResource : ICudaGraphicsInteropResource
     {
-        CUgraphicsResource _cudaResource;
-        IntPtr _d3dResource;
-        CUGraphicsRegisterFlags _registerFlags;
-        CudaContext.DirectXVersion _version;
-        CUResult res;
-        bool disposed;
-        bool _IsRegistered;
-        bool _IsMapped;
+        private CUgraphicsResource _cudaResource;
+        private IntPtr _d3dResource;
+        private CUGraphicsRegisterFlags _registerFlags;
+        private CudaContext.DirectXVersion _version;
+        private CUResult res;
+        private bool disposed;
+        private bool _IsRegistered;
+        private bool _IsMapped;
 
         #region Constructors
         /// <summary>
@@ -91,7 +93,7 @@ namespace ManagedCuda
         {
             SetMapFlags(mapFlags);
         }
-        
+
 
         /// <summary>
         /// For dispose
@@ -235,7 +237,7 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsUnregisterResource", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
-            
+
             _IsRegistered = false;
         }
 
@@ -305,170 +307,170 @@ namespace ManagedCuda
                 throw new CudaException(res);
 
             return devicePtr;
-		}
+        }
 
-		/// <summary>
-		/// Returns a CudaArray1D through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray1D</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <param name="arrayIndex"></param>
-		/// <param name="mipLevel"></param>
-		/// <returns></returns>
-		public CudaArray1D GetMappedArray1D(uint arrayIndex, uint mipLevel)
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CudaArray1D through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray1D</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <param name="arrayIndex"></param>
+        /// <param name="mipLevel"></param>
+        /// <returns></returns>
+        public CudaArray1D GetMappedArray1D(uint arrayIndex, uint mipLevel)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUarray array = new CUarray();
-			SizeT size = 0;
+            CUarray array = new CUarray();
+            SizeT size = 0;
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			CudaArray1D retVar = new CudaArray1D(array, false);
+            CudaArray1D retVar = new CudaArray1D(array, false);
 
-			return retVar;
-		}
+            return retVar;
+        }
 
-		/// <summary>
-		/// Returns a CudaArray2D through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray2D</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <param name="arrayIndex"></param>
-		/// <param name="mipLevel"></param>
-		/// <returns></returns>
-		public CudaArray2D GetMappedArray2D(uint arrayIndex, uint mipLevel)
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CudaArray2D through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray2D</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <param name="arrayIndex"></param>
+        /// <param name="mipLevel"></param>
+        /// <returns></returns>
+        public CudaArray2D GetMappedArray2D(uint arrayIndex, uint mipLevel)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUarray array = new CUarray();
-			SizeT size = 0;
+            CUarray array = new CUarray();
+            SizeT size = 0;
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			CudaArray2D retVar = new CudaArray2D(array, false);
+            CudaArray2D retVar = new CudaArray2D(array, false);
 
-			return retVar;
-		}
+            return retVar;
+        }
 
-		/// <summary>
-		/// Returns a CudaArray3D through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray3D</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <param name="arrayIndex"></param>
-		/// <param name="mipLevel"></param>
-		/// <returns></returns>
-		public CudaArray3D GetMappedArray3D(uint arrayIndex, uint mipLevel)
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CudaArray3D through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaArray3D</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <param name="arrayIndex"></param>
+        /// <param name="mipLevel"></param>
+        /// <returns></returns>
+        public CudaArray3D GetMappedArray3D(uint arrayIndex, uint mipLevel)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUarray array = new CUarray();
-			SizeT size = 0;
+            CUarray array = new CUarray();
+            SizeT size = 0;
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			CudaArray3D retVar = new CudaArray3D(array, false);
+            CudaArray3D retVar = new CudaArray3D(array, false);
 
-			return retVar;
-		}
+            return retVar;
+        }
 
-		/// <summary>
-		/// Returns a CudaMipmappedArray through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaMipmappedArray</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <returns></returns>
-		public CudaMipmappedArray GetMappedMipmappedArray(CUArrayFormat format, CudaMipmappedArrayNumChannels numChannels)
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CudaMipmappedArray through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CudaMipmappedArray</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <returns></returns>
+        public CudaMipmappedArray GetMappedMipmappedArray(CUArrayFormat format, CudaMipmappedArrayNumChannels numChannels)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUmipmappedArray array = new CUmipmappedArray();
+            CUmipmappedArray array = new CUmipmappedArray();
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsResourceGetMappedMipmappedArray(ref array, _cudaResource);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsResourceGetMappedMipmappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsResourceGetMappedMipmappedArray(ref array, _cudaResource);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsResourceGetMappedMipmappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			CudaMipmappedArray retVar = new CudaMipmappedArray(array, format, numChannels);
+            CudaMipmappedArray retVar = new CudaMipmappedArray(array, format, numChannels);
 
-			return retVar;
-		}
+            return retVar;
+        }
 
-		/// <summary>
-		/// Returns a CUarray handle through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CUarray</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <param name="arrayIndex"></param>
-		/// <param name="mipLevel"></param>
-		/// <returns></returns>
-		public CUarray GetMappedCUArray(uint arrayIndex, uint mipLevel)
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CUarray handle through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CUarray</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <param name="arrayIndex"></param>
+        /// <param name="mipLevel"></param>
+        /// <returns></returns>
+        public CUarray GetMappedCUArray(uint arrayIndex, uint mipLevel)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUarray array = new CUarray();
+            CUarray array = new CUarray();
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsSubResourceGetMappedArray(ref array, _cudaResource, arrayIndex, mipLevel);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsSubResourceGetMappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			return array;
-		}
+            return array;
+        }
 
-		/// <summary>
-		/// Returns a CUmipmappedArray handle through which the subresource of the mapped graphics resource resource which
-		/// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CUmipmappedArray</c>
-		/// may change every time that <c>resource</c> is mapped.<para/>
-		/// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
-		/// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
-		/// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
-		/// </summary>
-		/// <returns></returns>
-		public CUmipmappedArray GetMappedCUMipmappedArray()
-		{
-			if (disposed) throw new ObjectDisposedException(this.ToString());
+        /// <summary>
+        /// Returns a CUmipmappedArray handle through which the subresource of the mapped graphics resource resource which
+        /// corresponds to array index <c>arrayIndex</c> and mipmap level <c>mipLevel</c> may be accessed. The pointer value in <c>CUmipmappedArray</c>
+        /// may change every time that <c>resource</c> is mapped.<para/>
+        /// If the resource is not a texture then it cannot be accessed via an array and <see cref="CUResult.ErrorNotMappedAsArray"/>
+        /// exception is thrwon. If <c>arrayIndex</c> is not a valid array index for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If <c>mipLevel</c> is not a valid mipmap level for the resource then <see cref="CUResult.ErrorInvalidValue"/>
+        /// exception is thrwon. If the resource is not mapped then <see cref="CUResult.ErrorNotMapped"/> exception is thrwon.
+        /// </summary>
+        /// <returns></returns>
+        public CUmipmappedArray GetMappedCUMipmappedArray()
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
 
-			CUmipmappedArray array = new CUmipmappedArray();
+            CUmipmappedArray array = new CUmipmappedArray();
 
-			res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsResourceGetMappedMipmappedArray(ref array, _cudaResource);
-			Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsResourceGetMappedMipmappedArray", res));
-			if (res != CUResult.Success)
-				throw new CudaException(res);
+            res = DriverAPINativeMethods.GraphicsInterop.cuGraphicsResourceGetMappedMipmappedArray(ref array, _cudaResource);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphicsResourceGetMappedMipmappedArray", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
 
-			return array;
-		}
+            return array;
+        }
 
         /// <summary>
         /// 

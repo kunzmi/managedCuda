@@ -1,31 +1,33 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 using System.Diagnostics;
 
 namespace ManagedCuda.NPP
@@ -824,6 +826,57 @@ namespace ManagedCuda.NPP
         /// <summary/>
         Only
     }
+
+
+    /// <summary>
+    /// Data types for nppiPlus functions
+    /// </summary>
+    public enum NppDataType
+    {
+        /// <summary/>
+        NPP_8U,
+        /// <summary/>
+        NPP_8S,
+        /// <summary/>
+        NPP_16U,
+        /// <summary/>
+        NPP_16S,
+        /// <summary/>
+        NPP_32U,
+        /// <summary/>
+        NPP_32S,
+        /// <summary/>
+        NPP_64U,
+        /// <summary/>
+        NPP_64S,
+        /// <summary/>
+        NPP_16F,
+        /// <summary/>
+        NPP_32F,
+        /// <summary/>
+        NPP_64F
+    }
+
+    /// <summary>
+    /// Image channel counts for nppiPlus functions
+    /// </summary>
+    public enum NppiChannels
+    {
+        /// <summary/>
+        NPP_CH_1,
+        /// <summary/>
+        NPP_CH_2,
+        /// <summary/>
+        NPP_CH_3,
+        /// <summary/>
+        NPP_CH_4,
+        /// <summary/>
+        NPP_CH_A4,
+        /// <summary/>
+        NPP_CH_P3,
+        /// <summary/>
+        NPP_CH_P4
+    }
     #endregion
 
     #region Structs
@@ -1489,6 +1542,944 @@ namespace ManagedCuda.NPP
         /// <param name="value"></param>
         /// <returns></returns>
         public bool Equals(NppiPoint value)
+        {
+            bool ret = true;
+            ret &= this.x == value.x;
+            ret &= this.y == value.y;
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ y.GetHashCode();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "({0}; {1})", this.x, this.y);
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// 2D Point.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiPoint32f
+    {
+        /// <summary>
+        /// x-coordinate.
+        /// </summary>
+        public float x;
+        /// <summary>
+        /// y-coordinate.
+        /// </summary>
+        public float y;
+
+        /// <summary>
+        /// Non-default constructor
+        /// </summary>
+        /// <param name="aX"></param>
+        /// <param name="aY"></param>
+        public NppiPoint32f(float aX, float aY)
+        {
+            x = aX;
+            y = aY;
+        }
+
+        #region Operator Methods
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Add(NppiPoint32f src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x + value.x, src.y + value.y);
+            return ret;
+        }
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Add(NppiPoint32f src, NppiSize value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x + value.width, src.y + value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Add(NppiPoint32f src, float value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x + value, src.y + value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Add(float src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src + value.x, src + value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Subtract(NppiPoint32f src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x - value.x, src.y - value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Subtract(NppiPoint32f src, NppiSize value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x - value.width, src.y - value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Subtract(NppiPoint32f src, float value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x - value, src.y - value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Subtract(float src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src - value.x, src - value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Multiply(NppiPoint32f src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x * value.x, src.y * value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Multiply(NppiPoint32f src, NppiSize value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x * value.width, src.y * value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Multiply(NppiPoint32f src, float value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x * value, src.y * value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Multiply(float src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src * value.x, src * value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Divide(NppiPoint32f src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x / value.x, src.y / value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Divide(NppiPoint32f src, NppiSize value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x / value.width, src.y / value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Divide(NppiPoint32f src, float value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src.x / value, src.y / value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f Divide(float src, NppiPoint32f value)
+        {
+            NppiPoint32f ret = new NppiPoint32f(src / value.x, src / value.y);
+            return ret;
+        }
+        #endregion
+
+        #region operators
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator +(NppiPoint32f src, NppiPoint32f value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator +(NppiPoint32f src, NppiSize value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator +(NppiPoint32f src, float value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator +(float src, NppiPoint32f value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator -(NppiPoint32f src, NppiPoint32f value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator -(NppiPoint32f src, NppiSize value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator -(NppiPoint32f src, float value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator -(float src, NppiPoint32f value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator *(NppiPoint32f src, NppiPoint32f value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator *(NppiPoint32f src, NppiSize value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator *(NppiPoint32f src, float value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator *(float src, NppiPoint32f value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator /(NppiPoint32f src, NppiPoint32f value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator /(NppiPoint32f src, NppiSize value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator /(NppiPoint32f src, float value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint32f operator /(float src, NppiPoint32f value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator ==(NppiPoint32f src, NppiPoint32f value)
+        {
+            return src.Equals(value);
+        }
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator !=(NppiPoint32f src, NppiPoint32f value)
+        {
+            return !(src == value);
+        }
+        #endregion
+
+        #region Override Methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is NppiPoint32f)) return false;
+
+            NppiPoint32f value = (NppiPoint32f)obj;
+
+            bool ret = true;
+            ret &= this.x == value.x;
+            ret &= this.y == value.y;
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Equals(NppiPoint32f value)
+        {
+            bool ret = true;
+            ret &= this.x == value.x;
+            ret &= this.y == value.y;
+            return ret;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ y.GetHashCode();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "({0}; {1})", this.x, this.y);
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// 2D Point.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiPoint64f
+    {
+        /// <summary>
+        /// x-coordinate.
+        /// </summary>
+        public double x;
+        /// <summary>
+        /// y-coordinate.
+        /// </summary>
+        public double y;
+
+        /// <summary>
+        /// Non-default constructor
+        /// </summary>
+        /// <param name="aX"></param>
+        /// <param name="aY"></param>
+        public NppiPoint64f(double aX, double aY)
+        {
+            x = aX;
+            y = aY;
+        }
+
+        #region Operator Methods
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Add(NppiPoint64f src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x + value.x, src.y + value.y);
+            return ret;
+        }
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Add(NppiPoint64f src, NppiSize value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x + value.width, src.y + value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Add(NppiPoint64f src, double value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x + value, src.y + value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Add
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Add(double src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src + value.x, src + value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Subtract(NppiPoint64f src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x - value.x, src.y - value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Subtract(NppiPoint64f src, NppiSize value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x - value.width, src.y - value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Subtract(NppiPoint64f src, double value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x - value, src.y - value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Substract
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Subtract(double src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src - value.x, src - value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Multiply(NppiPoint64f src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x * value.x, src.y * value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Multiply(NppiPoint64f src, NppiSize value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x * value.width, src.y * value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Multiply(NppiPoint64f src, double value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x * value, src.y * value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Multiply
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Multiply(double src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src * value.x, src * value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Divide(NppiPoint64f src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x / value.x, src.y / value.y);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Divide(NppiPoint64f src, NppiSize value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x / value.width, src.y / value.height);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Divide(NppiPoint64f src, double value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src.x / value, src.y / value);
+            return ret;
+        }
+
+        /// <summary>
+        /// per element Divide
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f Divide(double src, NppiPoint64f value)
+        {
+            NppiPoint64f ret = new NppiPoint64f(src / value.x, src / value.y);
+            return ret;
+        }
+        #endregion
+
+        #region operators
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator +(NppiPoint64f src, NppiPoint64f value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator +(NppiPoint64f src, NppiSize value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator +(NppiPoint64f src, double value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator +(double src, NppiPoint64f value)
+        {
+            return Add(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator -(NppiPoint64f src, NppiPoint64f value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator -(NppiPoint64f src, NppiSize value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator -(NppiPoint64f src, double value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator -(double src, NppiPoint64f value)
+        {
+            return Subtract(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator *(NppiPoint64f src, NppiPoint64f value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator *(NppiPoint64f src, NppiSize value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator *(NppiPoint64f src, double value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator *(double src, NppiPoint64f value)
+        {
+            return Multiply(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator /(NppiPoint64f src, NppiPoint64f value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator /(NppiPoint64f src, NppiSize value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator /(NppiPoint64f src, double value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static NppiPoint64f operator /(double src, NppiPoint64f value)
+        {
+            return Divide(src, value);
+        }
+
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator ==(NppiPoint64f src, NppiPoint64f value)
+        {
+            return src.Equals(value);
+        }
+        /// <summary>
+        /// per element
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool operator !=(NppiPoint64f src, NppiPoint64f value)
+        {
+            return !(src == value);
+        }
+        #endregion
+
+        #region Override Methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is NppiPoint64f)) return false;
+
+            NppiPoint64f value = (NppiPoint64f)obj;
+
+            bool ret = true;
+            ret &= this.x == value.x;
+            ret &= this.y == value.y;
+            return ret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Equals(NppiPoint64f value)
         {
             bool ret = true;
             ret &= this.x == value.x;
@@ -4042,11 +5033,11 @@ namespace ManagedCuda.NPP
         /// <summary>
         /// per image device memory pointer to the corresponding buffer
         /// </summary>
-        CUdeviceptr pData;
+        public CUdeviceptr pData;
         /// <summary>
         /// step size
         /// </summary>
-        int nBufferSize;
+        public int nBufferSize;
     }
 
 
@@ -4078,6 +5069,30 @@ namespace ManagedCuda.NPP
         /// </summary>
         public NppiRect oMarkerLabelBoundingBox;
     }
+
+    /// <summary>
+    /// Provides details of contour pixel grid map location and association
+    /// </summary>
+    public struct NppiContourBlockSegment
+    {
+        /// <summary>
+        /// this connected pixel region contour ID
+        /// </summary>
+        public uint nMarkerLabelID;
+        /// <summary>
+        /// total number of pixels in this connected pixel region contour
+        /// </summary>
+        public uint nContourPixelCount;
+        /// <summary>
+        /// base offset of starting pixel in the overall contour pixel list
+        /// </summary>
+        public uint nContourStartingPixelOffset;
+        /// <summary>
+        /// relative block segment number within this particular contour ID
+        /// </summary>
+        public uint nSegmentNum;
+    }
+
 
     /// <summary>
     /// Provides contour (boundary) geometry info of uniquely labeled pixel regions returned 
@@ -4209,9 +5224,6 @@ namespace ManagedCuda.NPP
         public NppiContourPixelGeometryInfo oContourPixelGeometryInfo;
         /// <summary/>
         public NppiPoint nEast1, nNorthEast1, nNorth1, nNorthWest1, nWest1, nSouthWest1, nSouth1, nSouthEast1;
-        /// <summary/>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public NppContourDirection[] aContourInteriorDirection1;
         /// <summary/>
         public byte nTest1EastConnected;
         /// <summary/>

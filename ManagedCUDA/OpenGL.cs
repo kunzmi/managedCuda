@@ -1,30 +1,34 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda
 {
@@ -32,14 +36,55 @@ namespace ManagedCuda
     /// OpenGL Interoperability
     /// </summary>
     public static class OpenGLNativeMethods
-    {        
+    {
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
-       
+
+#if (NETCOREAPP)
+        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
+
+        static OpenGLNativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(OpenGLNativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        internal static void Init()
+        {
+            //Need that to have the constructor called before any library call.
+        }
+#endif
+
         /// <summary>
         /// OpenGL Interoperability for CUDA >3.x
         /// </summary>
         public static class CUDA3
         {
+#if (NETCOREAPP)
+            static CUDA3()
+            {
+                OpenGLNativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Creates a new CUDA context, initializes OpenGL interoperability, and associates the CUDA context with the calling
             /// thread. It must be called before performing any other OpenGL interoperability operations. It may fail if the needed
@@ -51,7 +96,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint="cuGLCtxCreate_v2")]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGLCtxCreate_v2")]
             public static extern CUResult cuGLCtxCreate(ref CUcontext pCtx, CUCtxFlags Flags, CUdevice device);
 
             /// <summary>
@@ -97,21 +142,21 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuWGLGetDevice(ref CUdevice pDevice, IntPtr hGpu);
-				
+
 
             /// <summary>
             /// Gets the CUDA devices associated with the current OpenGL context.<para/>
-			/// Returns in pCudaDeviceCount the number of CUDA-compatible devices 
-			/// corresponding to the current OpenGL context. Also returns in pCudaDevices 
-			/// at most cudaDeviceCount of the CUDA-compatible devices corresponding to 
-			/// the current OpenGL context. If any of the GPUs being used by the current OpenGL
-			/// context are not CUDA capable then the call will return CUDA_ERROR_NO_DEVICE.
+            /// Returns in pCudaDeviceCount the number of CUDA-compatible devices 
+            /// corresponding to the current OpenGL context. Also returns in pCudaDevices 
+            /// at most cudaDeviceCount of the CUDA-compatible devices corresponding to 
+            /// the current OpenGL context. If any of the GPUs being used by the current OpenGL
+            /// context are not CUDA capable then the call will return CUDA_ERROR_NO_DEVICE.
             /// </summary>
-			/// <param name="pCudaDeviceCount">Returned number of CUDA devices.</param>
-			/// <param name="pCudaDevices">Returned CUDA devices.</param>
-			/// <param name="cudaDeviceCount">The size of the output device array pCudaDevices.</param>
-			/// <param name="deviceList">The set of devices to return.</param>
-			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGLGetDevices_v2")]
+            /// <param name="pCudaDeviceCount">Returned number of CUDA devices.</param>
+            /// <param name="pCudaDevices">Returned CUDA devices.</param>
+            /// <param name="cudaDeviceCount">The size of the output device array pCudaDevices.</param>
+            /// <param name="deviceList">The set of devices to return.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGLGetDevices_v2")]
             public static extern CUResult cuGLGetDevices(ref uint pCudaDeviceCount, CUdevice[] pCudaDevices, uint cudaDeviceCount, CUGLDeviceList deviceList);
 
 

@@ -1,28 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 
@@ -3652,7 +3654,7 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, this);
             return bufferSize;
         }
-#if (ADD_MISSING_CTX)
+#if ADD_MISSING_CTX
         /// <summary>
         /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
         /// optional unsigned 16-bit truncated integer transform.
@@ -3704,7 +3706,7 @@ namespace ManagedCuda.NPP
 
         /// <summary>
         /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
-        /// optional 32-bit floating point transform.
+        /// optional unsigned 16-bit truncated integer transform with absolute Manhattan distances.
         /// </summary>
         /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
         /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
@@ -3713,8 +3715,8 @@ namespace ManagedCuda.NPP
         /// <param name="pDstVoronoiManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
         /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
         /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
-        public void DistanceTransformPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
-                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
+        public void DistanceTransformAbsPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanDistances, NPPImage_16uC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
         {
             CUdeviceptr dstVoronoi = new CUdeviceptr();
             CUdeviceptr dstTransform = new CUdeviceptr();
@@ -3746,8 +3748,458 @@ namespace ManagedCuda.NPP
                 pitchVoronoiManhattenDistances = pDstVoronoiManhattanDistances.Pitch;
             }
 
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_16s16u_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_16s16u_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+#endif
+        #endregion
+
+
+
+        #region New in Cuda 12.0
+#if ADD_MISSING_CTX
+        #region Add
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Add(CudaDeviceVariable<short> nConstant, NPPImage_16sC1 dest, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.AddDeviceConst.nppiAddDeviceC_16s_C1RSfs(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_16s_C1RSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Add constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to add</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Add(CudaDeviceVariable<short> nConstant, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.AddDeviceConst.nppiAddDeviceC_16s_C1IRSfs(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAddDeviceC_16s_C1IRSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+        #region Sub
+
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Sub(CudaDeviceVariable<short> nConstant, NPPImage_16sC1 dest, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.SubDeviceConst.nppiSubDeviceC_16s_C1RSfs(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_16s_C1RSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Subtract constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value to subtract</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Sub(CudaDeviceVariable<short> nConstant, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.SubDeviceConst.nppiSubDeviceC_16s_C1IRSfs(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSubDeviceC_16s_C1IRSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Mul
+
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Mul(CudaDeviceVariable<short> nConstant, NPPImage_16sC1 dest, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.MulDeviceConst.nppiMulDeviceC_16s_C1RSfs(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_16s_C1RSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Multiply constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Mul(CudaDeviceVariable<short> nConstant, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.MulDeviceConst.nppiMulDeviceC_16s_C1IRSfs(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMulDeviceC_16s_C1IRSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Div
+
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Div(CudaDeviceVariable<short> nConstant, NPPImage_16sC1 dest, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.DivDeviceConst.nppiDivDeviceC_16s_C1RSfs(_devPtrRoi, _pitch, nConstant.DevicePointer, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_16s_C1RSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// Divide constant to image, scale by 2^(-nScaleFactor), then clamp to saturated value. Inplace.
+        /// </summary>
+        /// <param name="nConstant">Value</param>
+        /// <param name="nScaleFactor">scaling factor</param>
+        public void Div(CudaDeviceVariable<short> nConstant, int nScaleFactor)
+        {
+            status = NPPNativeMethods.NPPi.DivDeviceConst.nppiDivDeviceC_16s_C1IRSfs(nConstant.DevicePointer, _devPtrRoi, _pitch, _sizeRoi, nScaleFactor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDivDeviceC_16s_C1IRSfs", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+#endif
+        #endregion
+
+
+        #region New in Cuda 12.0
+
+        /// <summary>
+        /// Scratch-buffer size for SignedDistanceTransformPBA.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGetBufferSize()
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGetBufferSize(_sizeRoi, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGetBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+        /// <summary>
+        /// Scratch-buffer size for SignedDistanceTransformPBA 64 bit floating point output.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGet64BufferSize()
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGet64fBufferSize(_sizeRoi, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGet64fBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        /// <summary>
+        /// Calculate scratch buffer size needed for the DistanceTransformPBA function based antialiasing on destination image SizeROI width and height.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT DistanceTransformPBAGetAntialiasingBufferSize()
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBAGetAntialiasingBufferSize(_sizeRoi, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBAGetAntialiasingBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+        /// <summary>
+        /// Calculate scratch buffer size needed for the SignedDistanceTransformPBA function based antialiasing on destination image SizeROI width and height.
+        /// </summary>
+        /// <returns></returns>
+        public SizeT SignedDistanceTransformPBAGetAntialiasingBufferSize()
+        {
+            SizeT bufferSize = 0;
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiSignedDistanceTransformPBAGetAntialiasingBufferSize(_sizeRoi, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSignedDistanceTransformPBAGetAntialiasingBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+        /// <summary>
+        /// Returns the required size of host memory buffer needed by most nppiFilterBoxBorderAdvanced functions.
+        /// </summary>
+        public int FilterBoxBorderAdvancedGetDeviceBufferSize()
+        {
+            int bufferSize = 0;
+            status = NPPNativeMethods.NPPi.LinearFixedFilters2D.nppiFilterBoxBorderAdvancedGetDeviceBufferSize(_sizeRoi, _channels, ref bufferSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorderAdvancedGetDeviceBufferSize", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+#if ADD_MISSING_CTX
+
+        /// <summary>
+        /// median filter scratch memory size.
+        /// </summary>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        public uint FilterMedianBorderGetBufferSize(NppiSize oMaskSize, NppiBorderType eBorderType)
+        {
+            uint bufferSize = 0;
+            status = NPPNativeMethods.NPPi.ImageMedianFilter.nppiFilterMedianBorderGetBufferSize_16s_C1R(_sizeRoi, oMaskSize, ref bufferSize, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorderGetBufferSize_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+            return bufferSize;
+        }
+
+        /// <summary>
+        /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
+        /// optional 64-bit floating point transform with optional relative Manhattan distances.
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanRelativeDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiSignedDistanceTransformPBAGet64fBufferSize() above)</param>
+        /// <param name="pAntialiasingDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpAntialiasingBufferSize (see nppiSignedDistanceTransformPBAGetAntialiasingBufferSize() above) or NULL if not Antialiasing</param>
+        public void DistanceTransformPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanRelativeDistances, NPPImage_64fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<byte> pAntialiasingDeviceBuffer)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            CUdeviceptr antiAlias = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanRelativeDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.Pitch;
+            }
+            if (pAntialiasingDeviceBuffer != null)
+            {
+                antiAlias = pAntialiasingDeviceBuffer.DevicePointer;
+            }
+
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16s64f_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, antiAlias);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_16s64f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or  
+        /// optional 64-bit floating point transform with optional absolute Manhattan distances
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiAbsoluteManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGet64fBufferSize() above)</param>
+        /// <param name="pAntialiasingDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpAntialiasingBufferSize (see nppiDistanceTransformPBAGetAntialiasingBufferSize() above) or NULL if not Antialiasing</param>
+        public void DistanceTransformAbsPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                  NPPImage_16sC1 pDstVoronoiAbsoluteManhattanDistances, NPPImage_64fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer, CudaDeviceVariable<byte> pAntialiasingDeviceBuffer)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            CUdeviceptr antiAlias = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiAbsoluteManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.Pitch;
+            }
+            if (pAntialiasingDeviceBuffer != null)
+            {
+                antiAlias = pAntialiasingDeviceBuffer.DevicePointer;
+            }
+
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_16s64f_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer, antiAlias);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_16s64f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or 
+        /// optional 32-bit floating point transform with optional relative Manhattan distances.
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiManhattanRelativeDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiSignedDistanceTransformPBAGetBufferSize() above)</param>
+        public void DistanceTransformPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                        NPPImage_16sC1 pDstVoronoiManhattanRelativeDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiManhattanRelativeDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiManhattanRelativeDistances.Pitch;
+            }
+
             status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformPBA_16s32f_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformPBA_16s32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// 1 channel 16-bit signed grayscale to optional 1 channel 16-bit signed integer euclidean distance voronoi diagram output and/or  
+        /// optional 64-bit floating point transform with optional absolute Manhattan distances
+        /// </summary>
+        /// <param name="nMinSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="nMaxSiteValue">source image pixel values >= nMinSiteValue and &lt;= nMaxSiteValue are considered sites (traditionally 0s)</param>
+        /// <param name="pDstVoronoi">device memory voronoi diagram destination_image_pointer or NULL for no voronoi output.</param>
+        /// <param name="pDstVoronoiIndices">device memory voronoi diagram destination_image_pointer or NULL for no voronoi indices output.</param>
+        /// <param name="pDstVoronoiAbsoluteManhattanDistances">device memory voronoi relative Manhattan distances destination_image_pointer or NULL for no voronoi Manhattan output.</param>
+        /// <param name="pDstTransform">device memory true euclidean distance transform destination_image_pointer or NULL for no transform output.</param>
+        /// <param name="pBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiDistanceTransformPBAGetBufferSize() above)</param>
+        public void DistanceTransformAbsPBA(short nMinSiteValue, short nMaxSiteValue, NPPImage_16sC1 pDstVoronoi, NPPImage_16sC1 pDstVoronoiIndices,
+                                                  NPPImage_16sC1 pDstVoronoiAbsoluteManhattanDistances, NPPImage_32fC1 pDstTransform, CudaDeviceVariable<byte> pBuffer)
+        {
+            CUdeviceptr dstVoronoi = new CUdeviceptr();
+            CUdeviceptr dstTransform = new CUdeviceptr();
+            CUdeviceptr dstVoronoiIndices = new CUdeviceptr();
+            CUdeviceptr dstVoronoiManhattenDistances = new CUdeviceptr();
+            int pitchVoronoi = 0;
+            int pitchTransform = 0;
+            int pitchVoronoiIndices = 0;
+            int pitchVoronoiManhattenDistances = 0;
+
+            if (pDstVoronoi != null)
+            {
+                dstVoronoi = pDstVoronoi.DevicePointerRoi;
+                pitchVoronoi = pDstVoronoi.Pitch;
+            }
+            if (pDstTransform != null)
+            {
+                dstTransform = pDstTransform.DevicePointerRoi;
+                pitchTransform = pDstTransform.Pitch;
+            }
+            if (pDstVoronoiIndices != null)
+            {
+                dstVoronoiIndices = pDstVoronoiIndices.DevicePointerRoi;
+                pitchVoronoiIndices = pDstVoronoiIndices.Pitch;
+            }
+            if (pDstVoronoiAbsoluteManhattanDistances != null)
+            {
+                dstVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.DevicePointerRoi;
+                pitchVoronoiManhattenDistances = pDstVoronoiAbsoluteManhattanDistances.Pitch;
+            }
+
+            status = NPPNativeMethods.NPPi.FilterDistanceTransform.nppiDistanceTransformAbsPBA_16s32f_C1R(_devPtrRoi, _pitch, nMinSiteValue, nMaxSiteValue, dstVoronoi, pitchVoronoi, dstVoronoiIndices, pitchVoronoiIndices, dstVoronoiManhattenDistances, pitchVoronoiManhattenDistances, dstTransform, pitchTransform, _sizeRoi, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDistanceTransformAbsPBA_16s32f_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// median filter with border control.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterMedianBorder(NPPImage_16sC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.ImageMedianFilter.nppiFilterMedianBorder_16s_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, pBuffer.DevicePointer, eBorderType);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterMedianBorder_16s_C1R", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+
+
+        /// <summary>
+        /// Box filter with border control. 
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="oMaskSize">Width and Height of the neighborhood region for the local Avg operation.</param>
+        /// <param name="oAnchor">X and Y offsets of the kernel origin frame of reference w.r.t the source pixel.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pBuffer">Pointer to the user-allocated scratch buffer required for the Median operation.</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        public void FilterBoxBorderAdvanced(NPPImage_16sC1 dest, NppiSize oMaskSize, NppiPoint oAnchor, NppiBorderType eBorderType, CudaDeviceVariable<byte> pBuffer, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods.NPPi.LinearFixedFilters2D.nppiFilterBoxBorderAdvanced_16s_C1R(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi,
+                                                    dest.Pitch, dest.SizeRoi, oMaskSize, oAnchor, eBorderType, pBuffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterBoxBorderAdvanced_16s_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
 #endif

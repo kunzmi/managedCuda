@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using System.Runtime.InteropServices;
@@ -34,9 +37,6 @@ namespace ManagedCuda
     /// </summary>
     public class CudaKernel
     {
-        /// <summary> 
-        /// </summary>
-        protected CudaContext _cuda;
         /// <summary> 
         /// </summary>
         protected CUmodule _module;
@@ -87,7 +87,22 @@ namespace ManagedCuda
 
 
 
-        #region Contstructors
+        #region Constructors
+        /// <summary>
+        /// </summary>
+        internal CudaKernel(CUkernel cuKernel, string kernelName)
+        {
+            _function = cuKernel.GetCUfunction();
+            _module = _function.GetModule();
+            _kernelName = kernelName;
+
+            _blockDim.x = _blockDim.y = 16;
+            _blockDim.z = 1;
+            _gridDim.x = _gridDim.y = _gridDim.z = 1;
+
+            GetAttributes();
+        }
+
         /// <summary>
         /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
         /// before running the kernel. Shared memory size is set to 0.
@@ -95,11 +110,21 @@ namespace ManagedCuda
         /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
         /// <param name="module">The CUmodule which contains the kernel</param>
         /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        [Obsolete("Cuda context parameter has been removed")]
         public CudaKernel(string kernelName, CUmodule module, CudaContext cuda)
+            : this(kernelName, module)
         {
-            if (cuda == null) throw new ArgumentNullException("cuda");
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
+        /// before running the kernel. Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        public CudaKernel(string kernelName, CUmodule module)
+        {
             _module = module;
-            _cuda = cuda;
             _kernelName = kernelName;
 
 
@@ -111,6 +136,329 @@ namespace ManagedCuda
             _blockDim.z = 1;
             _gridDim.x = _gridDim.y = _gridDim.z = 1;
 
+            GetAttributes();
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDim">Dimension of block of threads</param>
+        /// <param name="gridDim">Dimension of grid of block of threads</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, dim3 gridDim)
+            : this(kernelName, module)
+        {
+            _blockDim = blockDim;
+            _gridDim = gridDim;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
+        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDim">Dimension of block of threads</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim)
+            : this(kernelName, module)
+        {
+            _blockDim = blockDim;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+            _gridDim.x = gridDimX;
+            _gridDim.y = gridDimY;
+            _gridDim.z = 1;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+            _gridDim.x = gridDimX;
+            _gridDim.y = gridDimY;
+            _gridDim.z = gridDimZ;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
+        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
+        /// before running the kernel. Shared memory size is set directly.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint sharedMemory)
+            : this(kernelName, module)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions and shared memory size are set directly.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDim">Dimension of block of threads (2D - z-component is discarded)</param>
+        /// <param name="gridDim">Dimension of grid of block of threads (3D)</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, dim3 gridDim, uint sharedMemory)
+            : this(kernelName, module, blockDim, gridDim)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
+        /// grid dimensions must be set before running the kernel.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDim">Dimension of block of threads </param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, uint sharedMemory)
+            : this(kernelName, module, blockDim)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
+        /// grid dimensions must be set before running the kernel.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        [Obsolete("Cuda context parameter has been removed")]
+        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ, uint sharedMemory)
+            : this(kernelName, module, blockDimX, blockDimY, blockDimZ, gridDimX, gridDimY, gridDimZ)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDim">Dimension of block of threads</param>
+        /// <param name="gridDim">Dimension of grid of block of threads</param>
+        public CudaKernel(string kernelName, CUmodule module, dim3 blockDim, dim3 gridDim)
+            : this(kernelName, module)
+        {
+            _blockDim = blockDim;
+            _gridDim = gridDim;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
+        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDim">Dimension of block of threads</param>
+        public CudaKernel(string kernelName, CUmodule module, dim3 blockDim)
+            : this(kernelName, module)
+        {
+            _blockDim = blockDim;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        public CudaKernel(string kernelName, CUmodule module, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+            _gridDim.x = gridDimX;
+            _gridDim.y = gridDimY;
+            _gridDim.z = 1;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
+        /// Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
+        public CudaKernel(string kernelName, CUmodule module, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+            _gridDim.x = gridDimX;
+            _gridDim.y = gridDimY;
+            _gridDim.z = gridDimZ;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
+        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        public CudaKernel(string kernelName, CUmodule module, uint blockDimX, uint blockDimY, uint blockDimZ)
+            : this(kernelName, module)
+        {
+            _blockDim.x = blockDimX;
+            _blockDim.y = blockDimY;
+            _blockDim.z = blockDimZ;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
+        /// before running the kernel. Shared memory size is set directly.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        public CudaKernel(string kernelName, CUmodule module, uint sharedMemory)
+            : this(kernelName, module)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions and shared memory size are set directly.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDim">Dimension of block of threads (2D - z-component is discarded)</param>
+        /// <param name="gridDim">Dimension of grid of block of threads (3D)</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        public CudaKernel(string kernelName, CUmodule module, dim3 blockDim, dim3 gridDim, uint sharedMemory)
+            : this(kernelName, module, blockDim, gridDim)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
+        /// grid dimensions must be set before running the kernel.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDim">Dimension of block of threads </param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        public CudaKernel(string kernelName, CUmodule module, dim3 blockDim, uint sharedMemory)
+            : this(kernelName, module, blockDim)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        /// <summary>
+        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
+        /// grid dimensions must be set before running the kernel.
+        /// </summary>
+        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
+        /// <param name="module">The CUmodule which contains the kernel</param>
+        /// <param name="blockDimX">Dimension of block of threads X</param>
+        /// <param name="blockDimY">Dimension of block of threads Y</param>
+        /// <param name="blockDimZ">Dimension of block of threads Z</param>
+        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
+        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
+        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
+        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
+        public CudaKernel(string kernelName, CUmodule module, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ, uint sharedMemory)
+            : this(kernelName, module, blockDimX, blockDimY, blockDimZ, gridDimX, gridDimY, gridDimZ)
+        {
+            _sharedMemSize = sharedMemory;
+        }
+
+        private void GetAttributes()
+        {
             //Load additional info from kernel image
 
             _maxThreadsPerBlock = 0;
@@ -162,200 +510,6 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             _cacheModeCA = temp != 0;
         }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
-        /// Shared memory size is set to 0.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDim">Dimension of block of threads</param>
-        /// <param name="gridDim">Dimension of grid of block of threads</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, dim3 gridDim)
-            : this(kernelName, module, cuda)
-        {
-            _blockDim = blockDim;
-            _gridDim = gridDim;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
-        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDim">Dimension of block of threads</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim)
-            : this(kernelName, module, cuda)
-        {
-            _blockDim = blockDim;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
-        /// Shared memory size is set to 0.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDimX">Dimension of block of threads X</param>
-        /// <param name="blockDimY">Dimension of block of threads Y</param>
-        /// <param name="blockDimZ">Dimension of block of threads Z</param>
-        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
-        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY)
-            : this(kernelName, module, cuda)
-        {
-            _blockDim.x = blockDimX;
-            _blockDim.y = blockDimY;
-            _blockDim.z = blockDimZ;
-            _gridDim.x = gridDimX;
-            _gridDim.y = gridDimY;
-            _gridDim.z = 1;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions are set directly. 
-        /// Shared memory size is set to 0.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDimX">Dimension of block of threads X</param>
-        /// <param name="blockDimY">Dimension of block of threads Y</param>
-        /// <param name="blockDimZ">Dimension of block of threads Z</param>
-        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
-        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
-        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ)
-            : this(kernelName, module, cuda)
-        {
-            _blockDim.x = blockDimX;
-            _blockDim.y = blockDimY;
-            _blockDim.z = blockDimZ;
-            _gridDim.x = gridDimX;
-            _gridDim.y = gridDimY;
-            _gridDim.z = gridDimZ;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block dimensions are set directly, 
-        /// grid dimensions must be set before running the kernel. Shared memory size is set to 0.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDimX">Dimension of block of threads X</param>
-        /// <param name="blockDimY">Dimension of block of threads Y</param>
-        /// <param name="blockDimZ">Dimension of block of threads Z</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ)
-            : this(kernelName, module, cuda)
-        {
-            _blockDim.x = blockDimX;
-            _blockDim.y = blockDimY;
-            _blockDim.z = blockDimZ;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
-        /// before running the kernel. Shared memory size is set directly.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint sharedMemory)
-            : this(kernelName, module, cuda)
-        {
-            _sharedMemSize = sharedMemory;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions and shared memory size are set directly.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDim">Dimension of block of threads (2D - z-component is discarded)</param>
-        /// <param name="gridDim">Dimension of grid of block of threads (3D)</param>
-        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, dim3 gridDim, uint sharedMemory)
-            : this(kernelName, module, cuda, blockDim, gridDim)
-        {
-            _sharedMemSize = sharedMemory;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
-        /// grid dimensions must be set before running the kernel.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDim">Dimension of block of threads </param>
-        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, dim3 blockDim, uint sharedMemory)
-            : this(kernelName, module, cuda, blockDim)
-        {
-            _sharedMemSize = sharedMemory;
-        }
-
-        /// <summary>
-        /// Loads the given CUDA kernel from the CUmodule. Block dimensions and shared memors size are set directly, 
-        /// grid dimensions must be set before running the kernel.
-        /// </summary>
-        /// <param name="kernelName">The kernel name as defined in the *.cu file</param>
-        /// <param name="module">The CUmodule which contains the kernel</param>
-        /// <param name="cuda">CUDA abstraction layer object (= CUDA context) for this Kernel</param>
-        /// <param name="blockDimX">Dimension of block of threads X</param>
-        /// <param name="blockDimY">Dimension of block of threads Y</param>
-        /// <param name="blockDimZ">Dimension of block of threads Z</param>
-        /// <param name="gridDimX">Dimension of grid of block of threads X</param>
-        /// <param name="gridDimY">Dimension of grid of block of threads Y</param>
-        /// <param name="gridDimZ">Dimension of grid of block of threads Z</param>
-        /// <param name="sharedMemory">Dynamic shared memory size in Bytes</param>
-        public CudaKernel(string kernelName, CUmodule module, CudaContext cuda, uint blockDimX, uint blockDimY, uint blockDimZ, uint gridDimX, uint gridDimY, uint gridDimZ, uint sharedMemory)
-            : this(kernelName, module, cuda, blockDimX, blockDimY, blockDimZ, gridDimX, gridDimY, gridDimZ)
-        {
-            _sharedMemSize = sharedMemory;
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //~CudaKernel()
-        //{
-        //    Dispose (false);
-        //}
-        #endregion
-
-        #region Dispose
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public void Dispose()
-        //{
-        //    Dispose(true);
-        //    GC.SuppressFinalize(this);
-        //}
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="fDisposing"></param>
-        //protected virtual void Dispose (bool fDisposing)
-        //{
-        //    if (fDisposing && !disposed) 
-        //    {
-        //        //We don't unload automatically each kernel module, as this is already done during context destruction.
-        //        //Unloading the kernel module manually can cause troubles in multi threaded environments, whereas I don't
-        //        //really know why.
-        //        _cuda.UnloadKernel(this);
-        //        disposed = true;
-        //    }
-        //}
         #endregion
 
         #region SetConstantVaiable
@@ -2322,6 +2476,37 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Executes the kernel on the device
+        /// </summary>
+        /// <param name="config">Config to launch</param>
+        /// <param name="parameters">Parameters as given by the kernel</param>
+        public virtual void Run(CUlaunchConfig config, params object[] parameters)
+        {
+            int paramCount = parameters.Length;
+            IntPtr[] paramsList = new IntPtr[paramCount];
+            GCHandle[] GCHandleList = new GCHandle[paramCount];
+
+            //Get pointers to kernel parameters
+            for (int i = 0; i < paramCount; i++)
+            {
+                GCHandleList[i] = GCHandle.Alloc(parameters[i], GCHandleType.Pinned);
+                paramsList[i] = GCHandleList[i].AddrOfPinnedObject();
+            }
+
+            //Launch the kernel
+            res = DriverAPINativeMethods.Launch.cuLaunchKernelEx(ref config, _function, paramsList, null);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuLaunchKernel", res, _kernelName));
+
+            //Free pinned managed parameters
+            for (int i = 0; i < paramCount; i++)
+            {
+                GCHandleList[i].Free();
+            }
+            //First free resources then throw potential exception!
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
         /// Executes the kernel on the device asynchronously
         /// </summary>
         /// <param name="stream">Stream</param>
@@ -2674,6 +2859,146 @@ namespace ManagedCuda
             set
             {
                 res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.PreferredSharedMemoryCarveout, (int)value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        /// <summary>
+        /// If this attribute is set, the kernel must launch with a valid cluster size specified.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public bool ClusterSizeMustBeSet
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.ClusterSizeMustBeSet, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp != 0;
+            }
+        }
+
+        /// <summary>
+        /// The required cluster width in blocks. The values must either all be 0 or all be positive. 
+        /// The validity of the cluster dimensions is otherwise checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int RequiredClusterWidth
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterWidth, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.RequiredClusterWidth, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        /// <summary>
+        /// The required cluster height in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int RequiredClusterHeight
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterHeight, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.RequiredClusterHeight, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        /// <summary>
+        /// The required cluster depth in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int RequiredClusterDepth
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterDepth, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.RequiredClusterDepth, value);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        /// <summary>
+        /// Whether the function can be launched with non-portable cluster size. 1 is
+        /// allowed, 0 is disallowed. A non-portable cluster size may only function
+        /// on the specific SKUs the program is tested on. The launch might fail if
+        /// the program is run on a different hardware platform.<para/>
+        /// CUDA API provides cudaOccupancyMaxActiveClusters to assist with checking
+        /// whether the desired size can be launched on the current device.<para/>
+        /// Portable Cluster Size<para/>
+        /// A portable cluster size is guaranteed to be functional on all compute
+        /// capabilities higher than the target compute capability. The portable
+        /// cluster size for sm_90 is 8 blocks per cluster. This value may increase
+        /// for future compute capabilities.<para/>
+        /// The specific hardware unit may support higher cluster sizes that's not
+        /// guaranteed to be portable.<para/>
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public bool NonPortableClusterSizeAllowed
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.NonPortableClusterSizeAllowed, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return temp != 0;
+            }
+        }
+
+        /// <summary>
+        /// The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public CUclusterSchedulingPolicy ClusterSchedulingPolicyPreference
+        {
+            get
+            {
+                int temp = 0;
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncGetAttribute(ref temp, CUFunctionAttribute.ClusterSchedulingPolicyPreference, _function);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncGetAttribute", res, _kernelName));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return (CUclusterSchedulingPolicy)temp;
+            }
+            set
+            {
+                res = DriverAPINativeMethods.FunctionManagement.cuFuncSetAttribute(_function, CUFunctionAttribute.ClusterSchedulingPolicyPreference, (int)value);
                 Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Kernel: {3}", DateTime.Now, "cuFuncSetAttribute", res, _kernelName));
                 if (res != CUResult.Success) throw new CudaException(res);
             }
@@ -3139,6 +3464,56 @@ namespace ManagedCuda
             if (res != CUResult.Success)
                 throw new CudaException(res);
             return dynamicSMemSize;
+        }
+
+        /// <summary>
+        /// Given the kernel function (\p func) and launch configuration<para/>
+        /// (\p config), return the maximum cluster size in \p* clusterSize.<para/>
+        /// The cluster dimensions in \p config are ignored. If func has a required
+        /// cluster size set (see::cudaFuncGetAttributes / ::cuFuncGetAttribute),\p
+        /// clusterSize will reflect the required cluster size.<para/>
+        /// By default this function will always return a value that's portable on
+        /// future hardware. A higher value may be returned if the kernel function
+        /// allows non-portable cluster sizes.<para/>
+        /// This function will respect the compile time launch bounds.
+        /// </summary>
+        /// <param name="config">Launch configuration for the given kernel function</param>
+        public int GetMaxPotentialClusterSize(CUlaunchConfig config)
+        {
+            CUResult res;
+            int maxClusters = 0;
+
+            res = DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialClusterSize(ref maxClusters, _function, ref config);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuOccupancyMaxPotentialClusterSize", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+            return maxClusters;
+        }
+
+        /// <summary>
+        /// Given the kernel function (\p func) and launch configuration<para/>
+        /// (\p config), return the maximum number of clusters that could co-exist
+        /// on the target device in \p* numClusters.<para/>
+        /// If the function has required cluster size already set (see
+        /// ::cudaFuncGetAttributes / ::cuFuncGetAttribute), the cluster size
+        /// from config must either be unspecified or match the required size.<para/>
+        /// Without required sizes, the cluster size must be specified in config,
+        /// else the function will return an error.<para/>
+        /// Note that various attributes of the kernel function may affect occupancy
+        /// calculation. Runtime environment may affect how the hardware schedules
+        /// the clusters, so the calculated occupancy is not guaranteed to be achievable.
+        /// </summary>
+        /// <param name="config">Launch configuration for the given kernel function</param>
+        public int GetMaxActiveClusters(CUlaunchConfig config)
+        {
+            CUResult res;
+            int maxClusters = 0;
+
+            res = DriverAPINativeMethods.Occupancy.cuOccupancyMaxActiveClusters(ref maxClusters, _function, ref config);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuOccupancyMaxActiveClusters", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+            return maxClusters;
         }
         #endregion
 

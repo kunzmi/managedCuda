@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
@@ -38,6 +41,18 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         public IntPtr Pointer;
+
+        /// <summary>
+        /// Returns the memory requirements of a CUDA array
+        /// </summary>
+        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
+        {
+            CudaArrayMemoryRequirements temp = new CudaArrayMemoryRequirements();
+            CUResult res = DriverAPINativeMethods.ArrayManagement.cuArrayGetMemoryRequirements(ref temp, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuArrayGetMemoryRequirements", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
     }
     /// <summary>
     /// CUDA linker
@@ -60,6 +75,18 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         public IntPtr Pointer;
+
+        /// <summary>
+        /// Returns the memory requirements of a CUDA array
+        /// </summary>
+        public CudaArrayMemoryRequirements GetMemoryRequirements(CUdevice device)
+        {
+            CudaArrayMemoryRequirements temp = new CudaArrayMemoryRequirements();
+            CUResult res = DriverAPINativeMethods.ArrayManagement.cuMipmappedArrayGetMemoryRequirements(ref temp, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMipmappedArrayGetMemoryRequirements", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
     }
 
     /// <summary>
@@ -537,6 +564,188 @@ namespace ManagedCuda.BasicTypes
             }
         }
 
+        /// <summary>
+        /// A device ordinal of a device on which a pointer was allocated or registered
+        /// </summary>
+        public int AttributeDeviceOrdinal
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.DeviceOrdinal, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// 1 if this pointer maps to an allocation that is suitable for ::cudaIpcGetMemHandle, 0 otherwise
+        /// </summary>
+        public bool AttributeIsLegacyCudaIPCCapable
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.IsLegacyCudaIPCCapable, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret != 0;
+            }
+        }
+
+        /// <summary>
+        /// Starting address for this requested pointer
+        /// </summary>
+        public CUdeviceptr AttributeRangeStartAddr
+        {
+            get
+            {
+                CUdeviceptr ret = new CUdeviceptr();
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.RangeStartAddr, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Size of the address range for this requested pointer
+        /// </summary>
+        public SizeT AttributeRangeSize
+        {
+            get
+            {
+                ulong ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.RangeSize, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// 1 if this pointer is in a valid address range that is mapped to a backing allocation, 0 otherwise
+        /// </summary>
+        public bool AttributeMapped
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.Mapped, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret != 0;
+            }
+        }
+
+        /// <summary>
+        /// Bitmask of allowed ::CUmemAllocationHandleType for this allocation
+        /// </summary>
+        public CUmemAllocationHandleType AttributeAllowedHandleTypes
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.AllowedHandleTypes, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return (CUmemAllocationHandleType)ret;
+            }
+        }
+
+        /// <summary>
+        /// 1 if the memory this pointer is referencing can be used with the GPUDirect RDMA API
+        /// </summary>
+        public bool AttributeIsGPUDirectRDMACapable
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.IsGPUDirectRDMACapable, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret != 0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the access flags the device associated with the current context has on the corresponding memory referenced by the pointer given
+        /// </summary>
+        public bool AttributeAccessFlags
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.AccessFlags, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret != 0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the mempool handle for the allocation if it was allocated from a mempool. Otherwise returns NULL.
+        /// </summary>
+        public CUmemoryPool AttributeMempoolHandle
+        {
+            get
+            {
+                IntPtr temp = new IntPtr();
+                CUmemoryPool ret = new CUmemoryPool();
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref temp, CUPointerAttribute.MempoolHandle, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                ret.Pointer = temp;
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Size of the actual underlying mapping that the pointer belongs to
+        /// </summary>
+        public SizeT AttributeMappingSize
+        {
+            get
+            {
+                ulong ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.MappingSize, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// The start address of the mapping that the pointer belongs to
+        /// </summary>
+        public IntPtr AttributeBaseAddr
+        {
+            get
+            {
+                IntPtr ret = new IntPtr();
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.BaseAddr, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// A process-wide unique id corresponding to the physical allocation the pointer belongs to
+        /// </summary>
+        public ulong AttributeMemoryBlockID
+        {
+            get
+            {
+                ulong ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.MemoryBlockID, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
         #endregion
     }
 
@@ -593,6 +802,22 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         public IntPtr Pointer;
+
+        /// <summary>
+        /// Query lazy loading mode<para/>
+        /// Returns lazy loading mode. Module loading mode is controlled by CUDA_MODULE_LOADING env variable
+        /// </summary>
+        public static CUmoduleLoadingMode GetLoadingMode
+        {
+            get
+            {
+                CUmoduleLoadingMode ret = new CUmoduleLoadingMode();
+                CUResult res = DriverAPINativeMethods.ModuleManagement.cuModuleGetLoadingMode(ref ret);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuModuleGetLoadingMode", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
     }
 
     /// <summary>
@@ -644,6 +869,21 @@ namespace ManagedCuda.BasicTypes
                 CUstream s = new CUstream();
                 s.Pointer = (IntPtr)2;
                 return s;
+            }
+        }
+
+        /// <summary>
+        /// Returns the unique Id associated with the stream handle
+        /// </summary>
+        public ulong ID
+        {
+            get
+            {
+                ulong ret = 0;
+                CUResult res = DriverAPINativeMethods.Streams.cuStreamGetId(this, ref ret);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetId", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
             }
         }
     }
@@ -764,7 +1004,9 @@ namespace ManagedCuda.BasicTypes
     /// half precission floating point
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. --> we want it to be the same as in C/C++/Cuda code
     public struct half
+#pragma warning restore CS8981
     {
         ushort x;
 
@@ -1179,6 +1421,17 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Sets a batch mem op node's parameters
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(CudaBatchMemOpNodeParams nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphBatchMemOpNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphBatchMemOpNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
         /// Gets the parameters of host node.
         /// </summary>
         /// <param name="nodeParams"></param>
@@ -1248,7 +1501,7 @@ namespace ManagedCuda.BasicTypes
         /// Returns a memory alloc node's parameters
         /// </summary>
         /// <param name="nodeParams"></param>
-        public void GetParameters(ref CUDA_MEM_ALLOC_NODE_PARAMS nodeParams)
+        public void GetParameters(ref CudaMemAllocNodeParams nodeParams)
         {
             CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemAllocNodeGetParams(this, ref nodeParams);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemAllocNodeGetParams", res));
@@ -1263,6 +1516,17 @@ namespace ManagedCuda.BasicTypes
         {
             CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphMemFreeNodeGetParams(this, ref nodeParams);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphMemFreeNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns a batch mem op node's parameters
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void GetParameters(ref CudaBatchMemOpNodeParams nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphBatchMemOpNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphBatchMemOpNodeGetParams", res));
             if (res != CUResult.Success) throw new CudaException(res);
         }
 
@@ -1463,6 +1727,410 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         public IntPtr Pointer;
     }
-    #endregion
 
+    /// <summary>
+    /// CUlibrary
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUlibrary
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUkernel
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUkernel
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+
+        /// <summary>
+        /// Allows explicit casting from CUkernel to CUfunction to call context-less kernels
+        /// </summary>
+        public static explicit operator CUfunction(CUkernel cukernel)
+        {
+            CUfunction ret = new CUfunction();
+            ret.Pointer = cukernel.Pointer;
+            return ret;
+        }
+
+        /// <summary>
+        /// Get the corresponding CUfunction handle using cuKernelGetFunction
+        /// </summary>
+        public CUfunction GetCUfunction()
+        {
+            CUfunction ret = new CUfunction();
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetFunction(ref ret, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetFunction", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// <para>The number of threads beyond which a launch of the function would fail.</para>
+        /// <para>This number depends on both the function and the device on which the
+        /// function is currently loaded.</para>
+        /// </summary>
+        public int GetMaxThreadsPerBlock(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.MaxThreadsPerBlock, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// <para>The size in bytes of statically-allocated shared memory required by
+        /// this function. </para><para>This does not include dynamically-allocated shared
+        /// memory requested by the user at runtime.</para>
+        /// </summary>
+        public int GetSharedMemory(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.SharedSizeBytes, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// <para>The size in bytes of statically-allocated shared memory required by
+        /// this function. </para><para>This does not include dynamically-allocated shared
+        /// memory requested by the user at runtime.</para>
+        /// </summary>
+        public int GetConstMemory(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.ConstSizeBytes, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The size in bytes of thread local memory used by this function.
+        /// </summary>
+        public int GetLocalMemory(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.LocalSizeBytes, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The number of registers used by each thread of this function.
+        /// </summary>
+        public int GetRegisters(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.NumRegs, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The PTX virtual architecture version for which the function was
+        /// compiled. This value is the major PTX version * 10 + the minor PTX version, so a PTX version 1.3 function
+        /// would return the value 13. Note that this may return the undefined value of 0 for cubins compiled prior to CUDA
+        /// 3.0.
+        /// </summary>
+        public Version GetPtxVersion(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.PTXVersion, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return new Version(temp / 10, temp % 10);
+        }
+
+        /// <summary>
+        /// The binary version for which the function was compiled. This
+        /// value is the major binary version * 10 + the minor binary version, so a binary version 1.3 function would return
+        /// the value 13. Note that this will return a value of 10 for legacy cubins that do not have a properly-encoded binary
+        /// architecture version.
+        /// </summary>
+        public Version GetBinaryVersion(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.BinaryVersion, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return new Version(temp / 10, temp % 10);
+        }
+
+        /// <summary>
+        /// The attribute to indicate whether the function has been compiled with 
+        /// user specified option "-Xptxas --dlcm=ca" set.
+        /// </summary>
+        public bool GetCacheModeCA(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.CacheModeCA, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp != 0;
+        }
+
+        /// <summary>
+        /// This maximum size in bytes of
+        /// dynamically-allocated shared memory.The value should contain the requested
+        /// maximum size of dynamically-allocated shared memory.The sum of this value and
+        /// the function attribute::CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES cannot exceed the
+        /// device attribute ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN.
+        /// The maximal size of requestable dynamic shared memory may differ by GPU
+        /// architecture.
+        /// </summary>
+        public int GetMaxDynamicSharedSizeBytes(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.MaxDynamicSharedSizeBytes, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// This maximum size in bytes of
+        /// dynamically-allocated shared memory.The value should contain the requested
+        /// maximum size of dynamically-allocated shared memory.The sum of this value and
+        /// the function attribute::CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES cannot exceed the
+        /// device attribute ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN.
+        /// The maximal size of requestable dynamic shared memory may differ by GPU
+        /// architecture.
+        /// </summary>
+        public void SetMaxDynamicSharedSizeBytes(int size, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.MaxDynamicSharedSizeBytes, size, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// On devices where the L1
+        /// cache and shared memory use the same hardware resources, this sets the shared memory
+        /// carveout preference, in percent of the total resources.This is only a hint, and the
+        /// driver can choose a different ratio if required to execute the function.
+        /// </summary>
+        public CUshared_carveout GetPreferredSharedMemoryCarveout(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.PreferredSharedMemoryCarveout, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return (CUshared_carveout)temp;
+        }
+
+        /// <summary>
+        /// On devices where the L1
+        /// cache and shared memory use the same hardware resources, this sets the shared memory
+        /// carveout preference, in percent of the total resources.This is only a hint, and the
+        /// driver can choose a different ratio if required to execute the function.
+        /// </summary>
+        public void SetPreferredSharedMemoryCarveout(CUshared_carveout value, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.PreferredSharedMemoryCarveout, (int)value, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// If this attribute is set, the kernel must launch with a valid cluster size specified.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public bool GetClusterSizeMustBeSet(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.ClusterSizeMustBeSet, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp != 0;
+        }
+
+        /// <summary>
+        /// The required cluster width in blocks. The values must either all be 0 or all be positive. 
+        /// The validity of the cluster dimensions is otherwise checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int GetRequiredClusterWidth(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterWidth, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The required cluster width in blocks. The values must either all be 0 or all be positive. 
+        /// The validity of the cluster dimensions is otherwise checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public void SetRequiredClusterWidth(int value, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.RequiredClusterWidth, value, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// The required cluster height in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int GetRequiredClusterHeight(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterHeight, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The required cluster height in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public void SetRequiredClusterHeight(int value, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.RequiredClusterHeight, value, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// The required cluster depth in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public int GetRequiredClusterDepth(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.RequiredClusterDepth, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp;
+        }
+
+        /// <summary>
+        /// The required cluster depth in blocks. The values must either all be 0 or
+        /// all be positive. The validity of the cluster dimensions is otherwise
+        /// checked at launch time.
+        /// If the value is set during compile time, it cannot be set at runtime.
+        /// Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public void SetRequiredClusterDepth(int value, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.RequiredClusterDepth, value, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Whether the function can be launched with non-portable cluster size. 1 is
+        /// allowed, 0 is disallowed. A non-portable cluster size may only function
+        /// on the specific SKUs the program is tested on. The launch might fail if
+        /// the program is run on a different hardware platform.<para/>
+        /// CUDA API provides cudaOccupancyMaxActiveClusters to assist with checking
+        /// whether the desired size can be launched on the current device.<para/>
+        /// Portable Cluster Size<para/>
+        /// A portable cluster size is guaranteed to be functional on all compute
+        /// capabilities higher than the target compute capability. The portable
+        /// cluster size for sm_90 is 8 blocks per cluster. This value may increase
+        /// for future compute capabilities.<para/>
+        /// The specific hardware unit may support higher cluster sizes that's not
+        /// guaranteed to be portable.<para/>
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public bool GetNonPortableClusterSizeAllowed(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.NonPortableClusterSizeAllowed, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return temp != 0;
+        }
+
+        /// <summary>
+        /// The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public CUclusterSchedulingPolicy GetClusterSchedulingPolicyPreference(CUdevice device)
+        {
+            int temp = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetAttribute(ref temp, CUFunctionAttribute.ClusterSchedulingPolicyPreference, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return (CUclusterSchedulingPolicy)temp;
+        }
+
+        /// <summary>
+        /// The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy.
+        /// See ::cuFuncSetAttribute, ::cuKernelSetAttribute
+        /// </summary>
+        public void SetClusterSchedulingPolicyPreference(CUclusterSchedulingPolicy value, CUdevice device)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelSetAttribute(CUFunctionAttribute.ClusterSchedulingPolicyPreference, (int)value, this, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Sets the preferred cache configuration for a device kernel.<para/>
+        /// On devices where the L1 cache and shared memory use the same hardware
+        /// resources, this sets through \p config the preferred cache configuration for
+        /// the device kernel \p kernel on the requested device \p dev. This is only a preference.
+        /// The driver will use the requested configuration if possible, but it is free to choose a different
+        /// configuration if required to execute \p kernel.  Any context-wide preference
+        /// set via ::cuCtxSetCacheConfig() will be overridden by this per-kernel
+        /// setting.<para/>
+        /// Note that attributes set using ::cuFuncSetCacheConfig() will override the attribute
+        /// set by this API irrespective of whether the call to ::cuFuncSetCacheConfig() is made
+        /// before or after this API call.<para/>
+        /// This setting does nothing on devices where the size of the L1 cache and
+        /// shared memory are fixed.<para/>
+        /// Launching a kernel with a different preference than the most recent
+        /// preference setting may insert a device-side synchronization point.<para/>
+        /// The supported cache configurations are:
+        /// - ::CU_FUNC_CACHE_PREFER_NONE: no preference for shared memory or L1 (default)<para/>
+        /// - ::CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and smaller L1 cache<para/>
+        /// - ::CU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and smaller shared memory<para/>
+        /// - ::CU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1 cache and shared memory<para/>
+        /// \note The API has stricter locking requirements in comparison to its legacy counterpart
+        /// ::cuFuncSetCacheConfig() due to device-wide semantics. If multiple threads are trying to
+        /// set a config on the same device simultaneously, the cache config setting will depend
+        /// on the interleavings chosen by the OS scheduler and memory consistency.
+        /// </summary>
+        /// <param name="config">Requested cache configuration</param>
+        /// <param name="device">Device to set attribute of</param>
+        public void SetCacheConfig(CUFuncCache config, CUdevice device)
+        {
+            CUResult res;
+            res = DriverAPINativeMethods.LibraryManagement.cuKernelSetCacheConfig(this, config, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetCacheConfig", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
+    }
+    #endregion
 }

@@ -1,29 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using ManagedCuda.BasicTypes;
-using System.IO;
 using System.Runtime.Serialization;
 
 namespace ManagedCuda.CudaFFT
@@ -31,7 +32,7 @@ namespace ManagedCuda.CudaFFT
     /// <summary>
     /// An CudaFFTException is thrown, if any wrapped call to the CUFFT-library does not return <see cref="cufftResult.Success"/>.
     /// </summary>
-    public class CudaFFTException : Exception, System.Runtime.Serialization.ISerializable
+    public class CudaFFTException : Exception, ISerializable
     {
         private cufftResult _cudaFFTError;
 
@@ -40,8 +41,8 @@ namespace ManagedCuda.CudaFFT
         /// 
         /// </summary>
         public CudaFFTException()
-        { 
-        
+        {
+
         }
 
         /// <summary>
@@ -160,23 +161,23 @@ namespace ManagedCuda.CudaFFT
                     message = "Missing parameter in call.";
                     break;
                 case cufftResult.InvalidDevice:
-					message = "Plan creation and execution are on different device.";
+                    message = "Plan creation and execution are on different device.";
                     break;
                 case cufftResult.ParseError:
                     message = "Internal plan database error.";
-					break;
-				case cufftResult.NoWorkspace:
-					message = "Workspace not initialized.";
-					break;
-				case cufftResult.NotImplemented:
-					message = "Not implemented.";
-					break;
-				case cufftResult.LicenseError:
-					message = "License error.";
-					break;
-				case cufftResult.NotSupported:
-					message = "Not supported error.";
-					break;
+                    break;
+                case cufftResult.NoWorkspace:
+                    message = "Workspace not initialized.";
+                    break;
+                case cufftResult.NotImplemented:
+                    message = "Not implemented.";
+                    break;
+                case cufftResult.LicenseError:
+                    message = "License error.";
+                    break;
+                case cufftResult.NotSupported:
+                    message = "Not supported error.";
+                    break;
                 default:
                     break;
             }

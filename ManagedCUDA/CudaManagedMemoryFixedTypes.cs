@@ -1,27 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using System.Runtime.InteropServices;
@@ -36,13 +40,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_byte: IDisposable, IEnumerable<byte>
 	{
-		CUdeviceptr _devPtr;
-		byte* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private byte* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -93,6 +97,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_byte(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_byte(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(byte));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (byte*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_byte(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -655,13 +693,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar1: IDisposable, IEnumerable<uchar1>
 	{
-		CUdeviceptr _devPtr;
-		uchar1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uchar1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -712,6 +750,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uchar1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uchar1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uchar1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -1274,13 +1346,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar2: IDisposable, IEnumerable<uchar2>
 	{
-		CUdeviceptr _devPtr;
-		uchar2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uchar2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -1331,6 +1403,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uchar2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uchar2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uchar2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -1893,13 +1999,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar3: IDisposable, IEnumerable<uchar3>
 	{
-		CUdeviceptr _devPtr;
-		uchar3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uchar3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -1950,6 +2056,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uchar3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uchar3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uchar3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -2512,13 +2652,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uchar4: IDisposable, IEnumerable<uchar4>
 	{
-		CUdeviceptr _devPtr;
-		uchar4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uchar4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -2569,6 +2709,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uchar4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uchar4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uchar4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uchar4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -3131,13 +3305,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_sbyte: IDisposable, IEnumerable<sbyte>
 	{
-		CUdeviceptr _devPtr;
-		sbyte* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private sbyte* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -3188,6 +3362,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_sbyte(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_sbyte(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(sbyte));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (sbyte*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_sbyte(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -3750,13 +3958,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_char1: IDisposable, IEnumerable<char1>
 	{
-		CUdeviceptr _devPtr;
-		char1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private char1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -3807,6 +4015,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_char1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(char1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (char1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -4369,13 +4611,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_char2: IDisposable, IEnumerable<char2>
 	{
-		CUdeviceptr _devPtr;
-		char2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private char2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -4426,6 +4668,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_char2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(char2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (char2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -4988,13 +5264,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_char3: IDisposable, IEnumerable<char3>
 	{
-		CUdeviceptr _devPtr;
-		char3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private char3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -5045,6 +5321,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_char3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(char3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (char3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -5607,13 +5917,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_char4: IDisposable, IEnumerable<char4>
 	{
-		CUdeviceptr _devPtr;
-		char4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private char4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -5664,6 +5974,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_char4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(char4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (char4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_char4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -6226,13 +6570,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_short: IDisposable, IEnumerable<short>
 	{
-		CUdeviceptr _devPtr;
-		short* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private short* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -6283,6 +6627,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_short(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(short));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (short*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -6845,13 +7223,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_short1: IDisposable, IEnumerable<short1>
 	{
-		CUdeviceptr _devPtr;
-		short1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private short1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -6902,6 +7280,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_short1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(short1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (short1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -7464,13 +7876,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_short2: IDisposable, IEnumerable<short2>
 	{
-		CUdeviceptr _devPtr;
-		short2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private short2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -7521,6 +7933,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_short2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(short2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (short2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -8083,13 +8529,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_short3: IDisposable, IEnumerable<short3>
 	{
-		CUdeviceptr _devPtr;
-		short3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private short3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -8140,6 +8586,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_short3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(short3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (short3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -8702,13 +9182,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_short4: IDisposable, IEnumerable<short4>
 	{
-		CUdeviceptr _devPtr;
-		short4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private short4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -8759,6 +9239,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_short4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(short4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (short4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_short4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -9321,13 +9835,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort: IDisposable, IEnumerable<ushort>
 	{
-		CUdeviceptr _devPtr;
-		ushort* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ushort* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -9378,6 +9892,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ushort(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ushort));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ushort*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -9940,13 +10488,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort1: IDisposable, IEnumerable<ushort1>
 	{
-		CUdeviceptr _devPtr;
-		ushort1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ushort1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -9997,6 +10545,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ushort1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ushort1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ushort1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -10559,13 +11141,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort2: IDisposable, IEnumerable<ushort2>
 	{
-		CUdeviceptr _devPtr;
-		ushort2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ushort2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -10616,6 +11198,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ushort2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ushort2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ushort2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -11178,13 +11794,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort3: IDisposable, IEnumerable<ushort3>
 	{
-		CUdeviceptr _devPtr;
-		ushort3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ushort3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -11235,6 +11851,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ushort3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ushort3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ushort3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -11797,13 +12447,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ushort4: IDisposable, IEnumerable<ushort4>
 	{
-		CUdeviceptr _devPtr;
-		ushort4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ushort4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -11854,6 +12504,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ushort4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ushort4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ushort4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ushort4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -12416,13 +13100,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_int: IDisposable, IEnumerable<int>
 	{
-		CUdeviceptr _devPtr;
-		int* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private int* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -12473,6 +13157,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_int(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(int));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (int*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -13035,13 +13753,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_int1: IDisposable, IEnumerable<int1>
 	{
-		CUdeviceptr _devPtr;
-		int1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private int1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -13092,6 +13810,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_int1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(int1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (int1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -13654,13 +14406,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_int2: IDisposable, IEnumerable<int2>
 	{
-		CUdeviceptr _devPtr;
-		int2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private int2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -13711,6 +14463,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_int2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(int2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (int2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -14273,13 +15059,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_int3: IDisposable, IEnumerable<int3>
 	{
-		CUdeviceptr _devPtr;
-		int3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private int3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -14330,6 +15116,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_int3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(int3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (int3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -14892,13 +15712,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_int4: IDisposable, IEnumerable<int4>
 	{
-		CUdeviceptr _devPtr;
-		int4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private int4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -14949,6 +15769,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_int4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(int4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (int4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_int4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -15511,13 +16365,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint: IDisposable, IEnumerable<uint>
 	{
-		CUdeviceptr _devPtr;
-		uint* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uint* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -15568,6 +16422,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uint(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uint));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uint*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -16130,13 +17018,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint1: IDisposable, IEnumerable<uint1>
 	{
-		CUdeviceptr _devPtr;
-		uint1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uint1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -16187,6 +17075,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uint1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uint1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uint1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -16749,13 +17671,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint2: IDisposable, IEnumerable<uint2>
 	{
-		CUdeviceptr _devPtr;
-		uint2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uint2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -16806,6 +17728,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uint2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uint2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uint2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -17368,13 +18324,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint3: IDisposable, IEnumerable<uint3>
 	{
-		CUdeviceptr _devPtr;
-		uint3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uint3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -17425,6 +18381,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uint3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uint3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uint3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -17987,13 +18977,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_uint4: IDisposable, IEnumerable<uint4>
 	{
-		CUdeviceptr _devPtr;
-		uint4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private uint4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -18044,6 +19034,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_uint4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(uint4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (uint4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_uint4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -18606,13 +19630,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_long: IDisposable, IEnumerable<long>
 	{
-		CUdeviceptr _devPtr;
-		long* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private long* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -18663,6 +19687,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_long(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(long));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (long*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -19225,13 +20283,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_long1: IDisposable, IEnumerable<long1>
 	{
-		CUdeviceptr _devPtr;
-		long1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private long1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -19282,6 +20340,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_long1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(long1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (long1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -19844,13 +20936,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_long2: IDisposable, IEnumerable<long2>
 	{
-		CUdeviceptr _devPtr;
-		long2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private long2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -19901,6 +20993,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_long2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(long2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (long2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_long2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -20463,13 +21589,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong: IDisposable, IEnumerable<ulong>
 	{
-		CUdeviceptr _devPtr;
-		ulong* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ulong* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -20520,6 +21646,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ulong(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ulong));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ulong*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -21082,13 +22242,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong1: IDisposable, IEnumerable<ulong1>
 	{
-		CUdeviceptr _devPtr;
-		ulong1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ulong1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -21139,6 +22299,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ulong1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ulong1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ulong1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -21701,13 +22895,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_ulong2: IDisposable, IEnumerable<ulong2>
 	{
-		CUdeviceptr _devPtr;
-		ulong2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private ulong2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -21758,6 +22952,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_ulong2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(ulong2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (ulong2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_ulong2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -22320,13 +23548,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_float: IDisposable, IEnumerable<float>
 	{
-		CUdeviceptr _devPtr;
-		float* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private float* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -22377,6 +23605,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_float(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(float));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (float*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -22939,13 +24201,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_float1: IDisposable, IEnumerable<float1>
 	{
-		CUdeviceptr _devPtr;
-		float1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private float1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -22996,6 +24258,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_float1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(float1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (float1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -23558,13 +24854,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_float2: IDisposable, IEnumerable<float2>
 	{
-		CUdeviceptr _devPtr;
-		float2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private float2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -23615,6 +24911,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_float2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(float2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (float2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -24177,13 +25507,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_float3: IDisposable, IEnumerable<float3>
 	{
-		CUdeviceptr _devPtr;
-		float3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private float3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -24234,6 +25564,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_float3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(float3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (float3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -24796,13 +26160,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_float4: IDisposable, IEnumerable<float4>
 	{
-		CUdeviceptr _devPtr;
-		float4* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private float4* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -24853,6 +26217,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_float4(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float4(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(float4));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (float4*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_float4(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -25415,13 +26813,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_double: IDisposable, IEnumerable<double>
 	{
-		CUdeviceptr _devPtr;
-		double* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private double* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -25472,6 +26870,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_double(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(double));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (double*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -26034,13 +27466,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_double1: IDisposable, IEnumerable<double1>
 	{
-		CUdeviceptr _devPtr;
-		double1* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private double1* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -26091,6 +27523,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_double1(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double1(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(double1));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (double1*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double1(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -26653,13 +28119,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_double2: IDisposable, IEnumerable<double2>
 	{
-		CUdeviceptr _devPtr;
-		double2* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private double2* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -26710,6 +28176,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_double2(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double2(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(double2));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (double2*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_double2(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -27272,13 +28772,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuDoubleComplex: IDisposable, IEnumerable<cuDoubleComplex>
 	{
-		CUdeviceptr _devPtr;
-		cuDoubleComplex* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private cuDoubleComplex* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -27329,6 +28829,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_cuDoubleComplex(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuDoubleComplex(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(cuDoubleComplex));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (cuDoubleComplex*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuDoubleComplex(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -27891,13 +29425,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuDoubleReal: IDisposable, IEnumerable<cuDoubleReal>
 	{
-		CUdeviceptr _devPtr;
-		cuDoubleReal* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private cuDoubleReal* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -27948,6 +29482,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_cuDoubleReal(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuDoubleReal(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(cuDoubleReal));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (cuDoubleReal*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuDoubleReal(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -28510,13 +30078,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuFloatComplex: IDisposable, IEnumerable<cuFloatComplex>
 	{
-		CUdeviceptr _devPtr;
-		cuFloatComplex* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private cuFloatComplex* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -28567,6 +30135,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_cuFloatComplex(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuFloatComplex(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(cuFloatComplex));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (cuFloatComplex*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuFloatComplex(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -29129,13 +30731,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_cuFloatReal: IDisposable, IEnumerable<cuFloatReal>
 	{
-		CUdeviceptr _devPtr;
-		cuFloatReal* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private cuFloatReal* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -29186,6 +30788,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_cuFloatReal(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuFloatReal(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(cuFloatReal));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (cuFloatReal*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_cuFloatReal(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}
@@ -29748,13 +31384,13 @@ namespace ManagedCuda
 	/// </summary>
 	public unsafe class CudaManagedMemory_dim3: IDisposable, IEnumerable<dim3>
 	{
-		CUdeviceptr _devPtr;
-		dim3* _ptr;
-		SizeT _size = 0;
-		SizeT _typeSize = 0;
-		CUResult res;
-		bool disposed;
-		bool _isOwner;
+		private CUdeviceptr _devPtr;
+		private dim3* _ptr;
+		private SizeT _size = 0;
+		private SizeT _typeSize = 0;
+		private CUResult res;
+		private bool disposed;
+		private bool _isOwner;
 
 		#region Constructor
 		/// <summary>
@@ -29805,6 +31441,40 @@ namespace ManagedCuda
 		/// <param name="name">The variable name as defined in the cu-file.</param>
 		public CudaManagedMemory_dim3(CudaKernel kernel, string name)
 			: this(kernel.CUModule, name)
+		{
+			
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library where the variable is defined in.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_dim3(CUlibrary library, string name)
+		{
+			_devPtr = new CUdeviceptr();
+			SizeT _sizeInBytes = new SizeT();
+            res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetManaged(ref _devPtr, ref _sizeInBytes, library, name);
+			Debug.WriteLine(String.Format("{0:G}, {1}: {2}. Name: {3}, Size (in bytes): {4}", DateTime.Now, "cuLibraryGetManaged", res, name, _sizeInBytes.ToString()));
+			if (res != CUResult.Success) throw new CudaException(res);
+
+			_typeSize = (SizeT)Marshal.SizeOf(typeof(dim3));
+			_size = _sizeInBytes / _typeSize;
+
+			if (_sizeInBytes != _size * _typeSize)
+				throw new CudaException("Variable size is not a multiple of its type size.");
+
+			_ptr = (dim3*) (UIntPtr)_devPtr.Pointer;
+			_isOwner = false;
+		}
+
+		/// <summary>
+		/// Creates a new CudaManagedMemory from definition in cu-file.
+		/// </summary>
+		/// <param name="library">The library that defines the variable.</param>
+		/// <param name="name">The variable name as defined in the cu-file.</param>
+		public CudaManagedMemory_dim3(CudaLibrary library, string name)
+			: this(library.Library, name)
 		{
 			
 		}

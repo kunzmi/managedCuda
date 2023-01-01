@@ -1,27 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -40,11 +44,11 @@ namespace ManagedCuda
     {
         /// <summary/>
         protected bool disposed;
-        const int MAX_ELEM = 32;
-        CUJITOption[] _options = new CUJITOption[MAX_ELEM];
-        IntPtr[] _values = new IntPtr[MAX_ELEM];
-        List<CudaJitOption> _cudaOptions = new List<CudaJitOption>();
-        int _count = 0;
+        private const int MAX_ELEM = 32;
+        private CUJITOption[] _options = new CUJITOption[MAX_ELEM];
+        private IntPtr[] _values = new IntPtr[MAX_ELEM];
+        private List<CudaJitOption> _cudaOptions = new List<CudaJitOption>();
+        private int _count = 0;
 
         /// <summary>
         /// Add a single option to the collection.
@@ -57,40 +61,89 @@ namespace ManagedCuda
 
             _cudaOptions.Add(opt);
 
-            if (opt is CudaJOErrorLogBuffer) //add two elements
-            {
-                CUJITOption[] o = opt.Options;
-                IntPtr[] v = opt.Values;
+            CUJITOption[] o = opt.Options;
+            IntPtr[] v = opt.Values;
 
-                opt.Index = _count;
-                _options[_count] = o[0];
-                _values[_count] = v[0];
+            opt.Index = _count;
+            for (int i = 0; i < o.Length; i++)
+            {
+                _options[_count] = o[i];
+                _values[_count] = v[i];
                 _count++;
-                _options[_count] = o[1];
-                _values[_count] = v[1];
             }
-            else if (opt is CudaJOInfoLogBuffer) //add two elements
-            {
-                CUJITOption[] o = opt.Options;
-                IntPtr[] v = opt.Values;
 
-                opt.Index = _count;
-                _options[_count] = o[0];
-                _values[_count] = v[0];
-                _count++;
-                _options[_count] = o[1];
-                _values[_count] = v[1];
-            }
-            else //add one elements
-            {
-                CUJITOption[] o = opt.Options;
-                IntPtr[] v = opt.Values;
+            //if (opt is CudaJOErrorLogBuffer) //add two elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
 
-                opt.Index = _count;
-                _options[_count] = o[0];
-                _values[_count] = v[0];
-            }
-            _count++;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //    _count++;
+            //    _options[_count] = o[1];
+            //    _values[_count] = v[1];
+            //}
+            //else if (opt is CudaJOInfoLogBuffer) //add two elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
+
+            //    opt.Index = _count;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //    _count++;
+            //    _options[_count] = o[1];
+            //    _values[_count] = v[1];
+            //}
+            //else if (opt is CudaJOReferencedKernelNames) //add two elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
+
+            //    opt.Index = _count;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //    _count++;
+            //    _options[_count] = o[1];
+            //    _values[_count] = v[1];
+            //}
+            //else if (opt is CudaJOReferencedVariableNames) //add two elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
+
+            //    opt.Index = _count;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //    _count++;
+            //    _options[_count] = o[1];
+            //    _values[_count] = v[1];
+            //}
+            //else if (opt is CudaJOGlobalSymbolNames) //add three elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
+
+            //    opt.Index = _count;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //    _count++;
+            //    _options[_count] = o[1];
+            //    _values[_count] = v[1];
+            //    _count++;
+            //    _options[_count] = o[2];
+            //    _values[_count] = v[2];
+            //}
+            //else //add one elements
+            //{
+            //    CUJITOption[] o = opt.Options;
+            //    IntPtr[] v = opt.Values;
+
+            //    opt.Index = _count;
+            //    _options[_count] = o[0];
+            //    _values[_count] = v[0];
+            //}
+            //_count++;
         }
 
         /// <summary>
@@ -759,10 +812,115 @@ namespace ManagedCuda
     }
 
     /// <summary>
+    /// Array of device symbol names that will be relocated to the corresponing
+    /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
+    /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
+    /// When loding a device module, driver will relocate all encountered
+    /// unresolved symbols to the host addresses.<para/>
+    /// It is only allowed to register symbols that correspond to unresolved
+    /// global variables.<para/>
+    /// It is illegal to register the same device symbol at multiple addresses.<para/>
+    /// Option type: const char **<para/>
+    /// Applies to: dynamic linker only
+    /// </summary>
+    public class CudaJOGlobalSymbolNames : CudaJitOption
+    {
+        IntPtr[] _namesPtr;
+        IntPtr[] _addresses;
+        GCHandle _handleNames;
+        GCHandle _handleAddresses;
+        IntPtr _ptrAddresses;
+        IntPtr _count;
+
+        /// <summary>
+        /// Array of device symbol names that will be relocated to the corresponing
+        /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
+        /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
+        /// When loding a device module, driver will relocate all encountered
+        /// unresolved symbols to the host addresses.<para/>
+        /// It is only allowed to register symbols that correspond to unresolved
+        /// global variables.<para/>
+        /// It is illegal to register the same device symbol at multiple addresses.<para/>
+        /// Option type: const char **<para/>
+        /// Applies to: dynamic linker only
+        /// </summary>
+        /// <param name="globalSymbolNames"></param>
+        /// <param name="globalSymbolAddresses"></param>
+        public CudaJOGlobalSymbolNames(string[] globalSymbolNames, IntPtr[] globalSymbolAddresses)
+        {
+            if (globalSymbolNames.Length != globalSymbolAddresses.Length)
+            {
+                throw new ArgumentException("globalSymbolNames and globalSymbolAddresses must have the same size");
+            }
+
+            int count = globalSymbolAddresses.Length;
+            _namesPtr = new IntPtr[count];
+            _addresses = new IntPtr[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                _namesPtr[i] = Marshal.StringToHGlobalAnsi(globalSymbolNames[i]);
+            }
+            _addresses = globalSymbolAddresses;
+            _count = (IntPtr)globalSymbolNames.Length;
+            _handleNames = GCHandle.Alloc(_namesPtr, GCHandleType.Pinned);
+            _ptrValue = _handleNames.AddrOfPinnedObject();
+            _handleAddresses = GCHandle.Alloc(_addresses, GCHandleType.Pinned);
+            _ptrAddresses = _handleAddresses.AddrOfPinnedObject();
+            _option = CUJITOption.GlobalSymbolNames;
+        }
+
+        internal override CUJITOption[] Options
+        {
+            get
+            {
+                return new CUJITOption[] { CUJITOption.GlobalSymbolCount, _option, CUJITOption.GlobalSymbolAddresses };
+            }
+        }
+
+        internal override IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return new IntPtr[] { _count, _ptrValue, _ptrAddresses };
+            }
+        }
+
+        /// <summary>
+        /// ManagedCuda allocates an array as buffer and pins it in order to pass it to Cuda.<para/>
+        /// You must free the buffer manually if the buffer is not needed anymore.
+        /// </summary>
+        public void FreeHandle()
+        {
+            foreach (var item in _namesPtr)
+            {
+                Marshal.FreeHGlobal(item);
+            }
+            _namesPtr = null;
+            if (_handleNames.IsAllocated)
+                _handleNames.Free();
+            if (_handleAddresses.IsAllocated)
+                _handleAddresses.Free();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected override void Dispose(bool fDisposing)
+        {
+            FreeHandle();
+            base.Dispose(fDisposing);
+        }
+    }
+
+    /// <summary>
     /// Enable link-time optimization (-dlto) for device code (0: false, default)<para/>
     /// Option type: int<para/>
     /// Applies to: compiler and linker
     /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
     public class CudaJOJITLto : CudaJitOption
     {
         /// <summary>
@@ -785,6 +943,7 @@ namespace ManagedCuda
     /// Option type: int<para/>
     /// Applies to: link-time optimization specified with CU_JIT_LTO
     /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
     public class CudaJOJITFtz : CudaJitOption
     {
         /// <summary>
@@ -811,6 +970,7 @@ namespace ManagedCuda
     /// Option type: int<para/>
     /// Applies to: link-time optimization specified with CU_JIT_LTO
     /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
     public class CudaJOJITPrecDiv : CudaJitOption
     {
         /// <summary>
@@ -837,6 +997,7 @@ namespace ManagedCuda
     /// Option type: int\n<para/>
     /// Applies to: link-time optimization specified with CU_JIT_LTO
     /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
     public class CudaJOJITPrecSqrt : CudaJitOption
     {
         /// <summary>
@@ -862,6 +1023,7 @@ namespace ManagedCuda
     /// Option type: int\n<para/>
     /// Applies to: link-time optimization specified with CU_JIT_LTO
     /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
     public class CudaJOJITFma : CudaJitOption
     {
         /// <summary>
@@ -879,4 +1041,262 @@ namespace ManagedCuda
         }
     }
 
+    /// <summary>
+    /// Array of kernel names that should be preserved at link time while others
+    /// can be removed.\n
+    /// Must contain ::CU_JIT_REFERENCED_KERNEL_COUNT entries.\n
+    /// Note that kernel names can be mangled by the compiler in which case the
+    /// mangled name needs to be specified.\n
+    /// Wildcard "*" can be used to represent zero or more characters instead of
+    /// specifying the full or mangled name.\n
+    /// It is important to note that the wildcard "*" is also added implicitly.
+    /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+    /// thus preserve all kernels with those names. This can be avoided by providing
+    /// a more specific name like "barfoobaz".\n
+    /// Option type: const char **\n
+    /// Applies to: dynamic linker only
+    ///
+    /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+    /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
+    public class CudaJOReferencedKernelNames : CudaJitOption
+    {
+        IntPtr[] _namesPtr;
+        GCHandle _handle;
+        IntPtr _count;
+
+        /// <summary>
+        /// Array of kernel names that should be preserved at link time while others
+        /// can be removed.\n
+        /// Must contain ::CU_JIT_REFERENCED_KERNEL_COUNT entries.\n
+        /// Note that kernel names can be mangled by the compiler in which case the
+        /// mangled name needs to be specified.\n
+        /// Wildcard "*" can be used to represent zero or more characters instead of
+        /// specifying the full or mangled name.\n
+        /// It is important to note that the wildcard "*" is also added implicitly.
+        /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+        /// thus preserve all kernels with those names. This can be avoided by providing
+        /// a more specific name like "barfoobaz".\n
+        /// Option type: const char **\n
+        /// Applies to: dynamic linker only
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOReferencedKernelNames(string[] value)
+        {
+            int count = value.Length;
+            _namesPtr = new IntPtr[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                _namesPtr[i] = Marshal.StringToHGlobalAnsi(value[i]);
+            }
+
+            _count = (IntPtr)value.Length;
+            _handle = GCHandle.Alloc(_namesPtr, GCHandleType.Pinned);
+            _ptrValue = _handle.AddrOfPinnedObject();
+            _option = CUJITOption.ReferencedKernelNames;
+        }
+
+        internal override CUJITOption[] Options
+        {
+            get
+            {
+                return new CUJITOption[] { CUJITOption.ReferencedKernelCount, _option };
+            }
+        }
+
+        internal override IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return new IntPtr[] { _count, _ptrValue };
+            }
+        }
+
+        /// <summary>
+        /// ManagedCuda allocates an array as buffer and pins it in order to pass it to Cuda.<para/>
+        /// You must free the buffer manually if the buffer is not needed anymore.
+        /// </summary>
+        public void FreeHandle()
+        {
+            foreach (var item in _namesPtr)
+            {
+                Marshal.FreeHGlobal(item);
+            }
+            _namesPtr = null;
+            if (_handle.IsAllocated)
+                _handle.Free();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected override void Dispose(bool fDisposing)
+        {
+            FreeHandle();
+            base.Dispose(fDisposing);
+        }
+    }
+
+    /// <summary>
+    /// Array of variable names (__device__ and/or __constant__) that should be
+    /// preserved at link time while others can be removed.\n
+    /// Must contain ::CU_JIT_REFERENCED_VARIABLE_COUNT entries.\n
+    /// Note that variable names can be mangled by the compiler in which case the
+    /// mangled name needs to be specified.\n
+    /// Wildcard "*" can be used to represent zero or more characters instead of
+    /// specifying the full or mangled name.\n
+    /// It is important to note that the wildcard "*" is also added implicitly.
+    /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+    /// thus preserve all variables with those names. This can be avoided by providing
+    /// a more specific name like "barfoobaz".\n
+    /// Option type: const char **\n
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    ///
+    /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+    /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
+    public class CudaJOReferencedVariableNames : CudaJitOption
+    {
+        IntPtr[] _namesPtr;
+        GCHandle _handle;
+        IntPtr _count;
+
+        /// <summary>
+        /// Array of variable names (__device__ and/or __constant__) that should be
+        /// preserved at link time while others can be removed.\n
+        /// Must contain ::CU_JIT_REFERENCED_VARIABLE_COUNT entries.\n
+        /// Note that variable names can be mangled by the compiler in which case the
+        /// mangled name needs to be specified.\n
+        /// Wildcard "*" can be used to represent zero or more characters instead of
+        /// specifying the full or mangled name.\n
+        /// It is important to note that the wildcard "*" is also added implicitly.
+        /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
+        /// thus preserve all variables with those names. This can be avoided by providing
+        /// a more specific name like "barfoobaz".\n
+        /// Option type: const char **\n
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOReferencedVariableNames(string[] value)
+        {
+            int count = value.Length;
+            _namesPtr = new IntPtr[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                _namesPtr[i] = Marshal.StringToHGlobalAnsi(value[i]);
+            }
+
+            _count = (IntPtr)value.Length;
+            _handle = GCHandle.Alloc(_namesPtr, GCHandleType.Pinned);
+            _ptrValue = _handle.AddrOfPinnedObject();
+            _option = CUJITOption.ReferencedVariableNames;
+        }
+
+        internal override CUJITOption[] Options
+        {
+            get
+            {
+                return new CUJITOption[] { CUJITOption.ReferencedVariableCount, _option };
+            }
+        }
+
+        internal override IntPtr[] Values
+        {
+            get
+            {
+                if (disposed) throw new ObjectDisposedException(this.ToString());
+                return new IntPtr[] { _count, _ptrValue };
+            }
+        }
+
+        /// <summary>
+        /// ManagedCuda allocates an array as buffer and pins it in order to pass it to Cuda.<para/>
+        /// You must free the buffer manually if the buffer is not needed anymore.
+        /// </summary>
+        public void FreeHandle()
+        {
+            foreach (var item in _namesPtr)
+            {
+                Marshal.FreeHGlobal(item);
+            }
+            _namesPtr = null;
+            if (_handle.IsAllocated)
+                _handle.Free();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected override void Dispose(bool fDisposing)
+        {
+            FreeHandle();
+            base.Dispose(fDisposing);
+        }
+    }
+
+
+    /// <summary>
+    /// This option serves as a hint to enable the JIT compiler/linker
+    /// to remove constant (__constant__) and device (__device__) variables
+    /// unreferenced in device code (Disabled by default).\n
+    /// Note that host references to constant and device variables using APIs like
+    /// ::cuModuleGetGlobal() with this option specified may result in undefined behavior unless
+    /// the variables are explicitly specified using ::CU_JIT_REFERENCED_VARIABLE_NAMES.\n
+    /// Option type: int\n
+    /// Applies to: link-time optimization specified with CU_JIT_LTO
+    ///
+    /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+    /// </summary>
+    [Obsolete("This jit option is deprecated and should not be used.")]
+    public class CudaJOOptimizeUnusedDeviceVariables : CudaJitOption
+    {
+        /// <summary>
+        /// This option serves as a hint to enable the JIT compiler/linker
+        /// to remove constant (__constant__) and device (__device__) variables
+        /// unreferenced in device code (Disabled by default).\n
+        /// Note that host references to constant and device variables using APIs like
+        /// ::cuModuleGetGlobal() with this option specified may result in undefined behavior unless
+        /// the variables are explicitly specified using ::CU_JIT_REFERENCED_VARIABLE_NAMES.\n
+        /// Option type: int\n
+        /// Applies to: link-time optimization specified with CU_JIT_LTO
+        ///
+        /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOOptimizeUnusedDeviceVariables(bool value)
+        {
+            _option = CUJITOption.OptimizeUnusedDeviceVariables;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
+
+
+    /// <summary>
+    /// Generate position independent code (0: false)\n
+    /// Option type: int\n
+    /// Applies to: compiler only
+    /// </summary>
+    public class CudaJOPositionIndependentCode : CudaJitOption
+    {
+        /// <summary>
+        /// Generate position independent code (0: false)\n
+        /// Option type: int\n
+        /// Applies to: compiler only
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOPositionIndependentCode(bool value)
+        {
+            _option = CUJITOption.PositionIndependentCode;
+            _ptrValue = (IntPtr)(value ? 1 : 0);
+        }
+    }
 }

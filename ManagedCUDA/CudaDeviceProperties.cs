@@ -1,27 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.VectorTypes;
 using ManagedCuda.BasicTypes;
 
@@ -52,7 +55,7 @@ namespace ManagedCuda
         private bool _kernelExecTimeoutEnabled;
         private bool _integrated;
         private bool _canMapHostMemory;
-        private BasicTypes.CUComputeMode _computeMode;
+        private CUComputeMode _computeMode;
         private int _maximumTexture1DWidth;
         private int _maximumTexture2DWidth;
         private int _maximumTexture2DHeight;
@@ -119,6 +122,7 @@ namespace ManagedCuda
         private bool _concurrentManagedAccess;
         private bool _computePreemptionSupported;
         private bool _canUseHostPointerForRegisteredMem;
+        [Obsolete("Deprecated, along with v1 MemOps API, ::cuStreamBatchMemOp and related APIs are supported.")]
         private bool _canUseStreamMemOps;
         private bool _canUse64BitStreamMemOps;
         private bool _canUseStreamWaitValueNOr;
@@ -145,6 +149,14 @@ namespace ManagedCuda
         private CUflushGPUDirectRDMAWritesOptions _gpuDirectRDMAFlushWritesOptions;
         private CUGPUDirectRDMAWritesOrdering _gpuDirectRDMAWritesOrdering;
         private CUmemAllocationHandleType _mempoolSupportedHandleTypes;
+        private bool _clusterLaunch;
+        private bool _deferredMappingCudaArraySupported;
+        private bool _dmaBufSupported;
+        private bool _IPCEventSupported;
+        private int _memSyncDomainCount;
+        private bool _tensorMapAccessSupported;
+        private bool _unifiedFunctionPointers;
+
 
 
 
@@ -951,6 +963,7 @@ namespace ManagedCuda
         /// <summary>
         /// cuStreamBatchMemOp and related APIs are supported.
         /// </summary>
+        [Obsolete("Deprecated, along with v1 MemOps API, ::cuStreamBatchMemOp and related APIs are supported.")]
         public bool CanUseStreamMemOps
         {
             get { return this._canUseStreamMemOps; }
@@ -958,7 +971,7 @@ namespace ManagedCuda
         }
 
         /// <summary>
-        /// 64-bit operations are supported in ::cuStreamBatchMemOp and related APIs.
+        /// 64-bit operations are supported in ::cuStreamBatchMemOp and related MemOp APIs.
         /// </summary>
         public bool CanUse64BitStreamMemOps
         {
@@ -966,7 +979,7 @@ namespace ManagedCuda
             internal set { this._canUse64BitStreamMemOps = value; }
         }
         /// <summary>
-        /// CU_STREAM_WAIT_VALUE_NOR is supported.
+        /// ::CU_STREAM_WAIT_VALUE_NOR is supported by MemOp APIs.
         /// </summary>
         public bool CanUseStreamWaitValueNOr
         {
@@ -1129,29 +1142,93 @@ namespace ManagedCuda
             internal set { this._readOnlyHostRegisterSupported = value; }
         }
 
-        /// <summary/>
+        /// <summary>
+        /// Device supports GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see https://docs.nvidia.com/cuda/gpudirect-rdma for more information)
+        /// </summary>
         public bool GpuDirectRDMASupported
         {
             get { return this._gpuDirectRDMASupported; }
             internal set { this._gpuDirectRDMASupported = value; }
         }
-        /// <summary/>
+        /// <summary>
+        /// The returned attribute shall be interpreted as a bitmask, where the individual bits are described by the ::CUflushGPUDirectRDMAWritesOptions enum
+        /// </summary>
         public CUflushGPUDirectRDMAWritesOptions GpuDirectRDMAFlushWritesOptions
         {
             get { return this._gpuDirectRDMAFlushWritesOptions; }
             internal set { this._gpuDirectRDMAFlushWritesOptions = value; }
         }
-        /// <summary/>
+        /// <summary>
+        /// GPUDirect RDMA writes to the device do not need to be flushed for consumers within the scope indicated by the returned attribute. See ::CUGPUDirectRDMAWritesOrdering for the numerical values returned here.
+        /// </summary>
         public CUGPUDirectRDMAWritesOrdering GpuDirectRDMAWritesOrdering
         {
             get { return this._gpuDirectRDMAWritesOrdering; }
             internal set { this._gpuDirectRDMAWritesOrdering = value; }
         }
-        /// <summary/>
+        /// <summary>
+        /// Handle types supported with mempool based IPC
+        /// </summary>
         public CUmemAllocationHandleType MempoolSupportedHandleTypes
         {
             get { return this._mempoolSupportedHandleTypes; }
             internal set { this._mempoolSupportedHandleTypes = value; }
+        }
+        /// <summary>
+        /// Indicates device supports cluster launch
+        /// </summary>
+        public bool ClusterLaunch
+        {
+            get { return this._clusterLaunch; }
+            internal set { this._clusterLaunch = value; }
+        }
+        /// <summary>
+        /// Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays
+        /// </summary>
+        public bool DeferredMappingCudaArraySupported
+        {
+            get { return this._deferredMappingCudaArraySupported; }
+            internal set { this._deferredMappingCudaArraySupported = value; }
+        }
+        /// <summary>
+        /// Device supports buffer sharing with dma_buf mechanism.
+        /// </summary>
+        public bool DmaBufSupported
+        {
+            get { return this._dmaBufSupported; }
+            internal set { this._dmaBufSupported = value; }
+        }
+        /// <summary>
+        /// Device supports IPC Events.
+        /// </summary>
+        public bool IPCEventSupported
+        {
+            get { return this._IPCEventSupported; }
+            internal set { this._IPCEventSupported = value; }
+        }
+        /// <summary>
+        /// Number of memory domains the device supports.
+        /// </summary>
+        public int MemSyncDomainCount
+        {
+            get { return this._memSyncDomainCount; }
+            internal set { this._memSyncDomainCount = value; }
+        }
+        /// <summary>
+        /// Device supports accessing memory using Tensor Map.
+        /// </summary>
+        public bool TensorMapAccessSupported
+        {
+            get { return this._tensorMapAccessSupported; }
+            internal set { this._tensorMapAccessSupported = value; }
+        }
+        /// <summary>
+        /// Device supports unified function pointers.
+        /// </summary>
+        public bool UnifiedFunctionPointers
+        {
+            get { return this._unifiedFunctionPointers; }
+            internal set { this._unifiedFunctionPointers = value; }
         }
     }
 }

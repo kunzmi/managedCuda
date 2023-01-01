@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30002.166
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedCuda", "ManagedCUDA\ManagedCuda.csproj", "{F5A866CC-151E-472A-8020-75F62D74D687}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NvJpeg", "NvJpeg\NvJpeg.csproj", "{5B10137E-03C9-4D68-BF7C-E0B5634F4B97}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CudaSolve", "CudaSolve\CudaSolve.csproj", "{B5DE3857-D0B2-4EBB-B2CB-4BFCF57A7488}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NvJitLink", "NvJitLink\NvJitLink.csproj", "{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -163,6 +165,22 @@ Global
 		{B5DE3857-D0B2-4EBB-B2CB-4BFCF57A7488}.Release|NuGet_x64.Build.0 = Release|x64
 		{B5DE3857-D0B2-4EBB-B2CB-4BFCF57A7488}.Release|x64.ActiveCfg = Release|x64
 		{B5DE3857-D0B2-4EBB-B2CB-4BFCF57A7488}.Release|x64.Build.0 = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|Any CPU.Build.0 = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|NuGet_x64.ActiveCfg = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|NuGet_x64.Build.0 = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|x64.ActiveCfg = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Debug|x64.Build.0 = Debug|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|Any CPU.ActiveCfg = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|Any CPU.Build.0 = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|Mixed Platforms.Build.0 = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|NuGet_x64.ActiveCfg = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|NuGet_x64.Build.0 = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|x64.ActiveCfg = Release|x64
+		{7B73D92F-E51E-4793-B7A3-FC35757DAEBC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

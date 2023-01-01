@@ -1,32 +1,426 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Text;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
-using System.Net.NetworkInformation;
 
 namespace ManagedCuda.CudaSparse
 {
+    /// <summary>
+    ///
+    /// </summary>
+    public class ConstSparseMatrix<indexT, dataT> : IDisposable where indexT : struct where dataT : struct
+    {
+        private cusparseStatus res;
+        private bool disposed;
+        private cusparseConstSpMatDescr descr;
+        private IndexType typeIndices;
+        private cudaDataType typeData;
+        private long rows;
+        private long cols;
+        private long nnz;
+        private IndexBase idxBase;
+        private Format format;
+        private bool noCleanup = false;
+
+
+
+        #region Contructors
+        /// <summary>
+        /// </summary>
+        private ConstSparseMatrix(cusparseConstSpMatDescr aDescr, long aRows, long aCols, long aNnz, IndexBase aIdxBase, IndexType aTypeIndices, cudaDataType aTypeData)
+        {
+            rows = aRows;
+            cols = aCols;
+            nnz = aNnz;
+            idxBase = aIdxBase;
+            descr = aDescr;
+            typeIndices = aTypeIndices;
+            typeData = aTypeData;
+            format = Format.COO;
+            res = CudaSparseNativeMethods.cusparseSpMatGetFormat(descr, ref format);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetFormat", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+        /// <summary>
+        /// </summary>
+        internal ConstSparseMatrix(SparseMatrix<indexT, dataT> sparseMatrix)
+        {
+            rows = sparseMatrix.Rows;
+            cols = sparseMatrix.Cols;
+            nnz = sparseMatrix.Nnz;
+            idxBase = sparseMatrix.IdxBase;
+            descr = sparseMatrix.Descr;
+            typeIndices = sparseMatrix.TypeIndices;
+            typeData = sparseMatrix.TypeData;
+            format = sparseMatrix.Format;
+            noCleanup = true;
+        }
+
+        /// <summary>
+        /// For dispose
+        /// </summary>
+        ~ConstSparseMatrix()
+        {
+            Dispose(false);
+        }
+        #endregion
+
+        #region Create
+        //CSR
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstCSR<indexT1, dataT1>(
+            long rows,
+            long cols,
+            long nnz,
+            CudaDeviceVariable<indexT1> csrRowOffsets,
+            CudaDeviceVariable<indexT1> csrColInd,
+            CudaDeviceVariable<dataT1> csrValues,
+            IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstCsr(ref descr, rows, cols, nnz, csrRowOffsets.DevicePointer,
+                csrColInd.DevicePointer, csrValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstCsr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+        }
+        //CSR
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstCSC<indexT1, dataT1>(
+            long rows,
+            long cols,
+            long nnz,
+            CudaDeviceVariable<indexT1> cscColOffsets,
+            CudaDeviceVariable<indexT1> cscRowInd,
+            CudaDeviceVariable<dataT1> cscValues,
+            IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstCsc(ref descr, rows, cols, nnz, cscColOffsets.DevicePointer,
+                cscRowInd.DevicePointer, cscValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstCsc", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+        }
+        //CSR
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstCOO<indexT1, dataT1>(
+            long rows,
+            long cols,
+            long nnz,
+            CudaDeviceVariable<indexT1> cooRowInd,
+            CudaDeviceVariable<indexT1> cooColInd,
+            CudaDeviceVariable<dataT1> cooValues,
+            IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstCoo(ref descr, rows, cols, nnz, cooRowInd.DevicePointer,
+                cooColInd.DevicePointer, cooValues.DevicePointer, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstCoo", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+        }
+
+        //BlockedEll
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstBlockedEll<indexT1, dataT1>(
+                         long rows,
+                         long cols,
+                         long ellBlockSize,
+                         long ellCols,
+                         CudaDeviceVariable<indexT1> ellColInd,
+                         CudaDeviceVariable<dataT1> ellValue,
+                         IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstBlockedEll(ref descr, rows, cols, ellBlockSize, ellCols, ellColInd.DevicePointer,
+                ellValue.DevicePointer, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstBlockedEll", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, 0, idxBase, typeIndices, typeData);
+        }
+
+        #endregion
+
+        #region Get
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CscGet(out CudaDeviceVariable<indexT> cscColOffsets,
+            out CudaDeviceVariable<indexT> cscRowInd,
+            out CudaDeviceVariable<dataT> cscValues)
+        {
+            CUdeviceptr ptrColOffsets = new CUdeviceptr();
+            CUdeviceptr ptrRowIdx = new CUdeviceptr();
+            CUdeviceptr ptrValues = new CUdeviceptr();
+            IndexType indexTypeOffset = IndexType.Index32I;
+            res = CudaSparseNativeMethods.cusparseConstCscGet(descr, ref rows, ref cols, ref nnz, ref ptrColOffsets,
+                    ref ptrRowIdx, ref ptrValues, ref indexTypeOffset, ref typeIndices, ref idxBase, ref typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstCscGet", res));
+
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            cscColOffsets = new CudaDeviceVariable<indexT>(ptrColOffsets);
+            cscRowInd = new CudaDeviceVariable<indexT>(ptrRowIdx);
+            cscValues = new CudaDeviceVariable<dataT>(ptrValues);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CsrGet(out CudaDeviceVariable<indexT> csrRowOffsets,
+            out CudaDeviceVariable<indexT> csrColInd,
+            out CudaDeviceVariable<dataT> csrValues)
+        {
+            CUdeviceptr ptrRowOffsets = new CUdeviceptr();
+            CUdeviceptr ptrColIdx = new CUdeviceptr();
+            CUdeviceptr ptrValues = new CUdeviceptr();
+            IndexType indexTypeOffset = IndexType.Index32I;
+            res = CudaSparseNativeMethods.cusparseConstCsrGet(descr, ref rows, ref cols, ref nnz, ref ptrRowOffsets,
+                    ref ptrColIdx, ref ptrValues, ref indexTypeOffset, ref typeIndices, ref idxBase, ref typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstCsrGet", res));
+
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            csrRowOffsets = new CudaDeviceVariable<indexT>(ptrRowOffsets);
+            csrColInd = new CudaDeviceVariable<indexT>(ptrColIdx);
+            csrValues = new CudaDeviceVariable<dataT>(ptrValues);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CooGet(out CudaDeviceVariable<indexT> cooRowInd,
+            out CudaDeviceVariable<indexT> cooColInd,
+            out CudaDeviceVariable<dataT> cooValues)
+        {
+            CUdeviceptr ptrRowIdx = new CUdeviceptr();
+            CUdeviceptr ptrColIdx = new CUdeviceptr();
+            CUdeviceptr ptrValues = new CUdeviceptr();
+            res = CudaSparseNativeMethods.cusparseConstCooGet(descr, ref rows, ref cols, ref nnz, ref ptrRowIdx,
+                    ref ptrColIdx, ref ptrValues, ref typeIndices, ref idxBase, ref typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstCooGet", res));
+
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            cooRowInd = new CudaDeviceVariable<indexT>(ptrRowIdx);
+            cooColInd = new CudaDeviceVariable<indexT>(ptrColIdx);
+            cooValues = new CudaDeviceVariable<dataT>(ptrValues);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void BlockedEllGet(out CudaDeviceVariable<indexT> ellColInd,
+            out CudaDeviceVariable<dataT> ellValue, out long ellBlockSize, out long ellCols)
+        {
+            ellBlockSize = 0;
+            ellCols = 0;
+            CUdeviceptr ptrIdx = new CUdeviceptr();
+            CUdeviceptr ptrValues = new CUdeviceptr();
+
+            res = CudaSparseNativeMethods.cusparseConstBlockedEllGet(descr, ref rows, ref cols, ref ellBlockSize, ref ellCols, ref ptrIdx, ref ptrValues, ref typeIndices, ref idxBase, ref typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstBlockedEllGet", res));
+
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            ellColInd = new CudaDeviceVariable<indexT>(ptrIdx);
+            ellValue = new CudaDeviceVariable<dataT>(ptrValues);
+        }
+        #endregion
+
+
+        #region Dispose
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// For IDisposable
+        /// </summary>
+        /// <param name="fDisposing"></param>
+        protected virtual void Dispose(bool fDisposing)
+        {
+            if (!noCleanup)
+            {
+                if (fDisposing && !disposed)
+                {
+                    //Ignore if failing
+                    res = CudaSparseNativeMethods.cusparseDestroySpMat(descr);
+                    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseDestroySpMat", res));
+                    disposed = true;
+                }
+                if (!fDisposing && !disposed)
+                    Debug.WriteLine(String.Format("ManagedCUDA not-disposed warning: {0}", this.GetType()));
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Returns the inner handle.
+        /// </summary>
+        public cusparseConstSpMatDescr Descr
+        {
+            get { return descr; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public IndexType TypeIndices
+        {
+            get { return typeIndices; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public cudaDataType TypeData
+        {
+            get { return typeData; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long Rows
+        {
+            get { return rows; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long Cols
+        {
+            get { return cols; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public long Nnz
+        {
+            get { return nnz; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Format Format
+        {
+            get { return format; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public IndexBase IdxBase
+        {
+            get
+            {
+                res = CudaSparseNativeMethods.cusparseSpMatGetIndexBase(descr, ref idxBase);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetIndexBase", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+                return idxBase;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public CudaDeviceVariable<dataT> GetValues()
+        {
+            CUdeviceptr devPtr = new CUdeviceptr();
+            res = CudaSparseNativeMethods.cusparseConstSpMatGetValues(descr, ref devPtr);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseConstSpMatGetValues", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return new CudaDeviceVariable<dataT>(devPtr);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int GetStridedBatch()
+        {
+            int batchCount = 0;
+            res = CudaSparseNativeMethods.cusparseSpMatGetStridedBatch(descr, ref batchCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetStridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return batchCount;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetSize()
+        {
+            res = CudaSparseNativeMethods.cusparseSpMatGetSize(descr, ref rows, ref cols, ref nnz);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetSize", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        public void GetAttribute(out cusparseFillMode fillMode)
+        {
+            fillMode = cusparseFillMode.Lower;
+            res = CudaSparseNativeMethods.cusparseSpMatGetAttribute(descr, cusparseSpMatAttribute.FillMode, ref fillMode, sizeof(cusparseFillMode));
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetAttribute", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+        public void GetAttribute(out cusparseDiagType diagType)
+        {
+            diagType = cusparseDiagType.NonUnit;
+            res = CudaSparseNativeMethods.cusparseSpMatGetAttribute(descr, cusparseSpMatAttribute.DiagType, ref diagType, sizeof(cusparseDiagType));
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMatGetAttribute", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+    }
     /// <summary>
     ///
     /// </summary>
@@ -72,6 +466,14 @@ namespace ManagedCuda.CudaSparse
             Dispose(false);
         }
         #endregion
+
+        /// <summary>
+        ///
+        /// </summary>
+        public static implicit operator ConstSparseMatrix<indexT, dataT>(SparseMatrix<indexT, dataT> sparseMatrix)
+        {
+            return new ConstSparseMatrix<indexT, dataT>(sparseMatrix);
+        }
 
         #region Create
         //CSR
@@ -137,27 +539,6 @@ namespace ManagedCuda.CudaSparse
 
             return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
         }
-        //CSR
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCreateCoo instead.")]
-        public static SparseMatrix<indexT1, dataT1> CreateCooAoS<indexT1, dataT1>(
-            long rows,
-            long cols,
-            long nnz,
-            CudaDeviceVariable<indexT1> cooInd,
-            CudaDeviceVariable<dataT1> cooValues,
-            IndexBase idxBase) where indexT1 : struct where dataT1 : struct
-        {
-            cusparseSpMatDescr descr = new cusparseSpMatDescr();
-            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
-            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
-            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateCooAoS(ref descr, rows, cols, nnz, cooInd.DevicePointer,
-                cooValues.DevicePointer, typeIndices, idxBase, typeData);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateCooAoS", res));
-            if (res != cusparseStatus.Success)
-                throw new CudaSparseException(res);
-
-            return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
-        }
 
         //BlockedEll
         public static SparseMatrix<indexT1, dataT1> CreateBlockedEll<indexT1, dataT1>(
@@ -184,6 +565,28 @@ namespace ManagedCuda.CudaSparse
         #endregion
 
         #region Get
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CscGet(out CudaDeviceVariable<indexT> cscColOffsets,
+            out CudaDeviceVariable<indexT> cscRowInd,
+            out CudaDeviceVariable<dataT> cscValues)
+        {
+            CUdeviceptr ptrColOffsets = new CUdeviceptr();
+            CUdeviceptr ptrRowIdx = new CUdeviceptr();
+            CUdeviceptr ptrValues = new CUdeviceptr();
+            IndexType indexTypeOffset = IndexType.Index32I;
+            res = CudaSparseNativeMethods.cusparseCscGet(descr, ref rows, ref cols, ref nnz, ref ptrColOffsets,
+                    ref ptrRowIdx, ref ptrValues, ref indexTypeOffset, ref typeIndices, ref idxBase, ref typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCscGet", res));
+
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            cscColOffsets = new CudaDeviceVariable<indexT>(ptrColOffsets);
+            cscRowInd = new CudaDeviceVariable<indexT>(ptrRowIdx);
+            cscValues = new CudaDeviceVariable<dataT>(ptrValues);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -225,24 +628,6 @@ namespace ManagedCuda.CudaSparse
 
             cooRowInd = new CudaDeviceVariable<indexT>(ptrRowIdx);
             cooColInd = new CudaDeviceVariable<indexT>(ptrColIdx);
-            cooValues = new CudaDeviceVariable<dataT>(ptrValues);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        [Obsolete("Deprecated from Cuda 11.3 on. Use cusparseCooGet instead.")]
-        public void CooAoSGet(out CudaDeviceVariable<indexT> cooInd,
-            out CudaDeviceVariable<dataT> cooValues)
-        {
-            CUdeviceptr ptrIdx = new CUdeviceptr();
-            CUdeviceptr ptrValues = new CUdeviceptr();
-            res = CudaSparseNativeMethods.cusparseCooAoSGet(descr, ref rows, ref cols, ref nnz, ref ptrIdx, ref ptrValues, ref typeIndices, ref idxBase, ref typeData);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCooAoSGet", res));
-
-            if (res != cusparseStatus.Success)
-                throw new CudaSparseException(res);
-
-            cooInd = new CudaDeviceVariable<indexT>(ptrIdx);
             cooValues = new CudaDeviceVariable<dataT>(ptrValues);
         }
 

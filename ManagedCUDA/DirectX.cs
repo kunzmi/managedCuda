@@ -1,30 +1,34 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda
 {
@@ -35,12 +39,53 @@ namespace ManagedCuda
     {
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
+#if (NETCOREAPP)
+        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
+
+        static DirectX9NativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(DirectX9NativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        internal static void Init()
+        {
+            //Need that to have the constructor called before any library call.
+        }
+#endif
+
         /// <summary>
         /// Direct3D9 Interoperability for CUDA 3.x
         /// </summary>
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class CUDA3
         {
+#if (NETCOREAPP)
+            static CUDA3()
+            {
+                DirectX9NativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Returns in <c>pCudaDevice</c> the CUDA-compatible device corresponding to the adapter name <c>pszAdapterName</c>
             /// obtained from <c>EnumDisplayDevices()</c> or <c>IDirect3D9::GetAdapterIdentifier()</c>.
@@ -91,7 +136,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint="cuD3D9CtxCreate_v2")]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuD3D9CtxCreate_v2")]
             public static extern CUResult cuD3D9CtxCreate(ref CUcontext pCtx, ref CUdevice pCudaDevice, CUCtxFlags Flags, IntPtr pD3DDevice);
 
             /// <summary>
@@ -111,7 +156,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuD3D9CtxCreateOnDevice(ref CUcontext pCtx, CUCtxFlags flags, IntPtr pD3DDevice, CUdevice cudaDevice);
-            
+
 
             /// <summary>
             /// Registers the Direct3D 9 resource <c>pD3DResource</c> for access by CUDA and returns a CUDA handle to
@@ -160,7 +205,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphicsD3D9RegisterResource(ref CUgraphicsResource pCudaResource, IntPtr pD3DResource, CUGraphicsRegisterFlags Flags);
-            
+
             /// <summary>
             /// Returns in <c>ppD3DDevice</c> the Direct3D device against which this CUDA context
             /// was created in <see cref="cuD3D9CtxCreate"/>.
@@ -181,12 +226,53 @@ namespace ManagedCuda
     {
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
+#if (NETCOREAPP)
+        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
+
+        static DirectX10NativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(DirectX10NativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        internal static void Init()
+        {
+            //Need that to have the constructor called before any library call.
+        }
+#endif
+
         /// <summary>
         /// Direct3D10 Interoperability for CUDA 3.x
         /// </summary>
         [System.Security.SuppressUnmanagedCodeSecurityAttribute]
         public static class CUDA3
         {
+#if (NETCOREAPP)
+            static CUDA3()
+            {
+                DirectX10NativeMethods.Init();
+            }
+#endif
             /// <summary>
             /// Returns in <c>device</c> the CUDA-compatible device corresponding to the adapter <c>pAdapter</c> obtained from 
             /// <c>IDXGIFactory::EnumAdapters</c>. This call will succeed only if a device on adapter <c>pAdapter</c> is Cuda-compatible.
@@ -236,7 +322,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>.
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint="cuD3D10CtxCreate_v2")]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuD3D10CtxCreate_v2")]
             public static extern CUResult cuD3D10CtxCreate(ref CUcontext pCtx, ref CUdevice pCudaDevice, CUCtxFlags Flags, IntPtr pD3DDevice);
 
 
@@ -257,7 +343,7 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuD3D10CtxCreateOnDevice(ref CUcontext pCtx, CUCtxFlags flags, IntPtr pD3DDevice, CUdevice cudaDevice);
-            
+
             /// <summary>
             /// Registers the Direct3D 10 resource <c>pD3DResource</c> for access by CUDA and returns a CUDA handle to
             /// <c>pD3Dresource</c> in <c>pCudaResource</c>. The handle returned in <c>pCudaResource</c> may be used to map and
@@ -325,6 +411,41 @@ namespace ManagedCuda
     {
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
+#if (NETCOREAPP)
+        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
+
+        static DirectX11NativeMethods()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(DirectX11NativeMethods).Assembly, ImportResolver);
+        }
+
+        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+
+            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
+                    if (!res)
+                    {
+                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
+                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
+                    }
+                }
+            }
+            //On Windows, use the default library name
+            return libHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        internal static void Init()
+        {
+            //Need that to have the constructor called before any library call.
+        }
+#endif
+
         /// <summary>
         /// Returns in <c>device</c> the CUDA-compatible device corresponding to the adapter <c>pAdapter</c> obtained from 
         /// <c>IDXGIFactory::EnumAdapters</c>. This call will succeed only if a device on adapter <c>pAdapter</c> is Cuda-compatible.
@@ -375,7 +496,7 @@ namespace ManagedCuda
         /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
         /// <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorOutOfMemory"/>, <see cref="CUResult.ErrorUnknown"/>.
         /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
-        [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint="cuD3D11CtxCreate_v2")]
+        [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuD3D11CtxCreate_v2")]
         public static extern CUResult cuD3D11CtxCreate(ref CUcontext pCtx, ref CUdevice pCudaDevice, CUCtxFlags Flags, IntPtr pD3DDevice);
 
         /// <summary>
@@ -395,7 +516,7 @@ namespace ManagedCuda
         /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
         [DllImport(CUDA_DRIVER_API_DLL_NAME)]
         public static extern CUResult cuD3D11CtxCreateOnDevice(ref CUcontext pCtx, CUCtxFlags flags, IntPtr pD3DDevice, CUdevice cudaDevice);
-        
+
         /// <summary>
         /// Registers the Direct3D 11 resource <c>pD3DResource</c> for access by CUDA and returns a CUDA handle to
         /// <c>pD3Dresource</c> in <c>pCudaResource</c>. The handle returned in <c>pCudaResource</c> may be used to map and

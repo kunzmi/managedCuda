@@ -1,28 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaSparse
@@ -262,21 +264,6 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// 
     /// </summary>
-    public enum cusparseSideMode
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        Left = 0,
-        /// <summary>
-        /// 
-        /// </summary>
-        Right = 1
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     public enum cusparseColorAlg
     {
         /// <summary>
@@ -292,27 +279,14 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// 
     /// </summary>
-    public enum cusparseAlgMode
-    {
-        /// <summary>
-        /// merge path
-        /// </summary>
-        MergePath = 1
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     public enum cusparseCsr2CscAlg
     {
         /// <summary>
-        /// faster than V2 (in general), deterministic
         /// </summary>
-        CSR2CSC_ALG1 = 1,
+        CSR2CSC_ALG_DEFAULT = 1,
         /// <summary>
-        /// low memory requirement, non-deterministic
         /// </summary>
-        CSR2CSC_ALG2 = 2
+        CSR2CSC_ALG1 = 1
     }
 
     /// <summary>
@@ -352,10 +326,6 @@ namespace ManagedCuda.CudaSparse
         /// </summary>
         COO = 3,
         /// <summary>
-        /// Coordinate (COO) - Array of Structures
-        /// </summary>
-        COO_AOS = 4,
-        /// <summary>
         /// Blocked ELL
         /// </summary>
         BLOCKED_ELL = 5
@@ -381,18 +351,6 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     public enum SpMVAlg
     {
-        /// <summary/>
-        [Obsolete("As of CUDA 11.3")]
-        CUSPARSE_MV_ALG_DEFAULT = 0,
-        /// <summary/>
-        [Obsolete("As of CUDA 11.3 -> CUSPARSE_SPMV_COO_ALG1")]
-        CUSPARSE_COOMV_ALG = 1,
-        /// <summary/>
-        [Obsolete("As of CUDA 11.3 -> CUSPARSE_SPMV_CSR_ALG1")]
-        CUSPARSE_CSRMV_ALG1 = 2,
-        /// <summary/>
-        [Obsolete("As of CUDA 11.3 -> CUSPARSE_SPMV_CSR_ALG2")]
-        CUSPARSE_CSRMV_ALG2 = 3,
         CUSPARSE_SPMV_ALG_DEFAULT = 0,
         CUSPARSE_SPMV_CSR_ALG1 = 2,
         CUSPARSE_SPMV_CSR_ALG2 = 3,
@@ -405,28 +363,6 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     public enum SpMMAlg
     {
-        /// <summary/>
-        [Obsolete("Use CUSPARSE_SPMM_ALG_DEFAULT instead")]
-        CUSPARSE_MM_ALG_DEFAULT = 0,
-        /// <summary>
-        /// non-deterministc results
-        /// </summary>
-        [Obsolete("Use CUSPARSE_SPMM_COO_ALG1 instead")]
-        CUSPARSE_COOMM_ALG1 = 1,
-        /// <summary>
-        /// deterministic results 
-        /// </summary>
-        [Obsolete("Use CUSPARSE_SPMM_COO_ALG2 instead")]
-        CUSPARSE_COOMM_ALG2 = 2,
-        /// <summary>
-        /// non-deterministc results, for large matrices
-        /// </summary>
-        [Obsolete("Use CUSPARSE_SPMM_COO_ALG3 instead")]
-        CUSPARSE_COOMM_ALG3 = 3,
-        /// <summary/>
-        [Obsolete("Use CUSPARSE_SPMM_CSR_ALG1 instead")]
-        CUSPARSE_CSRMM_ALG1 = 4,
-
         /// <summary/>
         CUSPARSE_SPMM_ALG_DEFAULT = 0,
         /// <summary/>
@@ -456,8 +392,11 @@ namespace ManagedCuda.CudaSparse
         /// 
         /// </summary>
         Default = 0,
-        Deterministic = 1,
-        NonDeterministic = 2,
+        CsrAlgDeterministic = 1,
+        CsrAlgNonDeterministic = 2,
+        Alg1 = 3,
+        Alg2 = 4,
+        Alg3 = 5
     }
 
     /// <summary>
@@ -519,6 +458,11 @@ namespace ManagedCuda.CudaSparse
     {
         Default = 0,
     }
+
+    public enum cusparseSpMMOpAlg
+    {
+        Default = 0,
+    }
     #endregion
 
     #region structs (opaque handles)
@@ -539,31 +483,6 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct cusparseMatDescr
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public IntPtr Handle;
-    }
-
-
-    /// <summary>
-    /// Opaque structure holding the sparse triangular solve information
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct csrsv2Info
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public IntPtr Handle;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct csrsm2Info
     {
         /// <summary>
         /// 
@@ -643,19 +562,6 @@ namespace ManagedCuda.CudaSparse
         public IntPtr Handle;
     }
 
-
-    /// <summary>
-    /// Opaque structure holding sparse gemm information
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct csrgemm2Info
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public IntPtr Handle;
-    }
-
     /// <summary>
     /// Opaque structure holding the sorting information
     /// </summary>
@@ -702,6 +608,12 @@ namespace ManagedCuda.CudaSparse
         /// 
         /// </summary>
         public IntPtr Handle;
+        public static implicit operator cusparseConstSpVecDescr(cusparseSpVecDescr descr)
+        {
+            cusparseConstSpVecDescr ret = new cusparseConstSpVecDescr();
+            ret.Handle = descr.Handle;
+            return ret;
+        }
     }
     /// <summary>
     /// 
@@ -713,6 +625,12 @@ namespace ManagedCuda.CudaSparse
         /// 
         /// </summary>
         public IntPtr Handle;
+        public static implicit operator cusparseConstDnVecDescr(cusparseDnVecDescr descr)
+        {
+            cusparseConstDnVecDescr ret = new cusparseConstDnVecDescr();
+            ret.Handle = descr.Handle;
+            return ret;
+        }
     }
     /// <summary>
     /// 
@@ -724,12 +642,69 @@ namespace ManagedCuda.CudaSparse
         /// 
         /// </summary>
         public IntPtr Handle;
+        public static implicit operator cusparseConstSpMatDescr(cusparseSpMatDescr descr)
+        {
+            cusparseConstSpMatDescr ret = new cusparseConstSpMatDescr();
+            ret.Handle = descr.Handle;
+            return ret;
+        }
     }
     /// <summary>
     /// 
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct cusparseDnMatDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+        public static implicit operator cusparseConstDnMatDescr(cusparseDnMatDescr descr)
+        {
+            cusparseConstDnMatDescr ret = new cusparseConstDnMatDescr();
+            ret.Handle = descr.Handle;
+            return ret;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseConstSpVecDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseConstDnVecDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseConstSpMatDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseConstDnMatDescr
     {
         /// <summary>
         /// 
@@ -767,6 +742,18 @@ namespace ManagedCuda.CudaSparse
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct cusparseSpSMDescr
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Handle;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct cusparseSpMMOpPlan
     {
         /// <summary>
         /// 

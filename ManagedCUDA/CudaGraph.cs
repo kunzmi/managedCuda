@@ -1,40 +1,43 @@
-﻿//	Copyright (c) 2018, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
 using System.Diagnostics;
 
 namespace ManagedCuda
 {
     /// <summary>
-    /// Represents a Cuda graph. On disose() all graph nodes will be distroyed, too!
+    /// Represents a Cuda graph. On dispose() all graph nodes will be distroyed, too!
     /// </summary>
     public class CudaGraph : IDisposable
     {
-        bool disposed;
-        CUResult res;
-        CUgraph _graph;
+        private bool disposed;
+        private CUResult res;
+        private CUgraph _graph;
 
         #region Constructor
         /// <summary>
@@ -509,7 +512,7 @@ namespace ManagedCuda
         /// <param name="dependencies">Dependencies of the node</param>
         /// <param name="nodeParams">Parameters for the node</param>
         /// <returns>Returns newly created node</returns>
-        public CUgraphNode AddMemAllocNode(CUgraphNode[] dependencies, ref CUDA_MEM_ALLOC_NODE_PARAMS nodeParams)
+        public CUgraphNode AddMemAllocNode(CUgraphNode[] dependencies, ref CudaMemAllocNodeParams nodeParams)
         {
             CUgraphNode node = new CUgraphNode();
             SizeT numDependencies = 0;
@@ -543,6 +546,31 @@ namespace ManagedCuda
 
             res = DriverAPINativeMethods.GraphManagment.cuGraphAddMemFreeNode(ref node, _graph, dependencies, numDependencies, dptr);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddMemFreeNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates a memory free node and adds it to a graph<para/>
+        /// Creates a new memory free node and adds it to \p hGraph with \p numDependencies
+        /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
+        /// It is possible for \p numDependencies to be 0, in which case the node will be placed
+        /// at the root of the graph. \p dependencies may not have any duplicate entries. A handle
+        /// to the new node will be returned in \p phGraphNode.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="nodeParams">Parameters for the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddBatchMemOpNode(CUgraphNode[] dependencies, ref CudaBatchMemOpNodeParams nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddBatchMemOpNode(ref node, _graph, dependencies, numDependencies, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddBatchMemOpNode", res));
             if (res != CUResult.Success) throw new CudaException(res);
 
             return node;
@@ -710,18 +738,14 @@ namespace ManagedCuda
         /// validated. If instantiation is successful, a handle to the instantiated graph
         /// is returned.
         /// </summary>
-        public CudaGraphExec Instantiate()
+        public CudaGraphExec Instantiate(ref CudaGraphInstantiateParams parameters)
         {
-            SizeT sizeBuffer = 10000;
-            byte[] logBuffer = new byte[sizeBuffer];
             CUgraphExec graphExec = new CUgraphExec();
-            CUgraphNode errNode = new CUgraphNode();
-            res = DriverAPINativeMethods.GraphManagment.cuGraphInstantiate(ref graphExec, _graph, ref errNode, logBuffer, sizeBuffer);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphInstantiate", res));
+            res = DriverAPINativeMethods.GraphManagment.cuGraphInstantiateWithParams(ref graphExec, _graph, ref parameters);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphInstantiateWithParams", res));
             if (res != CUResult.Success)
             {
-                string message = Encoding.ASCII.GetString(logBuffer);
-                throw new CudaException(res, message, null);
+                throw new CudaException(res);
             }
             return new CudaGraphExec(graphExec);
         }
@@ -736,8 +760,8 @@ namespace ManagedCuda
         public CudaGraphExec Instantiate(CUgraphInstantiate_flags flags)
         {
             CUgraphExec graphExec = new CUgraphExec();
-            res = DriverAPINativeMethods.GraphManagment.cuGraphInstantiateWithFlags(ref graphExec, _graph, flags);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphInstantiateWithFlags", res));
+            res = DriverAPINativeMethods.GraphManagment.cuGraphInstantiate(ref graphExec, _graph, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphInstantiate", res));
             if (res != CUResult.Success) throw new CudaException(res);
             return new CudaGraphExec(graphExec);
         }

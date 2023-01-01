@@ -1,28 +1,30 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ManagedCuda.BasicTypes;
@@ -453,48 +455,48 @@ namespace ManagedCuda.NPP
 
 #if (NETFRAMEWORK)
 
-		/// <summary>
-		/// Copy data from a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
-		/// </summary>
-		/// <param name="bitmap"></param>
-		public void CopyToDevice(Bitmap bitmap)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
-			System.Drawing.Imaging.BitmapData data;
+        /// <summary>
+        /// Copy data from a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
+        /// </summary>
+        /// <param name="bitmap"></param>
+        public void CopyToDevice(System.Drawing.Bitmap bitmap)
+        {
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
+            System.Drawing.Imaging.BitmapData data;
 
-			data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, format);
+            data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, format);
 
-			try
-			{
-				CopyToDevice(data.Scan0, Math.Abs(data.Stride));
-			}
-			finally
-			{
-				bitmap.UnlockBits(data);
-			}
-		}
+            try
+            {
+                CopyToDevice(data.Scan0, Math.Abs(data.Stride));
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+        }
 
-		/// <summary>
-		/// Copy data to a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
-		/// </summary>
-		/// <param name="bitmap"></param>
-		public void CopyToHost(Bitmap bitmap)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
-			System.Drawing.Imaging.BitmapData data;
+        /// <summary>
+        /// Copy data to a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
+        /// </summary>
+        /// <param name="bitmap"></param>
+        public void CopyToHost(System.Drawing.Bitmap bitmap)
+        {
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
+            System.Drawing.Imaging.BitmapData data;
 
-			data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, format);
-			try
-			{
-				CopyToHost(data.Scan0, Math.Abs(data.Stride));
-			}
-			finally
-			{
-				bitmap.UnlockBits(data);
-			}
-		}
+            data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, format);
+            try
+            {
+                CopyToHost(data.Scan0, Math.Abs(data.Stride));
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+        }
 #endif
         #endregion
 
@@ -899,50 +901,50 @@ namespace ManagedCuda.NPP
         }
 
 #if (NETFRAMEWORK)
-		/// <summary>
-		/// Copy data from a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
-		/// </summary>
-		/// <param name="bitmap">Source Bitmap</param>
-		/// <param name="roi">ROI of source image</param>
-		public void CopyToDeviceRoi(Bitmap bitmap, NppiRect roi)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
-			System.Drawing.Imaging.BitmapData data;
+        /// <summary>
+        /// Copy data from a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
+        /// </summary>
+        /// <param name="bitmap">Source Bitmap</param>
+        /// <param name="roi">ROI of source image</param>
+        public void CopyToDeviceRoi(System.Drawing.Bitmap bitmap, NppiRect roi)
+        {
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
+            System.Drawing.Imaging.BitmapData data;
 
-			data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, format);
+            data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, format);
 
-			try
-			{
-				CopyToDeviceRoi(data.Scan0, Math.Abs(data.Stride), roi);
-			}
-			finally
-			{
-				bitmap.UnlockBits(data);
-			}
-		}
+            try
+            {
+                CopyToDeviceRoi(data.Scan0, Math.Abs(data.Stride), roi);
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+        }
 
-		/// <summary>
-		/// Copy data to a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
-		/// </summary>
-		/// <param name="bitmap">Destination Bitmap</param>
-		/// <param name="roi">ROI of destination image</param>
-		public void CopyToHostRoi(Bitmap bitmap, NppiRect roi)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-			System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
-			System.Drawing.Imaging.BitmapData data;
+        /// <summary>
+        /// Copy data to a System.Drawing.Bitmap. There is no check if the bitmap pixel type corresponds to the current NPPImage!
+        /// </summary>
+        /// <param name="bitmap">Destination Bitmap</param>
+        /// <param name="roi">ROI of destination image</param>
+        public void CopyToHostRoi(System.Drawing.Bitmap bitmap, NppiRect roi)
+        {
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            System.Drawing.Imaging.PixelFormat format = bitmap.PixelFormat;
+            System.Drawing.Imaging.BitmapData data;
 
-			data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, format);
-			try
-			{
-				CopyToHostRoi(data.Scan0, Math.Abs(data.Stride), roi);
-			}
-			finally
-			{
-				bitmap.UnlockBits(data);
-			}
-		}
+            data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, format);
+            try
+            {
+                CopyToHostRoi(data.Scan0, Math.Abs(data.Stride), roi);
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+        }
 #endif
         #endregion
 

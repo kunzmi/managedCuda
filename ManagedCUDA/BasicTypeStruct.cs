@@ -1,33 +1,34 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 namespace ManagedCuda.BasicTypes
 {
-
     #region Structs
     /// <summary>
     /// Legacy device properties
@@ -2538,6 +2539,16 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamMemOpMemoryBarrierParams
+    {
+        /// <summary/>
+        public CUstreamBatchMemOpType operation;
+        /// <summary/>
+        public uint flags;
+    }
+
+    /// <summary/>
     [StructLayout(LayoutKind.Explicit)]
     public struct CUstreamBatchMemOpParams
     {
@@ -2553,10 +2564,41 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         [FieldOffset(0)]
         public CUstreamMemOpFlushRemoteWritesParams flushRemoteWrites;
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamMemOpMemoryBarrierParams memoryBarrier;
         //In cuda header, an ulong[6] fixes the union size to 48 bytes, we
         //achieve the same in C# if we set at offset 40 an simple ulong
         [FieldOffset(5 * 8)]
         ulong pad;
+    }
+
+    /// <summary>
+    /// CudaBatchMemOpNodeParams
+    /// </summary>
+    public class CudaBatchMemOpNodeParams
+    {
+        /// <summary/>
+        public CUcontext ctx;
+        /// <summary/>
+        public CUstreamBatchMemOpParams[] paramArray;
+        /// <summary/>
+        public uint flags;
+    }
+
+    /// <summary>
+    /// CudaBatchMemOpNodeParams
+    /// </summary>
+    internal struct CudaBatchMemOpNodeParamsInternal
+    {
+        /// <summary/>
+        public CUcontext ctx;
+        /// <summary/>
+        public uint count;
+        /// <summary/>
+        public IntPtr paramArray;
+        /// <summary/>
+        public uint flags;
     }
 
     /// <summary>
@@ -2655,6 +2697,14 @@ namespace ManagedCuda.BasicTypes
         /// Extra options
         /// </summary>
         public IntPtr extra;
+        /// <summary>
+        /// Kernel to launch, will only be referenced if func is NULL
+        /// </summary>
+        CUkernel kern;
+        /// <summary>
+        /// Context for the kernel task to run in. The value NULL will indicate the current context should be used by the api. This field is ignored if func is set.
+        /// </summary>
+        CUcontext ctx;
     }
 
 
@@ -3534,30 +3584,361 @@ namespace ManagedCuda.BasicTypes
     /// Memory allocation node parameters
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct CUDA_MEM_ALLOC_NODE_PARAMS
+    public struct CudaMemAllocNodeParams
     {
         /// <summary>
         /// in: location where the allocation should reside (specified in ::location).
         /// ::handleTypes must be::CU_MEM_HANDLE_TYPE_NONE.IPC is not supported.
         /// </summary>
-        CUmemPoolProps poolProps;
+        public CUmemPoolProps poolProps;
         /// <summary>
         /// in: array of memory access descriptors. Used to describe peer GPU access
         /// </summary>
-        [MarshalAs(UnmanagedType.LPArray)]
-        CUmemAccessDesc[] accessDescs;
-        /// <summary>
-        /// in: number of memory access descriptors.  Must not exceed the number of GPUs.
-        /// </summary>
-        SizeT accessDescCount;
+        public CUmemAccessDesc[] accessDescs;
         /// <summary>
         /// in: size in bytes of the requested allocation
         /// </summary>
-        SizeT bytesize;
+        public SizeT bytesize;
         /// <summary>
         /// out: address of the allocation returned by CUDA
         /// </summary>
-        CUdeviceptr dptr;
+        public CUdeviceptr dptr;
     }
+
+    /// <summary>
+    /// Memory allocation node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CudaMemAllocNodeParamsInternal
+    {
+        /// <summary>
+        /// in: location where the allocation should reside (specified in ::location).
+        /// ::handleTypes must be::CU_MEM_HANDLE_TYPE_NONE.IPC is not supported.
+        /// </summary>
+        public CUmemPoolProps poolProps;
+        /// <summary>
+        /// in: array of memory access descriptors. Used to describe peer GPU access
+        /// </summary>
+        public IntPtr accessDescs;
+        /// <summary>
+        /// in: number of memory access descriptors.  Must not exceed the number of GPUs.
+        /// </summary>
+        public SizeT accessDescCount;
+        /// <summary>
+        /// in: size in bytes of the requested allocation
+        /// </summary>
+        public SizeT bytesize;
+        /// <summary>
+        /// out: address of the allocation returned by CUDA
+        /// </summary>
+        public CUdeviceptr dptr;
+    }
+
+    /// <summary>
+    /// Result information returned by cuGraphExecUpdate
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraphExecUpdateResultInfo
+    {
+        /// <summary>
+        /// Gives more specific detail when a cuda graph update fails.
+        /// </summary>
+        public CUgraphExecUpdateResult result;
+
+        /// <summary>
+        /// The "to node" of the error edge when the topologies do not match.
+        /// The error node when the error is associated with a specific node.
+        /// NULL when the error is generic.
+        /// </summary>
+        public CUgraphNode errorNode;
+
+        /// <summary>
+        /// The from node of error edge when the topologies do not match. Otherwise NULL.
+        /// </summary>
+        public CUgraphNode errorFromNode;
+    }
+
+    /// <summary>
+    /// Tensor map descriptor. Requires compiler support for aligning to 64 bytes.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 64)]
+    public struct CUtensorMap
+    {
+        //CU_TENSOR_MAP_NUM_QWORDS = 16; Size of tensor map descriptor
+        /// <summary/>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.U8)]
+        public ulong[] opaque;
+    }
+
+    /// <summary>
+    /// CUDA array memory requirements
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaArrayMemoryRequirements
+    {
+        /// <summary>
+        /// Total required memory size
+        /// </summary>
+        public SizeT size;
+        /// <summary>
+        /// alignment requirement
+        /// </summary>
+        public SizeT alignment;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.U4)]
+        private uint[] reserved;
+    }
+
+
+    /// <summary>
+    /// Graph instantiation parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaGraphInstantiateParams
+    {
+        /// <summary>
+        /// Instantiation flags
+        /// </summary>
+        public ulong flags;
+        /// <summary>
+        /// Upload stream
+        /// </summary>
+        public CUstream hUploadStream;
+        /// <summary>
+        /// The node which caused instantiation to fail, if any
+        /// </summary>
+        public CUgraphNode hErrNode_out;
+        /// <summary>
+        /// Whether instantiation was successful.  If it failed, the reason why
+        /// </summary>
+        public CUgraphInstantiateResult result_out;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUlaunchMemSyncDomainMap
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte default_;
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte remote;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUlaunchAttributeValue
+    {
+        /// <summary>
+        /// Cluster dimensions for the kernel node.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ClusterDim
+        {
+            /// <summary/>
+            public uint x;
+            /// <summary/>
+            public uint y;
+            /// <summary/>
+            public uint z;
+        }
+
+        /// <summary>
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ProgrammaticEvent
+        {
+            /// <summary/>
+            public CUevent event_;
+            /// <summary>
+            /// Does not accept ::CU_EVENT_RECORD_EXTERNAL
+            /// </summary>
+            public int flags;
+            /// <summary/>
+            public int triggerAtBlockStart;
+        }
+
+        /// <summary>
+        /// Attribute ::CUaccessPolicyWindow.
+        /// </summary>
+        [FieldOffset(0)]
+        CUaccessPolicyWindow accessPolicyWindow;
+        /// <summary>
+        /// Nonzero indicates a cooperative kernel (see ::cuLaunchCooperativeKernel).
+        /// </summary>
+        [FieldOffset(0)]
+        int cooperative;
+        /// <summary>
+        /// ::CUsynchronizationPolicy for work queued up in this stream
+        /// </summary>
+        [FieldOffset(0)]
+        CUsynchronizationPolicy syncPolicy;
+
+        /// <summary>
+        /// Cluster dimensions for the kernel node.
+        /// </summary>
+        [FieldOffset(0)]
+        ClusterDim clusterDim;
+        /// <summary>
+        /// Cluster scheduling policy preference for the kernel node.
+        /// </summary>
+        [FieldOffset(0)]
+        CUclusterSchedulingPolicy clusterSchedulingPolicyPreference;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        int programmaticStreamSerializationAllowed;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        ProgrammaticEvent programmaticEvent;
+        /// <summary>
+        /// Execution priority of the kernel.
+        /// </summary>
+        [FieldOffset(0)]
+        int priority;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        CUlaunchMemSyncDomainMap memSyncDomainMap;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        CUlaunchMemSyncDomain memSyncDomain;
+
+        /// <summary>
+        /// Pad to 64 bytes
+        /// </summary>
+        [FieldOffset(60)]
+        public int pad;
+    }
+
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct CUlaunchAttribute
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUlaunchAttributeID id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int pad;
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUlaunchAttributeValue value;
+    }
+
+    internal struct CUlaunchConfigInternal
+    {
+        /// <summary>
+        /// Width of grid in blocks
+        /// </summary>
+        public uint gridDimX;
+        /// <summary>
+        /// Height of grid in blocks
+        /// </summary>
+        public uint gridDimY;
+        /// <summary>
+        /// Depth of grid in blocks
+        /// </summary>
+        public uint gridDimZ;
+        /// <summary>
+        /// X dimension of each thread block
+        /// </summary>
+        public uint blockDimX;
+        /// <summary>
+        /// Y dimension of each thread block
+        /// </summary>
+        public uint blockDimY;
+        /// <summary>
+        /// Z dimension of each thread block
+        /// </summary>
+        public uint blockDimZ;
+        /// <summary>
+        /// Dynamic shared-memory size per thread block in bytes
+        /// </summary>
+        public uint sharedMemBytes;
+        /// <summary>
+        /// Stream identifier
+        /// </summary>
+        public CUstream hStream;
+        /// <summary>
+        /// nullable if numAttrs == 0
+        /// </summary>
+        public IntPtr attrs;
+        /// <summary>
+        /// number of attributes populated in attrs
+        /// </summary>
+        public uint numAttrs;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct CUlaunchConfig
+    {
+        /// <summary>
+        /// Width of grid in blocks
+        /// </summary>
+        public uint gridDimX;
+        /// <summary>
+        /// Height of grid in blocks
+        /// </summary>
+        public uint gridDimY;
+        /// <summary>
+        /// Depth of grid in blocks
+        /// </summary>
+        public uint gridDimZ;
+        /// <summary>
+        /// X dimension of each thread block
+        /// </summary>
+        public uint blockDimX;
+        /// <summary>
+        /// Y dimension of each thread block
+        /// </summary>
+        public uint blockDimY;
+        /// <summary>
+        /// Z dimension of each thread block
+        /// </summary>
+        public uint blockDimZ;
+        /// <summary>
+        /// Dynamic shared-memory size per thread block in bytes
+        /// </summary>
+        public uint sharedMemBytes;
+        /// <summary>
+        /// Stream identifier
+        /// </summary>
+        public CUstream hStream;
+        /// <summary>
+        /// nullable if numAttrs == 0
+        /// </summary>
+        public CUlaunchAttribute[] attrs;
+    }
+
+
+    //public struct CUlibraryHostUniversalFunctionAndDataTable
+    //{
+    //    IntPtr functionTable;
+    //    SizeT functionWindowSize;
+    //    IntPtr dataTable;
+    //    SizeT dataWindowSize;
+    //}
     #endregion
 }

@@ -1,48 +1,49 @@
-﻿//	Copyright (c) 2020, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda.BasicTypes
 {
-	
-	/// <summary>
-	/// Translates from CudaDataType to .net type and vice versa
-	/// </summary>	
-	public static class CudaDataTypeTranslator
-	{
+
+    /// <summary>
+    /// Translates from CudaDataType to .net type and vice versa
+    /// </summary>	
+    public static class CudaDataTypeTranslator
+    {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="cudaType"></param>
         /// <returns></returns>
 		public static Type GetType(cudaDataType cudaType)
-		{
-			switch (cudaType)
-			{
+        {
+            switch (cudaType)
+            {
                 case cudaDataType.CUDA_R_16F:
                     return typeof(half);
                 case cudaDataType.CUDA_C_16F:
@@ -101,7 +102,7 @@ namespace ManagedCuda.BasicTypes
                     return typeof(ulong2);
                 default:
                     throw new ArgumentException("Unsupported cuda type: " + cudaType.ToString());
-			}
+            }
 
         }
         /// <summary>
@@ -310,5 +311,5 @@ namespace ManagedCuda.BasicTypes
         }
 
     }
-	
+
 }

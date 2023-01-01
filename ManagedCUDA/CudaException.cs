@@ -1,29 +1,31 @@
-﻿//	Copyright (c) 2012, Michael Kunz. All rights reserved.
-//	http://kunzmi.github.io/managedCuda
+﻿// Copyright (c) 2023, Michael Kunz and Artic Imaging SARL. All rights reserved.
+// http://kunzmi.github.io/managedCuda
 //
-//	This file is part of ManagedCuda.
+// This file is part of ManagedCuda.
 //
-//	ManagedCuda is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU Lesser General Public License as 
-//	published by the Free Software Foundation, either version 2.1 of the 
-//	License, or (at your option) any later version.
-//
-//	ManagedCuda is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//	GNU Lesser General Public License for more details.
-//
-//	You should have received a copy of the GNU Lesser General Public
-//	License along with this library; if not, write to the Free Software
-//	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//	MA 02110-1301  USA, http://www.gnu.org/licenses/.
+// Commercial License Usage
+//  Licensees holding valid commercial ManagedCuda licenses may use this
+//  file in accordance with the commercial license agreement provided with
+//  the Software or, alternatively, in accordance with the terms contained
+//  in a written agreement between you and Artic Imaging SARL. For further
+//  information contact us at managedcuda@articimaging.eu.
+//  
+// GNU General Public License Usage
+//  Alternatively, this file may be used under the terms of the GNU General
+//  Public License as published by the Free Software Foundation, either 
+//  version 3 of the License, or (at your option) any later version.
+//  
+//  ManagedCuda is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//  
+//  You should have received a copy of the GNU General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using ManagedCuda.BasicTypes;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
 
@@ -33,7 +35,7 @@ namespace ManagedCuda
     /// A CUDA exception is thrown if a CUDA Driver API method call does not return <see cref="CUResult.Success"/>
     /// </summary>
     [Serializable]
-    public class CudaException : Exception, System.Runtime.Serialization.ISerializable
+    public class CudaException : Exception, ISerializable
     {
         private CUResult _cudaError;
         private string _internalName;
@@ -164,6 +166,9 @@ namespace ManagedCuda
                 case CUResult.ErrorStubLibrary:
                     message = "This indicates that the CUDA driver that the application has loaded is a stub library. Applications that run with the stub rather than a real driver loaded will result in CUDA API returning this error.";
                     break;
+                case CUResult.ErrorDeviceUnavailable:
+                    message = "This indicates that requested CUDA device is unavailable at the current time. Devices are often unavailable due to use of ::CU_COMPUTEMODE_EXCLUSIVE_PROCESS or ::CU_COMPUTEMODE_PROHIBITED.";
+                    break;
                 case CUResult.ErrorNoDevice:
                     message = "This indicates that no CUDA-capable devices were detected by the installed CUDA driver.";
                     break;
@@ -244,7 +249,7 @@ namespace ManagedCuda
                     message = "This indicates that the ::CUexecAffinityType passed to the API call is not supported by the active device.";
                     break;
                 case CUResult.ErrorInvalidSource:
-                    message = "This indicates that the device kernel source is invalid.";
+                    message = "This indicates that the device kernel source is invalid. This includes compilation/linker errors encountered in device code or user error.";
                     break;
                 case CUResult.ErrorFileNotFound:
                     message = "This indicates that the file specified was not found.";
@@ -354,6 +359,15 @@ namespace ManagedCuda
                 case CUResult.MpsMaxConnectionsReached:
                     message = "This error indicates the the hardware resources required to support device connections have been exhausted.";
                     break;
+                case CUResult.ErrorMPSClinetTerminated:
+                    message = "This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.";
+                    break;
+                case CUResult.ErrorCDPNotSupported:
+                    message = "This error indicates that the module is using CUDA Dynamic Parallelism, but the current configuration, like MPS, does not support it.";
+                    break;
+                case CUResult.ErrorCDPVersionMismatch:
+                    message = "This error indicates that a module contains an unsupported interaction between different versions of CUDA Dynamic Parallelism.";
+                    break;
                 case CUResult.ErrorStreamCaptureUnsupported:
                     message = "This error indicates that the operation is not permitted when the stream is capturing.";
                     break;
@@ -386,6 +400,12 @@ namespace ManagedCuda
                     break;
                 case CUResult.ErrorGraphExecUpdateFailure:
                     message = "This error indicates that the graph update was not performed because it included changes which violated constraints specific to instantiated graph update.";
+                    break;
+                case CUResult.ErrorExternalDevice:
+                    message = "This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.";
+                    break;
+                case CUResult.ErrorInvalidClusterSize:
+                    message = "Indicates a kernel launch error due to cluster misconfiguration.";
                     break;
                 case CUResult.ErrorUnknown:
                     message = "This indicates that an unknown internal error has occurred.";
