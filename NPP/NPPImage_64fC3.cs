@@ -50,6 +50,8 @@ namespace ManagedCuda.NPP
             _channels = 3;
             _isOwner = true;
             _typeSize = sizeof(double);
+            _dataType = NppDataType.NPP_64F;
+            _nppChannels = NppiChannels.NPP_CH_3;
 
             //use 32fc as allocation type as NPP doesn't provide a 64f and 32fc has the same constraints...
             _devPtr = NPPNativeMethods.NPPi.MemAlloc.nppiMalloc_32fc_C3(nWidthPixels, nHeightPixels, ref _pitch);
@@ -82,6 +84,8 @@ namespace ManagedCuda.NPP
             _channels = 3;
             _isOwner = isOwner;
             _typeSize = sizeof(double);
+            _dataType = NppDataType.NPP_64F;
+            _nppChannels = NppiChannels.NPP_CH_3;
         }
 
         /// <summary>

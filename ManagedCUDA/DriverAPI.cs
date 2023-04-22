@@ -28,6 +28,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 
@@ -796,6 +797,13 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxGetFlags(ref CUCtxFlags flags);
+
+            /// <summary>
+            /// Sets the flags for the current context.
+            /// </summary>
+            /// <param name="flags">Flags to set on the current context</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxSetFlags(CUCtxFlags flags);
 
             /// <summary>
             /// Returns the unique Id associated with the context supplied<para/>
@@ -12435,6 +12443,541 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuTensorMapReplaceAddress(ref CUtensorMap tensorMap, CUdeviceptr globalAddress);
+
+        }
+        #endregion
+
+        #region MulticastObjectManagement
+        /// <summary>
+        /// This section describes the CUDA multicast object operations exposed by the low-level CUDA driver application programming interface.
+        /// </summary>
+        public static class MulticastObjectManagement
+        {
+#if (NETCOREAPP)
+            static MulticastObjectManagement()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
+            /// <summary>
+            /// Create a generic allocation handle representing a multicast object described by the given properties.<para/>
+            /// This creates a multicast object as described by \p prop. The number of
+            /// participating devices is specified by::CUmulticastObjectProp::numDevices.
+            /// Devices can be added to the multicast object via ::cuMulticastAddDevice.
+            /// All participating devices must be added to the multicast object before memory
+            /// can be bound to it. Memory is bound to the multicast object via either
+            /// ::cuMulticastBindMem or ::cuMulticastBindAddr, and can be unbound via
+            /// ::cuMulticastUnbind.The total amount of memory that can be bound per device
+            /// is specified by :CUmulticastObjectProp::size.This size must be a multiple of
+            /// the value returned by::cuMulticastGetGranularity with the flag
+            /// ::CU_MULTICAST_GRANULARITY_MINIMUM.For best performance however, the size
+            /// should be aligned to the value returned by ::cuMulticastGetGranularity with
+            /// the flag ::CU_MULTICAST_GRANULARITY_RECOMMENDED.
+            /// <para/>
+            /// After all participating devices have been added, multicast objects can also
+            /// be mapped to a device's virtual address space using the virtual memory
+            /// management APIs (see::cuMemMap and ::cuMemSetAccess). Multicast objects can
+            /// also be shared with other processes by requesting a shareable handle via
+            /// ::cuMemExportToShareableHandle.Note that the desired types of shareable
+            /// handles must be specified in the bitmask::CUmulticastObjectProp::handleTypes.
+            /// Multicast objects can be released using the virtual memory management API
+            /// ::cuMemRelease.
+            /// </summary>
+            /// <param name="mcHandle">Value of handle returned.</param>
+            /// <param name="prop">Properties of the multicast object to create.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastCreate(ref CUmemGenericAllocationHandle mcHandle, ref CUmulticastObjectProp prop);
+
+            /// <summary>
+            /// Associate a device to a multicast object.<para/>
+            /// Associates a device to a multicast object. The added device will be a part of
+            /// the multicast team of size specified by CUmulticastObjectProp::numDevices
+            /// during::cuMulticastCreate.<para/>
+            /// The association of the device to the multicast object is permanent during
+            /// the life time of the multicast object.
+            /// All devices must be added to the multicast team before any memory can be
+            /// bound to any device in the team. Any calls to::cuMulticastBindMem or
+            /// ::cuMulticastBindAddr will block until all devices have been added.
+            /// Similarly all devices must be added to the multicast team before a virtual
+            /// address range can be mapped to the multicast object. A call to::cuMemMap
+            /// will block until all devices have been added.
+            /// </summary>
+            /// <param name="mcHandle">Handle representing a multicast object.</param>
+            /// <param name="dev">Device that will be associated to the multicast object.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev);
+
+            /// <summary>
+            /// Bind a memory allocation represented by a handle to a multicast object.<para/>
+            /// Binds a memory allocation specified by \p memHandle and created via
+            /// ::cuMemCreate to a multicast object represented by \p mcHandle and created
+            /// via::cuMulticastCreate.The intended \p size of the bind, the offset in the
+            /// multicast range \p mcOffset as well as the offset in the memory \p memOffset
+            /// must be a multiple of the value returned by::cuMulticastGetGranularity with
+            /// the flag::CU_MULTICAST_GRANULARITY_MINIMUM.For best performance however,
+            /// \p size, \p mcOffset and \p memOffset should be aligned to the granularity of
+            /// the memory allocation(see::cuMemGetAllocationGranularity) or to the value
+            /// returned by::cuMulticastGetGranularity with the flag
+            /// ::CU_MULTICAST_GRANULARITY_RECOMMENDED.<para/>
+            /// The \p size + \p memOffset must be smaller than the size of the allocated
+            /// memory. Similarly the \p size + \p mcOffset must be smaller than the size
+            /// of the multicast object.<para/>
+            /// The memory allocation must have beeen created on one of the devices
+            /// that was added to the multicast team via ::cuMulticastAddDevice.
+            /// Externally shareable as well as imported multicast objects can be bound only
+            /// to externally shareable memory.<para/>
+            /// Note that this call will return CUDA_ERROR_OUT_OF_MEMORY if there are
+            /// insufficient resources required to perform the bind.This call may also
+            /// return CUDA_ERROR_SYSTEM_NOT_READY if the necessary system software is not
+            /// initialized or running.
+            /// </summary>
+            /// <param name="mcHandle">Handle representing a multicast object.</param>
+            /// <param name="mcOffset">Offset into the multicast object for attachment.</param>
+            /// <param name="memHandle">Handle representing a memory allocation.</param>
+            /// <param name="memOffset">Offset into the memory for attachment.</param>
+            /// <param name="size">Size of the memory that will be bound to the multicast object.</param>
+            /// <param name="flags">Flags for future use, must be zero for now.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, SizeT mcOffset, CUmemGenericAllocationHandle memHandle, SizeT memOffset, SizeT size, ulong flags);
+
+            /// <summary>
+            /// Bind a memory allocation represented by a virtual address to a multicast object.<para/>
+            /// Binds a memory allocation specified by its mapped address \p memptr to a
+            /// multicast object represented by \p mcHandle.
+            /// The memory must have been allocated via::cuMemCreate or ::cudaMallocAsync.
+            /// The intended \p size of the bind, the offset in the multicast range
+            /// \p mcOffset and \p memptr must be a multiple of the value returned by
+            /// ::cuMulticastGetGranularity with the flag ::CU_MULTICAST_GRANULARITY_MINIMUM.
+            /// For best performance however, \p size, \p mcOffset and \p memptr should be
+            /// aligned to the value returned by ::cuMulticastGetGranularity with the flag
+            /// ::CU_MULTICAST_GRANULARITY_RECOMMENDED.<para/>
+            /// The \p size must be smaller than the size of the allocated memory.
+            /// Similarly the \p size + \p mcOffset must be smaller than the total size
+            /// of the multicast object.
+            /// The memory allocation must have beeen created on one of the devices
+            /// that was added to the multicast team via ::cuMulticastAddDevice.
+            /// Externally shareable as well as imported multicast objects can be bound only
+            /// to externally shareable memory.<para/>
+            /// Note that this call will return CUDA_ERROR_OUT_OF_MEMORY if there are
+            /// insufficient resources required to perform the bind.This call may also
+            /// return CUDA_ERROR_SYSTEM_NOT_READY if the necessary system software is not
+            /// initialized or running.
+            /// </summary>
+            /// <param name="mcHandle">Handle representing a multicast object.</param>
+            /// <param name="mcOffset">Offset into multicast va range for attachment.</param>
+            /// <param name="memptr">Virtual address of the memory allocation.</param>
+            /// <param name="size">Size of memory that will be bound to the multicast object.</param>
+            /// <param name="flags">Flags for future use, must be zero now.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, SizeT mcOffset, CUdeviceptr memptr, SizeT size, ulong flags);
+
+            /// <summary>
+            /// Unbind any memory allocations bound to a multicast object at a given offset and upto a given size.<para/>
+            /// Unbinds any memory allocations hosted on \p dev and bound to a multicast
+            /// object at \p mcOffset and upto a given \p size.
+            /// The intended \p size of the unbind and the offset in the multicast range
+            /// ( \p mcOffset) must be a multiple of the value returned by
+            /// ::cuMulticastGetGranularity flag::CU_MULTICAST_GRANULARITY_MINIMUM.
+            /// The \p size + \p mcOffset must be smaller than the total size of the multicast object.<para/>
+            /// Warning:<para/>
+            /// The \p mcOffset and the \p size must match the corresponding values specified
+            /// during the bind call. Any other values may result in undefined behavior.
+            /// </summary>
+            /// <param name="mcHandle">Handle representing a multicast object.</param>
+            /// <param name="dev">Device that hosts the memory allocation.</param>
+            /// <param name="mcOffset">Offset into the multicast object.</param>
+            /// <param name="size">Desired size to unbind.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, SizeT mcOffset, SizeT size);
+
+            /// <summary>
+            /// Calculates either the minimal or recommended granularity for multicast object<para/>
+            /// Calculates either the minimal or recommended granularity for a given set of
+            /// multicast object properties and returns it in granularity.This granularity
+            /// can be used as a multiple for size, bind offsets and address mappings of the
+            /// multicast object.
+            /// </summary>
+            /// <param name="granularity">Returned granularity.</param>
+            /// <param name="prop">Properties of the multicast object.</param>
+            /// <param name="option">Determines which granularity to return.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMulticastGetGranularity(ref SizeT granularity, ref CUmulticastObjectProp prop, CUmulticastGranularity_flags option);
+
+        }
+        #endregion
+
+        #region CoredumpAttributesControlAPI
+        /// <summary>
+        /// This section describes the coredump attribute control functions of the low-level CUDA driver application programming interface.
+        /// </summary>
+        public static class CoredumpAttributesControlAPI
+        {
+#if (NETCOREAPP)
+            static CoredumpAttributesControlAPI()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttribute(CUcoredumpSettings attrib, IntPtr value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttribute(CUcoredumpSettings attrib, byte[] value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttribute(CUcoredumpSettings attrib, ref bool value, ref SizeT size);
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, IntPtr value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, byte[] value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, ref bool value, ref SizeT size);
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttribute(CUcoredumpSettings attrib, IntPtr value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttribute(CUcoredumpSettings attrib, [MarshalAs(UnmanagedType.LPStr)] string value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttribute(CUcoredumpSettings attrib, ref bool value, ref SizeT size);
+
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, IntPtr value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, [MarshalAs(UnmanagedType.LPStr)] string value, ref SizeT size);
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            internal static extern CUResult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, ref bool value, ref SizeT size);
+
+
+            /// <summary>
+            /// Allows caller to fetch a coredump attribute value for the current context<para/>
+            /// Returns in \p *value the requested value specified by \p attrib. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p attrib will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false unless set to::true globally or locally, or the
+            ///   CU_CTX_USER_COREDUMP_ENABLE flag was set during context creation.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will 
+            ///   also create a coredump. The default value is ::true unless set to::false globally or
+            ///   or locally.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false unless set to::true globally or locally.<para/>
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false unless set to::true globally or locally.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. The default value is
+            ///   ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to fetch.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            /// <returns></returns>
+            public static CUResult cuCoredumpGetAttribute(CUcoredumpSettings attrib, ref string value)
+            {
+                SizeT size = 0;
+                CUResult res = cuCoredumpGetAttribute(attrib, IntPtr.Zero, ref size);
+                if (res != CUResult.Success)
+                {
+                    return res;
+                }
+                byte[] temp = new byte[size];
+
+                res = cuCoredumpGetAttribute(attrib, temp, ref size);
+
+                ASCIIEncoding enc = new ASCIIEncoding();
+                value = enc.GetString(temp).Replace("\0", "");
+                return res;
+            }
+            /// <summary>
+            /// Allows caller to fetch a coredump attribute value for the current context<para/>
+            /// Returns in \p *value the requested value specified by \p attrib. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p attrib will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false unless set to::true globally or locally, or the
+            ///   CU_CTX_USER_COREDUMP_ENABLE flag was set during context creation.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will 
+            ///   also create a coredump. The default value is ::true unless set to::false globally or
+            ///   or locally.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false unless set to::true globally or locally.<para/>
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false unless set to::true globally or locally.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. The default value is
+            ///   ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to fetch.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            /// <returns></returns>
+            public static CUResult cuCoredumpGetAttribute(CUcoredumpSettings attrib, ref bool value)
+            {
+                SizeT size = sizeof(bool);
+                return cuCoredumpGetAttribute(attrib, ref value, ref size);
+            }
+
+            /// <summary>
+            /// Allows caller to fetch a coredump attribute value for the entire application<para/>
+            /// Returns in \p* value the requested value specified by \p attrib.It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p attrib will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is ::false.
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. The default value is
+            ///   ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to fetch.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            /// <returns></returns>
+            public static CUResult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, ref string value)
+            {
+                SizeT size = 0;
+                CUResult res = cuCoredumpGetAttributeGlobal(attrib, IntPtr.Zero, ref size);
+                if (res != CUResult.Success)
+                {
+                    return res;
+                }
+                byte[] temp = new byte[size];
+
+                res = cuCoredumpGetAttributeGlobal(attrib, temp, ref size);
+
+                ASCIIEncoding enc = new ASCIIEncoding();
+                value = enc.GetString(temp).Replace("\0", "");
+                return res;
+            }
+            /// <summary>
+            /// Allows caller to fetch a coredump attribute value for the entire application<para/>
+            /// Returns in \p* value the requested value specified by \p attrib.It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p attrib will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is ::false.
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. The default value is
+            ///   ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to fetch.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            /// <returns></returns>
+            public static CUResult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, ref bool value)
+            {
+                SizeT size = sizeof(bool);
+                return cuCoredumpGetAttributeGlobal(attrib, ref value, ref size);
+            }
+
+            /// <summary>
+            /// Allows caller to set a coredump attribute value for the current context<para/>
+            /// This function should be considered an alternate interface to the CUDA-GDB environment
+            /// variables defined in this document: https://docs.nvidia.com/cuda/cuda-gdb/index.html#gpu-coredump<para/>
+            /// An important design decision to note is that any coredump environment variable values
+            /// set before CUDA initializes will take permanent precedence over any values set with this
+            /// this function.This decision was made to ensure no change in behavior for any users that
+            /// may be currently using these variables to get coredumps.<para/>
+            /// \p* value shall contain the requested value specified by \p set. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p set will be placed in \p size.<para/>
+            /// This function will return ::CUDA_ERROR_NOT_SUPPORTED if the caller attempts to set
+            /// ::CU_COREDUMP_ENABLE_ON_EXCEPTION on a GPU of with Compute Capability &lt; 6.0. ::cuCoredumpSetAttributeGlobal
+            /// works on those platforms as an alternative.<para/>
+            /// ::CU_COREDUMP_ENABLE_USER_TRIGGER and ::CU_COREDUMP_PIPE cannot be set on a per-context basis.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false.
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to set.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            public static CUResult cuCoredumpSetAttribute(CUcoredumpSettings attrib, string value)
+            {
+                SizeT size = value.Length + 1; //zero terminal
+                return cuCoredumpSetAttribute(attrib, value, ref size);
+            }
+            /// <summary>
+            /// Allows caller to set a coredump attribute value for the current context<para/>
+            /// This function should be considered an alternate interface to the CUDA-GDB environment
+            /// variables defined in this document: https://docs.nvidia.com/cuda/cuda-gdb/index.html#gpu-coredump<para/>
+            /// An important design decision to note is that any coredump environment variable values
+            /// set before CUDA initializes will take permanent precedence over any values set with this
+            /// this function.This decision was made to ensure no change in behavior for any users that
+            /// may be currently using these variables to get coredumps.<para/>
+            /// \p* value shall contain the requested value specified by \p set. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p set will be placed in \p size.<para/>
+            /// This function will return ::CUDA_ERROR_NOT_SUPPORTED if the caller attempts to set
+            /// ::CU_COREDUMP_ENABLE_ON_EXCEPTION on a GPU of with Compute Capability &lt; 6.0. ::cuCoredumpSetAttributeGlobal
+            /// works on those platforms as an alternative.<para/>
+            /// ::CU_COREDUMP_ENABLE_USER_TRIGGER and ::CU_COREDUMP_PIPE cannot be set on a per-context basis.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false.
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to set.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            public static CUResult cuCoredumpSetAttribute(CUcoredumpSettings attrib, bool value)
+            {
+                SizeT size = sizeof(bool);
+                return cuCoredumpSetAttribute(attrib, ref value, ref size);
+            }
+
+            /// <summary>
+            /// Allows caller to set a coredump attribute value globally<para/>
+            /// This function should be considered an alternate interface to the CUDA-GDB environment
+            /// variables defined in this document: https://docs.nvidia.com/cuda/cuda-gdb/index.html#gpu-coredump<para/>
+            /// An important design decision to note is that any coredump environment variable values
+            /// set before CUDA initializes will take permanent precedence over any values set with this
+            /// this function.This decision was made to ensure no change in behavior for any users that
+            /// may be currently using these variables to get coredumps.<para/>
+            /// \p* value shall contain the requested value specified by \p set. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p set will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false.<para/>
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. This value may not be
+            ///   changed after::CU_COREDUMP_ENABLE_USER_TRIGGER is set to ::true. The default
+            ///   value is ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine
+            ///   running the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to set.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            public static CUResult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, string value)
+            {
+                SizeT size = value.Length + 1; //zero terminal
+                return cuCoredumpSetAttributeGlobal(attrib, value, ref size);
+            }
+            /// <summary>
+            /// Allows caller to set a coredump attribute value globally<para/>
+            /// This function should be considered an alternate interface to the CUDA-GDB environment
+            /// variables defined in this document: https://docs.nvidia.com/cuda/cuda-gdb/index.html#gpu-coredump<para/>
+            /// An important design decision to note is that any coredump environment variable values
+            /// set before CUDA initializes will take permanent precedence over any values set with this
+            /// this function.This decision was made to ensure no change in behavior for any users that
+            /// may be currently using these variables to get coredumps.<para/>
+            /// \p* value shall contain the requested value specified by \p set. It is up to the caller
+            /// to ensure that the data type and size of \p* value matches the request.<para/>
+            /// If the caller calls this function with \p* value equal to NULL, the size of the memory
+            /// region (in bytes) expected for \p set will be placed in \p size.<para/>
+            /// The supported attributes are:<para/>
+            /// - ::CU_COREDUMP_ENABLE_ON_EXCEPTION: Bool where ::true means that GPU exceptions from
+            ///   this context will create a coredump at the location specified by ::CU_COREDUMP_FILE.
+            ///   The default value is ::false.<para/>
+            /// - ::CU_COREDUMP_TRIGGER_HOST: Bool where ::true means that the host CPU will
+            ///   also create a coredump. The default value is ::true.<para/>
+            /// - ::CU_COREDUMP_LIGHTWEIGHT: Bool where ::true means that any resulting coredumps
+            ///   will not have a dump of GPU memory or non-reloc ELF images.The default value is
+            ///   ::false.<para/>
+            /// - ::CU_COREDUMP_ENABLE_USER_TRIGGER: Bool where ::true means that a coredump can be
+            ///   created by writing to the system pipe specified by::CU_COREDUMP_PIPE.The default
+            ///   value is ::false.<para/>
+            /// - ::CU_COREDUMP_FILE: String of up to 1023 characters that defines the location where
+            ///   any coredumps generated by this context will be written. The default value is
+            ///   ::core.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine running
+            ///   the CUDA applications and::PID is the process ID of the CUDA application.<para/>
+            /// - ::CU_COREDUMP_PIPE: String of up to 1023 characters that defines the name of the pipe
+            ///   that will be monitored if user-triggered coredumps are enabled. This value may not be
+            ///   changed after::CU_COREDUMP_ENABLE_USER_TRIGGER is set to ::true. The default
+            ///   value is ::corepipe.cuda.HOSTNAME.PID where ::HOSTNAME is the host name of the machine
+            ///   running the CUDA application and::PID is the process ID of the CUDA application.
+            /// </summary>
+            /// <param name="attrib">The enum defining which value to set.</param>
+            /// <param name="value">void* containing the requested data.</param>
+            public static CUResult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, bool value)
+            {
+                SizeT size = sizeof(bool);
+                return cuCoredumpSetAttributeGlobal(attrib, ref value, ref size);
+            }
 
         }
         #endregion

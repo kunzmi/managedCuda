@@ -6001,5 +6001,53 @@ namespace ManagedCuda.NPP
         }
 #endif
         #endregion
+
+        #region New in Cuda 12.1
+
+        /// <summary>
+        /// Image fused absdiff and greater than threshold value.
+        /// If for a comparison operations absdiff of sourcePixels is greater than pThreshold is true, the output pixel is set
+        /// to pValue, otherwise it is set to absdiff of sourcePixels.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nThreshold">The threshold value.</param>
+        /// <param name="nValue">The threshold replacement value.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FusedAbsDiff_Threshold_GTVal(NPPImage_16uC3 src2, NPPImage_16uC3 dest, ushort nThreshold, ushort nValue, NppStreamContext nppStreamCtx)
+        {
+            unsafe
+            {
+                IntPtr ptrThreshold = (IntPtr)(&nThreshold);
+                IntPtr ptrValue = (IntPtr)(&nValue);
+
+                status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiFusedAbsDiff_Threshold_GTVal_Ctx(_dataType, _nppChannels,
+                    _devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, ptrThreshold, ptrValue, nppStreamCtx);
+            }
+            Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_Ctx", _dataType.ToString(), _channels.ToString(), status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        /// <summary>
+        /// In place fused absdiff image greater than threshold value.
+        /// If for a comparison operations absdiff of sourcePixels is greater than pThreshold is true, the output pixel is set
+        /// to pValue, otherwise it is set to absdiff of sourcePixels.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="nThreshold">The threshold value.</param>
+        /// <param name="nValue">The threshold replacement value.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FusedAbsDiff_Threshold_GTVal(NPPImage_16uC3 src2, ushort nThreshold, ushort nValue, NppStreamContext nppStreamCtx)
+        {
+            unsafe
+            {
+                IntPtr ptrThreshold = (IntPtr)(&nThreshold);
+                IntPtr ptrValue = (IntPtr)(&nValue);
+
+                status = NPPNativeMethods_Ctx.NPPi.Threshold.nppiFusedAbsDiff_Threshold_GTVal_I_Ctx(_dataType, _nppChannels,
+                    _devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, ptrThreshold, ptrValue, nppStreamCtx);
+            }
+            Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx", _dataType.ToString(), _channels.ToString(), status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
     }
 }

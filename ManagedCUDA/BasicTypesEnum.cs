@@ -246,7 +246,7 @@ namespace ManagedCuda.BasicTypes
     public enum CUmemAdvise
     {
         /// <summary>
-        /// Data will mostly be read and only occassionally be written to
+        /// Data will mostly be read and only occasionally be written to
         /// </summary>
         SetReadMostly = 1,
         /// <summary>
@@ -855,7 +855,10 @@ namespace ManagedCuda.BasicTypes
         /// Device supports unified function pointers.
         /// </summary>
         UnifiedFunctionPointers = 129,
-
+        /// <summary>
+        /// Device supports switch multicast and reduction operations.
+        /// </summary>
+        MultiCastSupported = 132,
         /// <summary>
         /// Max elems...
         /// </summary>
@@ -1067,7 +1070,7 @@ namespace ManagedCuda.BasicTypes
         /// <para>IN: Specifies minimum number of threads per block to target compilation
         /// for</para>
         /// <para>OUT: Returns the number of threads the compiler actually targeted.
-        /// This restricts the resource utilization fo the compiler (e.g. max
+        /// This restricts the resource utilization of the compiler (e.g. max
         /// registers) such that a block with the given number of threads should be
         /// able to launch based on register limitations. Note, this option does not
         /// currently take into account any other resource limitations, such as
@@ -1195,10 +1198,10 @@ namespace ManagedCuda.BasicTypes
         FastCompile = 16,
 
         /// <summary>
-        /// Array of device symbol names that will be relocated to the corresponing
+        /// Array of device symbol names that will be relocated to the corresponding
         /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
         /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
-        /// When loding a device module, driver will relocate all encountered
+        /// When loading a device module, driver will relocate all encountered
         /// unresolved symbols to the host addresses.<para/>
         /// It is only allowed to register symbols that correspond to unresolved
         /// global variables.<para/>
@@ -1662,7 +1665,7 @@ namespace ManagedCuda.BasicTypes
     public enum CUResourceType
     {
         /// <summary>
-        /// Array resoure
+        /// Array resource
         /// </summary>
         Array = 0x00,
         /// <summary>
@@ -1885,6 +1888,11 @@ namespace ManagedCuda.BasicTypes
         /// This indicates that the ::CUexecAffinityType passed to the API call is not supported by the active device.
         /// </summary>
         UnsupportedExecAffinity = 224,
+
+        /// <summary>
+        /// This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
+        /// </summary>
+        UnsupportedDeviceSync = 225,
 
         /// <summary>
         /// This indicates that the device kernel source is invalid. This includes
@@ -2873,7 +2881,7 @@ namespace ManagedCuda.BasicTypes
     public enum CUmem_range_attribute
     {
         /// <summary>
-        /// Whether the range will mostly be read and only occassionally be written to
+        /// Whether the range will mostly be read and only occasionally be written to
         /// </summary>
         ReadMostly = 1,
         /// <summary>
@@ -3754,6 +3762,27 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         NumOptions
+    }
+
+    /// <summary>
+    /// Flags for choosing a coredump attribute to get/set
+    /// </summary>
+    public enum CUcoredumpSettings
+    {
+        /// <summary/>
+        EnableOnException = 1,
+        /// <summary/>
+        TriggerHost,
+        /// <summary/>
+        LightWeight,
+        /// <summary/>
+        EnableUserTrigger,
+        /// <summary/>
+        File,
+        /// <summary/>
+        Pipe,
+        /// <summary/>
+        Max
     }
     #endregion
 }

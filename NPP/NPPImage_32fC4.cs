@@ -50,6 +50,8 @@ namespace ManagedCuda.NPP
             _channels = 4;
             _isOwner = true;
             _typeSize = sizeof(float);
+            _dataType = NppDataType.NPP_32F;
+            _nppChannels = NppiChannels.NPP_CH_4;
 
             _devPtr = NPPNativeMethods.NPPi.MemAlloc.nppiMalloc_32f_C4(nWidthPixels, nHeightPixels, ref _pitch);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}, Pitch is: {3}, Number of color channels: {4}", DateTime.Now, "nppiMalloc_32f_C4", res, _pitch, _channels));
@@ -81,6 +83,8 @@ namespace ManagedCuda.NPP
             _channels = 4;
             _isOwner = isOwner;
             _typeSize = sizeof(float);
+            _dataType = NppDataType.NPP_32F;
+            _nppChannels = NppiChannels.NPP_CH_4;
         }
 
         /// <summary>

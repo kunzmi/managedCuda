@@ -248,6 +248,9 @@ namespace ManagedCuda
                 case CUResult.UnsupportedExecAffinity:
                     message = "This indicates that the ::CUexecAffinityType passed to the API call is not supported by the active device.";
                     break;
+                case CUResult.UnsupportedDeviceSync:
+                    message = "This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.";
+                    break;
                 case CUResult.ErrorInvalidSource:
                     message = "This indicates that the device kernel source is invalid. This includes compilation/linker errors encountered in device code or user error.";
                     break;

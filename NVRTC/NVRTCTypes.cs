@@ -57,7 +57,9 @@ namespace ManagedCuda.NVRTC
         /// <summary/>
         ExpressionNotValid = 10,
         /// <summary/>
-        InternalError = 11
+        InternalError = 11,
+        /// <summary/>
+        TimeFileWriteFailed = 12
     }
 
     /// <summary>

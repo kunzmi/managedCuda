@@ -156,6 +156,7 @@ namespace ManagedCuda
         private int _memSyncDomainCount;
         private bool _tensorMapAccessSupported;
         private bool _unifiedFunctionPointers;
+        private bool _multiCastSupported;
 
 
 
@@ -1229,6 +1230,14 @@ namespace ManagedCuda
         {
             get { return this._unifiedFunctionPointers; }
             internal set { this._unifiedFunctionPointers = value; }
+        }
+        /// <summary>
+        /// Device supports switch multicast and reduction operations.
+        /// </summary>
+        public bool MultiCastSupported
+        {
+            get { return this._multiCastSupported; }
+            internal set { this._multiCastSupported = value; }
         }
     }
 }

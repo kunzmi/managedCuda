@@ -348,7 +348,7 @@ namespace ManagedCuda
     /// <para>IN: Specifies minimum number of threads per block to target compilation
     /// for</para>
     /// <para>OUT: Returns the number of threads the compiler actually targeted.
-    /// This restricts the resource utilization fo the compiler (e.g. max
+    /// This restricts the resource utilization of the compiler (e.g. max
     /// registers) such that a block with the given number of threads should be
     /// able to launch based on register limitations. Note, this option does not
     /// currently take into account any other resource limitations, such as
@@ -362,7 +362,7 @@ namespace ManagedCuda
         /// <para>IN: Specifies minimum number of threads per block to target compilation
         /// for</para>
         /// <para>OUT: Returns the number of threads the compiler actually targeted.
-        /// This restricts the resource utilization fo the compiler (e.g. max
+        /// This restricts the resource utilization of the compiler (e.g. max
         /// registers) such that a block with the given number of threads should be
         /// able to launch based on register limitations. Note, this option does not
         /// currently take into account any other resource limitations, such as
@@ -379,7 +379,7 @@ namespace ManagedCuda
 
         /// <summary>
         /// Returns the number of threads the compiler actually targeted.
-        /// This restricts the resource utilization fo the compiler (e.g. max
+        /// This restricts the resource utilization of the compiler (e.g. max
         /// registers) such that a block with the given number of threads should be
         /// able to launch based on register limitations. Note, this option does not
         /// currently take into account any other resource limitations, such as
@@ -812,10 +812,10 @@ namespace ManagedCuda
     }
 
     /// <summary>
-    /// Array of device symbol names that will be relocated to the corresponing
+    /// Array of device symbol names that will be relocated to the corresponding
     /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
     /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
-    /// When loding a device module, driver will relocate all encountered
+    /// When loading a device module, driver will relocate all encountered
     /// unresolved symbols to the host addresses.<para/>
     /// It is only allowed to register symbols that correspond to unresolved
     /// global variables.<para/>
@@ -833,10 +833,10 @@ namespace ManagedCuda
         IntPtr _count;
 
         /// <summary>
-        /// Array of device symbol names that will be relocated to the corresponing
+        /// Array of device symbol names that will be relocated to the corresponding
         /// host addresses stored in ::CU_JIT_GLOBAL_SYMBOL_ADDRESSES.<para/>
         /// Must contain ::CU_JIT_GLOBAL_SYMBOL_COUNT entries.<para/>
-        /// When loding a device module, driver will relocate all encountered
+        /// When loading a device module, driver will relocate all encountered
         /// unresolved symbols to the host addresses.<para/>
         /// It is only allowed to register symbols that correspond to unresolved
         /// global variables.<para/>
