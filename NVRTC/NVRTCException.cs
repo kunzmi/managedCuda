@@ -163,6 +163,9 @@ namespace ManagedCuda.NVRTC
                 case nvrtcResult.InternalError:
                     message = "Internal error.";
                     break;
+                case nvrtcResult.TimeFileWriteFailed:
+                    message = "TimeFileWriteFailed error.";
+                    break;
                 default:
                     break;
             }

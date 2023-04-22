@@ -85,6 +85,14 @@ namespace ManagedCuda.NPP
         /// 
         /// </summary>
         protected bool _isOwner;
+        /// <summary>
+        /// The NPP data type.
+        /// </summary>
+        protected NppDataType _dataType = 0;
+        /// <summary>
+        /// The NPP channel count.
+        /// </summary>
+        protected NppiChannels _nppChannels = 0;
 
         #region Dispose
         /// <summary>

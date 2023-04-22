@@ -6148,6 +6148,12 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.UnifiedFunctionPointers = unifiedFunctionPointers != 0;
 
+            int multiCastSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref multiCastSupported, CUDeviceAttribute.MultiCastSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MultiCastSupported = multiCastSupported != 0;
+
             return props;
         }
 
@@ -6284,6 +6290,32 @@ namespace ManagedCuda
                 throw new CudaException(res);
             return maxWidthInElements;
         }
+
+        /// <summary>
+        /// Returns the flags for the current context.
+        /// </summary>
+        public static CUCtxFlags GetFlags()
+        {
+            CUResult res;
+            CUCtxFlags flags = new CUCtxFlags();
+            res = DriverAPINativeMethods.ContextManagement.cuCtxGetFlags(ref flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetFlags", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return flags;
+
+        }
+
+        /// <summary>
+        /// Sets the flags for the current context.
+        /// </summary>
+        /// <param name="flags">Flags to set on the current context</param>
+        public static void SetFlags(CUCtxFlags flags)
+        {
+            CUResult res;
+            res = DriverAPINativeMethods.ContextManagement.cuCtxSetFlags(flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxSetFlags", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
         #endregion
 
         #region Properties
@@ -6317,23 +6349,6 @@ namespace ManagedCuda
         public bool IsContextOwner
         {
             get { return _contextOwner; }
-        }
-
-        /// <summary>
-        /// Returns the flags for the current context.
-        /// </summary>
-        public CUCtxFlags Flags
-        {
-            get
-            {
-                if (disposed) throw new ObjectDisposedException(this.ToString());
-                CUResult res;
-                CUCtxFlags flags = new CUCtxFlags();
-                res = DriverAPINativeMethods.ContextManagement.cuCtxGetFlags(ref flags);
-                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetFlags", res));
-                if (res != CUResult.Success) throw new CudaException(res);
-                return flags;
-            }
         }
 
         /// <summary>

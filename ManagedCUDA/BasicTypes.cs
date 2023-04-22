@@ -351,9 +351,24 @@ namespace ManagedCuda.BasicTypes
         LMemResizeToMax = 16,
 
         /// <summary>
+        /// Trigger coredumps from exceptions in this context
+        /// </summary>
+        CoreDumpEnable = 0x20,
+
+        /// <summary>
+        /// Enable user pipe to trigger coredumps in this context
+        /// </summary>
+        UserCoreDumpEnable = 0x40,
+
+        /// <summary>
+        /// Force synchronous blocking on cudaMemcpy/cudaMemset
+        /// </summary>
+        SyncMemOps = 0x80,
+
+        /// <summary>
         /// No description found...
         /// </summary>
-        FlagsMask = 0x1f
+        FlagsMask = 0xff
     }
 
     /// <summary>
@@ -824,6 +839,22 @@ namespace ManagedCuda.BasicTypes
         /// Run the graph using the per-node priority attributes rather than the priority of the stream it is launched into.
         /// </summary>
         UseNodePriority = 8
+    }
+
+    /// <summary>
+    /// Flags for querying different granularities for a multicast object
+    /// </summary>
+    [Flags]
+    public enum CUmulticastGranularity_flags
+    {
+        /// <summary>
+        /// Minimum required granularity
+        /// </summary>
+        Minimum = 0,
+        /// <summary>
+        /// Recommended granularity for best performance
+        /// </summary>
+        Recommended = 1
     }
     #endregion
 

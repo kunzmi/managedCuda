@@ -59,6 +59,10 @@ namespace ManagedCuda.NvJpeg
         /// 
         /// </summary>
         public const int NVJPEG_FLAGS_REDUCED_MEMORY_DECODE_ZERO_COPY = 1 << 4;
+        /// <summary>
+        /// 
+        /// </summary>
+        public const int NVJPEG_FLAGS_UPSAMPLING_WITH_INTERPOLATION = 1 << 5;
     }
 
     /// <summary>

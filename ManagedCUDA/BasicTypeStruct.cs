@@ -3178,10 +3178,11 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         public CUmemLocation location;
         /// <summary>
-        /// Windows-specific LPSECURITYATTRIBUTES required when
-        /// ::CU_MEM_HANDLE_TYPE_WIN32 is specified.This security attribute defines
-        /// the scope of which exported allocations may be tranferred to other
-        /// processes.In all other cases, this field is required to be zero.
+        /// Windows-specific POBJECT_ATTRIBUTES required when
+        /// ::CU_MEM_HANDLE_TYPE_WIN32 is specified.This object attributes structure
+        /// includes security attributes that define
+        /// the scope of which exported allocations may be transferred to other
+        /// processes. In all other cases, this field is required to be zero.
         /// </summary>
         public IntPtr win32HandleMetaData;
         /// <summary>
@@ -3932,6 +3933,29 @@ namespace ManagedCuda.BasicTypes
         public CUlaunchAttribute[] attrs;
     }
 
+    /// <summary>
+    /// Specifies the properties for a multicast object.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUmulticastObjectProp
+    {
+        /// <summary>
+        /// The number of devices in the multicast team that will bind memory to this object
+        /// </summary>
+        public uint numDevices;
+        /// <summary>
+        /// The maximum amount of memory that can be bound to this multicast object per device
+        /// </summary>
+        public SizeT size;
+        /// <summary>
+        /// Bitmask of exportable handle types (see ::CUmemAllocationHandleType) for this object
+        /// </summary>
+        public ulong handleTypes;
+        /// <summary>
+        /// Flags for future use, must be zero now
+        /// </summary>
+        public ulong flags;
+    }
 
     //public struct CUlibraryHostUniversalFunctionAndDataTable
     //{
