@@ -40,31 +40,10 @@ namespace ManagedCuda
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
 #if (NETCOREAPP)
-        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
-
         static DirectX9NativeMethods()
         {
-            NativeLibrary.SetDllImportResolver(typeof(DirectX9NativeMethods).Assembly, ImportResolver);
-        }
-
-        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            IntPtr libHandle = IntPtr.Zero;
-
-            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
-                    if (!res)
-                    {
-                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
-                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
-                    }
-                }
-            }
-            //On Windows, use the default library name
-            return libHandle;
+            //DirectX9NativeMethods uses the same shared library as DriverAPINativeMethods:
+            DriverAPINativeMethods.Init();
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
@@ -227,31 +206,10 @@ namespace ManagedCuda
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
 #if (NETCOREAPP)
-        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
-
         static DirectX10NativeMethods()
         {
-            NativeLibrary.SetDllImportResolver(typeof(DirectX10NativeMethods).Assembly, ImportResolver);
-        }
-
-        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            IntPtr libHandle = IntPtr.Zero;
-
-            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
-                    if (!res)
-                    {
-                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
-                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
-                    }
-                }
-            }
-            //On Windows, use the default library name
-            return libHandle;
+            //DirectX10NativeMethods uses the same shared library as DriverAPINativeMethods:
+            DriverAPINativeMethods.Init();
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
@@ -412,31 +370,10 @@ namespace ManagedCuda
         internal const string CUDA_DRIVER_API_DLL_NAME = "nvcuda";
 
 #if (NETCOREAPP)
-        internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
-
         static DirectX11NativeMethods()
         {
-            NativeLibrary.SetDllImportResolver(typeof(DirectX11NativeMethods).Assembly, ImportResolver);
-        }
-
-        private static IntPtr ImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            IntPtr libHandle = IntPtr.Zero;
-
-            if (libraryName == CUDA_DRIVER_API_DLL_NAME)
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    bool res = NativeLibrary.TryLoad(CUDA_DRIVER_API_DLL_NAME_LINUX, assembly, DllImportSearchPath.SafeDirectories, out libHandle);
-                    if (!res)
-                    {
-                        Debug.WriteLine("Failed to load '" + CUDA_DRIVER_API_DLL_NAME_LINUX + "' shared library. Falling back to (Windows-) default library name '"
-                            + CUDA_DRIVER_API_DLL_NAME + "'. Check LD_LIBRARY_PATH environment variable for correct paths.");
-                    }
-                }
-            }
-            //On Windows, use the default library name
-            return libHandle;
+            //DirectX11NativeMethods uses the same shared library as DriverAPINativeMethods:
+            DriverAPINativeMethods.Init();
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
