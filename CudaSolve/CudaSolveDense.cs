@@ -126,6 +126,32 @@ namespace ManagedCuda.CudaSolve
         }
         #endregion
 
+        #region Deterministic
+
+        /// <summary>
+        /// This function sets the cusolverDeterministicMode to be used by the cuSolverDN library to execute its routines.
+        /// </summary>
+        public void SetDeterministic(cusolverDeterministicMode mode)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnSetDeterministicMode(_handle, mode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSetDeterministicMode", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        /// <summary>
+        /// This function gets the cusolverDeterministicMode to be used by the cuSolverDN library to execute its routines.
+        /// </summary>
+        public cusolverDeterministicMode GetDeterministic()
+        {
+            cusolverDeterministicMode mode = new cusolverDeterministicMode();
+            res = CudaSolveNativeMethods.Dense.cusolverDnGetDeterministicMode(_handle, ref mode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnGetDeterministicMode", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+
+            return mode;
+        }
+        #endregion
+
         #region Cholesky factorization and its solver
         /// <summary>
         /// This function computes the Cholesky factorization of a Hermitian positive-definite matrix.

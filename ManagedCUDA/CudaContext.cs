@@ -6154,6 +6154,24 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.MultiCastSupported = multiCastSupported != 0;
 
+            int numaConfig = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref numaConfig, CUDeviceAttribute.NumaConfig, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.NumaConfig = (CUdeviceNumaConfig)numaConfig;
+
+            int numaID = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref numaID, CUDeviceAttribute.NumaID, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.NumaID = numaID;
+
+            int hostNumaID = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref hostNumaID, CUDeviceAttribute.HostNumaID, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.HostNumaID = hostNumaID;
+
             return props;
         }
 

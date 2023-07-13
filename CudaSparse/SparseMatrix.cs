@@ -178,6 +178,55 @@ namespace ManagedCuda.CudaSparse
             return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, 0, idxBase, typeIndices, typeData);
         }
 
+        //BSR
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstBSR<indexT1, dataT1>(
+                        long brows,
+                        long bcols,
+                        long bnnz,
+                        long rowBlockDim,
+                        long colBlockDim,
+                        CudaDeviceVariable<indexT1> bsrRowOffsets,
+                        CudaDeviceVariable<indexT1> bsrColInd,
+                        CudaDeviceVariable<dataT1> bsrValues,
+                        IndexBase idxBase,
+                        Order order) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstBsr(ref descr, brows, bcols, bnnz, rowBlockDim, colBlockDim, bsrRowOffsets.DevicePointer,
+                bsrColInd.DevicePointer, bsrValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData, order);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstBsr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, brows, bcols, 0, idxBase, typeIndices, typeData);
+        }
+
+
+        //SlicedEll
+        public static ConstSparseMatrix<indexT1, dataT1> CreateConstSlicedEll<indexT1, dataT1>(
+                         long rows,
+                         long cols,
+                         long nnz,
+                         long sellValuesSize,
+                         long sliceSize,
+                         CudaDeviceVariable<indexT1> sellSliceOffsets,
+                         CudaDeviceVariable<indexT1> sellColInd,
+                         CudaDeviceVariable<dataT1> sellValues,
+                         IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseConstSpMatDescr descr = new cusparseConstSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateConstSlicedEll(ref descr, rows, cols, nnz, sellValuesSize, sliceSize, sellSliceOffsets.DevicePointer,
+                sellColInd.DevicePointer, sellValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateConstSlicedEll", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new ConstSparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+        }
         #endregion
 
         #region Get
@@ -518,7 +567,7 @@ namespace ManagedCuda.CudaSparse
 
             return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
         }
-        //CSR
+        //COO
         public static SparseMatrix<indexT1, dataT1> CreateCOO<indexT1, dataT1>(
             long rows,
             long cols,
@@ -562,6 +611,54 @@ namespace ManagedCuda.CudaSparse
             return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, 0, idxBase, typeIndices, typeData);
         }
 
+        //BSR
+        public static SparseMatrix<indexT1, dataT1> CreateBSR<indexT1, dataT1>(
+                        long brows,
+                        long bcols,
+                        long bnnz,
+                        long rowBlockDim,
+                        long colBlockDim,
+                        CudaDeviceVariable<indexT1> bsrRowOffsets,
+                        CudaDeviceVariable<indexT1> bsrColInd,
+                        CudaDeviceVariable<dataT1> bsrValues,
+                        IndexBase idxBase,
+                        Order order) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseSpMatDescr descr = new cusparseSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateBsr(ref descr, brows, bcols, bnnz, rowBlockDim, colBlockDim, bsrRowOffsets.DevicePointer,
+                bsrColInd.DevicePointer, bsrValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData, order);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateBsr", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new SparseMatrix<indexT1, dataT1>(descr, brows, bcols, 0, idxBase, typeIndices, typeData);
+        }
+
+        //SlicedEll
+        public static SparseMatrix<indexT1, dataT1> CreateSlicedEll<indexT1, dataT1>(
+                         long rows,
+                         long cols,
+                         long nnz,
+                         long sellValuesSize,
+                         long sliceSize,
+                         CudaDeviceVariable<indexT1> sellSliceOffsets,
+                         CudaDeviceVariable<indexT1> sellColInd,
+                         CudaDeviceVariable<dataT1> sellValues,
+                         IndexBase idxBase) where indexT1 : struct where dataT1 : struct
+        {
+            cusparseSpMatDescr descr = new cusparseSpMatDescr();
+            IndexType typeIndices = IndexTypeTranslator.GetType(typeof(indexT1));
+            cudaDataType typeData = CudaDataTypeTranslator.GetType(typeof(dataT1));
+            cusparseStatus res = CudaSparseNativeMethods.cusparseCreateSlicedEll(ref descr, rows, cols, nnz, sellValuesSize, sliceSize, sellSliceOffsets.DevicePointer,
+                sellColInd.DevicePointer, sellValues.DevicePointer, typeIndices, typeIndices, idxBase, typeData);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCreateSlicedEll", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+
+            return new SparseMatrix<indexT1, dataT1>(descr, rows, cols, nnz, idxBase, typeIndices, typeData);
+        }
         #endregion
 
         #region Get
@@ -860,6 +957,21 @@ namespace ManagedCuda.CudaSparse
         {
             res = CudaSparseNativeMethods.cusparseCsrSetStridedBatch(descr, batchCount, offsetsBatchStride, columnsValuesBatchStride);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseCsrSetStridedBatch", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetStridedBatchBsr(int batchCount,
+                           long offsetsBatchStride,
+                           long columnsValuesBatchStride,
+                           long ValuesBatchStride)
+        {
+            res = CudaSparseNativeMethods.cusparseBsrSetStridedBatch(descr, batchCount, offsetsBatchStride, columnsValuesBatchStride, ValuesBatchStride);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseBsrSetStridedBatch", res));
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
         }

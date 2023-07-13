@@ -738,6 +738,9 @@ namespace ManagedCuda.NvJpeg
         public static extern nvjpegStatus nvjpegJpegStreamGetExifOrientation(
             nvjpegJpegStream jpeg_stream, ref nvjpegExifOrientation orientation_flag);
 
+        [DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegJpegStreamGetSamplePrecision(
+            nvjpegJpegStream jpeg_stream, ref uint precision);
 
         /// <summary>
         /// if encoded is 1 color component then it assumes 4:0:0 (NVJPEG_CSS_GRAY, grayscale)<para/>

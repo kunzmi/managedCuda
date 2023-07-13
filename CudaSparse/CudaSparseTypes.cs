@@ -328,7 +328,15 @@ namespace ManagedCuda.CudaSparse
         /// <summary>
         /// Blocked ELL
         /// </summary>
-        BLOCKED_ELL = 5
+        BLOCKED_ELL = 5,
+        /// <summary>
+        /// Blocked Compressed Sparse Row (BSR)
+        /// </summary>
+        BSR = 6,
+        /// <summary>
+        /// Sliced ELL
+        /// </summary>
+        SLICED_ELLPACK = 7
     }
 
     /// <summary>
@@ -355,7 +363,8 @@ namespace ManagedCuda.CudaSparse
         CUSPARSE_SPMV_CSR_ALG1 = 2,
         CUSPARSE_SPMV_CSR_ALG2 = 3,
         CUSPARSE_SPMV_COO_ALG1 = 1,
-        CUSPARSE_SPMV_COO_ALG2 = 4
+        CUSPARSE_SPMV_COO_ALG2 = 4,
+        CUSPARSE_SPMV_SELL_ALG1 = 5
     }
 
     /// <summary>
@@ -444,6 +453,15 @@ namespace ManagedCuda.CudaSparse
         /// 
         /// </summary>
         Default = 0,
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum cusparseSpSVUpdate
+    {
+        General = 0,
+        Diagonal = 1
     }
 
     public enum cusparseSDDMMAlg

@@ -117,6 +117,15 @@ namespace ManagedCuda.CudaSolve
             /// <param name="sreamId">the stream to be used by the library.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
             public static extern cusolverStatus cusolverDnGetStream(cusolverDnHandle handle, ref CUstream sreamId);
+
+
+            //============================================================
+            // Deterministic Mode
+            //============================================================
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnSetDeterministicMode(cusolverDnHandle handle, cusolverDeterministicMode mode);
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnGetDeterministicMode(cusolverDnHandle handle, ref cusolverDeterministicMode mode);
             #endregion
 
             #region Cholesky factorization and its solver
@@ -1124,11 +1133,11 @@ namespace ManagedCuda.CudaSolve
 
             /// <summary/>
             [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnSsytrd(cusolverDnHandle handle, char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
+            public static extern cusolverStatus cusolverDnSsytrd(cusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
 
             /// <summary/>
             [DllImport(CUSOLVE_API_DLL_NAME)]
-            public static extern cusolverStatus cusolverDnDsytrd(cusolverDnHandle handle, char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
+            public static extern cusolverStatus cusolverDnDsytrd(cusolverDnHandle handle, [MarshalAs(UnmanagedType.I1)] char uplo, int n, CUdeviceptr A, int lda, CUdeviceptr D, CUdeviceptr E, CUdeviceptr tau, CUdeviceptr Work, int Lwork, CUdeviceptr info);
 
 
             /// <summary/>

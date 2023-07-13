@@ -2587,7 +2587,7 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
-    /// CudaBatchMemOpNodeParams
+    /// CudaBatchMemOpNodeParams (V1 and V2)
     /// </summary>
     internal struct CudaBatchMemOpNodeParamsInternal
     {
@@ -2652,7 +2652,7 @@ namespace ManagedCuda.BasicTypes
 
 
     /// <summary>
-    /// GPU kernel node parameters
+    /// GPU kernel node parameters (V2 and V3)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaKernelNodeParams
@@ -2709,7 +2709,7 @@ namespace ManagedCuda.BasicTypes
 
 
     /// <summary>
-    /// Memset node parameters
+    /// Memset node parameters (V1)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaMemsetNodeParams
@@ -2740,7 +2740,7 @@ namespace ManagedCuda.BasicTypes
         public SizeT height;
 
         /// <summary>
-        /// Initialieses the struct
+        /// Initialises the struct
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="deviceVariable"></param>
@@ -2759,7 +2759,7 @@ namespace ManagedCuda.BasicTypes
             return para;
         }
         /// <summary>
-        /// Initialieses the struct
+        /// Initialises the struct
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="deviceVariable"></param>
@@ -2781,7 +2781,352 @@ namespace ManagedCuda.BasicTypes
 
 
     /// <summary>
-    /// Host node parameters
+    /// Memset node parameters (V2)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaMemsetNodeParamsV2
+    {
+        /// <summary>
+        /// Destination device pointer
+        /// </summary>
+        public CUdeviceptr dst;
+        /// <summary>
+        /// Pitch of destination device pointer. Unused if height is 1
+        /// </summary>
+        public SizeT pitch;
+        /// <summary>
+        /// Value to be set
+        /// </summary>
+        public uint value;
+        /// <summary>
+        /// Size of each element in bytes. Must be 1, 2, or 4.
+        /// </summary>
+        public uint elementSize;
+        /// <summary>
+        /// Width of the row in elements
+        /// </summary>
+        public SizeT width;
+        /// <summary>
+        /// Number of rows
+        /// </summary>
+        public SizeT height;
+        /// <summary>
+        /// Context on which to run the node
+        /// </summary>
+        public CUcontext ctx;
+
+        /// <summary>
+        /// Initialises the struct
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="deviceVariable"></param>
+        /// <param name="value"></param>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        public static CudaMemsetNodeParamsV2 init<T>(CudaDeviceVariable<T> deviceVariable, uint value, CudaContext ctx) where T : struct
+        {
+            CudaMemsetNodeParamsV2 para = new CudaMemsetNodeParamsV2();
+            para.dst = deviceVariable.DevicePointer;
+            para.pitch = deviceVariable.SizeInBytes;
+            para.value = value;
+            para.elementSize = deviceVariable.TypeSize;
+            para.width = deviceVariable.SizeInBytes;
+            para.height = 1;
+            para.ctx = ctx.Context;
+
+            return para;
+        }
+        /// <summary>
+        /// Initialises the struct
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="deviceVariable"></param>
+        /// <param name="value"></param>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        public static CudaMemsetNodeParamsV2 init<T>(CudaPitchedDeviceVariable<T> deviceVariable, uint value, CudaContext ctx) where T : struct
+        {
+            CudaMemsetNodeParamsV2 para = new CudaMemsetNodeParamsV2();
+            para.dst = deviceVariable.DevicePointer;
+            para.pitch = deviceVariable.Pitch;
+            para.value = value;
+            para.elementSize = deviceVariable.TypeSize;
+            para.width = deviceVariable.WidthInBytes;
+            para.height = deviceVariable.Height;
+            para.ctx = ctx.Context;
+
+            return para;
+        }
+    }
+
+
+    /// <summary>
+    /// Memcpy node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaMemcpyNodeParams
+    {
+        /// <summary>
+        /// Must be zero
+        /// </summary>
+        int flags;
+        /// <summary>
+        /// Must be zero
+        /// </summary>
+        int reserved;
+        /// <summary>
+        /// Context on which to run the node
+        /// </summary>
+        CUcontext copyCtx;
+        /// <summary>
+        /// Parameters for the memory copy
+        /// </summary>
+        CUDAMemCpy3D copyParams;
+
+        /// <summary>
+        /// Initialises the struct for copy device memory to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaDeviceVariable<T> src, CudaDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.Height = 0;
+            para.copyParams.WidthInBytes = dst.SizeInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaDeviceVariable<T> src, CudaArray3D dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstArray = dst.CUArray;
+            para.copyParams.dstMemoryType = CUMemoryType.Array;
+            para.copyParams.Depth = dst.Depth;
+            para.copyParams.Height = dst.Height;
+            para.copyParams.WidthInBytes = dst.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaArray3D src, CudaDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcArray = src.CUArray;
+            para.copyParams.srcMemoryType = CUMemoryType.Array;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.Depth = src.Depth;
+            para.copyParams.Height = src.Height;
+            para.copyParams.WidthInBytes = src.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaPitchedDeviceVariable<T> src, CudaArray3D dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = src.Pitch;
+            para.copyParams.dstArray = dst.CUArray;
+            para.copyParams.dstMemoryType = CUMemoryType.Array;
+            para.copyParams.Depth = dst.Depth;
+            para.copyParams.Height = dst.Height;
+            para.copyParams.WidthInBytes = dst.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaArray3D src, CudaPitchedDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcArray = src.CUArray;
+            para.copyParams.srcMemoryType = CUMemoryType.Array;
+            para.copyParams.dstPitch = dst.Pitch;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.Depth = src.Depth;
+            para.copyParams.Height = src.Height;
+            para.copyParams.WidthInBytes = src.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to host memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init(IntPtr src, CudaArray3D dst, CudaContext ctx)
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcHost = src;
+            para.copyParams.srcMemoryType = CUMemoryType.Host;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstArray = dst.CUArray;
+            para.copyParams.dstMemoryType = CUMemoryType.Array;
+            para.copyParams.Depth = dst.Depth;
+            para.copyParams.Height = dst.Height;
+            para.copyParams.WidthInBytes = dst.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy array3d to host memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init(CudaArray3D src, IntPtr dst, CudaContext ctx)
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcArray = src.CUArray;
+            para.copyParams.srcMemoryType = CUMemoryType.Array;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.dstHost = dst;
+            para.copyParams.dstMemoryType = CUMemoryType.Host;
+            para.copyParams.Depth = src.Depth;
+            para.copyParams.Height = src.Height;
+            para.copyParams.WidthInBytes = src.WidthInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy device memory to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaPitchedDeviceVariable<T> src, CudaPitchedDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = src.Pitch;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.dstPitch = dst.Pitch;
+            para.copyParams.Height = dst.Height;
+            para.copyParams.WidthInBytes = dst.Width * dst.TypeSize;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy host memory to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(IntPtr src, CudaPitchedDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcHost = src;
+            para.copyParams.srcMemoryType = CUMemoryType.Host;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.dstPitch = dst.Pitch;
+            para.copyParams.Height = dst.Height;
+            para.copyParams.WidthInBytes = dst.Width * dst.TypeSize;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy device memory to host memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaPitchedDeviceVariable<T> src, IntPtr dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = src.Pitch;
+            para.copyParams.dstHost = dst;
+            para.copyParams.dstMemoryType = CUMemoryType.Host;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.Height = src.Height;
+            para.copyParams.WidthInBytes = src.Width * src.TypeSize;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy host memory to device memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(IntPtr src, CudaDeviceVariable<T> dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcHost = src;
+            para.copyParams.srcMemoryType = CUMemoryType.Host;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstDevice = dst.DevicePointer;
+            para.copyParams.dstMemoryType = CUMemoryType.Device;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.Height = 0;
+            para.copyParams.WidthInBytes = dst.SizeInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+
+        /// <summary>
+        /// Initialises the struct for copy device memory to host memory
+        /// </summary>
+        public static CudaMemcpyNodeParams init<T>(CudaDeviceVariable<T> src, IntPtr dst, CudaContext ctx) where T : struct
+        {
+            CudaMemcpyNodeParams para = new CudaMemcpyNodeParams();
+            para.copyParams.srcDevice = src.DevicePointer;
+            para.copyParams.srcMemoryType = CUMemoryType.Device;
+            para.copyParams.srcPitch = 0;
+            para.copyParams.dstHost = dst;
+            para.copyParams.dstMemoryType = CUMemoryType.Host;
+            para.copyParams.dstPitch = 0;
+            para.copyParams.Height = 0;
+            para.copyParams.WidthInBytes = src.SizeInBytes;
+
+            para.copyCtx = ctx.Context;
+
+            return para;
+        }
+    }
+
+
+    /// <summary>
+    /// Host node parameters (V1 and V2)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaHostNodeParams
@@ -2790,6 +3135,22 @@ namespace ManagedCuda.BasicTypes
         /// The function to call when the node executes
         /// </summary>
         public CUhostFn fn;
+        /// <summary>
+        /// Argument to pass to the function
+        /// </summary>
+        public IntPtr userData;
+    }
+
+    /// <summary>
+    /// Host node parameters (V1 and V2)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CudaHostNodeParamsInternal
+    {
+        /// <summary>
+        /// The function to call when the node executes
+        /// </summary>
+        public IntPtr fn;
         /// <summary>
         /// Argument to pass to the function
         /// </summary>
@@ -3495,7 +3856,7 @@ namespace ManagedCuda.BasicTypes
 
 
     /// <summary>
-    /// Semaphore signal node parameters
+    /// Semaphore signal node parameters (V1 and V2)
     /// </summary>
     public class CudaExtSemSignalNodeParams
     {
@@ -3506,7 +3867,21 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
-    /// Semaphore wait node parameters
+    /// Semaphore signal node parameters (V1 and V2)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CudaExtSemSignalNodeParamsInternal
+    {
+        /// <summary/>
+        public IntPtr extSemArray;
+        /// <summary/>
+        public IntPtr paramsArray;
+        /// <summary/>
+        public uint numExtSems;
+    }
+
+    /// <summary>
+    /// Semaphore wait node parameters (V1 and V2)
     /// </summary>
     public class CudaExtSemWaitNodeParams
     {
@@ -3516,24 +3891,58 @@ namespace ManagedCuda.BasicTypes
         public CudaExternalSemaphoreWaitParams[] paramsArray;
     }
 
+    /// <summary>
+    /// Semaphore wait node parameters (V1 and V2)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CudaExtSemWaitNodeParamsInternal
+    {
+        /// <summary/>
+        public IntPtr extSemArray;
+        /// <summary/>
+        public IntPtr paramsArray;
+        /// <summary/>
+        public uint numExtSems;
+    }
+
 
     /// <summary>
     /// 
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Explicit)]
     public struct CUmemPoolProps
     {
-        /// <summary/>
+        /// <summary>
+        /// Allocation type. Currently must be specified as CU_MEM_ALLOCATION_TYPE_PINNED
+        /// </summary>
+        [FieldOffset(0)]
         public CUmemAllocationType allocType;
-        /// <summary/>
+        /// <summary>
+        /// Handle types that will be supported by allocations from the pool.
+        /// </summary>
+        [FieldOffset(4)]
         public CUmemAllocationHandleType handleTypes;
-        /// <summary/>
+        /// <summary>
+        /// Location where allocations should reside.
+        /// </summary>
+        [FieldOffset(8)]
         public CUmemLocation location;
-        /// <summary/>
+        /// <summary>
+        /// Windows-specific LPSECURITYATTRIBUTES required when ::CU_MEM_HANDLE_TYPE_WIN32 is specified.
+        /// This security attribute defines the scope of which exported allocations may be transferred 
+        /// to other processes. In all other cases, this field is required to be zero.
+        /// </summary>
+        [FieldOffset(16)]
         public IntPtr win32SecurityAttributes;
-        /// <summary/>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.U1)]
-        byte[] reserved;
+        /// <summary>
+        /// Maximum pool size. When set to 0, defaults to a system dependent value.
+        /// </summary>
+        [FieldOffset(24)]
+        public SizeT maxSize;
+        ///// <summary/>
+        //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 56, ArraySubType = UnmanagedType.U1)]
+        [FieldOffset(84)]
+        int reserved;
     }
 
     /// <summary>
@@ -3582,7 +3991,7 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
-    /// Memory allocation node parameters
+    /// Memory allocation node parameters (V1 and V2)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaMemAllocNodeParams
@@ -3607,7 +4016,7 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
-    /// Memory allocation node parameters
+    /// Memory allocation node parameters  (V1 and V2)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct CudaMemAllocNodeParamsInternal
@@ -3631,6 +4040,18 @@ namespace ManagedCuda.BasicTypes
         public SizeT bytesize;
         /// <summary>
         /// out: address of the allocation returned by CUDA
+        /// </summary>
+        public CUdeviceptr dptr;
+    }
+
+    /// <summary>
+    /// Memory free node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaMemFreeNodeParams
+    {
+        /// <summary>
+        /// in: the pointer to free
         /// </summary>
         public CUdeviceptr dptr;
     }
@@ -3955,6 +4376,382 @@ namespace ManagedCuda.BasicTypes
         /// Flags for future use, must be zero now
         /// </summary>
         public ulong flags;
+    }
+
+    /// <summary>
+    /// Child graph node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaChildGraphNodeParams
+    {
+        /// <summary>
+        /// The child graph to clone into the node for node creation, or a handle to the graph owned by the node for node query
+        /// </summary>
+        public CUgraph graph;
+    }
+
+    /// <summary>
+    /// Event record node parameters 
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaEventRecordNodeParams
+    {
+        /// <summary>
+        /// The event to record when the node executes
+        /// </summary>
+        public CUevent Event;
+    }
+
+    /// <summary>
+    /// Event wait node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaEventWaitNodeParams
+    {
+        /// <summary>
+        /// The event to wait on from the node
+        /// </summary>
+        public CUevent Event;
+    }
+
+    /// <summary>
+    /// Note that not all fields are public. Private fields must be set using the Set/Get methods that allocate / free additional memory
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUgraphNodeParams
+    {
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUgraphNodeType type;
+
+        /// <summary/>
+        [FieldOffset(12)]
+        int reserved0;
+
+        //    long long reserved1[29];
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaKernelNodeParams kernel;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaMemcpyNodeParams memcpy;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaMemsetNodeParamsV2 memset;
+        /// <summary/>
+        [FieldOffset(16)]
+        CudaHostNodeParamsInternal host;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaChildGraphNodeParams graph;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaEventWaitNodeParams eventWait;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaEventRecordNodeParams eventRecord;
+        /// <summary/>
+        [FieldOffset(16)]
+        CudaExtSemSignalNodeParamsInternal extSemSignal;
+        /// <summary/>
+        [FieldOffset(16)]
+        CudaExtSemWaitNodeParamsInternal extSemWait;
+        /// <summary/>
+        [FieldOffset(16)]
+        CudaMemAllocNodeParamsInternal alloc;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaMemFreeNodeParams free;
+        /// <summary/>
+        [FieldOffset(16)]
+        CudaBatchMemOpNodeParamsInternal memOp;
+
+        [FieldOffset(248)]
+        long reserved2;
+
+        /// <summary>
+        /// Fills the internal CudaHostNodeParams structure that allocates additional memory. Make sure that the delegate is not garbage collected by pinning it!
+        /// </summary>
+        /// <param name="hostNodeParams"></param>
+        public void Set(ref CudaHostNodeParams hostNodeParams)
+        {
+            host = new CudaHostNodeParamsInternal();
+            host.userData = hostNodeParams.userData;
+            host.fn = IntPtr.Zero;
+            if (hostNodeParams.fn != null)
+            {
+                host.fn = Marshal.GetFunctionPointerForDelegate(hostNodeParams.fn);
+            }
+        }
+        /// <summary>
+        /// Fills the internal CudaMemAllocNodeParams structure that allocates additional memory. Each Set call must be followed by a call to Get() in order to free the internally allocated memory!
+        /// </summary>
+        /// <param name="memAllocParams"></param>
+        public void Set(CudaMemAllocNodeParams memAllocParams)
+        {
+            alloc = new CudaMemAllocNodeParamsInternal();
+            alloc.poolProps = memAllocParams.poolProps;
+            alloc.dptr = memAllocParams.dptr;
+            alloc.bytesize = memAllocParams.bytesize;
+            alloc.accessDescCount = 0;
+            alloc.accessDescs = IntPtr.Zero;
+
+            try
+            {
+                int arraySize = 0;
+                if (memAllocParams.accessDescs != null)
+                {
+                    arraySize = memAllocParams.accessDescs.Length;
+                    alloc.accessDescCount = (uint)arraySize;
+                }
+
+                int paramsSize = Marshal.SizeOf(typeof(CUmemAccessDesc));
+
+                if (arraySize > 0)
+                {
+                    alloc.accessDescs = Marshal.AllocHGlobal(arraySize * paramsSize);
+                }
+
+                for (int i = 0; i < arraySize; i++)
+                {
+                    Marshal.StructureToPtr(memAllocParams.accessDescs[i], alloc.accessDescs + (paramsSize * i), false);
+                }
+            }
+            catch
+            {
+                //in case of an error, free memory:
+                if (alloc.accessDescs != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(alloc.accessDescs);
+                    alloc.accessDescs = IntPtr.Zero;
+                }
+                throw;
+            }
+        }
+        /// <summary>
+        /// Fills the internal CudaMemAllocNodeParams structure that allocates additional memory. Each Set call must be followed by a call to Get() in order to free the internally allocated memory!
+        /// </summary>
+        /// <param name="batchMemOpParams"></param>
+        public void Set(CudaBatchMemOpNodeParams batchMemOpParams)
+        {
+            memOp = new CudaBatchMemOpNodeParamsInternal();
+            memOp.ctx = batchMemOpParams.ctx;
+            memOp.count = 0;
+            memOp.paramArray = IntPtr.Zero;
+            memOp.flags = batchMemOpParams.flags;
+
+            try
+            {
+                int arraySize = 0;
+                if (batchMemOpParams.paramArray != null)
+                {
+                    arraySize = batchMemOpParams.paramArray.Length;
+                    memOp.count = (uint)arraySize;
+                }
+
+                int paramsSize = Marshal.SizeOf(typeof(CUstreamBatchMemOpParams));
+
+                if (arraySize > 0)
+                {
+                    memOp.paramArray = Marshal.AllocHGlobal(arraySize * paramsSize);
+                }
+
+                for (int i = 0; i < arraySize; i++)
+                {
+                    Marshal.StructureToPtr(batchMemOpParams.paramArray[i], memOp.paramArray + (paramsSize * i), false);
+                }
+
+            }
+            catch
+            {
+                //in case of an error, free memory:
+                if (memOp.paramArray != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(memOp.paramArray);
+                    memOp.paramArray = IntPtr.Zero;
+                }
+                throw;
+            }
+        }
+        /// <summary>
+        /// Fills the internal CudaExtSemSignalNodeParams structure that allocates additional memory. Each Set call must be followed by a call to Get() in order to free the internally allocated memory!
+        /// </summary>
+        /// <param name="extSemSignalParams"></param>
+        public void Set(CudaExtSemSignalNodeParams extSemSignalParams)
+        {
+            extSemSignal = new CudaExtSemSignalNodeParamsInternal();
+            extSemSignal.extSemArray = IntPtr.Zero;
+            extSemSignal.paramsArray = IntPtr.Zero;
+            extSemSignal.numExtSems = 0;
+
+            int arraySize = 0;
+            if (extSemSignalParams.extSemArray != null && extSemSignalParams.paramsArray != null)
+            {
+                if (extSemSignalParams.extSemArray.Length != extSemSignalParams.paramsArray.Length)
+                {
+                    throw new ArgumentException("extSemSignalParams.extSemArray and extSemSignalParams.paramsArray must be of the same length.");
+                }
+                arraySize = extSemSignalParams.extSemArray.Length;
+            }
+
+            try
+            {
+                int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+
+                if (arraySize > 0)
+                {
+                    extSemSignal.extSemArray = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                    extSemSignal.paramsArray = Marshal.AllocHGlobal(arraySize * paramsSize);
+                }
+
+                for (int i = 0; i < arraySize; i++)
+                {
+                    Marshal.StructureToPtr(extSemSignalParams.extSemArray[i], extSemSignal.extSemArray + (IntPtr.Size * i), false);
+                    Marshal.StructureToPtr(extSemSignalParams.paramsArray[i], extSemSignal.paramsArray + (paramsSize * i), false);
+                }
+            }
+            catch
+            {
+                //in case of an error, free memory:
+                if (extSemSignal.extSemArray != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(extSemSignal.extSemArray);
+                    extSemSignal.extSemArray = IntPtr.Zero;
+                }
+                if (extSemSignal.paramsArray != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(extSemSignal.paramsArray);
+                    extSemSignal.paramsArray = IntPtr.Zero;
+                }
+                throw;
+            }
+        }
+        /// <summary>
+        /// Fills the internal CudaExtSemWaitNodeParams structure that allocates additional memory. Each Set call must be followed by a call to Get() in order to free the internally allocated memory!
+        /// </summary>
+        /// <param name="extSemWaitParams"></param>
+        public void Set(CudaExtSemWaitNodeParams extSemWaitParams)
+        {
+            extSemWait = new CudaExtSemWaitNodeParamsInternal();
+            extSemWait.extSemArray = IntPtr.Zero;
+            extSemWait.paramsArray = IntPtr.Zero;
+            extSemWait.numExtSems = 0;
+
+            int arraySize = 0;
+            if (extSemWaitParams.extSemArray != null && extSemWaitParams.paramsArray != null)
+            {
+                if (extSemWaitParams.extSemArray.Length != extSemWaitParams.paramsArray.Length)
+                {
+                    throw new ArgumentException("extSemWaitParams.extSemArray and extSemWaitParams.paramsArray must be of the same length.");
+                }
+                arraySize = extSemWaitParams.extSemArray.Length;
+            }
+
+            try
+            {
+                int paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+
+                if (arraySize > 0)
+                {
+                    extSemWait.extSemArray = Marshal.AllocHGlobal(arraySize * IntPtr.Size);
+                    extSemWait.paramsArray = Marshal.AllocHGlobal(arraySize * paramsSize);
+                }
+
+                for (int i = 0; i < arraySize; i++)
+                {
+                    Marshal.StructureToPtr(extSemWaitParams.extSemArray[i], extSemWait.extSemArray + (IntPtr.Size * i), false);
+                    Marshal.StructureToPtr(extSemWaitParams.paramsArray[i], extSemWait.paramsArray + (paramsSize * i), false);
+                }
+            }
+            catch
+            {
+                //in case of an error, free memory:
+                if (extSemWait.extSemArray != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(extSemWait.extSemArray);
+                    extSemWait.extSemArray = IntPtr.Zero;
+                }
+                if (extSemWait.paramsArray != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(extSemWait.paramsArray);
+                    extSemWait.paramsArray = IntPtr.Zero;
+                }
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Copies the data from the internal structure to CudaMemAllocNodeParams and frees the internally allocated memory. If Set() hasn't been called before on the output structure, the call might fail.
+        /// </summary>
+        /// <param name="memAllocParams"></param>
+        public void Get(ref CudaMemAllocNodeParams memAllocParams)
+        {
+            try
+            {
+                // copy return value:
+                memAllocParams.dptr = alloc.dptr;
+            }
+            catch
+            {
+            }
+            finally
+            {
+                //free memory
+                if (alloc.accessDescs != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(alloc.accessDescs);
+                    alloc.accessDescs = IntPtr.Zero;
+                }
+            }
+        }
+        /// <summary>
+        /// Copies the data from the internal structure to CudaBatchMemOpNodeParams and frees the internally allocated memory. If Set() hasn't been called before on the output structure, the call might fail.
+        /// </summary>
+        public void Get(CudaBatchMemOpNodeParams batchMemOpParams)
+        {
+            //No return value to set, just clear memory:
+            if (memOp.paramArray != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(memOp.paramArray);
+                memOp.paramArray = IntPtr.Zero;
+            }
+        }
+        /// <summary>
+        /// Copies the data from the internal structure to CudaExtSemSignalNodeParams and frees the internally allocated memory. If Set() hasn't been called before on the output structure, the call might fail.
+        /// </summary>
+        public void Get(CudaExtSemSignalNodeParams extSemSignalParams)
+        {
+            //No return value to set, just clear memory:
+            if (extSemSignal.extSemArray != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(extSemSignal.extSemArray);
+                extSemSignal.extSemArray = IntPtr.Zero;
+            }
+            if (extSemSignal.paramsArray != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(extSemSignal.paramsArray);
+                extSemSignal.paramsArray = IntPtr.Zero;
+            }
+        }
+        /// <summary>
+        /// Copies the data from the internal structure to CudaExtSemWaitNodeParams and frees the internally allocated memory. If Set() hasn't been called before on the output structure, the call might fail.
+        /// </summary>
+        public void Get(CudaExtSemWaitNodeParams extSemWaitParams)
+        {
+            //No return value to set, just clear memory:
+            if (extSemWait.extSemArray != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(extSemWait.extSemArray);
+                extSemWait.extSemArray = IntPtr.Zero;
+            }
+            if (extSemWait.paramsArray != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(extSemWait.paramsArray);
+                extSemWait.paramsArray = IntPtr.Zero;
+            }
+        }
+
     }
 
     //public struct CUlibraryHostUniversalFunctionAndDataTable

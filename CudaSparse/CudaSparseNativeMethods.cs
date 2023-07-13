@@ -205,12 +205,12 @@ namespace ManagedCuda.CudaSparse
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseDestroyColorInfo(cusparseColorInfo info);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseSetColorAlgs(cusparseColorInfo info, cusparseColorAlg alg);
-        /// <summary/>
-        [DllImport(CUSPARSE_API_DLL_NAME)]
-        public static extern cusparseStatus cusparseGetColorAlgs(cusparseColorInfo info, ref cusparseColorAlg alg);
+        ///// <summary/>
+        //[DllImport(CUSPARSE_API_DLL_NAME)]
+        //public static extern cusparseStatus cusparseSetColorAlgs(cusparseColorInfo info, cusparseColorAlg alg);
+        ///// <summary/>
+        //[DllImport(CUSPARSE_API_DLL_NAME)]
+        //public static extern cusparseStatus cusparseGetColorAlgs(cusparseColorInfo info, ref cusparseColorAlg alg);
         #endregion
 
         #region prune information
@@ -6519,6 +6519,14 @@ namespace ManagedCuda.CudaSparse
                             long offsetsBatchStride,
                             long columnsValuesBatchStride);
 
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+
+        public static extern cusparseStatus cusparseBsrSetStridedBatch(cusparseSpMatDescr spMatDescr,
+                           int batchCount,
+                           long offsetsBatchStride,
+                           long columnsValuesBatchStride,
+                           long ValuesBatchStride);
+
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpMatGetAttribute(cusparseConstSpMatDescr spMatDescr,
@@ -6661,7 +6669,42 @@ namespace ManagedCuda.CudaSparse
                        CUdeviceptr cscColOffsets,
                        CUdeviceptr cscRowInd,
                        CUdeviceptr cscValues);
+        //------------------------------------------------------------------------------
+        // ### BSR ###
 
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateBsr(ref cusparseSpMatDescr spMatDescr,
+                  long brows,
+                  long bcols,
+                  long bnnz,
+                  long rowBlockDim,
+                  long colBlockDim,
+                  CUdeviceptr bsrRowOffsets,
+                  CUdeviceptr bsrColInd,
+                  CUdeviceptr bsrValues,
+                  IndexType bsrRowOffsetsType,
+                  IndexType bsrColIndType,
+                  IndexBase idxBase,
+                  cudaDataType valueType,
+                  Order order);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstBsr(ref cusparseConstSpMatDescr spMatDescr,
+                       long brows,
+                       long bcols,
+                       long bnnz,
+                       long rowBlockDim,
+                       long colBlockDim,
+                       CUdeviceptr bsrRowOffsets,
+                       CUdeviceptr bsrColInd,
+                       CUdeviceptr bsrValues,
+                       IndexType bsrRowOffsetsType,
+                       IndexType bsrColIndType,
+                       IndexBase idxBase,
+                       cudaDataType valueType,
+                       Order order);
+
+        //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
         // ### COO ###
@@ -6719,6 +6762,38 @@ namespace ManagedCuda.CudaSparse
                        CUdeviceptr cooRows,
                        CUdeviceptr cooColumns,
                        CUdeviceptr cooValues);
+        //------------------------------------------------------------------------------
+        // ### Sliced ELLPACK ###
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateSlicedEll(ref cusparseSpMatDescr spMatDescr,
+                        long rows,
+                        long cols,
+                        long nnz,
+                        long sellValuesSize,
+                        long sliceSize,
+                        CUdeviceptr sellSliceOffsets,
+                        CUdeviceptr sellColInd,
+                        CUdeviceptr sellValues,
+                        IndexType sellSliceOffsetsType,
+                        IndexType sellColIndType,
+                        IndexBase idxBase,
+                        cudaDataType valueType);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseCreateConstSlicedEll(ref cusparseConstSpMatDescr spMatDescr,
+                             long rows,
+                             long cols,
+                             long nnz,
+                             long sellValuesSize,
+                             long sliceSize,
+                             CUdeviceptr sellSliceOffsets,
+                             CUdeviceptr sellColInd,
+                             CUdeviceptr sellValues,
+                             IndexType sellSliceOffsetsType,
+                             IndexType sellColIndType,
+                             IndexBase idxBase,
+                             cudaDataType valueType);
 
         #endregion
 
@@ -7201,6 +7276,13 @@ namespace ManagedCuda.CudaSparse
                    cudaDataType computeType,
                    cusparseSpSVAlg alg,
                    cusparseSpSVDescr spsvDescr);
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus
+        cusparseSpSV_updateMatrix(cusparseContext handle,
+                          cusparseSpSVDescr spsvDescr,
+                          CUdeviceptr newValues,
+                          cusparseSpSVUpdate updatePart);
         #endregion
 
         #region SPARSE MATRIX-MATRIX MULTIPLICATION

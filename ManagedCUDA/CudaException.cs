@@ -143,7 +143,7 @@ namespace ManagedCuda
                     message = "This indicates that one or more of the parameters passed to the API call is not within an acceptable range of values.";
                     break;
                 case CUResult.ErrorOutOfMemory:
-                    message = "The API call failed because it was unable to allocate enough memory to perform the requested operation.";
+                    message = "The API call failed because it was unable to allocate enough memory or other resources to perform the requested operation.";
                     break;
                 case CUResult.ErrorNotInitialized:
                     message = "The CUDA driver API is not yet initialized. Call cuInit(Flags) before any other driver API call.";

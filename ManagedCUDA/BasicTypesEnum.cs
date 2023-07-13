@@ -856,9 +856,21 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         UnifiedFunctionPointers = 129,
         /// <summary>
+        /// 
+        /// </summary>
+        NumaConfig = 130,
+        /// <summary>
+        /// 
+        /// </summary>
+        NumaID = 131,
+        /// <summary>
         /// Device supports switch multicast and reduction operations.
         /// </summary>
         MultiCastSupported = 132,
+        /// <summary>
+        /// NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+        /// </summary>
+        HostNumaID = 134,
         /// <summary>
         /// Max elems...
         /// </summary>
@@ -2895,7 +2907,24 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// The last location to which the range was prefetched
         /// </summary>
-        LastPrefetchLocation = 4
+        LastPrefetchLocation = 4,
+        /// <summary>
+        /// The preferred location type of the range
+        /// </summary>
+        PrefrerredLocationType = 5,
+        /// <summary>
+        /// The preferred location id of the range
+        /// </summary>
+        PrefrerredLocationID = 6,
+        /// <summary>
+        /// The last location type to which the range was prefetched
+        /// </summary>
+        LastPrefetchLocationType = 7,
+        /// <summary>
+        /// The last location id to which the range was prefetched
+        /// </summary>
+        LastPrefetchLocationID = 8
+
     }
 
     /// <summary>
@@ -3115,7 +3144,20 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Location is a device location, thus id is a device ordinal
         /// </summary>
-        Device = 0x1
+        Device = 0x1,
+        /// <summary>
+        /// Location is host, id is ignored
+        /// </summary>
+        Host = 0x2,
+        /// <summary>
+        /// Location is a host NUMA node, thus id is a host NUMA node id
+        /// </summary>
+        HostNUMA = 0x3,
+        /// <summary>
+        /// Location is a host NUMA node of the current thread, id is ignored
+        /// </summary>
+        HostNUMACurrent = 0x4,
+
     }
 
     /// <summary>
@@ -3783,6 +3825,21 @@ namespace ManagedCuda.BasicTypes
         Pipe,
         /// <summary/>
         Max
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUdeviceNumaConfig
+    {
+        /// <summary>
+        /// The GPU is not a NUMA node
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// The GPU is a NUMA node, CU_DEVICE_ATTRIBUTE_NUMA_ID contains its NUMA ID
+        /// </summary>
+        NumaNode,
     }
     #endregion
 }
