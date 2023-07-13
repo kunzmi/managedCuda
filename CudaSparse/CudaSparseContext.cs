@@ -9695,6 +9695,18 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        public void cusparseSpSV_updateMatrix<dataT>(cusparseContext handle,
+                          SpSVDescr spsvDescr,
+                          CudaDeviceVariable<dataT> newValues,
+                          cusparseSpSVUpdate update)
+            where dataT : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpSV_updateMatrix(_handle, spsvDescr.Descr, newValues.DevicePointer, update);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSV_updateMatrix", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+        }
+
 
         public SizeT SpSV_bufferSize<indexT, dataT>(cusparseOperation opA, dataT alpha, ConstSparseMatrix<indexT, dataT> matA,
             ConstDenseVector<dataT> vecX, DenseVector<dataT> vecY, cudaDataType computeType, cusparseSpSVAlg alg, SpSVDescr spsvDescr)

@@ -284,6 +284,19 @@ namespace ManagedCuda.NvJpeg
                 return orientation;
             }
         }
+        public uint SamplePrecision
+        {
+            get
+            {
+                uint precision = 0;
+
+                res = NvJpegNativeMethods.nvjpegJpegStreamGetSamplePrecision(_stream, ref precision);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegJpegStreamGetSamplePrecision", res));
+                if (res != nvjpegStatus.Success)
+                    throw new NvJpegException(res);
+                return precision;
+            }
+        }
 
         public bool DecodeBatchedSupportedEx(nvjpegDecodeParams decodeParams)
         {

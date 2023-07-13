@@ -1431,6 +1431,23 @@ namespace ManagedCuda.BasicTypes
             if (res != CUResult.Success) throw new CudaException(res);
         }
 
+
+        /// <summary>
+        /// Update's a graph node's parameters
+        /// Sets the parameters of graph node \p hNode to \p nodeParams.The node type specified by
+        /// \p nodeParams->type must match the type of \p hNode. \p nodeParams must be fully
+        /// initialized and all unused bytes (reserved, padding) zeroed.
+        /// Modifying parameters is not supported for node types CU_GRAPH_NODE_TYPE_MEM_ALLOC and
+        /// CU_GRAPH_NODE_TYPE_MEM_FREE.
+        /// </summary>
+        /// <param name="nodeParams"></param>
+        public void SetParameters(ref CUgraphNodeParams nodeParams)
+        {
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeSetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
         /// <summary>
         /// Gets the parameters of host node.
         /// </summary>

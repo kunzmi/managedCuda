@@ -552,6 +552,40 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Adds a node of arbitrary type to a graph
+        /// 
+        /// Creates a new node in \p hGraph described by \p nodeParams with \p numDependencies
+        /// dependencies specified via \p dependencies. \p numDependencies may be 0.
+        /// \p dependencies may be null if \p numDependencies is 0. \p dependencies may not have
+        /// any duplicate entries.
+        /// 
+        /// \p nodeParams is a tagged union. The node type should be specified in the \p type field,
+        /// and type-specific parameters in the corresponding union member. All unused bytes - that
+        /// is, \p reserved0 and all bytes past the utilized union member - must be set to zero.
+        /// It is recommended to use brace initialization or memset to ensure all bytes are
+        /// initialized.
+        /// 
+        /// Note that for some node types, \p nodeParams may contain "out parameters" which are
+        /// modified during the call, such as \p nodeParams->alloc.dptr.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="nodeParams">Specification of the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddNode(CUgraphNode[] dependencies, ref CUgraphNodeParams nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+                numDependencies = dependencies.Length;
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddNode(ref node, _graph, dependencies, numDependencies, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddNode", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
         /// Creates a memory free node and adds it to a graph<para/>
         /// Creates a new memory free node and adds it to \p hGraph with \p numDependencies
         /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.

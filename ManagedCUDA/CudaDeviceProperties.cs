@@ -157,6 +157,9 @@ namespace ManagedCuda
         private bool _tensorMapAccessSupported;
         private bool _unifiedFunctionPointers;
         private bool _multiCastSupported;
+        private CUdeviceNumaConfig _numaConfig;
+        private int _numaID;
+        private int _hostNumaID;
 
 
 
@@ -1238,6 +1241,31 @@ namespace ManagedCuda
         {
             get { return this._multiCastSupported; }
             internal set { this._multiCastSupported = value; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUdeviceNumaConfig NumaConfig
+        {
+            get { return this._numaConfig; }
+            internal set { this._numaConfig = value; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int NumaID
+        {
+            get { return this._numaID; }
+            internal set { this._numaID = value; }
+        }
+        /// <summary>
+        /// NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+        /// </summary>
+        public int HostNumaID
+        {
+            get { return this._hostNumaID; }
+            internal set { this._hostNumaID = value; }
         }
     }
 }

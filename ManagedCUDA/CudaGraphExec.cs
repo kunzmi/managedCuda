@@ -293,6 +293,40 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Update's a graph node's parameters in an instantiated graph
+        /// Sets the parameters of a node in an executable graph \p hGraphExec.The node is identified
+        /// by the corresponding node \p hNode in the non-executable graph from which the executable
+        /// graph was instantiated. \p hNode must not have been removed from the original graph.
+        /// <para/>
+        /// The modifications only affect future launches of \p hGraphExec. Already
+        /// enqueued or running launches of \p hGraphExec are not affected by this call.
+        /// hNode is also not modified by this call.
+        /// <para/>
+        /// Allowed changes to parameters on executable graphs are as follows:<para/>
+        /// Node type | Allowed changes<para/>
+        /// kernel | See ::cuGraphExecKernelNodeSetParams<para/>
+        /// memcpy | Addresses for 1-dimensional copies if allocated in same context; see::cuGraphExecMemcpyNodeSetParams<para/>
+        /// memset | Addresses for 1-dimensional memsets if allocated in same context; see::cuGraphExecMemsetNodeSetParams<para/>
+        /// host | Unrestricted<para/>
+        /// child graph | Topology must match and restrictions apply recursively; see::cuGraphExecUpdate<para/>
+        /// event wait | Unrestricted<para/>
+        /// event record | Unrestricted<para/>
+        /// external semaphore signal | Number of semaphore operations cannot change<para/>
+        /// external semaphore wait | Number of semaphore operations cannot change<para/>
+        /// memory allocation | API unsupported<para/>
+        /// memory free | API unsupported<para/>
+        /// batch memops | Addresses, values, and operation type for wait operations; see::cuGraphExecBatchMemOpNodeSetParams<para/>
+        /// </summary>
+        /// <param name="hNode">Corresponding node from the graph from which graphExec was instantiated</param>
+        /// <param name="nodeParams">Updated Parameters to set</param>
+        public void SetParams(CUgraphNode hNode, ref CUgraphNodeParams nodeParams)
+        {
+            res = DriverAPINativeMethods.GraphManagment.cuGraphExecNodeSetParams(_graph, hNode, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphExecNodeSetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
         /// Sets the event for an event record node in the given graphExec
         /// Sets the event of an event record node in an executable graph \p hGraphExec.
         /// The node is identified by the corresponding node \p hNode in the

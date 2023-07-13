@@ -185,7 +185,11 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
         /// convert to interleaved BGR and write to 1-st channel of nvjpegImage_t
         /// </summary>
-        BGRI = 6
+        BGRI = 6,
+        /// <summary>
+        /// 16 bit unsigned output in interleaved format
+        /// </summary>
+        UnchangedU16 = 7,
     }
 
 
@@ -242,7 +246,11 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
         /// nvjpegDecodeBatched will support bitstream input on device memory
         /// </summary>
-        HardwareDevice = 5
+        HardwareDevice = 5,
+        /// <summary>
+        /// LossLessJPEG
+        /// </summary>
+        LossLessJPEG = 6,
     }
 
 
@@ -254,7 +262,8 @@ namespace ManagedCuda.NvJpeg
         Unknown = 0x0,
         BaselineDCT = 0xc0,
         ExtendedSequentialDCTHuffman = 0xc1,
-        ProgressiveDCTHuffman = 0xc2
+        ProgressiveDCTHuffman = 0xc2,
+        LossLessHuffman = 0xc3
     }
 
     /// <summary>

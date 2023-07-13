@@ -93,7 +93,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(12, 0); }
+            get { return new Version(12, 2); }
         }
 
         #region Initialization
@@ -1819,6 +1819,71 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemPrefetchAsync" + CUDA_PTSZ)]
             public static extern CUResult cuMemPrefetchAsync(CUdeviceptr devPtr, SizeT count, CUdevice dstDevice, CUstream hStream);
 
+
+            /// <summary>
+            /// Prefetches memory to the specified destination location
+            /// Prefetches memory to the specified destination location.  \p devPtr is the
+            /// base device pointer of the memory to be prefetched and \p location specifies the
+            /// destination location. \p count specifies the number of bytes to copy. \p hStream
+            /// is the stream in which the operation is enqueued.The memory range must refer
+            /// to managed memory allocated via ::cuMemAllocManaged or declared via __managed__ variables.
+            /// 
+            /// Specifying::CU_MEM_LOCATION_TYPE_DEVICE for ::CUmemLocation::type will prefetch memory to GPU
+            /// specified by device ordinal ::CUmemLocation::id which must have non-zero value for the device attribute
+            /// ::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS.Additionally, \p hStream must be associated with a device
+            /// that has a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS.
+            /// 
+            /// Specifying ::CU_MEM_LOCATION_TYPE_HOST as ::CUmemLocation::type will prefetch data to host memory.
+            /// Applications can request prefetching memory to a specific host NUMA node by specifying
+            /// ::CU_MEM_LOCATION_TYPE_HOST_NUMA for ::CUmemLocation::type and a valid host NUMA node id in ::CUmemLocation::id
+            /// Users can also request prefetching memory to the host NUMA node closest to the current thread's CPU by specifying
+            /// ::CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT for ::CUmemLocation::type.Note when ::CUmemLocation::type is etiher
+            /// ::CU_MEM_LOCATION_TYPE_HOST OR ::CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, ::CUmemLocation::id will be ignored.
+            /// The start address and end address of the memory range will be rounded down and rounded up
+            /// respectively to be aligned to CPU page size before the prefetch operation is enqueued
+            /// in the stream.
+            /// 
+            /// If no physical memory has been allocated for this region, then this memory region
+            /// will be populated and mapped on the destination device.If there's insufficient
+            /// memory to prefetch the desired region, the Unified Memory driver may evict pages from other
+            /// ::cuMemAllocManaged allocations to host memory in order to make room. Device memory
+            /// allocated using ::cuMemAlloc or::cuArrayCreate will not be evicted.
+            /// 
+            /// By default, any mappings to the previous location of the migrated pages are removed and
+            /// mappings for the new location are only setup on the destination location.The exact behavior however
+            /// also depends on the settings applied to this memory range via::cuMemAdvise as described
+            /// below:
+            /// 
+            /// If::CU_MEM_ADVISE_SET_READ_MOSTLY was set on any subset of this memory range,
+            /// then that subset will create a read-only copy of the pages on destination location.
+            /// If however the destination location is a host NUMA node, then any pages of that subset
+            /// that are already in another host NUMA node will be transferred to the destination.
+            /// 
+            /// If::CU_MEM_ADVISE_SET_PREFERRED_LOCATION was called on any subset of this memory
+            /// range, then the pages will be migrated to \p location even if \p location is not the
+            /// preferred location of any pages in the memory range.
+            /// 
+            /// If ::CU_MEM_ADVISE_SET_ACCESSED_BY was called on any subset of this memory range,
+            /// then mappings to those pages from all the appropriate processors are updated to
+            /// refer to the new location if establishing such a mapping is possible.Otherwise,
+            /// those mappings are cleared.
+            /// 
+            /// Note that this API is not required for functionality and only serves to improve performance
+            /// by allowing the application to migrate data to a suitable location before it is accessed.
+            /// 
+            /// Memory accesses to this range are always coherent and are allowed even when the data is
+            /// actively being migrated.
+            /// 
+            /// </summary>
+            /// <param name="devPtr">Pointer to be prefetched</param>
+            /// <param name="count">Size in bytes</param>
+            /// <param name="location">Destination device to prefetch to</param>
+            /// <param name="flags">flags for future use, must be zero now.</param>
+            /// <param name="hStream">Stream to enqueue prefetch operation</param>
+            /// <remarks>Note that this function is asynchronous with respect to the host and all work on other devices.</remarks>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemPrefetchAsync_v2" + CUDA_PTSZ)]
+            public static extern CUResult cuMemPrefetchAsync_v2(CUdeviceptr devPtr, SizeT count, CUmemLocation location, uint flags, CUstream hStream);
+
             /// <summary>
             /// Advise about the usage of a given memory range<para/>
             /// Advise the Unified Memory subsystem about the usage pattern for the memory range starting at devPtr with a size of count bytes.<para/>
@@ -1883,6 +1948,113 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemAdvise(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUdevice device);
+
+            /// <summary>
+            /// Advise about the usage of a given memory range<para/>
+            /// Advise the Unified Memory subsystem about the usage pattern for the memory range
+            /// starting at \p devPtr with a size of \p count bytes.The start address and end address of the memory
+            /// range will be rounded down and rounded up respectively to be aligned to CPU page size before the
+            /// advice is applied.The memory range must refer to managed memory allocated via ::cuMemAllocManaged
+            /// or declared via __managed__ variables.The memory range could also refer to system-allocated pageable
+            /// memory provided it represents a valid, host-accessible region of memory and all additional constraints
+            /// imposed by \p advice as outlined below are also satisfied.Specifying an invalid system-allocated pageable
+            /// memory range results in an error being returned.
+            /// 
+            /// The \p advice parameter can take the following values:
+            /// - ::CU_MEM_ADVISE_SET_READ_MOSTLY: This implies that the data is mostly going to be read
+            /// from and only occasionally written to.Any read accesses from any processor to this region will create a
+            /// read-only copy of at least the accessed pages in that processor's memory. Additionally, if ::cuMemPrefetchAsync
+            /// or::cuMemPrefetchAsync_v2 is called on this region, it will create a read-only copy of the data on the destination processor.
+            /// If the target location for ::cuMemPrefetchAsync_v2 is a host NUMA node and a read-only copy already exists on
+            /// another host NUMA node, that copy will be migrated to the targeted host NUMA node.
+            /// If any processor writes to this region, all copies of the corresponding page will be invalidated
+            /// except for the one where the write occurred. If the writing processor is the CPU and the preferred location of
+            /// the page is a host NUMA node, then the page will also be migrated to that host NUMA node. The \p location argument is ignored for this advice.
+            /// Note that for a page to be read-duplicated, the accessing processor must either be the CPU or a GPU
+            /// that has a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS.
+            /// Also, if a context is created on a device that does not have the device attribute
+            /// ::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS set, then read-duplication will not occur until
+            /// all such contexts are destroyed.
+            /// If the memory region refers to valid system-allocated pageable memory, then the accessing device must
+            /// have a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS for a read-only
+            /// copy to be created on that device. Note however that if the accessing device also has a non-zero value for the
+            /// device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, then setting this advice
+            /// will not create a read-only copy when that device accesses this memory region.
+            /// - ::CU_MEM_ADVISE_UNSET_READ_MOSTLY:  Undoes the effect of ::CU_MEM_ADVISE_SET_READ_MOSTLY and also prevents the
+            /// Unified Memory driver from attempting heuristic read-duplication on the memory range.Any read-duplicated
+            /// copies of the data will be collapsed into a single copy. The location for the collapsed
+            /// copy will be the preferred location if the page has a preferred location and one of the read-duplicated
+            /// copies was resident at that location.Otherwise, the location chosen is arbitrary.
+            /// Note: The \p location argument is ignored for this advice.
+            /// - ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This advice sets the preferred location for the
+            /// data to be the memory belonging to \p location. When::CUmemLocation::type is ::CU_MEM_LOCATION_TYPE_HOST,
+            /// ::CUmemLocation::id is ignored and the preferred location is set to be host memory.To set the preferred location
+            /// to a specific host NUMA node, applications must set::CUmemLocation::type to ::CU_MEM_LOCATION_TYPE_HOST_NUMA and
+            /// ::CUmemLocation::id must specify the NUMA ID of the host NUMA node.If ::CUmemLocation::type is set to ::CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
+            /// ::CUmemLocation::id will be ignored and the the host NUMA node closest to the calling thread's CPU will be used as the preferred location.
+            /// If::CUmemLocation::type is a::CU_MEM_LOCATION_TYPE_DEVICE, then::CUmemLocation::id must be a valid device ordinal
+            /// and the device must have a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS.
+            /// Setting the preferred location does not cause data to migrate to that location immediately.Instead, it guides the migration policy
+            /// when a fault occurs on that memory region.If the data is already in its preferred location and the
+            /// faulting processor can establish a mapping without requiring the data to be migrated, then
+            /// data migration will be avoided. On the other hand, if the data is not in its preferred location
+            /// or if a direct mapping cannot be established, then it will be migrated to the processor accessing
+            /// it. It is important to note that setting the preferred location does not prevent data prefetching
+            /// done using ::cuMemPrefetchAsync.
+            /// Having a preferred location can override the page thrash detection and resolution logic in the Unified
+            /// Memory driver.Normally, if a page is detected to be constantly thrashing between for example host and device
+            /// memory, the page may eventually be pinned to host memory by the Unified Memory driver.But
+            /// if the preferred location is set as device memory, then the page will continue to thrash indefinitely.
+            /// If ::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, then the
+            /// policies associated with that advice will override the policies of this advice, unless read accesses from
+            /// \p location will not result in a read-only copy being created on that procesor as outlined in description for
+            /// the advice ::CU_MEM_ADVISE_SET_READ_MOSTLY.
+            /// If the memory region refers to valid system-allocated pageable memory, and::CUmemLocation::type is CU_MEM_LOCATION_TYPE_DEVICE
+            /// then ::CUmemLocation::id must be a valid device that has a non-zero alue for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS.
+            /// - ::CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of ::CU_MEM_ADVISE_SET_PREFERRED_LOCATION
+            /// and changes the preferred location to none. The \p location argument is ignored for this advice.
+            /// - ::CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the data will be accessed by processor \p location.
+            /// The::CUmemLocation::type must be either ::CU_MEM_LOCATION_TYPE_DEVICE with ::CUmemLocation::id representing a valid device
+            /// ordinal or::CU_MEM_LOCATION_TYPE_HOST and ::CUmemLocation::id will be ignored. All other location types are invalid.
+            /// If::CUmemLocation::id is a GPU, then the device attribute ::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS must be non-zero.
+            /// This advice does not cause data migration and has no impact on the location of the data per se. Instead,
+            /// it causes the data to always be mapped in the specified processor's page tables, as long as the
+            /// location of the data permits a mapping to be established. If the data gets migrated for any reason,
+            /// the mappings are updated accordingly.
+            /// This advice is recommended in scenarios where data locality is not important, but avoiding faults is.
+            /// Consider for example a system containing multiple GPUs with peer-to-peer access enabled, where the
+            /// data located on one GPU is occasionally accessed by peer GPUs.In such scenarios, migrating data
+            /// over to the other GPUs is not as important because the accesses are infrequent and the overhead of
+            /// migration may be too high.But preventing faults can still help improve performance, and so having
+            /// a mapping set up in advance is useful.Note that on CPU access of this data, the data may be migrated
+            /// to host memory because the CPU typically cannot access device memory directly.Any GPU that had the
+            /// ::CU_MEM_ADVISE_SET_ACCESSED_BY flag set for this data will now have its mapping updated to point to the
+            /// page in host memory.
+            /// If::CU_MEM_ADVISE_SET_READ_MOSTLY is also set on this memory region or any subset of it, then the
+            /// policies associated with that advice will override the policies of this advice.Additionally, if the
+            /// preferred location of this memory region or any subset of it is also \p location, then the policies
+            /// associated with::CU_MEM_ADVISE_SET_PREFERRED_LOCATION will override the policies of this advice.
+            /// If the memory region refers to valid system-allocated pageable memory, and::CUmemLocation::type is ::CU_MEM_LOCATION_TYPE_DEVICE
+            /// then device in ::CUmemLocation::id must have a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS.
+            /// Additionally, if ::CUmemLocation::id has a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES,
+            /// then this call has no effect.
+            /// - ::CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the effect of ::CU_MEM_ADVISE_SET_ACCESSED_BY.Any mappings to
+            /// the data from \p location may be removed at any time causing accesses to result in non-fatal page faults.
+            /// If the memory region refers to valid system-allocated pageable memory, and::CUmemLocation::type is ::CU_MEM_LOCATION_TYPE_DEVICE
+            /// then device in ::CUmemLocation::id must have a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS.
+            /// Additionally, if ::CUmemLocation::id has a non-zero value for the device attribute::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES,
+            /// then this call has no effect.
+            /// <para/>
+            /// Note that this function is asynchronous with respect to the host and all work
+            /// on other devices.
+            /// </summary>
+            /// <param name="devPtr">Pointer to memory to set the advice for</param>
+            /// <param name="count">Size in bytes of the memory range</param>
+            /// <param name="advice">Advice to be applied for the specified memory range</param>
+            /// <param name="location">location to apply the advice for</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuMemAdvise_v2(CUdeviceptr devPtr, SizeT count, CUmemAdvise advice, CUmemLocation location);
 
 
             /// <summary>
@@ -11266,6 +11438,7 @@ namespace ManagedCuda
             {
                 CUResult retVal = CUResult.ErrorInvalidValue;
                 CudaMemAllocNodeParamsInternal parameters = new CudaMemAllocNodeParamsInternal();
+
                 parameters.poolProps = nodeParams.poolProps;
                 parameters.dptr = nodeParams.dptr;
                 parameters.bytesize = nodeParams.bytesize;
@@ -11310,7 +11483,7 @@ namespace ManagedCuda
                 }
                 return retVal;
             }
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphAddMemAllocNode")]
             private static extern CUResult cuGraphAddMemAllocNodeInternal(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CudaMemAllocNodeParamsInternal nodeParams);
 
             /// <summary>
@@ -11360,7 +11533,7 @@ namespace ManagedCuda
                 }
                 return retVal;
             }
-            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuGraphMemAllocNodeGetParams")]
             private static extern CUResult cuGraphMemAllocNodeGetParamsInternal(CUgraphNode hNode, ref CudaMemAllocNodeParamsInternal params_out);
 
             /// <summary>
@@ -12325,6 +12498,81 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphReleaseUserObject(CUgraph graph, CUuserObject obj, uint count);
+
+            /// <summary>
+            /// Adds a node of arbitrary type to a graph
+            /// 
+            /// Creates a new node in \p hGraph described by \p nodeParams with \p numDependencies
+            /// dependencies specified via \p dependencies. \p numDependencies may be 0.
+            /// \p dependencies may be null if \p numDependencies is 0. \p dependencies may not have
+            /// any duplicate entries.
+            /// 
+            /// \p nodeParams is a tagged union. The node type should be specified in the \p type field,
+            /// and type-specific parameters in the corresponding union member. All unused bytes - that
+            /// is, \p reserved0 and all bytes past the utilized union member - must be set to zero.
+            /// It is recommended to use brace initialization or memset to ensure all bytes are
+            /// initialized.
+            /// 
+            /// Note that for some node types, \p nodeParams may contain "out parameters" which are
+            /// modified during the call, such as \p nodeParams->alloc.dptr.
+            /// 
+            /// A handle to the new node will be returned in \p phGraphNode.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="nodeParams">Specification of the node</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUgraphNodeParams nodeParams);
+
+            /// <summary>
+            /// Update's a graph node's parameters
+            /// Sets the parameters of graph node \p hNode to \p nodeParams.The node type specified by
+            /// \p nodeParams->type must match the type of \p hNode. \p nodeParams must be fully
+            /// initialized and all unused bytes (reserved, padding) zeroed.
+            /// Modifying parameters is not supported for node types CU_GRAPH_NODE_TYPE_MEM_ALLOC and
+            /// CU_GRAPH_NODE_TYPE_MEM_FREE.
+            /// </summary>
+            /// <param name="hNode">Node to set the parameters for</param>
+            /// <param name="nodeParams">Parameters to copy</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphNodeSetParams(CUgraphNode hNode, ref CUgraphNodeParams nodeParams);
+
+            /// <summary>
+            /// Update's a graph node's parameters in an instantiated graph
+            /// Sets the parameters of a node in an executable graph \p hGraphExec.The node is identified
+            /// by the corresponding node \p hNode in the non-executable graph from which the executable
+            /// graph was instantiated. \p hNode must not have been removed from the original graph.
+            /// 
+            /// The modifications only affect future launches of \p hGraphExec. Already
+            /// enqueued or running launches of \p hGraphExec are not affected by this call.
+            /// hNode is also not modified by this call.
+            /// 
+            /// Allowed changes to parameters on executable graphs are as follows:
+            /// Node type | Allowed changes
+            /// kernel | See ::cuGraphExecKernelNodeSetParams
+            /// memcpy | Addresses for 1-dimensional copies if allocated in same context; see::cuGraphExecMemcpyNodeSetParams
+            /// memset | Addresses for 1-dimensional memsets if allocated in same context; see::cuGraphExecMemsetNodeSetParams
+            /// host | Unrestricted
+            /// child graph | Topology must match and restrictions apply recursively; see::cuGraphExecUpdate
+            /// event wait | Unrestricted
+            /// event record | Unrestricted
+            /// external semaphore signal | Number of semaphore operations cannot change
+            /// external semaphore wait | Number of semaphore operations cannot change
+            /// memory allocation | API unsupported
+            /// memory free | API unsupported
+            /// batch memops | Addresses, values, and operation type for wait operations; see::cuGraphExecBatchMemOpNodeSetParams
+            /// </summary>
+            /// <param name="hGraphExec">The executable graph in which to update the specified node</param>
+            /// <param name="hNode">Corresponding node from the graph from which graphExec was instantiated</param>
+            /// <param name="nodeParams">Updated Parameters to set</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUgraphNodeParams nodeParams);
+
         }
         #endregion
 

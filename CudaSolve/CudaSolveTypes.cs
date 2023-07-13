@@ -306,10 +306,22 @@ namespace ManagedCuda.CudaSolve
         public IntPtr Pointer;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum cusolverDnFunction
     {
         CUSOLVERDN_GETRF = 0,
         CUSOLVERDN_POTRF = 1
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum cusolverDeterministicMode
+    {
+        DeterministicResults = 1,
+        AllowNonDeterministicResults = 2
     }
     #endregion
 
