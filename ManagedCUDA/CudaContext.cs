@@ -1481,6 +1481,23 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Free device memory async
+        /// </summary>
+        /// <param name="dBuffer"></param>
+        /// <param name="stream"></param>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="CudaException"></exception>
+        public void FreeMemoryAsync(CUdeviceptr dBuffer, CUstream stream)
+        {
+            if (disposed) throw new ObjectDisposedException(this.ToString());
+            CUResult res;
+            res = DriverAPINativeMethods.MemoryManagement.cuMemFreeAsync(dBuffer, stream);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemFreeAsync", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
+
+        /// <summary>
         /// Returns the total device memory in bytes
         /// </summary>
         /// <returns></returns>

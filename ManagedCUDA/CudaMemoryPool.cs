@@ -204,14 +204,19 @@ namespace ManagedCuda
         /// <param name="hStream">The stream establishing the stream ordering semantic</param>
         public CudaDeviceVariable<T> MemAllocFromPoolAsync<T>(SizeT bytesize, CudaStream hStream) where T : struct
         {
+            CUdeviceptr devPtr = MemAllocFromPoolAsync(bytesize, hStream);
+            return new CudaDeviceVariable<T>(devPtr, false, bytesize);
+        }
+
+        public CUdeviceptr MemAllocFromPoolAsync(SizeT bytesize, CudaStream hStream)
+        {
             CUdeviceptr devPtr = new CUdeviceptr();
             res = DriverAPINativeMethods.MemoryManagement.cuMemAllocFromPoolAsync(ref devPtr, bytesize, _memoryPool, hStream.Stream);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuMemAllocFromPoolAsync", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
-            return new CudaDeviceVariable<T>(devPtr, false, bytesize);
+            return devPtr;
         }
-
 
         /// <summary>
         /// Returns the accessibility of a pool from a device<para/>
