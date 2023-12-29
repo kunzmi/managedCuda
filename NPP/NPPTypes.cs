@@ -39,7 +39,7 @@ namespace ManagedCuda.NPP
     public enum InterpolationMode
     {
         /// <summary>
-        /// Undefined
+        /// Undefined filtering interpolation mode.
         /// </summary>
         Undefined = 0,
         /// <summary>
@@ -123,36 +123,36 @@ namespace ManagedCuda.NPP
     {
         // negative return-codes indicate errors
         /// <summary>
-        /// 
+        /// Not supported mode error.
         /// </summary>
         NotSupportedModeError = -9999,
-        /// <summary/>
+        /// <summary>Invalid host memory pointer error.</summary>
         InvalidHostPointerError = -1032,
-        /// <summary/>
+        /// <summary>Invalid device memory pointer error.</summary>
         InvalidDevicePointerError = -1031,
-        /// <summary/>
+        /// <summary>Color look up table bitsize error.</summary>
         LUTPaletteBitsizeError = -1030,
         /// <summary>
         /// ZeroCrossing mode not supported
         /// </summary>
         ZCModeNotSupportedError = -1028,
-        /// <summary/>
+        /// <summary>Not sufficient Cuda compute capability error.</summary>
         NotSufficientComputeCapability = -1027,
-        /// <summary/>
+        /// <summary>Texture bind error.</summary>
         TextureBindError = -1024,
-        /// <summary/>
+        /// <summary>Wrong intersection region of interest error.</summary>
         WrongIntersectionRoiError = -1020,
-        /// <summary/>
+        /// <summary>Haar classifier pixel match error.</summary>
         HaarClassifierPixelMatchError = -1006,
-        /// <summary/>
+        /// <summary>Memory free request error.</summary>
         MemfreeError = -1005,
-        /// <summary/>
+        /// <summary>Memory set request error.</summary>
         MemsetError = -1004,
-        /// <summary/>
+        /// <summary>Memory copy request error.</summary>
         MemcpyError = -1003,
-        /// <summary/>
+        /// <summary>Memory alignment error.</summary>
         AlignmentError = -1002,
-        /// <summary/>
+        /// <summary>Cuda kernel execution error, most commonly Cuda kernel launch error.</summary>
         CudaKernelExecutionError = -1000,
         /// <summary>
         /// Unsupported round mode
@@ -366,105 +366,6 @@ namespace ManagedCuda.NPP
         /// </summary>
         MisalignedDstRoiWarning = 10000
 
-    }
-
-    /// <summary>
-    /// Gpu Compute Capabilities
-    /// </summary>
-    public enum GpuComputeCapability
-    {
-        /// <summary>
-        /// Indicates that the compute-capability query failed
-        /// </summary>
-        UnknownVersion = -1,
-        /// <summary>
-        /// Indicates that no CUDA capable device was found on machine
-        /// </summary>
-        CudaNotCapable = 0,
-        /// <summary>
-        /// Indicates that CUDA 1.0 capable device is default device on machine
-        /// </summary>
-        Cuda1_0 = 100,
-        /// <summary>
-        /// Indicates that CUDA 1.1 capable device
-        /// </summary>
-        Cuda1_1 = 110,
-        /// <summary>
-        /// Indicates that CUDA 1.2 capable device
-        /// </summary>
-        Cuda1_2 = 120,
-        /// <summary>
-        /// Indicates that CUDA 1.3 capable device
-        /// </summary>
-        Cuda1_3 = 130,
-        /// <summary>
-        /// Indicates that CUDA 2.0 capable device is machine's default device
-        /// </summary>
-        Cuda2_0 = 200,
-        /// <summary>
-        /// Indicates that CUDA 2.1 capable device is machine's default device
-        /// </summary>
-        Cuda2_1 = 210,
-        /// <summary>
-        /// Indicates that CUDA 3.0 capable device is machine's default device
-        /// </summary>
-        Cuda3_0 = 300,
-        /// <summary>
-        /// Indicates that CUDA 3.2 capable device is machine's default device
-        /// </summary>
-        Cuda3_2 = 320,
-        /// <summary>
-        /// Indicates that CUDA 3.5 capable device is machine's default device
-        /// </summary>
-        Cuda3_5 = 350,
-        /// <summary>
-        /// Indicates that CUDA 3.7 capable device is machine's default device
-        /// </summary>
-        Cuda3_7 = 370,
-        /// <summary>
-        /// Indicates that CUDA 5.0 capable device is machine's default device
-        /// </summary>
-        Cuda5_0 = 500,
-        /// <summary>
-        /// Indicates that CUDA 5.2 capable device is machine's default device
-        /// </summary>
-        Cuda5_2 = 520,
-        /// <summary>
-        /// Indicates that CUDA 5.3 capable device is machine's default device
-        /// </summary>
-        Cuda5_3 = 530,
-        /// <summary>
-        /// Indicates that CUDA 6.0  capable device is machine's default device
-        /// </summary>
-        Cuda6_0 = 600,
-        /// <summary>
-        /// Indicates that CUDA 6.1  capable device is machine's default device
-        /// </summary>
-        Cuda6_1 = 610,
-        /// <summary>
-        /// Indicates that CUDA 6.2  capable device is machine's default device
-        /// </summary>
-        Cuda6_2 = 620,
-        /// <summary>
-        /// Indicates that CUDA 6.3 capable device is machine's default device
-        /// </summary>
-        Cuda6_3 = 630,
-        /// <summary>
-        /// Indicates that CUDA 7.0 capable device is machine's default device
-        /// </summary>
-        Cuda7_0 = 700,
-        /// <summary>
-        /// Indicates that CUDA 7.2 capable device is machine's default device
-        /// </summary>
-        Cuda7_2 = 720,
-        /// <summary>
-        /// Indicates that CUDA 7.3 capable device is machine's default device
-        /// </summary>
-        Cuda7_3 = 730,
-        /// <summary>
-        /// Indicates that CUDA 7.5 or better is machine's default device
-        /// </summary>
-        Cuda7_5 = 750
     }
 
     /// <summary>
@@ -833,6 +734,8 @@ namespace ManagedCuda.NPP
         NPP_CH_4,
         /// <summary/>
         NPP_CH_A4,
+        /// <summary/>
+        NPP_CH_P2,
         /// <summary/>
         NPP_CH_P3,
         /// <summary/>
@@ -4543,7 +4446,7 @@ namespace ManagedCuda.NPP
         public CUdeviceptr pTwist;
 
         /// <summary>
-        /// Non-default pointer
+        /// Non-default constructor
         /// </summary>
         /// <param name="src">Source image</param>
         /// <param name="dst">Destination image</param>

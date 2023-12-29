@@ -852,6 +852,10 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         TensorMapAccessSupported = 127,
         /// <summary>
+        /// Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested with cuMemCreate()
+        /// </summary>
+        HandleTypeFabricSupported = 128,
+        /// <summary>
         /// Device supports unified function pointers.
         /// </summary>
         UnifiedFunctionPointers = 129,
@@ -867,6 +871,10 @@ namespace ManagedCuda.BasicTypes
         /// Device supports switch multicast and reduction operations.
         /// </summary>
         MultiCastSupported = 132,
+        /// <summary>
+        /// Indicates if contexts created on this device will be shared via MPS
+        /// </summary>
+        MPSEnabled = 132,
         /// <summary>
         /// NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
         /// </summary>
@@ -1274,7 +1282,7 @@ namespace ManagedCuda.BasicTypes
         /// (-prec-sqrt) support (1: true, default).<para/>
         /// 1 : Enables the IEEE round-to-nearest mode<para/>
         /// 0 : Enables the fast approximation mode<para/>
-        /// Option type: int\n<para/>
+        /// Option type: int<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
@@ -1284,7 +1292,7 @@ namespace ManagedCuda.BasicTypes
         /// Enable/Disable the contraction of floating-point multiplies<para/>
         /// and adds/subtracts into floating-point multiply-add (-fma)<para/>
         /// operations (1: Enable, default; 0: Disable).<para/>
-        /// Option type: int\n<para/>
+        /// Option type: int<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
@@ -1292,29 +1300,29 @@ namespace ManagedCuda.BasicTypes
 
         /// <summary>
         /// Array of kernel names that should be preserved at link time while others
-        /// can be removed.\n
-        /// Must contain ::CU_JIT_REFERENCED_KERNEL_COUNT entries.\n
+        /// can be removed.<para/>
+        /// Must contain ::CU_JIT_REFERENCED_KERNEL_COUNT entries.<para/>
         /// Note that kernel names can be mangled by the compiler in which case the
-        /// mangled name needs to be specified.\n
+        /// mangled name needs to be specified.<para/>
         /// Wildcard "*" can be used to represent zero or more characters instead of
-        /// specifying the full or mangled name.\n
+        /// specifying the full or mangled name.<para/>
         /// It is important to note that the wildcard "*" is also added implicitly.
         /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
         /// thus preserve all kernels with those names. This can be avoided by providing
-        /// a more specific name like "barfoobaz".\n
-        /// Option type: const char **\n
+        /// a more specific name like "barfoobaz".<para/>
+        /// Option type: const char **<para/>
         /// Applies to: dynamic linker only
-        ///
+        ///<para/>
         /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
         ReferencedKernelNames = 25,
 
         /// <summary>
-        /// Number of entries in ::CU_JIT_REFERENCED_KERNEL_NAMES array.\n
-        /// Option type: unsigned int\n
+        /// Number of entries in ::CU_JIT_REFERENCED_KERNEL_NAMES array.<para/>
+        /// Option type: unsigned int<para/>
         /// Applies to: dynamic linker only
-        ///
+        ///<para/>
         /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
@@ -1322,29 +1330,29 @@ namespace ManagedCuda.BasicTypes
 
         /// <summary>
         /// Array of variable names (__device__ and/or __constant__) that should be
-        /// preserved at link time while others can be removed.\n
-        /// Must contain ::CU_JIT_REFERENCED_VARIABLE_COUNT entries.\n
+        /// preserved at link time while others can be removed.<para/>
+        /// Must contain ::CU_JIT_REFERENCED_VARIABLE_COUNT entries.<para/>
         /// Note that variable names can be mangled by the compiler in which case the
-        /// mangled name needs to be specified.\n
+        /// mangled name needs to be specified.<para/>
         /// Wildcard "*" can be used to represent zero or more characters instead of
-        /// specifying the full or mangled name.\n
+        /// specifying the full or mangled name.<para/>
         /// It is important to note that the wildcard "*" is also added implicitly.
         /// For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and
         /// thus preserve all variables with those names. This can be avoided by providing
-        /// a more specific name like "barfoobaz".\n
-        /// Option type: const char **\n
+        /// a more specific name like "barfoobaz".<para/>
+        /// Option type: const char **<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
-        ///
+        /// <para/>
         /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
         ReferencedVariableNames = 27,
 
         /// <summary>
-        /// Number of entries in ::CU_JIT_REFERENCED_VARIABLE_NAMES array.\n
-        /// Option type: unsigned int\n
+        /// Number of entries in ::CU_JIT_REFERENCED_VARIABLE_NAMES array.<para/>
+        /// Option type: unsigned int<para/>
         /// Applies to: link-time optimization specified with CU_JIT_LTO
-        ///
+        /// <para/>
         /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
@@ -1353,24 +1361,34 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// This option serves as a hint to enable the JIT compiler/linker
         /// to remove constant (__constant__) and device (__device__) variables
-        /// unreferenced in device code (Disabled by default).\n
+        /// unreferenced in device code (Disabled by default).<para/>
         /// Note that host references to constant and device variables using APIs like
         /// ::cuModuleGetGlobal() with this option specified may result in undefined behavior unless
-        /// the variables are explicitly specified using ::CU_JIT_REFERENCED_VARIABLE_NAMES.\n
-        /// Option type: int\n
-        /// Applies to: link-time optimization specified with CU_JIT_LTO
-        ///
+        /// the variables are explicitly specified using ::CU_JIT_REFERENCED_VARIABLE_NAMES.<para/>
+        /// Option type: int<para/>
+        /// Applies to: link-time optimization specified with CU_JIT_LTO<para/>
         /// Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
         /// </summary>
         [Obsolete("This jit option is deprecated and should not be used.")]
         OptimizeUnusedDeviceVariables = 29,
 
         /// <summary>
-        /// Generate position independent code (0: false)\n
-        /// Option type: int\n
+        /// Generate position independent code (0: false)<para/>
+        /// Option type: int<para/>
         /// Applies to: compiler only
         /// </summary>
         PositionIndependentCode = 30,
+
+        /// <summary>
+        /// This option hints to the JIT compiler the minimum number of CTAs from the
+        /// kernel's grid to be mapped to a SM. Optimizations based on this option
+        /// need the maximum number of threads per block to be specified as well. This
+        /// option is ignored when used together with ::CU_JIT_MAX_REGISTERS or
+        /// ::CU_JIT_THREADS_PER_BLOCK.<para/>
+        /// Option type: unsigned int<para/>
+        /// Applies to: compiler only
+        /// </summary>
+        MinCTAPerSM = 31,
     }
 
     /// <summary>
@@ -1944,6 +1962,14 @@ namespace ManagedCuda.BasicTypes
         ErrorIllegalState = 401,
 
         /// <summary>
+        /// This indicates an attempt was made to introspect an object in a way that
+        /// would discard semantically important information. This is either due to
+        /// the object using funtionality newer than the API version used to
+        /// introspect it or omission of optional return arguments.
+        /// </summary>
+        LossyQuery = 402,
+
+        /// <summary>
         /// Not found
         /// </summary>
         ErrorNotFound = 500,
@@ -2002,7 +2028,7 @@ namespace ManagedCuda.BasicTypes
         /// This error indicates that the primary context for the specified device
         /// has already been initialized.
         /// </summary>
-        ErrorPrimaryContextActice = 708,
+        ErrorPrimaryContextActive = 708,
 
         /// <summary>
         /// This error indicates that the context current to the calling thread
@@ -3002,7 +3028,25 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Batch MemOp Node
         /// </summary>
-        BatchMemOp = 12
+        BatchMemOp = 12,
+        /// <summary>
+        /// Conditional Node<para/>
+        /// May be used to implement a conditional execution path or loop
+        /// inside of a graph. The graph(s) contained within the body of the conditional node
+        /// can be selectively executed or iterated upon based on the value of a conditional
+        /// variable.<para/>
+        /// Handles must be created in advance of creating the node
+        /// using ::cuGraphConditionalHandleCreate.<para/>
+        /// The following restrictions apply to graphs which contain conditional nodes:<para/>
+        /// The graph cannot be used in a child node.<para/>
+        /// Only one instantiation of the graph may exist at any point in time.<para/>
+        /// The graph cannot be cloned.<para/>
+        /// To set the control value:<para/>
+        /// In a kernel or kernels at appropriate locations in the graph, insert a call to
+        /// void cudaGraphSetConditional(CUgraphConditionalHandle handle, unsigned int value).
+        /// Supply a default value when creating the handle.
+        /// </summary>
+        Conditional = 13
     }
 
     /// <summary>
@@ -3714,7 +3758,7 @@ namespace ManagedCuda.BasicTypes
 
 
     /// <summary>
-    /// 
+    /// Launch attributes enum; used as id field of ::CUlaunchAttribute
     /// </summary>
     public enum CUlaunchAttributeID
     {
@@ -3769,13 +3813,39 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         Priority = 8,
         /// <summary>
-        /// 
+        /// Valid for streams, graph nodes, launches. See
+        /// ::CUlaunchAttributeValue::memSyncDomainMap
         /// </summary>
         MemSyncDomainMap = 9,
         /// <summary>
-        /// 
+        /// Valid for streams, graph nodes, launches. See
+        /// ::CUlaunchAttributeValue::memSyncDomain.
         /// </summary>
-        MemSyncDomain = 10
+        MemSyncDomain = 10,
+        /// <summary>
+        /// Valid for launches. Set
+        /// ::CUlaunchAttributeValue::launchCompletionEvent to record the event.
+        /// <para/>
+        /// Nominally, the event is triggered once all blocks of the kernel
+        /// have begun execution. Currently this is a best effort. If a kernel
+        /// B has a launch completion dependency on a kernel A, B may wait
+        /// until A is complete. Alternatively, blocks of B may begin before
+        /// all blocks of A have begun, for example if B can claim execution
+        /// resources unavailable to A (e.g. they run on different GPUs) or
+        /// if B is a higher priority than A.
+        /// Exercise caution if such an ordering inversion could lead
+        /// to deadlock.
+        /// <para/>
+        /// A launch completion event is nominally similar to a programmatic
+        /// event with \c triggerAtBlockStart set except that it is not
+        /// visible to \c cudaGridDependencySynchronize() and can be used with
+        /// compute capability less than 9.0.
+        /// <para/>
+        /// The event supplied must not be an interprocess or interop
+        /// event. The event must disable timing (i.e. must be created
+        /// with the ::CU_EVENT_DISABLE_TIMING flag set).
+        /// </summary>
+        CompletionEvent = 12
     }
 
 
@@ -3841,5 +3911,77 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         NumaNode,
     }
+
+    /// <summary>
+    /// CUGraphCondAssign
+    /// </summary>
+    public enum CUGraphCondAssign
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Default value is applied when graph is launched.
+        /// </summary>
+        Default = 1
+    }
+
+    /// <summary>
+    /// Conditional node types
+    /// </summary>
+    public enum CUgraphConditionalNodeType
+    {
+        /// <summary>
+        /// Conditional'if' Node. Body executed once if condition value is non-zero.
+        /// </summary>
+        If = 0,
+        /// <summary>
+        /// Conditional 'while' Node. Body executed repeatedly while condition value is non-zero.
+        /// </summary>
+        While = 1,
+    }
+
+    /// <summary>
+    /// Type annotations that can be applied to graph edges as part of ::CUgraphEdgeData.
+    /// </summary>
+    public enum CUgraphDependencyType : byte
+    {
+        /// <summary>
+        /// This is an ordinary dependency.
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// This dependency type allows the downstream node to
+        /// use cudaGridDependencySynchronize(). It may only be used
+        /// between kernel nodes, and must be used with either the
+        /// ::CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC or
+        /// ::CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER outgoing port.
+        /// </summary>
+        Programmatic = 1
+    }
+
+    /// <summary>
+    /// Type annotations that can be applied to graph edges as part of ::CUgraphEdgeData.
+    /// </summary>
+    public enum CUGraphKernelNodePort : byte
+    {
+        /// <summary>
+        /// This port activates when the kernel has finished executing.
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// This port activates when all blocks of the kernel have performed cudaTriggerProgrammaticLaunchCompletion()
+        /// or have terminated. It must be used with edge type ::CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC. See also
+        /// ::CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        /// </summary>
+        Programmatic = 1,
+        /// <summary>
+        /// This port activates when all blocks of the kernel have begun execution. See also
+        /// ::CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        /// </summary>
+        LaunchOrder = 2
+    }
+
     #endregion
 }

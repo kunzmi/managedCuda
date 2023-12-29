@@ -32,6 +32,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// Wrapper class for cusparseSolveAnalysisInfo
     /// </summary>
+    [Obsolete("Deprecated in Cuda 12.3")]
     public class CudaSparseBsric02Info : IDisposable
     {
         private bsric02Info _info;

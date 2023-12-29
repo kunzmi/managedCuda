@@ -269,6 +269,12 @@ namespace ManagedCuda
                 case CUResult.ErrorInvalidHandle:
                     message = "This indicates that a resource handle passed to the API call was not valid. Resource handles are opaque types like CUstream and CUevent.";
                     break;
+                case CUResult.ErrorIllegalState:
+                    message = "This indicates that a resource required by the API call is not in a valid state to perform the requested operation.";
+                    break;
+                case CUResult.LossyQuery:
+                    message = "This indicates an attempt was made to introspect an object in a way that would discard semantically important information. This is either due to the object using funtionality newer than the API version used to introspect it or omission of optional return arguments.";
+                    break;
                 case CUResult.ErrorNotFound:
                     message = "This indicates that a named symbol was not found. Examples of symbols are global/constant variable names, texture names, and surface names.";
                     break;
@@ -293,7 +299,7 @@ namespace ManagedCuda
                 case CUResult.ErrorPeerAccessNotEnabled:
                     message = "This error indicates that ::cuCtxDisablePeerAccess() is trying to disable peer access which has not been enabled yet via ::cuCtxEnablePeerAccess().";
                     break;
-                case CUResult.ErrorPrimaryContextActice:
+                case CUResult.ErrorPrimaryContextActive:
                     message = "This error indicates that the primary context for the specified device has already been initialized.";
                     break;
                 case CUResult.ErrorContextIsDestroyed:

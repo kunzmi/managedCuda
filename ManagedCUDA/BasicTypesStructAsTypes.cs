@@ -27,6 +27,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace ManagedCuda.BasicTypes
 {
@@ -790,6 +791,24 @@ namespace ManagedCuda.BasicTypes
             if (res != CUResult.Success) throw new CudaException(res);
             return temp;
         }
+
+        /// <summary>
+        /// Returns the function name for a ::CUfunction handle<para/>
+        /// Returns in \p **name the function name associated with the function handle \p hfunc.<para/>
+        /// The function name is returned as a null-terminated string. The returned name is only
+        /// valid when the function handle is valid.If the module is unloaded or reloaded, one
+        /// must call the API again to get the updated name.This API may return a mangled name if
+        /// the function is not declared as having C linkage.If either \p** name or \p hfunc 
+        /// is NULL, ::CUDA_ERROR_INVALID_VALUE is returned.
+        /// </summary>
+        public string GetName()
+        {
+            string name = string.Empty;
+            CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncGetName(ref name, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetName", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return name;
+        }
     }
 
     /// <summary>
@@ -979,6 +998,21 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CUipcEventHandle
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.I1)]
+        public byte[] reserved;
+    }
+
+    /// <summary>
+    /// Fabric handle - An opaque handle representing a memory allocation
+    /// that can be exported to processes in different nodes connected
+    /// to the exporting node via the NVSwitch fabric.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUmemFabricHandle
     {
         /// <summary>
         /// 
@@ -1586,6 +1620,31 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Returns a node's dependencies.
+        /// </summary>
+        /// <returns></returns>
+        public void GetDependencies(out CUgraphNode[] dependencies, out CUgraphEdgeData[] edgeData)
+        {
+            SizeT numNodes = new SizeT();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependencies_v2(this, null, null, ref numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependencies_v2", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            dependencies = null;
+            edgeData = null;
+            if (numNodes > 0)
+            {
+                dependencies = new CUgraphNode[numNodes];
+                edgeData = new CUgraphEdgeData[numNodes];
+                res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependencies_v2(this, dependencies, edgeData, ref numNodes);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependencies_v2", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return;
+            }
+        }
+
+        /// <summary>
         /// Returns a node's dependent nodes
         /// </summary>
         public CUgraphNode[] GetDependentNodes()
@@ -1606,6 +1665,31 @@ namespace ManagedCuda.BasicTypes
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns a node's dependent nodes
+        /// </summary>
+        /// <returns></returns>
+        public void GetDependentNodes(out CUgraphNode[] dependentNodes, out CUgraphEdgeData[] edgeData)
+        {
+            SizeT numNodes = new SizeT();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependentNodes_v2(this, null, null, ref numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependentNodes_v2", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            dependentNodes = null;
+            edgeData = null;
+            if (numNodes > 0)
+            {
+                dependentNodes = new CUgraphNode[numNodes];
+                edgeData = new CUgraphEdgeData[numNodes];
+                res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetDependentNodes_v2(this, dependentNodes, edgeData, ref numNodes);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetDependentNodes_v2", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return;
+            }
         }
 
 
@@ -1738,6 +1822,18 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CUuserObject
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUDA graph conditional handle
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraphConditionalHandle
     {
         /// <summary>
         /// 
@@ -2147,6 +2243,24 @@ namespace ManagedCuda.BasicTypes
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelSetCacheConfig", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns the function name for a ::CUkernel handle<para/>
+        /// Returns in \p** name the function name associated with the kernel handle \p hfunc.
+        /// The function name is returned as a null-terminated string. The returned name is only
+        /// valid when the kernel handle is valid.If the library is unloaded or reloaded, one
+        /// must call the API again to get the updated name.This API may return a mangled name if
+        /// the function is not declared as having C linkage.If either \p** name or \p hfunc 
+        /// is NULL, ::CUDA_ERROR_INVALID_VALUE is returned.
+        /// </summary>
+        public string GetName()
+        {
+            string name = string.Empty;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetName(ref name, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetName", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return name;
         }
     }
     #endregion

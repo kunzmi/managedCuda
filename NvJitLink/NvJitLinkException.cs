@@ -148,6 +148,9 @@ namespace ManagedCuda.NvJitLink
                 case nvJitLinkResult.ErrorInternal:
                     message = "ErrorInternal";
                     break;
+                case nvJitLinkResult.ErrorThreadPool:
+                    message = "ErrorThreadPool";
+                    break;
                 default:
                     break;
             }

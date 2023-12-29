@@ -270,6 +270,21 @@ namespace ManagedCuda.NvJitLink
             return logString.Replace("\0", "");
         }
 
+        /// <summary>
+        /// returns the current version of nvJitLink.
+        /// </summary>
+        public static Version Version()
+        {
+            uint major = 0;
+            uint minor = 0;
+
+            nvJitLinkResult res = NvJitLinkNativeMethods.nvJitLinkVersion(ref major, ref minor);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvJitLinkVersion", res));
+            if (res != nvJitLinkResult.Success)
+                throw new NvJitLinkException(res);
+
+            return new Version((int)major, (int)minor);
+        }
         #endregion
     }
 }

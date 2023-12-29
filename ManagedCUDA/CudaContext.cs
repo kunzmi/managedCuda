@@ -6159,6 +6159,12 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.TensorMapAccessSupported = tensorMapAccessSupported != 0;
 
+            int handleTypeFabricSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref handleTypeFabricSupported, CUDeviceAttribute.HandleTypeFabricSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.HandleTypeFabricSupported = handleTypeFabricSupported != 0;
+
             int unifiedFunctionPointers = 0;
             res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref unifiedFunctionPointers, CUDeviceAttribute.UnifiedFunctionPointers, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
@@ -6167,6 +6173,12 @@ namespace ManagedCuda
 
             int multiCastSupported = 0;
             res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref multiCastSupported, CUDeviceAttribute.MultiCastSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MultiCastSupported = multiCastSupported != 0;
+
+            int mpsEnabled = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref mpsEnabled, CUDeviceAttribute.MultiCastSupported, device);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.MultiCastSupported = multiCastSupported != 0;

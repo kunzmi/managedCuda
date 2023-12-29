@@ -9462,13 +9462,13 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="oSeed">Image location of seed pixel value to be used for comparison.</param>
         /// <param name="aNewValues">Image pixel values to be used to replace matching pixels.</param>
-        /// <param name="nBoundaryValue">Image pixel values to be used for region boundary. </param>
+        /// <param name="aBoundaryValues">Image pixel values to be used for region boundary. </param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
-        public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte aNewValues, byte nBoundaryValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
+        public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte[] aNewValues, byte[] aBoundaryValues, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
-            status = NPPNativeMethods.NPPi.FloodFill.nppiFloodFillBoundary_8u_C3IR(_devPtrRoi, _pitch, oSeed, aNewValues, nBoundaryValue, eNorm, _sizeRoi, ref pConnectedRegion, pBuffer.DevicePointer);
+            status = NPPNativeMethods.NPPi.FloodFill.nppiFloodFillBoundary_8u_C3IR(_devPtrRoi, _pitch, oSeed, aNewValues, aBoundaryValues, eNorm, _sizeRoi, ref pConnectedRegion, pBuffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFloodFillBoundary_8u_C3IR", status));
             NPPException.CheckNppStatus(status, this);
             return pConnectedRegion;

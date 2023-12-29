@@ -93,7 +93,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(12, 2); }
+            get { return new Version(12, 3); }
         }
 
         #region Initialization
@@ -1490,6 +1490,20 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuKernelSetCacheConfig(CUkernel kernel, CUFuncCache config, CUdevice dev);
 
+            /// <summary>
+            /// Returns the function name for a ::CUkernel handle<para/>
+            /// Returns in \p** name the function name associated with the kernel handle \p hfunc.
+            /// The function name is returned as a null-terminated string. The returned name is only
+            /// valid when the kernel handle is valid.If the library is unloaded or reloaded, one
+            /// must call the API again to get the updated name.This API may return a mangled name if
+            /// the function is not declared as having C linkage.If either \p** name or \p hfunc 
+            /// is NULL, ::CUDA_ERROR_INVALID_VALUE is returned.
+            /// </summary>
+            /// <param name="name">The returned name of the function</param>
+            /// <param name="kernel">The function handle to retrieve the name for </param>
+            /// <returns>CUDA Error Codes</returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuKernelGetName([MarshalAs(UnmanagedType.LPStr)] ref string name, CUkernel kernel);
         }
         #endregion
 
@@ -7576,6 +7590,21 @@ namespace ManagedCuda
             /// <param name="hfunc"></param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuFuncGetModule(ref CUmodule hmod, CUfunction hfunc);
+
+            /// <summary>
+            /// Returns the function name for a ::CUfunction handle<para/>
+            /// Returns in \p **name the function name associated with the function handle \p hfunc.<para/>
+            /// The function name is returned as a null-terminated string. The returned name is only
+            /// valid when the function handle is valid.If the module is unloaded or reloaded, one
+            /// must call the API again to get the updated name.This API may return a mangled name if
+            /// the function is not declared as having C linkage.If either \p** name or \p hfunc 
+            /// is NULL, ::CUDA_ERROR_INVALID_VALUE is returned.
+            /// </summary>
+            /// <param name="name">The returned name of the function</param>
+            /// <param name="hfunc">The function handle to retrieve the name for</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncGetName([MarshalAs(UnmanagedType.LPStr)] ref string name, CUfunction hfunc);
+
         }
         #endregion
 
@@ -9219,6 +9248,34 @@ namespace ManagedCuda
 
 
             /// <summary>
+            /// Begins graph capture on a stream to an existing graph<para/>
+            /// Begin graph capture on \p hStream, placing new nodes into an existing graph. When a stream is 
+            /// in capture mode, all operations pushed into the stream will not be executed, but will instead
+            /// be captured into \p hGraph.The graph will not be instantiable until the user calls
+            /// ::cuStreamEndCapture.<para/>
+            /// Capture may not be initiated if \p stream is CU_STREAM_LEGACY.Capture must be ended on the 
+            /// same stream in which it was initiated, and it may only be initiated if the stream is not
+            /// already in capture mode. The capture mode may be queried via::cuStreamIsCapturing.A unique id
+            /// representing the capture sequence may be queried via::cuStreamGetCaptureInfo.<para/>
+            /// If \p mode is not::CU_STREAM_CAPTURE_MODE_RELAXED, ::cuStreamEndCapture must be
+            /// called on this stream from the same thread. 
+            /// </summary>
+            /// <param name="hStream">Stream in which to initiate capture.</param>
+            /// <param name="hGraph">Graph to capture into.</param>
+            /// <param name="dependencies">Dependencies of the first node captured in the stream.  Can be NULL if numDependencies is 0.</param>
+            /// <param name="dependencyData">Optional array of data associated with each dependency.</param>
+            /// <param name="numDependencies">Number of dependencies.</param>
+            /// <param name="mode">Controls the interaction of this capture sequence with other API
+            /// calls that are potentially unsafe. For more details see
+            /// ::cuThreadExchangeStreamCaptureMode.</param>
+            /// <remarks>Kernels captured using this API must not use texture and surface references. 
+            /// Reading or writing through any texture or surface reference is undefined
+            /// behavior.This restriction does not apply to texture and surface objects.</remarks>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamBeginCaptureToGraph" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, CUgraphNode[] dependencies, CUgraphEdgeData[] dependencyData, SizeT numDependencies, CUstreamCaptureMode mode);
+
+
+            /// <summary>
             /// Ends capture on a stream, returning the captured graph<para/>
             /// End capture on \p hStream, returning the captured graph via \p phGraph.<para/>
             /// Capture must have been initiated on \p hStream via a call to::cuStreamBeginCapture.<para/>
@@ -9346,6 +9403,50 @@ namespace ManagedCuda
             public static extern CUResult cuStreamGetCaptureInfo(CUstream hStream, ref CUstreamCaptureStatus captureStatus_out,
                     ref ulong id_out, ref CUgraph graph_out, ref IntPtr dependencies_out, ref SizeT numDependencies_out);
 
+
+            /// <summary>
+            /// Query a stream's capture state (12.3+)<para/>
+            /// Query stream state related to stream capture.<para/>
+            /// If called on ::CU_STREAM_LEGACY(the "null stream") while a stream not created 
+            /// with::CU_STREAM_NON_BLOCKING is capturing, returns::CUDA_ERROR_STREAM_CAPTURE_IMPLICIT.<para/>
+            /// Valid data(other than capture status) is returned only if both of the following are true:
+            /// - the call returns CUDA_SUCCESS
+            /// - the returned capture status is ::CU_STREAM_CAPTURE_STATUS_ACTIVE<para/>
+            /// If \p edgeData_out is non-NULL then \p dependencies_out must be as well.If
+            /// \p dependencies_out is non-NULL and \p edgeData_out is NULL, but there is non-zero edge
+            /// data for one or more of the current stream dependencies, the call will return
+            /// ::CUDA_ERROR_LOSSY_QUERY.
+            /// </summary>
+            /// <param name="hStream">The stream to query</param>
+            /// <param name="captureStatus_out">Location to return the capture status of the stream; required</param>
+            /// <param name="id_out">Optional location to return an id for the capture sequence, which is unique over the lifetime of the process</param>
+            /// <param name="graph_out">Optional location to return the graph being captured into. All
+            /// operations other than destroy and node removal are permitted on the graph
+            /// while the capture sequence is in progress.This API does not transfer
+            /// ownership of the graph, which is transferred or destroyed at
+            /// ::cuStreamEndCapture.Note that the graph handle may be invalidated before
+            /// end of capture for certain errors.Nodes that are or become
+            /// unreachable from the original stream at ::cuStreamEndCapture due to direct
+            /// actions on the graph do not trigger ::CUDA_ERROR_STREAM_CAPTURE_UNJOINED.</param>
+            /// <param name="dependencies_out">Optional location to store a pointer to an array of nodes.
+            /// The next node to be captured in the stream will depend on this set of nodes,
+            /// absent operations such as event wait which modify this set.The array pointer
+            /// is valid until the next API call which operates on the stream or until the
+            /// capture is terminated.The node handles may be copied out and are valid until
+            /// they or the graph is destroyed.The driver-owned array may also be passed
+            /// directly to APIs that operate on the graph (not the stream) without copying.</param>
+            /// <param name="edgeData_out">Optional location to store a pointer to an array of graph edge
+            /// data.This array parallels \c dependencies_out; the next node to be added
+            /// has an edge to \c dependencies_out[i] with annotation \c edgeData_out[i] for
+            /// each \c i.The array pointer is valid until the next API call which operates
+            /// on the stream or until the capture is terminated.</param>
+            /// <param name="numDependencies_out">Optional location to store the size of the array returned in dependencies_out.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCaptureInfo_v3" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetCaptureInfo(CUstream hStream, ref CUstreamCaptureStatus captureStatus_out,
+                    ref ulong id_out, ref CUgraph graph_out, ref IntPtr dependencies_out,
+                    ref IntPtr edgeData_out, ref SizeT numDependencies_out);
+
+
             /// <summary>
             /// Update the set of dependencies in a capturing stream (11.3+)<para/>
             /// Modifies the dependency set of a capturing stream. The dependency set is the set of nodes that the next captured node in the stream will depend on.<para/>
@@ -9365,7 +9466,46 @@ namespace ManagedCuda
             /// <param name="numDependencies"></param>
             /// <param name="flags"></param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamUpdateCaptureDependencies" + CUDA_PTSZ)]
-            public static extern CUResult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode[] dependencies, SizeT numDependencies, uint flags);
+            public static extern CUResult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode[] dependencies, SizeT numDependencies, CUstreamUpdateCaptureDependencies_flags flags);
+
+
+            /**
+             * \brief Update the set of dependencies in a capturing stream (12.3+)
+             *
+             * Modifies the dependency set of a capturing stream. The dependency set is the set
+             * of nodes that the next captured node in the stream will depend on along with the
+             * edge data for those dependencies.
+             *
+             * Valid flags are ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES and
+             * ::CU_STREAM_SET_CAPTURE_DEPENDENCIES. These control whether the set passed to
+             * the API is added to the existing set or replaces it. A flags value of 0 defaults
+             * to ::CU_STREAM_ADD_CAPTURE_DEPENDENCIES.
+             *
+             * Nodes that are removed from the dependency set via this API do not result in
+             * ::CUDA_ERROR_STREAM_CAPTURE_UNJOINED if they are unreachable from the stream at
+             * ::cuStreamEndCapture.
+             *
+             * Returns ::CUDA_ERROR_ILLEGAL_STATE if the stream is not capturing.
+             *
+             * \param hStream - The stream to update
+             * \param dependencies - The set of dependencies to add
+             * \param dependencyData - Optional array of data associated with each dependency.
+             * \param numDependencies - The size of the dependencies array
+             * \param flags - See above
+             *
+             * \return
+             * ::CUDA_SUCCESS,
+             * ::CUDA_ERROR_INVALID_VALUE,
+             * ::CUDA_ERROR_ILLEGAL_STATE
+             *
+             * \sa
+             * ::cuStreamBeginCapture,
+             * ::cuStreamGetCaptureInfo,
+             */
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamUpdateCaptureDependencies_v2" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode[] dependencies,
+                CUgraphEdgeData[] dependencyData, SizeT numDependencies, CUstreamUpdateCaptureDependencies_flags flags);
+
 
             /// <summary>
             /// Returns the unique Id associated with the stream handle supplied<para/>
@@ -11693,6 +11833,30 @@ namespace ManagedCuda
             public static extern CUResult cuGraphGetEdges(CUgraph hGraph, [In, Out] CUgraphNode[] from, [In, Out] CUgraphNode[] to, ref SizeT numEdges);
 
             /// <summary>
+            /// Returns a graph's dependency edges (12.3+)<para/>
+            /// Returns a list of \p hGraph's dependency edges. Edges are returned via corresponding
+            /// indices in \p from, \p to and \p edgeData; that is, the node in \p to[i] has a
+            /// dependency on the node in \p from[i] with data \p edgeData[i]. \p from and \p to may
+            /// both be NULL, in which case this function only returns the number of edges in
+            /// \p numEdges.Otherwise, \p numEdges entries will be filled in. If \p numEdges is higher
+            /// than the actual number of edges, the remaining entries in \p from and \p to will be
+            /// set to NULL, and the number of edges actually returned will be written to \p numEdges.
+            /// \p edgeData may alone be NULL, in which case the edges must all have default (zeroed)
+            /// edge data.Attempting a lossy query via NULL \p edgeData will result in
+            /// ::CUDA_ERROR_LOSSY_QUERY.If \p edgeData is non-NULL then \p from and \p to must be
+            /// as well.
+            /// </summary>
+            /// <param name="hGraph">Graph to get the edges from</param>
+            /// <param name="from">Location to return edge endpoints</param>
+            /// <param name="to">Location to return edge endpoints</param>
+            /// <param name="edgeData">Optional location to return edge data</param>
+            /// <param name="numEdges">See description</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphGetEdges_v2(CUgraph hGraph, [In, Out] CUgraphNode[] from, [In, Out] CUgraphNode[] to, [In, Out] CUgraphEdgeData[] edgeData, ref SizeT numEdges);
+
+
+            /// <summary>
             /// Returns a node's dependencies<para/>
             /// Returns a list of \p node's dependencies. \p dependencies may be NULL, in which case this
             /// function will return the number of dependencies in \p numDependencies. Otherwise,
@@ -11705,6 +11869,24 @@ namespace ManagedCuda
             /// <param name="numDependencies">See description</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphNodeGetDependencies(CUgraphNode hNode, [In, Out] CUgraphNode[] dependencies, ref SizeT numDependencies);
+
+            /// <summary>
+            /// Returns a node's dependencies (12.3+)
+            /// Returns a list of \p node's dependencies. \p dependencies may be NULL, in which case this
+            /// function will return the number of dependencies in \p numDependencies.Otherwise,
+            /// \p numDependencies entries will be filled in. If \p numDependencies is higher than the actual
+            /// number of dependencies, the remaining entries in \p dependencies will be set to NULL, and the
+            /// number of nodes actually obtained will be returned in \p numDependencies.<para/>
+            /// Note that if an edge has non-zero (non-default) edge data and \p edgeData is NULL,
+            /// this API will return ::CUDA_ERROR_LOSSY_QUERY.If \p edgeData is non-NULL, then
+            /// \p dependencies must be as well.
+            /// </summary>
+            /// <param name="hNode">Node to query</param>
+            /// <param name="dependencies">Pointer to return the dependencies</param>
+            /// <param name="edgeData">Optional array to return edge data for each dependency</param>
+            /// <param name="numDependencies">See description</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphNodeGetDependencies_v2(CUgraphNode hNode, [In, Out] CUgraphNode[] dependencies, [In, Out] CUgraphEdgeData[] edgeData, ref SizeT numDependencies);
 
             /// <summary>
             /// Returns a node's dependent nodes<para/>
@@ -11720,6 +11902,27 @@ namespace ManagedCuda
             /// <param name="numDependentNodes">See description</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphNodeGetDependentNodes(CUgraphNode hNode, [In, Out] CUgraphNode[] dependentNodes, ref SizeT numDependentNodes);
+
+
+            /// <summary>
+            /// Returns a node's dependent nodes (12.3+)<para/>
+            /// Returns a list of \p node's dependent nodes. \p dependentNodes may be NULL, in which
+            /// case this function will return the number of dependent nodes in \p numDependentNodes.
+            /// Otherwise, \p numDependentNodes entries will be filled in. If \p numDependentNodes is
+            /// higher than the actual number of dependent nodes, the remaining entries in
+            /// \p dependentNodes will be set to NULL, and the number of nodes actually obtained will
+            /// be returned in \p numDependentNodes.<para/>
+            /// Note that if an edge has non-zero(non-default) edge data and \p edgeData is NULL,
+            /// this API will return ::CUDA_ERROR_LOSSY_QUERY.If \p edgeData is non-NULL, then
+            /// \p dependentNodes must be as well.
+            /// </summary>
+            /// <param name="hNode">Node to query</param>
+            /// <param name="dependentNodes">Pointer to return the dependent nodes</param>
+            /// <param name="edgeData">Optional pointer to return edge data for dependent nodes</param>
+            /// <param name="numDependentNodes">See description</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, [In, Out] CUgraphNode[] dependentNodes, [In, Out] CUgraphEdgeData[] edgeData, ref SizeT numDependentNodes);
+
 
             /// <summary>
             /// Adds dependency edges to a graph<para/>
@@ -11737,6 +11940,23 @@ namespace ManagedCuda
             public static extern CUResult cuGraphAddDependencies(CUgraph hGraph, CUgraphNode[] from, CUgraphNode[] to, SizeT numDependencies);
 
             /// <summary>
+            /// Adds dependency edges to a graph (12.3+)<para/>
+            /// The number of dependencies to be added is defined by \p numDependencies
+            /// Elements in \p from and \p to at corresponding indices define a dependency.<para/>
+            /// Each node in \p from and \p to must belong to \p hGraph.<para/>
+            /// If \p numDependencies is 0, elements in \p from and \p to will be ignored.<para/>
+            /// Specifying an existing dependency will return an error.
+            /// </summary>
+            /// <param name="hGraph">Graph to which dependencies are added</param>
+            /// <param name="from">Array of nodes that provide the dependencies</param>
+            /// <param name="to">Array of dependent nodes</param>
+            /// <param name="edgeData">Optional array of edge data. If NULL, default (zeroed) edge data is assumed.</param>
+            /// <param name="numDependencies">Number of dependencies to be added</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddDependencies_v2(CUgraph hGraph, CUgraphNode[] from, CUgraphNode[] to, CUgraphEdgeData[] edgeData, SizeT numDependencies);
+
+
+            /// <summary>
             /// Removes dependency edges from a graph<para/>
             /// The number of \p dependencies to be removed is defined by \p numDependencies.<para/>
             /// Elements in \p from and \p to at corresponding indices define a dependency.<para/>
@@ -11751,6 +11971,27 @@ namespace ManagedCuda
             /// <param name="numDependencies">Number of dependencies to be removed</param>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphRemoveDependencies(CUgraph hGraph, CUgraphNode[] from, CUgraphNode[] to, SizeT numDependencies);
+
+            /// <summary>
+            /// Removes dependency edges from a graph (12.3+)<para/>
+            /// The number of \p dependencies to be removed is defined by \p numDependencies.<para/>
+            /// Elements in \p from and \p to at corresponding indices define a dependency.<para/>
+            /// Each node in \p from and \p to must belong to \p hGraph.<para/>
+            /// \p numDependencies is 0, elements in \p from and \p to will be ignored.<para/>
+            /// Specifying an edge that does not exist in the graph, with data matching
+            /// \p edgeData, results in an error. \p edgeData is nullable, which is equivalent
+            /// to passing default (zeroed) data for each edge.<para/>
+            /// Dependencies cannot be removed from graphs which contain allocation or free nodes.
+            /// Any attempt to do so will return an error.
+            /// </summary>
+            /// <param name="hGraph">Graph from which to remove dependencies</param>
+            /// <param name="from">Array of nodes that provide the dependencies</param>
+            /// <param name="to">Array of dependent nodes</param>
+            /// <param name="edgeData">Optional array of edge data. If NULL, edge data is assumed to be default (zeroed).</param>
+            /// <param name="numDependencies">Number of dependencies to be removed</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphRemoveDependencies_v2(CUgraph hGraph, CUgraphNode[] from, CUgraphNode[] to, CUgraphEdgeData[] edgeData, SizeT numDependencies);
+
 
             /// <summary>
             /// Remove a node from the graph<para/>
@@ -12527,6 +12768,32 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphAddNode(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, SizeT numDependencies, ref CUgraphNodeParams nodeParams);
 
+
+            /// <summary>
+            /// Adds a node of arbitrary type to a graph (12.3+)<para/>
+            /// Creates a new node in \p hGraph described by \p nodeParams with \p numDependencies
+            /// dependencies specified via \p dependencies. \p numDependencies may be 0.
+            /// \p dependencies may be null if \p numDependencies is 0. \p dependencies may not have
+            /// any duplicate entries.
+            /// \p nodeParams is a tagged union.The node type should be specified in the \p type field,
+            /// and type-specific parameters in the corresponding union member. All unused bytes - that
+            /// is, \p reserved0 and all bytes past the utilized union member - must be set to zero.
+            /// It is recommended to use brace initialization or memset to ensure all bytes are
+            /// initialized.
+            /// Note that for some node types, \p nodeParams may contain "out parameters" which are
+            /// modified during the call, such as \p nodeParams->alloc.dptr.
+            /// A handle to the new node will be returned in \p phGraphNode.
+            /// </summary>
+            /// <param name="phGraphNode">Returns newly created node</param>
+            /// <param name="hGraph">Graph to which to add the node</param>
+            /// <param name="dependencies">Dependencies of the node</param>
+            /// <param name="dependencyData">Optional edge data for the dependencies. If NULL, the data is assumed to be default (zeroed) for all dependencies.</param>
+            /// <param name="numDependencies">Number of dependencies</param>
+            /// <param name="nodeParams">Specification of the node</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphAddNode_v2(ref CUgraphNode phGraphNode, CUgraph hGraph, CUgraphNode[] dependencies, CUgraphEdgeData[] dependencyData, SizeT numDependencies, ref CUgraphNodeParams nodeParams);
+
+
             /// <summary>
             /// Update's a graph node's parameters
             /// Sets the parameters of graph node \p hNode to \p nodeParams.The node type specified by
@@ -12572,6 +12839,21 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, ref CUgraphNodeParams nodeParams);
+
+            /// <summary>
+            /// Create a conditional handle<para/>
+            /// Creates a conditional handle associated with \p hGraph.<para/>
+            /// The conditional handle must be associated with a conditional node in this graph or one of its children.<para/>
+            /// Handles not associated with a conditional node may cause graph instantiation to fail.<para/>
+            /// Handles can only be set from the context with which they are associated.
+            /// </summary>
+            /// <param name="pHandle_out">Pointer used to return the handle to the caller.</param>
+            /// <param name="hGraph">Graph which will contain the conditional node using this handle.</param>
+            /// <param name="ctx">Context for the handle and associated conditional node.</param>
+            /// <param name="defaultLaunchValue">Optional initial value for the conditional variable.</param>
+            /// <param name="flags">Currently must be CU_GRAPH_COND_ASSIGN_DEFAULT or 0.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGraphConditionalHandleCreate(ref CUgraphConditionalHandle pHandle_out, CUgraph hGraph, CUcontext ctx, uint defaultLaunchValue, CUGraphCondAssign flags);
 
         }
         #endregion

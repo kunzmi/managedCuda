@@ -249,6 +249,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// used in csrsv2, csric02, and csrilu02
     /// </summary>
+    [Obsolete("Deprecated in Cuda 12.3")]
     public enum cusparseSolvePolicy
     {
         /// <summary>
@@ -264,6 +265,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// 
     /// </summary>
+    [Obsolete("Deprecated in Cuda 12.3")]
     public enum cusparseColorAlg
     {
         /// <summary>
@@ -512,6 +514,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct bsrsv2Info
     {
         /// <summary>
@@ -524,6 +527,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct csric02Info
     {
         /// <summary>
@@ -536,6 +540,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct bsric02Info
     {
         /// <summary>
@@ -548,6 +553,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct bsrsm2Info
     {
         /// <summary>
@@ -560,6 +566,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct csrilu02Info
     {
         /// <summary>
@@ -572,6 +579,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sparse triangular solve information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct bsrilu02Info
     {
         /// <summary>
@@ -584,6 +592,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the sorting information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct csru2csrInfo
     {
         /// <summary>
@@ -596,6 +605,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the coloring information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct cusparseColorInfo
     {
         /// <summary>
@@ -608,6 +618,7 @@ namespace ManagedCuda.CudaSparse
     /// Opaque structure holding the prune information
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 12.3")]
     public struct pruneInfo
     {
         /// <summary>

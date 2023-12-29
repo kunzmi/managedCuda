@@ -155,8 +155,10 @@ namespace ManagedCuda
         private bool _IPCEventSupported;
         private int _memSyncDomainCount;
         private bool _tensorMapAccessSupported;
+        private bool _handleTypeFabricSupported;
         private bool _unifiedFunctionPointers;
         private bool _multiCastSupported;
+        private bool _mpsEnabled;
         private CUdeviceNumaConfig _numaConfig;
         private int _numaID;
         private int _hostNumaID;
@@ -1227,6 +1229,14 @@ namespace ManagedCuda
             internal set { this._tensorMapAccessSupported = value; }
         }
         /// <summary>
+        /// Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested with cuMemCreate()
+        /// </summary>
+        public bool HandleTypeFabricSupported
+        {
+            get { return this._handleTypeFabricSupported; }
+            internal set { this._handleTypeFabricSupported = value; }
+        }
+        /// <summary>
         /// Device supports unified function pointers.
         /// </summary>
         public bool UnifiedFunctionPointers
@@ -1241,6 +1251,15 @@ namespace ManagedCuda
         {
             get { return this._multiCastSupported; }
             internal set { this._multiCastSupported = value; }
+        }
+
+        /// <summary>
+        /// Indicates if contexts created on this device will be shared via MPS
+        /// </summary>
+        public bool MPSEnabled
+        {
+            get { return this._mpsEnabled; }
+            internal set { this._mpsEnabled = value; }
         }
 
         /// <summary>

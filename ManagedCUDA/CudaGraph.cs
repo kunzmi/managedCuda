@@ -27,6 +27,8 @@
 using System;
 using ManagedCuda.BasicTypes;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.IO;
 
 namespace ManagedCuda
 {
@@ -586,6 +588,47 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Adds a node of arbitrary type to a graph
+        /// 
+        /// Creates a new node in \p hGraph described by \p nodeParams with \p numDependencies
+        /// dependencies specified via \p dependencies. \p numDependencies may be 0.
+        /// \p dependencies may be null if \p numDependencies is 0. \p dependencies may not have
+        /// any duplicate entries.
+        /// 
+        /// \p nodeParams is a tagged union. The node type should be specified in the \p type field,
+        /// and type-specific parameters in the corresponding union member. All unused bytes - that
+        /// is, \p reserved0 and all bytes past the utilized union member - must be set to zero.
+        /// It is recommended to use brace initialization or memset to ensure all bytes are
+        /// initialized.
+        /// 
+        /// Note that for some node types, \p nodeParams may contain "out parameters" which are
+        /// modified during the call, such as \p nodeParams->alloc.dptr.
+        /// </summary>
+        /// <param name="dependencies">Dependencies of the node</param>
+        /// <param name="edgeData">Optional edge data for the dependencies. If NULL, the data is assumed to be default (zeroed) for all dependencies.</param>
+        /// <param name="nodeParams">Specification of the node</param>
+        /// <returns>Returns newly created node</returns>
+        public CUgraphNode AddNode(CUgraphNode[] dependencies, CUgraphEdgeData[] edgeData, ref CUgraphNodeParams nodeParams)
+        {
+            CUgraphNode node = new CUgraphNode();
+            SizeT numDependencies = 0;
+            if (dependencies != null)
+            {
+                numDependencies = dependencies.Length;
+                if (edgeData != null && edgeData.Length != dependencies.Length)
+                {
+                    throw new ArgumentException("dependencies and edgeData must have equal size or edgeData must be null!");
+                }
+            }
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddNode_v2(ref node, _graph, dependencies, edgeData, numDependencies, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddNode_v2", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return node;
+        }
+
+        /// <summary>
         /// Creates a memory free node and adds it to a graph<para/>
         /// Creates a new memory free node and adds it to \p hGraph with \p numDependencies
         /// dependencies specified via \p dependencies and arguments specified in \p nodeParams.
@@ -724,6 +767,33 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Returns a graph's dependency edges
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="edgeData"></param>
+        public void GetEdges(out CUgraphNode[] from, out CUgraphNode[] to, out CUgraphEdgeData[] edgeData)
+        {
+            from = null;
+            to = null;
+            edgeData = null;
+            SizeT numNodes = new SizeT();
+            res = DriverAPINativeMethods.GraphManagment.cuGraphGetEdges_v2(_graph, null, null, null, ref numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphGetEdges_v2", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            if (numNodes > 0)
+            {
+                from = new CUgraphNode[numNodes];
+                to = new CUgraphNode[numNodes];
+                edgeData = new CUgraphEdgeData[numNodes];
+                res = DriverAPINativeMethods.GraphManagment.cuGraphGetEdges_v2(_graph, from, to, edgeData, ref numNodes);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphGetEdges_v2", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+            }
+        }
+
+        /// <summary>
         /// Adds dependency edges to a graph
         /// Elements in from and to at corresponding indices define a dependency.<para/>
         /// Each node in from and to must belong to this Graph.<para/>
@@ -745,6 +815,32 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Adds dependency edges to a graph
+        /// Elements in from and to at corresponding indices define a dependency.<para/>
+        /// Each node in from and to must belong to this Graph.<para/>
+        /// Specifying an existing dependency will return an error.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="edgeData"></param>
+        public void AddDependencies(CUgraphNode[] from, CUgraphNode[] to, CUgraphEdgeData[] edgeData)
+        {
+            if (from.Length != to.Length)
+            {
+                throw new ArgumentException("from and to must have equal size!");
+            }
+            if (edgeData != null && from.Length != edgeData.Length)
+            {
+                throw new ArgumentException("edgeData must have equal size than from, or must be null");
+            }
+
+            SizeT numNodes = from.Length;
+            res = DriverAPINativeMethods.GraphManagment.cuGraphAddDependencies_v2(_graph, from, to, edgeData, numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphAddDependencies_v2", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
         /// Removes dependency edges to a graph
         /// Elements in from and to at corresponding indices define a dependency.<para/>
         /// Each node in from and to must belong to this Graph.<para/>
@@ -762,6 +858,32 @@ namespace ManagedCuda
             SizeT numNodes = from.Length;
             res = DriverAPINativeMethods.GraphManagment.cuGraphRemoveDependencies(_graph, from, to, numNodes);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphRemoveDependencies", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Removes dependency edges to a graph
+        /// Elements in from and to at corresponding indices define a dependency.<para/>
+        /// Each node in from and to must belong to this Graph.<para/>
+        /// Specifying an existing dependency will return an error.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="edgeData"></param>
+        public void RemoveDependencies(CUgraphNode[] from, CUgraphNode[] to, CUgraphEdgeData[] edgeData)
+        {
+            if (from.Length != to.Length)
+            {
+                throw new ArgumentException("from and to must have equal size!");
+            }
+            if (edgeData != null && from.Length != edgeData.Length)
+            {
+                throw new ArgumentException("edgeData must have equal size than from, or must be null");
+            }
+
+            SizeT numNodes = from.Length;
+            res = DriverAPINativeMethods.GraphManagment.cuGraphRemoveDependencies_v2(_graph, from, to, edgeData, numNodes);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphRemoveDependencies_v2", res));
             if (res != CUResult.Success) throw new CudaException(res);
         }
 
@@ -814,6 +936,27 @@ namespace ManagedCuda
             res = DriverAPINativeMethods.GraphManagment.cuGraphDebugDotPrint(_graph, path, flags);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphDebugDotPrint", res));
             if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Create a conditional handle<para/>
+        /// Creates a conditional handle associated with \p hGraph.<para/>
+        /// The conditional handle must be associated with a conditional node in this graph or one of its children.<para/>
+        /// Handles not associated with a conditional node may cause graph instantiation to fail.<para/>
+        /// Handles can only be set from the context with which they are associated.
+        /// </summary>
+        /// <param name="ctx">Context for the handle and associated conditional node.</param>
+        /// <param name="defaultLaunchValue">Optional initial value for the conditional variable.</param>
+        /// <param name="flags">Currently must be CU_GRAPH_COND_ASSIGN_DEFAULT or 0.</param>
+        public CUgraphConditionalHandle CreateConditionalHandle(CudaContext ctx, uint defaultLaunchValue, CUGraphCondAssign flags)
+        {
+            CUgraphConditionalHandle handle = new CUgraphConditionalHandle();
+
+            res = DriverAPINativeMethods.GraphManagment.cuGraphConditionalHandleCreate(ref handle, _graph, ctx.Context, defaultLaunchValue, flags);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphConditionalHandleCreate", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return handle;
         }
         #endregion
 

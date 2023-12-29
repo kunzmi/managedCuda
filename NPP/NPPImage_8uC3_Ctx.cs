@@ -9611,14 +9611,14 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="oSeed">Image location of seed pixel value to be used for comparison.</param>
         /// <param name="aNewValues">Image pixel values to be used to replace matching pixels.</param>
-        /// <param name="nBoundaryValue">Image pixel values to be used for region boundary. </param>
+        /// <param name="aBoundaryValues">Image pixel values to be used for region boundary. </param>
         /// <param name="eNorm">Type of pixel connectivity test to use, nppiNormInf will use 8 way connectivity and nppiNormL1 will use 4 way connectivity. </param>
         /// <param name="pBuffer">Pointer to device memory scratch buffer at least as large as value returned by the corresponding LabelMarkersUFGetBufferSize call.</param>
         /// <param name="nppStreamCtx">NPP stream context.</param>
-        public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte aNewValues, byte nBoundaryValue, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
+        public NppiConnectedRegion FloodFill(NppiPoint oSeed, byte[] aNewValues, byte[] aBoundaryValues, NppiNorm eNorm, CudaDeviceVariable<byte> pBuffer, NppStreamContext nppStreamCtx)
         {
             NppiConnectedRegion pConnectedRegion = new NppiConnectedRegion();
-            status = NPPNativeMethods_Ctx.NPPi.FloodFill.nppiFloodFillBoundary_8u_C3IR_Ctx(_devPtrRoi, _pitch, oSeed, aNewValues, nBoundaryValue, eNorm, _sizeRoi, ref pConnectedRegion, pBuffer.DevicePointer, nppStreamCtx);
+            status = NPPNativeMethods_Ctx.NPPi.FloodFill.nppiFloodFillBoundary_8u_C3IR_Ctx(_devPtrRoi, _pitch, oSeed, aNewValues, aBoundaryValues, eNorm, _sizeRoi, ref pConnectedRegion, pBuffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFloodFillBoundary_8u_C3IR_Ctx", status));
             NPPException.CheckNppStatus(status, this);
             return pConnectedRegion;
@@ -10275,6 +10275,294 @@ namespace ManagedCuda.NPP
             }
             Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx", _dataType.ToString(), _channels.ToString(), status));
             NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region New in Cuda 12.3
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar RGB convertion to three channel 8-bit unsigned planar YUV 4:2:0, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param>  
+        /// <param name="dest2">Destination image channel 2</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void RGBToYUV420ColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            int[] arrayDestPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx(arraySrc, arraySrcPitch, arrayDest, arrayDestPitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYUV420_8u_ColorTwist32f_P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar RGB convertion to three channel 8-bit unsigned planar YUV 4:2:2, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param>  
+        /// <param name="dest2">Destination image channel 2</param>    
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param> 
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void RGBToYUV422ColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            int[] arrayDestPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx(arraySrc, arraySrcPitch, arrayDest, arrayDestPitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYUV422_8u_ColorTwist32f_P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar RGB convertion to two channel 8-bit unsigned planar NV12, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param>   
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>  
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void RGBToNV12ColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            int[] arrayDestPitch = new int[] { dest0.Pitch, dest1.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx(arraySrc, arraySrcPitch, arrayDest, arrayDestPitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToNV12_8u_ColorTwist32f_P3P2R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned packed RGB convertion to three channel 8-bit unsigned planar YUV 4:2:0, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param> 
+        /// <param name="dest2">Destination image channel 2</param> 
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param> 
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToYUV420ColorTwist(NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arrayPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx(_devPtrRoi, _pitch, arrayDest, arrayPitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYUV420_8u_ColorTwist32f_C3P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned packed RGB convertion to two channel 8-bit unsigned packed YUV 4:2:2, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest">Destination image</param>  
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToYUV422ColorTwist(NPPImage_8uC2 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYUV422_8u_ColorTwist32f_C3C2R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned packed RGB convertion to three channel 8-bit unsigned planar YUV 4:2:2, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param> 
+        /// <param name="dest2">Destination image channel 2</param>  
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToYUV422ColorTwist(NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arrayPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx(_devPtrRoi, _pitch, arrayDest, arrayPitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToYUV422_8u_ColorTwist32f_C3P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned packed RGB convertion to two channel 8-bit unsigned planar NV12, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param> 
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToNV12ColorTwist(NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi };
+            int[] arrayPitch = new int[] { dest0.Pitch, dest1.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToYUVColorTwist.nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx(_devPtrRoi, _pitch, arrayDest, arrayPitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBToNV12_8u_ColorTwist32f_C3P2R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:0 convertion to three channel 8-bit unsigned planar RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param>  
+        /// <param name="dest2">Destination image channel 2</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV420ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            int[] arrayDestPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx(arraySrc, arraySrcPitch, arrayDest, arrayDestPitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGB_8u_ColorTwist32f_P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:2 convertion to three channel 8-bit unsigned planar RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image channel 0</param>  
+        /// <param name="dest1">Destination image channel 1</param>  
+        /// <param name="dest2">Destination image channel 2</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV422ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointerRoi, dest1.DevicePointerRoi, dest2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            int[] arrayDestPitch = new int[] { dest0.Pitch, dest1.Pitch, dest2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx(arraySrc, arraySrcPitch, arrayDest, arrayDestPitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_8u_ColorTwist32f_P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:0 convertion to three channel 8-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV420ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGB_8u_ColorTwist32f_P3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:2 convertion to three channel 8-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest0">Destination image</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV422ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_8u_ColorTwist32f_P3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:0 convertion to four channel 8-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic, with constant alpha (0xFF).
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV420ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC4 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGB_8u_ColorTwist32f_P3C4R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:0 convertion to four channel 8-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic, with user set alpha.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nAlpha">8-bit unsigned alpha constant.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV420ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC4 dest, float[,] aTwist, byte nAlpha, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nAlpha, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV420ToRGB_8u_ColorTwist32f_P3AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Three channel 8-bit unsigned planar YUV4:2:2 convertion to three channel 8-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic, with user set alpha.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image</param>     
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nAlpha">8-bit unsigned alpha constant.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void YUV422ToRGBColorTwist(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC4 dest, float[,] aTwist, byte nAlpha, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi, src2.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nAlpha, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
         }
         #endregion
     }

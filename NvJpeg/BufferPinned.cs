@@ -102,6 +102,19 @@ namespace ManagedCuda.NvJpeg
         }
         #endregion
 
+        public void Resize(SizeT size, CUstream stream)
+        {
+            res = NvJpegNativeMethods.nvjpegBufferPinnedResize(_buffer, size, stream);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvjpegBufferPinnedResize", res));
+            if (res != nvjpegStatus.Success)
+                throw new NvJpegException(res);
+        }
+
+        public void Resize(SizeT size, CudaStream stream)
+        {
+            Resize(size, stream.Stream);
+        }
+
         /// <summary>
         /// Returns the inner handle.
         /// </summary>

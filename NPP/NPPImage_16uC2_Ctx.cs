@@ -27,6 +27,7 @@
 #define ADD_MISSING_CTX
 using System;
 using System.Diagnostics;
+using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -282,6 +283,40 @@ namespace ManagedCuda.NPP
             status = NPPNativeMethods_Ctx.NPPi.ColorProcessing.nppiColorTwist32f_16u_C2IR_Ctx(_devPtrRoi, _pitch, _sizeRoi, aTwist, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16u_C2IR_Ctx", status));
             NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region New in Cuda 12.3
+
+        /// <summary>
+        /// Two channel 16-bit unsigned planar NV12 convertion to three channel 16-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest">Destination image</param>  
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void NV12ToRGBColorTwist(NPPImage_16uC1 src0, NPPImage_16uC1 src1, NPPImage_16uC3 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointerRoi, src1.DevicePointerRoi };
+            int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNV12ToRGB_16u_ColorTwist32f_P2C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Two channel 16-bit unsigned packed YUV4:2:2 convertion to three channel 16-bit unsigned packed RGB, using a Color Twist to compute the exact
+        /// color space arithmetic.
+        /// </summary>
+        /// <param name="dest">Destination image</param> 
+        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToNV12ColorTwist(NPPImage_16uC3 dest, float[,] aTwist, NppStreamContext nppStreamCtx)
+        {
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, aTwist, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_16u_ColorTwist32f_C2C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
         }
         #endregion
     }

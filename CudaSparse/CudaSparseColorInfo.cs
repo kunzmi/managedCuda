@@ -32,6 +32,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// Wrapper class for cusparseColorInfo
     /// </summary>
+    [Obsolete("Deprecated in Cuda 12.3")]
     public class CudaSparseColorInfo : IDisposable
     {
         private cusparseColorInfo _info;

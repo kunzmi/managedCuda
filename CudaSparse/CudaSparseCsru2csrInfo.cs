@@ -32,6 +32,7 @@ namespace ManagedCuda.CudaSparse
     /// <summary>
     /// Wrapper class for csru2csrInfo
     /// </summary>
+    [Obsolete("Deprecated in Cuda 12.3")]
     public class CudaSparseCsru2csrInfo : IDisposable
     {
         private csru2csrInfo _info;

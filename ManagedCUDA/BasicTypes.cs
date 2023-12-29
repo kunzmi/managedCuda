@@ -658,7 +658,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)
         /// </summary>
-        Win32KMT = 0x4
+        Win32KMT = 0x4,
+        /// <summary>
+        /// Allows a fabric handle to be used for exporting. (CUmemFabricHandle)
+        /// </summary>
+        Fabric = 0x4
     }
 
     /// <summary>
@@ -783,8 +787,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Adds edge numbering information
         /// </summary>
-        ExtraTopoInfo = 1 << 14
-
+        ExtraTopoInfo = 1 << 14,
+        /// <summary>
+        /// Adds conditional node parameters to output
+        /// </summary>
+        ConditionalNodeParams = 1 << 15
     }
 
     /// <summary>

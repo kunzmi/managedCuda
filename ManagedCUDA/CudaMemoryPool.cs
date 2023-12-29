@@ -208,6 +208,20 @@ namespace ManagedCuda
             return new CudaDeviceVariable<T>(devPtr, false, bytesize);
         }
 
+        /// <summary>
+        /// Allocates memory from a specified pool with stream ordered semantics.<para/>
+        /// Inserts an allocation operation into \p hStream.<para/>
+        /// A pointer to the allocated memory is returned immediately in *dptr.<para/>
+        /// The allocation must not be accessed until the the allocation operation completes.<para/>
+        /// The allocation comes from the specified memory pool.<para/>
+        /// note<para/>
+        /// -  The specified memory pool may be from a device different than that of the specified \p hStream.<para/>
+        /// -  Basic stream ordering allows future work submitted into the same stream to use the allocation.
+        /// Stream query, stream synchronize, and CUDA events can be used to guarantee that the allocation
+        /// operation completes before work submitted in a separate stream runs. 
+        /// </summary>
+        /// <param name="bytesize">Number of bytes to allocate</param>
+        /// <param name="hStream">The stream establishing the stream ordering semantic</param>
         public CUdeviceptr MemAllocFromPoolAsync(SizeT bytesize, CudaStream hStream)
         {
             CUdeviceptr devPtr = new CUdeviceptr();

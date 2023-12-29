@@ -50,7 +50,9 @@ namespace ManagedCuda.NvJitLink
         /// <summary/>
         ErrorNVVMCompile,
         /// <summary/>
-        ErrorInternal
+        ErrorInternal,
+        /// <summary/>
+        ErrorThreadPool
     }
 
     /// <summary>

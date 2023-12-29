@@ -4174,18 +4174,39 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         public struct ProgrammaticEvent
         {
-            /// <summary/>
+            /// <summary>
+            /// Event to fire when all blocks trigger it
+            /// </summary>
             public CUevent event_;
             /// <summary>
             /// Does not accept ::CU_EVENT_RECORD_EXTERNAL
             /// </summary>
             public int flags;
-            /// <summary/>
+            /// <summary>
+            /// If this is set to non-0, each block launch will automatically trigger the event
+            /// </summary>
             public int triggerAtBlockStart;
+        }
+
+        /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LaunchCompletionEvent
+        {
+            /// <summary>
+            /// Event to fire when the last block launches
+            /// </summary>
+            public CUevent event_;
+            /// <summary>
+            /// Does not accept ::CU_EVENT_RECORD_EXTERNAL
+            /// </summary>
+            public int flags;
         }
 
         /// <summary>
@@ -4224,6 +4245,11 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(0)]
         ProgrammaticEvent programmaticEvent;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        LaunchCompletionEvent launchCompletionEvent;
         /// <summary>
         /// Execution priority of the kernel.
         /// </summary>
@@ -4428,7 +4454,6 @@ namespace ManagedCuda.BasicTypes
         [FieldOffset(12)]
         int reserved0;
 
-        //    long long reserved1[29];
         /// <summary/>
         [FieldOffset(16)]
         public CudaKernelNodeParams kernel;
@@ -4465,6 +4490,9 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         [FieldOffset(16)]
         CudaBatchMemOpNodeParamsInternal memOp;
+        /// <summary/>
+        [FieldOffset(16)]
+        public CudaConditionalNodeParams conditional;
 
         [FieldOffset(248)]
         long reserved2;
@@ -4754,12 +4782,85 @@ namespace ManagedCuda.BasicTypes
 
     }
 
-    //public struct CUlibraryHostUniversalFunctionAndDataTable
-    //{
-    //    IntPtr functionTable;
-    //    SizeT functionWindowSize;
-    //    IntPtr dataTable;
-    //    SizeT dataWindowSize;
-    //}
+    /// <summary>
+    /// Conditional node parameters
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CudaConditionalNodeParams
+    {
+        /// <summary>
+        /// Conditional node handle.<para/>
+        /// Handles must be created in advance of creating the node
+        /// using ::cuGraphConditionalHandleCreate.
+        /// </summary>
+        public CUgraphConditionalHandle handle;
+        /// <summary>
+        /// Type of conditional node.
+        /// </summary>
+        public CUgraphConditionalNodeType type;
+        /// <summary>
+        /// Size of graph output array. Must be 1.
+        /// </summary>
+        public uint size;
+        /// <summary>
+        /// CUDA-owned array populated with conditional node child graphs during creation of the node.<para/>
+        /// Valid for the lifetime of the conditional node.<para/>
+        /// The contents of the graph(s) are subject to the following constraints:<para/>
+        /// - Allowed node types are kernel nodes, empty nodes, child graphs, memsets,
+        /// memcopies, and conditionals. This applies recursively to child graphs and conditional bodies.<para/>
+        /// - All kernels, including kernels in nested conditionals or child graphs at any level,
+        /// must belong to the same CUDA context.<para/>
+        /// These graphs may be populated using graph node creation APIs or ::cuStreamBeginCaptureToGraph.
+        /// </summary>
+        public IntPtr phGraph_out;
+        /// <summary>
+        /// Context on which to run the node.
+        /// Must match context used to create the handle and all body nodes.
+        /// </summary>
+        public CUcontext ctx;
+    }
+
+    /// <summary>
+    /// Optional annotation for edges in a CUDA graph. Note, all edges implicitly have annotations and
+    /// default to a zero-initialized value if not specified.A zero-initialized struct indicates a
+    /// standard full serialization of two nodes with memory visibility.
+    /// </summary>
+    public struct CUgraphEdgeData
+    {
+        /// <summary>
+        /// This indicates when the dependency is triggered from the upstream
+        /// node on the edge. The meaning is specfic to the node type. A value
+        /// of 0 in all cases means full completion of the upstream node, with
+        /// memory visibility to the downstream node or portion thereof
+        /// (indicated by \c to_port).<para/>
+        /// Only kernel nodes define non-zero ports. A kernel node
+        /// can use the following output port types:<para/>
+        /// ::CU_GRAPH_KERNEL_NODE_PORT_DEFAULT, ::CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC,
+        /// or ::CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER.
+        /// </summary>
+        public CUGraphKernelNodePort from_port;
+        /// <summary>
+        /// This indicates what portion of the downstream node is dependent on
+        /// the upstream node or portion thereof (indicated by \c from_port). The
+        /// meaning is specific to the node type. A value of 0 in all cases means
+        /// the entirety of the downstream node is dependent on the upstream work.<para/>
+        /// Currently no node types define non-zero ports. Accordingly, this field
+        /// must be set to zero.
+        /// </summary>
+        public CUGraphKernelNodePort to_port;
+        /// <summary>
+        /// This should be populated with a value from ::CUgraphDependencyType. (It
+        /// is typed as char due to compiler-specific layout of bitfields.) See
+        /// ::CUgraphDependencyType.
+        /// </summary>
+        public CUgraphDependencyType type;
+        /// <summary>
+        /// These bytes are unused and must be zeroed. This ensures
+        /// compatibility if additional fields are added in the future.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5, ArraySubType = UnmanagedType.U1)]
+        public byte[] reserved;
+    }
+
     #endregion
 }

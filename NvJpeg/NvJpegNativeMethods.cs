@@ -579,6 +579,12 @@ namespace ManagedCuda.NvJpeg
         /// <summary>
 		/// </summary>
 		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegBufferPinnedResize(nvjpegBufferPinned buffer, SizeT size, CUstream stream);
+
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
         public static extern nvjpegStatus nvjpegBufferPinnedDestroy(nvjpegBufferPinned buffer);
 
 
@@ -595,6 +601,12 @@ namespace ManagedCuda.NvJpeg
         public static extern nvjpegStatus nvjpegBufferDeviceCreateV2(nvjpegHandle handle,
             ref nvjpegDevAllocatorV2 device_allocator,
             ref nvjpegBufferDevice buffer);
+
+        /// <summary>
+		/// </summary>
+		[DllImport(NVJPEG_API_DLL_NAME)]
+        public static extern nvjpegStatus nvjpegBufferDeviceResize(nvjpegBufferDevice buffer, SizeT size, CUstream stream);
+
 
         /// <summary>
 		/// </summary>
