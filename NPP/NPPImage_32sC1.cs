@@ -344,8 +344,8 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void Convert(NPPImage_32fC1 dst)
         {
-            status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32u32f_C1R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32u32f_C1R", status));
+            status = NPPNativeMethods.NPPi.BitDepthConversion.nppiConvert_32s32f_C1R(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32s32f_C1R", status));
             NPPException.CheckNppStatus(status, this);
         }
         #endregion

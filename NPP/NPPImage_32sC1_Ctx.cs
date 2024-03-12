@@ -207,8 +207,8 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void Convert(NPPImage_32fC1 dst, NppStreamContext nppStreamCtx)
         {
-            status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_32u32f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32u32f_C1R_Ctx", status));
+            status = NPPNativeMethods_Ctx.NPPi.BitDepthConversion.nppiConvert_32s32f_C1R_Ctx(_devPtrRoi, _pitch, dst.DevicePointerRoi, dst.Pitch, _sizeRoi, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiConvert_32s32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
         #endregion
