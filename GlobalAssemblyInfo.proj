@@ -4,9 +4,9 @@
     <Company>Michael Kunz</Company> 
     <Copyright>Copyright © Michael Kunz and Artic Imaging 2024</Copyright>
 	
-    <Version>12.4.55</Version>
-    <AssemblyVersion>12.4.55</AssemblyVersion> 
-    <FileVersion>12.4.55</FileVersion> 
+    <Version>12.4.56</Version>
+    <AssemblyVersion>12.4.56</AssemblyVersion> 
+    <FileVersion>12.4.56</FileVersion> 
   </PropertyGroup> 
 </Project>
 
