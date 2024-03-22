@@ -479,6 +479,12 @@ namespace ManagedCuda.CudaSparse
         Default = 0,
     }
 
+    public enum cusparseSpSMUpdate
+    {
+        General = 0,
+        Diagonal = 1
+    }
+
     public enum cusparseSpMMOpAlg
     {
         Default = 0,

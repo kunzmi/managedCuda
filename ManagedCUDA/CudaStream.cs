@@ -305,7 +305,7 @@ namespace ManagedCuda
         /// <returns>the stream's flags<para/>
         /// The value returned in <c>flags</c> is a logical 'OR' of all flags that
         /// were used while creating this stream.</returns>
-        public CUStreamFlags cuStreamGetFlags()
+        public CUStreamFlags GetFlags()
         {
             CUStreamFlags flags = 0;
             CUResult res = DriverAPINativeMethods.Streams.cuStreamGetFlags(_stream, ref flags);
@@ -462,6 +462,46 @@ namespace ManagedCuda
             CUResult res = DriverAPINativeMethods.Streams.cuStreamGetAttribute(_stream, attr, ref value);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+
+        /// <summary>
+        /// Query the green context associated with a stream
+        /// <para/>
+        /// Returns the CUDA green context that the stream is associated with, or NULL if the stream
+        /// is not associated with any green context.
+        /// <para/>
+        /// The stream handle \p hStream can refer to any of the following:
+        /// <para/>
+        /// - a stream created via any of the CUDA driver APIs such as ::cuStreamCreate.
+        ///   If during stream creation the context that was active in the calling thread was obtained
+        ///   with cuCtxFromGreenCtx, that green context is returned in \p phCtx.
+        ///   Otherwise, \p *phCtx is set to NULL instead.
+        /// <para/>
+        /// - special stream such as the NULL stream or ::CU_STREAM_LEGACY.
+        ///   In that case if context that is active in the calling thread was obtained
+        ///   with cuCtxFromGreenCtx, that green context is returned.
+        ///   Otherwise, \p *phCtx is set to NULL instead.
+        /// <para/>
+        /// Passing an invalid handle will result in undefined behavior.<para/>
+        /// To query the device associated with the context, it is necessary that the currently bound context runs on the same device as the context to query!
+        /// </summary>
+        public GreenContext GetGreenContext()
+        {
+            CUgreenCtx ctx = _stream.GetGreenContext();
+            if (ctx.Pointer == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            CUdevice device = new CUdevice();
+            res = DriverAPINativeMethods.ContextManagement.cuCtxGetDevice(ref device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetDevice", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            return new GreenContext(ctx, device);
+
         }
         #endregion
     }

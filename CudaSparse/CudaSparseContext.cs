@@ -5807,6 +5807,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="nnzTotalDevHostPtr"></param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsrNnz(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> nnzTotalDevHostPtr)
         {
             res = CudaSparseNativeMethods.cusparseXcsr2bsrNnz(_handle, dirA, m, n, descrA.Descriptor, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrRowPtrC.DevicePointer, nnzTotalDevHostPtr.DevicePointer);
@@ -5834,6 +5835,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="nnzTotalDevHostPtr"></param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsrNnz(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> bsrRowPtrC, ref int nnzTotalDevHostPtr)
         {
             res = CudaSparseNativeMethods.cusparseXcsr2bsrNnz(_handle, dirA, m, n, descrA.Descriptor, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrRowPtrC.DevicePointer, ref nnzTotalDevHostPtr);
@@ -5865,6 +5867,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="bsrColIndC">integer array of nnzb column indices of the non-zero blocks of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsr(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> bsrValC, CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseScsr2bsr(_handle, dirA, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrValC.DevicePointer, bsrRowPtrC.DevicePointer, bsrColIndC.DevicePointer);
@@ -5895,6 +5898,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="bsrColIndC">integer array of nnzb column indices of the non-zero blocks of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsr(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> bsrValC, CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseDcsr2bsr(_handle, dirA, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrValC.DevicePointer, bsrRowPtrC.DevicePointer, bsrColIndC.DevicePointer);
@@ -5925,6 +5929,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="bsrColIndC">integer array of nnzb column indices of the non-zero blocks of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsr(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> bsrValC, CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseCcsr2bsr(_handle, dirA, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrValC.DevicePointer, bsrRowPtrC.DevicePointer, bsrColIndC.DevicePointer);
@@ -5955,6 +5960,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="bsrRowPtrC">integer array of mb+1 elements that contains the start of every block
         /// row and the end of the last block row plus one.</param>
         /// <param name="bsrColIndC">integer array of nnzb column indices of the non-zero blocks of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Csr2bsr(cusparseDirection dirA, int m, int n, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> bsrValC, CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseZcsr2bsr(_handle, dirA, m, n, descrA.Descriptor, csrValA.DevicePointer, csrRowPtrA.DevicePointer, csrColIndA.DevicePointer, blockDim, descrC.Descriptor, bsrValC.DevicePointer, bsrRowPtrC.DevicePointer, bsrColIndC.DevicePointer);
@@ -6551,6 +6557,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m+1 elements that contains the
         /// start of every row and the end of the last row plus one of matrix C.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the nonzero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Gebsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA,
                               int rowBlockDim, int colBlockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
         {
@@ -6595,6 +6602,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m+1 elements that contains the
         /// start of every row and the end of the last row plus one of matrix C.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the nonzero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Gebsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA,
                               CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDim, int colBlockDim,
                               CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
@@ -6642,6 +6650,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m+1 elements that contains the
         /// start of every row and the end of the last row plus one of matrix C.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the nonzero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Gebsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA,
                               CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDim, int colBlockDim,
                               CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
@@ -6689,6 +6698,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m+1 elements that contains the
         /// start of every row and the end of the last row plus one of matrix C.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the nonzero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Gebsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA,
                               CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDim, int colBlockDim,
                               CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
@@ -6736,6 +6746,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m+1 elements that contains the
         /// start of every row and the end of the last row plus one of matrix C.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the nonzero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.4")]
         public void Gebsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA,
                               CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDim, int colBlockDim,
                               CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
@@ -9714,6 +9725,44 @@ namespace ManagedCuda.CudaSparse
             }
             return size;
         }
+        public SizeT MV_preprocess<indexT, dataTAX, dataTY>(cusparseOperation opA, CudaDeviceVariable<dataTAX> alpha, ConstSparseMatrix<indexT, dataTAX> matA,
+            ConstDenseVector<dataTAX> vecX, CudaDeviceVariable<dataTY> beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg, CudaDeviceVariable<byte> buffer)
+            where indexT : struct where dataTAX : struct where dataTY : struct
+        {
+            SizeT size = 0;
+            res = CudaSparseNativeMethods.cusparseSpMV_preprocess(_handle, opA, alpha.DevicePointer, matA.Descr, vecX.Descr, beta.DevicePointer, vecY.Descr, computeType, alg, buffer.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV_preprocess", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
+            return size;
+        }
+
+        public SizeT MV_preprocess<indexT, dataTAX, dataTY>(cusparseOperation opA, dataTAX alpha, ConstSparseMatrix<indexT, dataTAX> matA,
+            ConstDenseVector<dataTAX> vecX, dataTY beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg, CudaDeviceVariable<byte> buffer)
+            where indexT : struct where dataTAX : struct where dataTY : struct
+        {
+            SizeT size = 0;
+            IntPtr ptrAlpha = IntPtr.Zero;
+            IntPtr ptrBeta = IntPtr.Zero;
+            try
+            {
+                ptrAlpha = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTAX)));
+                ptrBeta = Marshal.AllocHGlobal(CudaDataTypeTranslator.GetSize(typeof(dataTY)));
+                Marshal.StructureToPtr(alpha, ptrAlpha, false);
+                Marshal.StructureToPtr(beta, ptrBeta, false);
+                res = CudaSparseNativeMethods.cusparseSpMV_preprocess(_handle, opA, ptrAlpha, matA.Descr, vecX.Descr, ptrBeta, vecY.Descr, computeType, alg, buffer.DevicePointer);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpMV_preprocess", res));
+                if (res != cusparseStatus.Success)
+                    throw new CudaSparseException(res);
+            }
+            finally
+            {
+                //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
+                Marshal.FreeHGlobal(ptrAlpha);
+                Marshal.FreeHGlobal(ptrBeta);
+            }
+            return size;
+        }
         public void MV<indexT, dataTAX, dataTY>(cusparseOperation opA, CudaDeviceVariable<dataTAX> alpha, ConstSparseMatrix<indexT, dataTAX> matA,
             ConstDenseVector<dataTAX> vecX, CudaDeviceVariable<dataTY> beta, DenseVector<dataTY> vecY, cudaDataType computeType, SpMVAlg alg, CudaDeviceVariable<byte> buffer)
             where indexT : struct where dataTAX : struct where dataTY : struct
@@ -9884,7 +9933,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
-        public void cusparseSpSV_solve<indexT, dataT>(cusparseOperation opA, CudaDeviceVariable<dataT> alpha, ConstSparseMatrix<indexT, dataT> matA,
+        public void SpSV_solve<indexT, dataT>(cusparseOperation opA, CudaDeviceVariable<dataT> alpha, ConstSparseMatrix<indexT, dataT> matA,
             ConstDenseVector<dataT> vecX, DenseVector<dataT> vecY, cudaDataType computeType, cusparseSpSVAlg alg, SpSVDescr spsvDescr)
             where indexT : struct where dataT : struct
         {
@@ -9894,7 +9943,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
-        public void cusparseSpSV_updateMatrix<dataT>(cusparseContext handle,
+        public void SpSV_updateMatrix<dataT>(cusparseContext handle,
                           SpSVDescr spsvDescr,
                           CudaDeviceVariable<dataT> newValues,
                           cusparseSpSVUpdate update)
@@ -9951,7 +10000,7 @@ namespace ManagedCuda.CudaSparse
             }
         }
 
-        public void cusparseSpSV_solve<indexT, dataT>(cusparseOperation opA, dataT alpha, ConstSparseMatrix<indexT, dataT> matA,
+        public void SpSV_solve<indexT, dataT>(cusparseOperation opA, dataT alpha, ConstSparseMatrix<indexT, dataT> matA,
             ConstDenseVector<dataT> vecX, DenseVector<dataT> vecY, cudaDataType computeType, cusparseSpSVAlg alg, SpSVDescr spsvDescr)
             where indexT : struct where dataT : struct
         {
@@ -9999,7 +10048,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
-        public void cusparseSpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, ConstSparseMatrix<indexT, dataT> matA,
+        public void SpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataT> alpha, ConstSparseMatrix<indexT, dataT> matA,
             ConstDenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
             where indexT : struct where dataT : struct
         {
@@ -10054,7 +10103,7 @@ namespace ManagedCuda.CudaSparse
             }
         }
 
-        public void cusparseSpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, ConstSparseMatrix<indexT, dataT> matA,
+        public void SpSM_solve<indexT, dataT>(cusparseOperation opA, cusparseOperation opB, dataT alpha, ConstSparseMatrix<indexT, dataT> matA,
             ConstDenseMatrix<dataT> matB, DenseMatrix<dataT> matC, cudaDataType computeType, cusparseSpSMAlg alg, SpSMDescr SpSMDescr)
             where indexT : struct where dataT : struct
         {
@@ -10073,6 +10122,16 @@ namespace ManagedCuda.CudaSparse
                 //result = (dataTCompute)Marshal.PtrToStructure(ptr, typeof(dataTCompute));
                 Marshal.FreeHGlobal(ptrAlpha);
             }
+        }
+
+        public void SpSM_updateMatrix<dataT>(SpSMDescr spsmDescr, CudaDeviceVariable<dataT> newValues,
+            cusparseSpSMUpdate updatePart)
+            where dataT : struct
+        {
+            res = CudaSparseNativeMethods.cusparseSpSM_updateMatrix(_handle, spsmDescr.Descr, newValues.DevicePointer, updatePart);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusparseSpSM_updateMatrix", res));
+            if (res != cusparseStatus.Success)
+                throw new CudaSparseException(res);
         }
 
         #endregion

@@ -16283,6 +16283,147 @@ namespace ManagedCuda.CudaBlas
         #endregion
         #endregion
 
+        #region GroupedBatchGEMM
+        #region host pointer
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication on groups of matrices. A given group is considered to be “uniform”, 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. However, the dimensions, leading dimensions, transpositions, and scaling factors 
+        /// (alpha, beta) may vary between groups. The address of the input matrices and the output matrix of each instance of the batch 
+        /// are read from arrays of pointers passed to the function by the caller.
+        /// </summary>
+        /// <param name="transa_array">array containing the operations, op(A[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="transb_array">array containing the operations, op(B[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="m_array">array containing the number of rows of matrix op(A[idx]) and C[idx] for each group.</param>
+        /// <param name="n_array">array containing the number of columns of op(B[idx]) and C[idx] for each group.</param>
+        /// <param name="k_array">array containing the number of columns of op(A[idx]) and rows of op(B[idx]) for each group.</param>
+        /// <param name="alpha_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda[i] x k[i] with lda[i]>=max(1,m[i]) if transa[i]==CUBLAS_OP_N and lda[i] x m[i] with lda[i]>=max(1,k[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="lda_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix A[idx] for each group.</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb[i] x n[i] with ldb[i]>=max(1,k[i]) if transb[i]==CUBLAS_OP_N and ldb[i] x k[i] with ldb[i]>=max(1,n[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldb_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix B[idx] for each group.</param>
+        /// <param name="beta_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc[i] x n[i] with ldc[i]>=max(1,m[i]). Matrices C[idx] should not overlap; otherwise, undefined behavior is expected.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldc_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix C[idx] for each group.</param>
+        /// <param name="group_count">number of groups.</param>
+        /// <param name="group_size">array containg the number of pointers contained in Aarray, Barray and Carray for each group.</param>
+        public void GemmGroupedBatched(Operation[] transa_array, Operation[] transb_array, int[] m_array, int[] n_array, int[] k_array, float[] alpha_array, CudaDeviceVariable<CUdeviceptr> Aarray,
+            int[] lda_array, CudaDeviceVariable<CUdeviceptr> Barray, int[] ldb_array, float[] beta_array, CudaDeviceVariable<CUdeviceptr> Carray, int[] ldc_array, int group_count, int[] group_size)
+        {
+            _status = CudaBlasNativeMethods.cublasSgemmGroupedBatched(_blasHandle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, Aarray.DevicePointer, lda_array,
+                Barray.DevicePointer, ldb_array, beta_array, Carray.DevicePointer, ldc_array, group_count, group_size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmGroupedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication on groups of matrices. A given group is considered to be “uniform”, 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. However, the dimensions, leading dimensions, transpositions, and scaling factors 
+        /// (alpha, beta) may vary between groups. The address of the input matrices and the output matrix of each instance of the batch 
+        /// are read from arrays of pointers passed to the function by the caller.
+        /// </summary>
+        /// <param name="transa_array">array containing the operations, op(A[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="transb_array">array containing the operations, op(B[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="m_array">array containing the number of rows of matrix op(A[idx]) and C[idx] for each group.</param>
+        /// <param name="n_array">array containing the number of columns of op(B[idx]) and C[idx] for each group.</param>
+        /// <param name="k_array">array containing the number of columns of op(A[idx]) and rows of op(B[idx]) for each group.</param>
+        /// <param name="alpha_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda[i] x k[i] with lda[i]>=max(1,m[i]) if transa[i]==CUBLAS_OP_N and lda[i] x m[i] with lda[i]>=max(1,k[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="lda_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix A[idx] for each group.</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb[i] x n[i] with ldb[i]>=max(1,k[i]) if transb[i]==CUBLAS_OP_N and ldb[i] x k[i] with ldb[i]>=max(1,n[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldb_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix B[idx] for each group.</param>
+        /// <param name="beta_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc[i] x n[i] with ldc[i]>=max(1,m[i]). Matrices C[idx] should not overlap; otherwise, undefined behavior is expected.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldc_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix C[idx] for each group.</param>
+        /// <param name="group_count">number of groups.</param>
+        /// <param name="group_size">array containg the number of pointers contained in Aarray, Barray and Carray for each group.</param>
+        public void GemmGroupedBatched(Operation[] transa_array, Operation[] transb_array, int[] m_array, int[] n_array, int[] k_array, double[] alpha_array, CudaDeviceVariable<CUdeviceptr> Aarray,
+            int[] lda_array, CudaDeviceVariable<CUdeviceptr> Barray, int[] ldb_array, double[] beta_array, CudaDeviceVariable<CUdeviceptr> Carray, int[] ldc_array, int group_count, int[] group_size)
+        {
+            _status = CudaBlasNativeMethods.cublasDgemmGroupedBatched(_blasHandle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, Aarray.DevicePointer, lda_array,
+                Barray.DevicePointer, ldb_array, beta_array, Carray.DevicePointer, ldc_array, group_count, group_size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDgemmGroupedBatched", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication on groups of matrices. A given group is considered to be “uniform”, 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. However, the dimensions, leading dimensions, transpositions, and scaling factors 
+        /// (alpha, beta) may vary between groups. The address of the input matrices and the output matrix of each instance of the batch 
+        /// are read from arrays of pointers passed to the function by the caller.
+        /// </summary>
+        /// <param name="transa_array">array containing the operations, op(A[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="transb_array">array containing the operations, op(B[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="m_array">array containing the number of rows of matrix op(A[idx]) and C[idx] for each group.</param>
+        /// <param name="n_array">array containing the number of columns of op(B[idx]) and C[idx] for each group.</param>
+        /// <param name="k_array">array containing the number of columns of op(A[idx]) and rows of op(B[idx]) for each group.</param>
+        /// <param name="alpha_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda[i] x k[i] with lda[i]>=max(1,m[i]) if transa[i]==CUBLAS_OP_N and lda[i] x m[i] with lda[i]>=max(1,k[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="lda_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix A[idx] for each group.</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb[i] x n[i] with ldb[i]>=max(1,k[i]) if transb[i]==CUBLAS_OP_N and ldb[i] x k[i] with ldb[i]>=max(1,n[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldb_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix B[idx] for each group.</param>
+        /// <param name="beta_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc[i] x n[i] with ldc[i]>=max(1,m[i]). Matrices C[idx] should not overlap; otherwise, undefined behavior is expected.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldc_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix C[idx] for each group.</param>
+        /// <param name="group_count">number of groups.</param>
+        /// <param name="group_size">array containg the number of pointers contained in Aarray, Barray and Carray for each group.</param>
+        public void GemmGroupedBatched(Operation[] transa_array, Operation[] transb_array, long[] m_array, long[] n_array, long[] k_array, float[] alpha_array, CudaDeviceVariable<CUdeviceptr> Aarray,
+            long[] lda_array, CudaDeviceVariable<CUdeviceptr> Barray, long[] ldb_array, float[] beta_array, CudaDeviceVariable<CUdeviceptr> Carray, long[] ldc_array, long group_count, long[] group_size)
+        {
+            _status = CudaBlasNativeMethods.cublasSgemmGroupedBatched_64(_blasHandle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, Aarray.DevicePointer, lda_array,
+                Barray.DevicePointer, ldb_array, beta_array, Carray.DevicePointer, ldc_array, group_count, group_size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasSgemmGroupedBatched_64", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+        /// <summary>
+        /// This function performs the matrix-matrix multiplication on groups of matrices. A given group is considered to be “uniform”, 
+        /// i.e. all instances have the same dimensions (m, n, k), leading dimensions (lda, ldb, ldc) and transpositions (transa, transb) 
+        /// for their respective A, B and C matrices. However, the dimensions, leading dimensions, transpositions, and scaling factors 
+        /// (alpha, beta) may vary between groups. The address of the input matrices and the output matrix of each instance of the batch 
+        /// are read from arrays of pointers passed to the function by the caller.
+        /// </summary>
+        /// <param name="transa_array">array containing the operations, op(A[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="transb_array">array containing the operations, op(B[idx]), that is non- or (conj.) transpose for each group.</param>
+        /// <param name="m_array">array containing the number of rows of matrix op(A[idx]) and C[idx] for each group.</param>
+        /// <param name="n_array">array containing the number of columns of op(B[idx]) and C[idx] for each group.</param>
+        /// <param name="k_array">array containing the number of columns of op(A[idx]) and rows of op(B[idx]) for each group.</param>
+        /// <param name="alpha_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Aarray">array of device pointers, with each array/device pointer of dim. lda[i] x k[i] with lda[i]>=max(1,m[i]) if transa[i]==CUBLAS_OP_N and lda[i] x m[i] with lda[i]>=max(1,k[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="lda_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix A[idx] for each group.</param>
+        /// <param name="Barray">array of device pointers, with each array of dim. ldb[i] x n[i] with ldb[i]>=max(1,k[i]) if transb[i]==CUBLAS_OP_N and ldb[i] x k[i] with ldb[i]>=max(1,n[i]) otherwise.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldb_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix B[idx] for each group.</param>
+        /// <param name="beta_array">array containing the scalar used for multiplication for each group.</param>
+        /// <param name="Carray">array of device pointers. It has dimensions ldc[i] x n[i] with ldc[i]>=max(1,m[i]). Matrices C[idx] should not overlap; otherwise, undefined behavior is expected.
+        /// All pointers must meet certain alignment criteria.Please see below for details.</param>
+        /// <param name="ldc_array">array containing the leading dimensions of two-dimensional arrays used to store each matrix C[idx] for each group.</param>
+        /// <param name="group_count">number of groups.</param>
+        /// <param name="group_size">array containg the number of pointers contained in Aarray, Barray and Carray for each group.</param>
+        public void GemmGroupedBatched(Operation[] transa_array, Operation[] transb_array, long[] m_array, long[] n_array, long[] k_array, double[] alpha_array, CudaDeviceVariable<CUdeviceptr> Aarray,
+            long[] lda_array, CudaDeviceVariable<CUdeviceptr> Barray, long[] ldb_array, double[] beta_array, CudaDeviceVariable<CUdeviceptr> Carray, long[] ldc_array, long group_count, long[] group_size)
+        {
+            _status = CudaBlasNativeMethods.cublasDgemmGroupedBatched_64(_blasHandle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, Aarray.DevicePointer, lda_array,
+                Barray.DevicePointer, ldb_array, beta_array, Carray.DevicePointer, ldc_array, group_count, group_size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cublasDgemmGroupedBatched_64", _status));
+            if (_status != CublasStatus.Success) throw new CudaBlasException(_status);
+        }
+
+
+        #endregion
+        #endregion
 
 
 

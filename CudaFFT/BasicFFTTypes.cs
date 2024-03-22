@@ -26,6 +26,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 
@@ -204,6 +205,42 @@ namespace ManagedCuda.CudaFFT
         //	if (res != cufftResult.Success)
         //		throw new CudaFFTException(res);
         //}
+
+
+        /// <summary>
+        /// Associates a cuFFT plan with a property identified by the key property. The value for the property is given by value propertyValueInt64, which is a signed long long integer.
+        /// </summary>
+        public void cufftSetPlanPropertyInt64(cufftProperty property, long inputValueInt)
+        {
+            cufftResult res = CudaFFTNativeMethods.cufftSetPlanPropertyInt64(this, property, inputValueInt);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftSetPlanPropertyInt64", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
+
+        /// <summary>
+        /// Retrieves the property value identified by the key property associated with the cuFFT plan plan. The value for the property, which is a signed long long integer, is set in the address space pointed by propertyValueInt64.
+        /// </summary>
+        public long cufftGetPlanPropertyInt64(cufftProperty property)
+        {
+            long returnPtrValue = 0;
+            cufftResult res = CudaFFTNativeMethods.cufftGetPlanPropertyInt64(this, property, ref returnPtrValue);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftGetPlanPropertyInt64", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+            return returnPtrValue;
+        }
+
+        /// <summary>
+        /// Resets the value of the property identified by the key property, associated with the cuFFT plan plan, to its default value.
+        /// </summary>
+        public void cufftResetPlanProperty(cufftProperty property)
+        {
+            cufftResult res = CudaFFTNativeMethods.cufftResetPlanProperty(this, property);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cufftResetPlanProperty", res));
+            if (res != cufftResult.Success)
+                throw new CudaFFTException(res);
+        }
     }
 
     /// <summary>
@@ -266,4 +303,9 @@ namespace ManagedCuda.CudaFFT
     //    /// </summary>
     //    FFTWPadding = 0x01
     //}
+
+    public enum cufftProperty
+    {
+        PatientJit_Int64 = 1
+    }
 }

@@ -1493,9 +1493,9 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nLevels"></param>
         /// <returns></returns>
-        public int HistogramEvenGetBufferSize(int[] nLevels)
+        public SizeT HistogramEvenGetBufferSize(int[] nLevels)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEvenGetBufferSize_8u_C4R(_sizeRoi, nLevels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramEvenGetBufferSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -1524,9 +1524,9 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nLevels"></param>
         /// <returns></returns>
-        public int HistogramEvenGetBufferSizeA(int[] nLevels)
+        public SizeT HistogramEvenGetBufferSizeA(int[] nLevels)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEvenGetBufferSize_8u_AC4R(_sizeRoi, nLevels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramEvenGetBufferSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -1545,7 +1545,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer, histogram[3].DevicePointer };
 
 
-            int bufferSize = HistogramEvenGetBufferSize(size);
+            SizeT bufferSize = HistogramEvenGetBufferSize(size);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEven_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, size, nLowerLevel, nUpperLevel, buffer.DevicePointer);
@@ -1566,7 +1566,7 @@ namespace ManagedCuda.NPP
             int[] size = new int[] { histogram[0].Size + 1, histogram[1].Size + 1, histogram[2].Size + 1, histogram[3].Size + 1 };
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer, histogram[3].DevicePointer };
 
-            int bufferSize = HistogramEvenGetBufferSize(size);
+            SizeT bufferSize = HistogramEvenGetBufferSize(size);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEven_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, size, nLowerLevel, nUpperLevel, buffer.DevicePointer);
@@ -1586,7 +1586,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
 
 
-            int bufferSize = HistogramEvenGetBufferSizeA(size);
+            SizeT bufferSize = HistogramEvenGetBufferSizeA(size);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEven_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, size, nLowerLevel, nUpperLevel, buffer.DevicePointer);
@@ -1607,7 +1607,7 @@ namespace ManagedCuda.NPP
             int[] size = new int[] { histogram[0].Size + 1, histogram[1].Size + 1, histogram[2].Size + 1 };
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
 
-            int bufferSize = HistogramEvenGetBufferSizeA(size);
+            SizeT bufferSize = HistogramEvenGetBufferSizeA(size);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramEven_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, size, nLowerLevel, nUpperLevel, buffer.DevicePointer);
@@ -1620,9 +1620,9 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nLevels"></param>
         /// <returns></returns>
-        public int HistogramRangeGetBufferSize(int[] nLevels)
+        public SizeT HistogramRangeGetBufferSize(int[] nLevels)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRangeGetBufferSize_8u_C4R(_sizeRoi, nLevels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramRangeGetBufferSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -1634,9 +1634,9 @@ namespace ManagedCuda.NPP
         /// </summary>
         /// <param name="nLevels"></param>
         /// <returns></returns>
-        public int HistogramRangeGetBufferSizeA(int[] nLevels)
+        public SizeT HistogramRangeGetBufferSizeA(int[] nLevels)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRangeGetBufferSize_8u_AC4R(_sizeRoi, nLevels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiHistogramRangeGetBufferSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -1654,7 +1654,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer, histogram[3].DevicePointer };
             CUdeviceptr[] devLevels = new CUdeviceptr[] { pLevels[0].DevicePointer, pLevels[1].DevicePointer, pLevels[2].DevicePointer, pLevels[3].DevicePointer };
 
-            int bufferSize = HistogramRangeGetBufferSize(size);
+            SizeT bufferSize = HistogramRangeGetBufferSize(size);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRange_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, devLevels, size, buffer.DevicePointer);
@@ -1675,7 +1675,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer, histogram[3].DevicePointer };
             CUdeviceptr[] devLevels = new CUdeviceptr[] { pLevels[0].DevicePointer, pLevels[1].DevicePointer, pLevels[2].DevicePointer, pLevels[3].DevicePointer };
 
-            int bufferSize = HistogramRangeGetBufferSize(size);
+            SizeT bufferSize = HistogramRangeGetBufferSize(size);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRange_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, devLevels, size, buffer.DevicePointer);
@@ -1694,7 +1694,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
             CUdeviceptr[] devLevels = new CUdeviceptr[] { pLevels[0].DevicePointer, pLevels[1].DevicePointer, pLevels[2].DevicePointer };
 
-            int bufferSize = HistogramRangeGetBufferSizeA(size);
+            SizeT bufferSize = HistogramRangeGetBufferSizeA(size);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRange_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, devLevels, size, buffer.DevicePointer);
@@ -1715,7 +1715,7 @@ namespace ManagedCuda.NPP
             CUdeviceptr[] devPtrs = new CUdeviceptr[] { histogram[0].DevicePointer, histogram[1].DevicePointer, histogram[2].DevicePointer };
             CUdeviceptr[] devLevels = new CUdeviceptr[] { pLevels[0].DevicePointer, pLevels[1].DevicePointer, pLevels[2].DevicePointer };
 
-            int bufferSize = HistogramRangeGetBufferSizeA(size);
+            SizeT bufferSize = HistogramRangeGetBufferSizeA(size);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Histogram.nppiHistogramRange_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, devPtrs, devLevels, size, buffer.DevicePointer);
@@ -1729,9 +1729,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for MinMax.
         /// </summary>
         /// <returns></returns>
-        public int MinMaxGetBufferHostSize()
+        public SizeT MinMaxGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MinMaxNew.nppiMinMaxGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinMaxGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -1745,7 +1745,7 @@ namespace ManagedCuda.NPP
         /// <param name="max">Allocated device memory with size of at least 4 * sizeof(byte)</param>
         public void MinMax(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max)
         {
-            int bufferSize = MinMaxGetBufferHostSize();
+            SizeT bufferSize = MinMaxGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MinMaxNew.nppiMinMax_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, min.DevicePointer, max.DevicePointer, buffer.DevicePointer);
@@ -1762,7 +1762,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinMaxGetBufferHostSize()"/></param>
         public void MinMax(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> max, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MinMaxGetBufferHostSize();
+            SizeT bufferSize = MinMaxGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MinMaxNew.nppiMinMax_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, min.DevicePointer, max.DevicePointer, buffer.DevicePointer);
@@ -3045,9 +3045,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for nppiSum_8u_C4R.
         /// </summary>
         /// <returns></returns>
-        public int SumDoubleGetBufferHostSize()
+        public SizeT SumDoubleGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Sum.nppiSumGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3057,9 +3057,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for nppiSum_8u_C4R. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int SumDoubleGetBufferHostSizeA()
+        public SizeT SumDoubleGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Sum.nppiSumGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3069,9 +3069,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for nppiSum_8u_C4R.
         /// </summary>
         /// <returns></returns>
-        public int SumLongGetBufferHostSize()
+        public SizeT SumLongGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Sum.nppiSumGetBufferHostSize_8u64s_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSumGetBufferHostSize_8u64s_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3084,7 +3084,7 @@ namespace ManagedCuda.NPP
         /// <param name="result">Allocated device memory with size of at least 4 * sizeof(double)</param>
         public void Sum(CudaDeviceVariable<double> result)
         {
-            int bufferSize = SumDoubleGetBufferHostSize();
+            SizeT bufferSize = SumDoubleGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3100,7 +3100,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SumDoubleGetBufferHostSize()"/></param>
         public void Sum(CudaDeviceVariable<double> result, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SumDoubleGetBufferHostSize();
+            SizeT bufferSize = SumDoubleGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3114,7 +3114,7 @@ namespace ManagedCuda.NPP
         /// <param name="result">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void SumA(CudaDeviceVariable<double> result)
         {
-            int bufferSize = SumDoubleGetBufferHostSizeA();
+            SizeT bufferSize = SumDoubleGetBufferHostSizeA();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3130,7 +3130,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SumDoubleGetBufferHostSizeA()"/></param>
         public void SumA(CudaDeviceVariable<double> result, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SumDoubleGetBufferHostSizeA();
+            SizeT bufferSize = SumDoubleGetBufferHostSizeA();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3144,7 +3144,7 @@ namespace ManagedCuda.NPP
         /// <param name="result">Allocated device memory with size of at least 4 * sizeof(long)</param>
         public void Sum(CudaDeviceVariable<long> result)
         {
-            int bufferSize = SumLongGetBufferHostSize();
+            SizeT bufferSize = SumLongGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u64s_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3160,7 +3160,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SumLongGetBufferHostSize()"/></param>
         public void Sum(CudaDeviceVariable<long> result, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SumLongGetBufferHostSize();
+            SizeT bufferSize = SumLongGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Sum.nppiSum_8u64s_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, result.DevicePointer);
@@ -3647,9 +3647,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Min.
         /// </summary>
         /// <returns></returns>
-        public int MinGetBufferHostSize()
+        public SizeT MinGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Min.nppiMinGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3662,7 +3662,7 @@ namespace ManagedCuda.NPP
         /// <param name="min">Allocated device memory with size of at least 4 * sizeof(byte)</param>
         public void Min(CudaDeviceVariable<byte> min)
         {
-            int bufferSize = MinGetBufferHostSize();
+            SizeT bufferSize = MinGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Min.nppiMin_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer);
@@ -3678,7 +3678,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinGetBufferHostSize()"/></param>
         public void Min(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MinGetBufferHostSize();
+            SizeT bufferSize = MinGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Min.nppiMin_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer);
@@ -3690,9 +3690,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Min. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int MinGetBufferHostSizeA()
+        public SizeT MinGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Min.nppiMinGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3705,7 +3705,7 @@ namespace ManagedCuda.NPP
         /// <param name="min">Allocated device memory with size of at least 3 * sizeof(byte)</param>
         public void MinA(CudaDeviceVariable<byte> min)
         {
-            int bufferSize = MinGetBufferHostSize();
+            SizeT bufferSize = MinGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Min.nppiMin_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer);
@@ -3721,7 +3721,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinGetBufferHostSizeA()"/></param>
         public void MinA(CudaDeviceVariable<byte> min, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MinGetBufferHostSize();
+            SizeT bufferSize = MinGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Min.nppiMin_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer);
@@ -3735,9 +3735,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for MinIndex.
         /// </summary>
         /// <returns></returns>
-        public int MinIndexGetBufferHostSize()
+        public SizeT MinIndexGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndxGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinIndxGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3752,7 +3752,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexY">Allocated device memory with size of at least 4 * sizeof(int)</param>
         public void MinIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY)
         {
-            int bufferSize = MinIndexGetBufferHostSize();
+            SizeT bufferSize = MinIndexGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndx_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3770,7 +3770,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinIndexGetBufferHostSize()"/></param>
         public void MinIndex(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MinIndexGetBufferHostSize();
+            SizeT bufferSize = MinIndexGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndx_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3781,9 +3781,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for MinIndex. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int MinIndexGetBufferHostSizeA()
+        public SizeT MinIndexGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndxGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMinIndxGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3798,7 +3798,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexY">Allocated device memory with size of at least 3 * sizeof(int)</param>
         public void MinIndexA(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY)
         {
-            int bufferSize = MinIndexGetBufferHostSizeA();
+            SizeT bufferSize = MinIndexGetBufferHostSizeA();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndx_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3816,7 +3816,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MinIndexGetBufferHostSizeA()"/></param>
         public void MinIndexA(CudaDeviceVariable<byte> min, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MinIndexGetBufferHostSizeA();
+            SizeT bufferSize = MinIndexGetBufferHostSizeA();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MinIdx.nppiMinIndx_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, min.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3830,9 +3830,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Max.
         /// </summary>
         /// <returns></returns>
-        public int MaxGetBufferHostSize()
+        public SizeT MaxGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Max.nppiMaxGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaxGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3845,7 +3845,7 @@ namespace ManagedCuda.NPP
         /// <param name="max">Allocated device memory with size of at least 4 * sizeof(byte)</param>
         public void Max(CudaDeviceVariable<byte> max)
         {
-            int bufferSize = MaxGetBufferHostSize();
+            SizeT bufferSize = MaxGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Max.nppiMax_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer);
@@ -3861,7 +3861,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxGetBufferHostSize()"/></param>
         public void Max(CudaDeviceVariable<byte> max, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaxGetBufferHostSize();
+            SizeT bufferSize = MaxGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Max.nppiMax_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer);
@@ -3872,9 +3872,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Max. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int MaxGetBufferHostSizeA()
+        public SizeT MaxGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.Max.nppiMaxGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaxGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3887,7 +3887,7 @@ namespace ManagedCuda.NPP
         /// <param name="max">Allocated device memory with size of at least 3 * sizeof(byte)</param>
         public void MaxA(CudaDeviceVariable<byte> max)
         {
-            int bufferSize = MaxGetBufferHostSizeA();
+            SizeT bufferSize = MaxGetBufferHostSizeA();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.Max.nppiMax_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer);
@@ -3903,7 +3903,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxGetBufferHostSizeA()"/></param>
         public void MaxA(CudaDeviceVariable<byte> max, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaxGetBufferHostSizeA();
+            SizeT bufferSize = MaxGetBufferHostSizeA();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.Max.nppiMax_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer);
@@ -3917,9 +3917,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for MaxIndex.
         /// </summary>
         /// <returns></returns>
-        public int MaxIndexGetBufferHostSize()
+        public SizeT MaxIndexGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndxGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaxIndxGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3934,7 +3934,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexY">Allocated device memory with size of at least 4 * sizeof(int)</param>
         public void MaxIndex(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY)
         {
-            int bufferSize = MaxIndexGetBufferHostSize();
+            SizeT bufferSize = MaxIndexGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndx_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3952,7 +3952,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxIndexGetBufferHostSize()"/></param>
         public void MaxIndex(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaxIndexGetBufferHostSize();
+            SizeT bufferSize = MaxIndexGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndx_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3963,9 +3963,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for MaxIndex. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int MaxIndexGetBufferHostSizeA()
+        public SizeT MaxIndexGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndxGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaxIndxGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -3980,7 +3980,7 @@ namespace ManagedCuda.NPP
         /// <param name="indexY">Allocated device memory with size of at least 3 * sizeof(int)</param>
         public void MaxIndexA(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY)
         {
-            int bufferSize = MaxIndexGetBufferHostSizeA();
+            SizeT bufferSize = MaxIndexGetBufferHostSizeA();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndx_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -3998,7 +3998,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MaxIndexGetBufferHostSizeA()"/></param>
         public void MaxIndexA(CudaDeviceVariable<byte> max, CudaDeviceVariable<int> indexX, CudaDeviceVariable<int> indexY, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaxIndexGetBufferHostSizeA();
+            SizeT bufferSize = MaxIndexGetBufferHostSizeA();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MaxIdx.nppiMaxIndx_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, max.DevicePointer, indexX.DevicePointer, indexY.DevicePointer);
@@ -4012,9 +4012,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Mean.
         /// </summary>
         /// <returns></returns>
-        public int MeanGetBufferHostSize()
+        public SizeT MeanGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MeanNew.nppiMeanGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMeanGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4027,7 +4027,7 @@ namespace ManagedCuda.NPP
         /// <param name="mean">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void Mean(CudaDeviceVariable<double> mean)
         {
-            int bufferSize = MeanGetBufferHostSize();
+            SizeT bufferSize = MeanGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MeanNew.nppiMean_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, mean.DevicePointer);
@@ -4043,7 +4043,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanGetBufferHostSize()"/></param>
         public void Mean(CudaDeviceVariable<double> mean, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MeanGetBufferHostSize();
+            SizeT bufferSize = MeanGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MeanNew.nppiMean_8u_C4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, mean.DevicePointer);
@@ -4054,9 +4054,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Mean. Not affecting alpha.
         /// </summary>
         /// <returns></returns>
-        public int MeanGetBufferHostSizeA()
+        public SizeT MeanGetBufferHostSizeA()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MeanNew.nppiMeanGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMeanGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4069,7 +4069,7 @@ namespace ManagedCuda.NPP
         /// <param name="mean">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void MeanA(CudaDeviceVariable<double> mean)
         {
-            int bufferSize = MeanGetBufferHostSizeA();
+            SizeT bufferSize = MeanGetBufferHostSizeA();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.MeanNew.nppiMean_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, mean.DevicePointer);
@@ -4085,7 +4085,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="MeanGetBufferHostSizeA()"/></param>
         public void MeanA(CudaDeviceVariable<double> mean, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MeanGetBufferHostSizeA();
+            SizeT bufferSize = MeanGetBufferHostSizeA();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MeanNew.nppiMean_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, buffer.DevicePointer, mean.DevicePointer);
@@ -4163,9 +4163,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Norm inf.
         /// </summary>
         /// <returns></returns>
-        public int NormInfGetBufferHostSize()
+        public SizeT NormInfGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormInf.nppiNormInfGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormInfGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4178,7 +4178,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void NormInf(CudaDeviceVariable<double> norm)
         {
-            int bufferSize = NormInfGetBufferHostSize();
+            SizeT bufferSize = NormInfGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormInf.nppiNorm_Inf_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4194,7 +4194,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormInfGetBufferHostSize()"/></param>
         public void NormInf(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormInfGetBufferHostSize();
+            SizeT bufferSize = NormInfGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormInf.nppiNorm_Inf_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4208,9 +4208,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Norm L1.
         /// </summary>
         /// <returns></returns>
-        public int NormL1GetBufferHostSize()
+        public SizeT NormL1GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormL1.nppiNormL1GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormL1GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4223,7 +4223,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void NormL1(CudaDeviceVariable<double> norm)
         {
-            int bufferSize = NormL1GetBufferHostSize();
+            SizeT bufferSize = NormL1GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormL1.nppiNorm_L1_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4239,7 +4239,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL1GetBufferHostSize()"/></param>
         public void NormL1(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormL1GetBufferHostSize();
+            SizeT bufferSize = NormL1GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormL1.nppiNorm_L1_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4253,9 +4253,9 @@ namespace ManagedCuda.NPP
         /// Scratch-buffer size for Norm L2.
         /// </summary>
         /// <returns></returns>
-        public int NormL2GetBufferHostSize()
+        public SizeT NormL2GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormL2.nppiNormL2GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormL2GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4268,7 +4268,7 @@ namespace ManagedCuda.NPP
         /// <param name="norm">Allocated device memory with size of at least 3 * sizeof(double)</param>
         public void NormL2(CudaDeviceVariable<double> norm)
         {
-            int bufferSize = NormL2GetBufferHostSize();
+            SizeT bufferSize = NormL2GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormL2.nppiNorm_L2_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4284,7 +4284,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormL2GetBufferHostSize()"/></param>
         public void NormL2(CudaDeviceVariable<double> norm, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormL2GetBufferHostSize();
+            SizeT bufferSize = NormL2GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormL2.nppiNorm_L2_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, norm.DevicePointer, buffer.DevicePointer);
@@ -4959,9 +4959,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for nppiDotProd_8u64f_C4R.
         /// </summary>
         /// <returns></returns>
-        public int DotProdGetBufferHostSize()
+        public SizeT DotProdGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProdGetBufferHostSize_8u64f_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDotProdGetBufferHostSize_8u64f_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -4976,7 +4976,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="DotProdGetBufferHostSize()"/></param>
         public void DotProduct(NPPImage_8uC4 src2, CudaDeviceVariable<double> pDp, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = DotProdGetBufferHostSize();
+            SizeT bufferSize = DotProdGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProd_8u64f_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pDp.DevicePointer, buffer.DevicePointer);
@@ -4991,7 +4991,7 @@ namespace ManagedCuda.NPP
         /// <param name="pDp">Pointer to the computed dot product of the two images. (4 * sizeof(double))</param>
         public void DotProduct(NPPImage_8uC4 src2, CudaDeviceVariable<double> pDp)
         {
-            int bufferSize = DotProdGetBufferHostSize();
+            SizeT bufferSize = DotProdGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProd_8u64f_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pDp.DevicePointer, buffer.DevicePointer);
@@ -5006,9 +5006,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for nppiDotProd_8u64f_C4R. Ignoring alpha channel.
         /// </summary>
         /// <returns></returns>
-        public int ADotProdGetBufferHostSize()
+        public SizeT ADotProdGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProdGetBufferHostSize_8u64f_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiDotProdGetBufferHostSize_8u64f_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5023,7 +5023,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="ADotProdGetBufferHostSize()"/></param>
         public void ADotProduct(NPPImage_8uC4 src2, CudaDeviceVariable<double> pDp, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = DotProdGetBufferHostSize();
+            SizeT bufferSize = DotProdGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProd_8u64f_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pDp.DevicePointer, buffer.DevicePointer);
@@ -5038,7 +5038,7 @@ namespace ManagedCuda.NPP
         /// <param name="pDp">Pointer to the computed dot product of the two images. (3 * sizeof(double))</param>
         public void ADotProduct(NPPImage_8uC4 src2, CudaDeviceVariable<double> pDp)
         {
-            int bufferSize = DotProdGetBufferHostSize();
+            SizeT bufferSize = DotProdGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.DotProd.nppiDotProd_8u64f_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pDp.DevicePointer, buffer.DevicePointer);
@@ -5453,9 +5453,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_Inf.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffInfGetBufferHostSize()
+        public SizeT NormDiffInfGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffInfGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffInfGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5470,7 +5470,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffInfGetBufferHostSize()"/></param>
         public void NormDiff_Inf(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffInfGetBufferHostSize();
+            SizeT bufferSize = NormDiffInfGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_Inf_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5485,7 +5485,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_Inf(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffInfGetBufferHostSize();
+            SizeT bufferSize = NormDiffInfGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_Inf_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5499,9 +5499,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_L1.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffL1GetBufferHostSize()
+        public SizeT NormDiffL1GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffL1GetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffL1GetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5516,7 +5516,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL1GetBufferHostSize()"/></param>
         public void NormDiff_L1(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffL1GetBufferHostSize();
+            SizeT bufferSize = NormDiffL1GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L1_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5531,7 +5531,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_L1(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffL1GetBufferHostSize();
+            SizeT bufferSize = NormDiffL1GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L1_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5545,9 +5545,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_L2.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffL2GetBufferHostSize()
+        public SizeT NormDiffL2GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffL2GetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffL2GetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5562,7 +5562,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL2GetBufferHostSize()"/></param>
         public void NormDiff_L2(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffL2GetBufferHostSize();
+            SizeT bufferSize = NormDiffL2GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L2_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5577,7 +5577,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_L2(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffL2GetBufferHostSize();
+            SizeT bufferSize = NormDiffL2GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L2_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -5592,9 +5592,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_Inf.
         /// </summary>
         /// <returns></returns>
-        public int NormRelInfGetBufferHostSize()
+        public SizeT NormRelInfGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelInfGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelInfGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5609,7 +5609,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelInfGetBufferHostSize()"/></param>
         public void NormRel_Inf(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelInfGetBufferHostSize();
+            SizeT bufferSize = NormRelInfGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_Inf_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5624,7 +5624,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_Inf(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelInfGetBufferHostSize();
+            SizeT bufferSize = NormRelInfGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_Inf_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5638,9 +5638,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_L1.
         /// </summary>
         /// <returns></returns>
-        public int NormRelL1GetBufferHostSize()
+        public SizeT NormRelL1GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelL1GetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelL1GetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5655,7 +5655,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL1GetBufferHostSize()"/></param>
         public void NormRel_L1(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelL1GetBufferHostSize();
+            SizeT bufferSize = NormRelL1GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L1_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5670,7 +5670,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_L1(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelL1GetBufferHostSize();
+            SizeT bufferSize = NormRelL1GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L1_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5684,9 +5684,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_L2.
         /// </summary>
         /// <returns></returns>
-        public int NormRelL2GetBufferHostSize()
+        public SizeT NormRelL2GetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelL2GetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelL2GetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5701,7 +5701,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL2GetBufferHostSize()"/></param>
         public void NormRel_L2(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelL2GetBufferHostSize();
+            SizeT bufferSize = NormRelL2GetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L2_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5716,7 +5716,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_L2(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelL2GetBufferHostSize();
+            SizeT bufferSize = NormRelL2GetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L2_8u_C4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -5733,9 +5733,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrFull_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int FullNormLevelGetBufferHostSize()
+        public SizeT FullNormLevelGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiFullNormLevelGetBufferHostSize_8u32f_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFullNormLevelGetBufferHostSize_8u32f_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5750,7 +5750,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelGetBufferHostSize()"/></param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = FullNormLevelGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5765,7 +5765,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = FullNormLevelGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5780,9 +5780,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrSame_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int SameNormLevelGetBufferHostSize()
+        public SizeT SameNormLevelGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiSameNormLevelGetBufferHostSize_8u32f_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSameNormLevelGetBufferHostSize_8u32f_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5797,7 +5797,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelGetBufferHostSize()"/></param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SameNormLevelGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5812,7 +5812,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = SameNormLevelGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5828,9 +5828,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrValid_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int ValidNormLevelGetBufferHostSize()
+        public SizeT ValidNormLevelGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiValidNormLevelGetBufferHostSize_8u32f_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiValidNormLevelGetBufferHostSize_8u32f_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -5845,7 +5845,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelGetBufferHostSize()"/></param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = ValidNormLevelGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5860,7 +5860,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = ValidNormLevelGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u32f_C4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -5878,9 +5878,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrFull_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int FullNormLevelScaledGetBufferHostSize()
+        public SizeT FullNormLevelScaledGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiFullNormLevelGetBufferHostSize_8u_C4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFullNormLevelGetBufferHostSize_8u_C4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -5896,7 +5896,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelScaledGetBufferHostSize()"/></param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = FullNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelScaledGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -5912,7 +5912,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrFull_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = FullNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelScaledGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -5927,9 +5927,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrSame_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int SameNormLevelScaledGetBufferHostSize()
+        public SizeT SameNormLevelScaledGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiSameNormLevelGetBufferHostSize_8u_C4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSameNormLevelGetBufferHostSize_8u_C4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -5945,7 +5945,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelScaledGetBufferHostSize()"/></param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SameNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelScaledGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -5961,7 +5961,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrSame_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = SameNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelScaledGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -5977,9 +5977,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrValid_NormLevel.
         /// </summary>
         /// <returns></returns>
-        public int ValidNormLevelScaledGetBufferHostSize()
+        public SizeT ValidNormLevelScaledGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiValidNormLevelGetBufferHostSize_8u_C4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiValidNormLevelGetBufferHostSize_8u_C4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -5995,7 +5995,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelScaledGetBufferHostSize()"/></param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = ValidNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelScaledGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -6011,7 +6011,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrValid_NormLevel(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = ValidNormLevelScaledGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelScaledGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u_C4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -6822,9 +6822,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for QualityIndex.
         /// </summary>
         /// <returns></returns>
-        public int QualityIndexAGetBufferHostSize()
+        public SizeT QualityIndexAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.QualityIndex.nppiQualityIndexGetBufferHostSize_8u32f_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiQualityIndexGetBufferHostSize_8u32f_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -6839,7 +6839,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="QualityIndexAGetBufferHostSize()"/></param>
         public void QualityIndexA(NPPImage_8uC4 src2, CudaDeviceVariable<float> dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = QualityIndexAGetBufferHostSize();
+            SizeT bufferSize = QualityIndexAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.QualityIndex.nppiQualityIndex_8u32f_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, dst.DevicePointer, buffer.DevicePointer);
@@ -6854,7 +6854,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Pointer to the quality index. (3 * sizeof(float))</param>
         public void QualityIndexA(NPPImage_8uC4 src2, CudaDeviceVariable<float> dst)
         {
-            int bufferSize = QualityIndexAGetBufferHostSize();
+            SizeT bufferSize = QualityIndexAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.QualityIndex.nppiQualityIndex_8u32f_AC4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, dst.DevicePointer, buffer.DevicePointer);
@@ -6869,9 +6869,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CountInRange.
         /// </summary>
         /// <returns></returns>
-        public int CountInRangeAGetBufferHostSize()
+        public SizeT CountInRangeAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.CountInRange.nppiCountInRangeGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCountInRangeGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -6887,7 +6887,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="CountInRangeAGetBufferHostSize()"/></param>
         public void CountInRangeA(CudaDeviceVariable<int> pCounts, byte[] nLowerBound, byte[] nUpperBound, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = CountInRangeAGetBufferHostSize();
+            SizeT bufferSize = CountInRangeAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.CountInRange.nppiCountInRange_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, pCounts.DevicePointer, nLowerBound, nUpperBound, buffer.DevicePointer);
@@ -6903,7 +6903,7 @@ namespace ManagedCuda.NPP
         /// <param name="nUpperBound">Fixed size array of the upper bound of the specified range, one per channel.</param>
         public void CountInRangeA(CudaDeviceVariable<int> pCounts, byte[] nLowerBound, byte[] nUpperBound)
         {
-            int bufferSize = CountInRangeAGetBufferHostSize();
+            SizeT bufferSize = CountInRangeAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.CountInRange.nppiCountInRange_8u_AC4R(_devPtrRoi, _pitch, _sizeRoi, pCounts.DevicePointer, nLowerBound, nUpperBound, buffer.DevicePointer);
@@ -7265,9 +7265,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_Inf. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffInfAGetBufferHostSize()
+        public SizeT NormDiffInfAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffInfGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffInfGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7282,7 +7282,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffInfAGetBufferHostSize()"/></param>
         public void NormDiff_InfA(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffInfAGetBufferHostSize();
+            SizeT bufferSize = NormDiffInfAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_Inf_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7297,7 +7297,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed Inf-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_InfA(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffInfAGetBufferHostSize();
+            SizeT bufferSize = NormDiffInfAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_Inf_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7311,9 +7311,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_L1. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffL1AGetBufferHostSize()
+        public SizeT NormDiffL1AGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffL1GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffL1GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7328,7 +7328,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL1AGetBufferHostSize()"/></param>
         public void NormDiff_L1A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffL1AGetBufferHostSize();
+            SizeT bufferSize = NormDiffL1AGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L1_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7343,7 +7343,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L1-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_L1A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffL1AGetBufferHostSize();
+            SizeT bufferSize = NormDiffL1AGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L1_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7357,9 +7357,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormDiff_L2. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormDiffL2AGetBufferHostSize()
+        public SizeT NormDiffL2AGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiffL2GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormDiffL2GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7374,7 +7374,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormDiffL2AGetBufferHostSize()"/></param>
         public void NormDiff_L2A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormDiffL2AGetBufferHostSize();
+            SizeT bufferSize = NormDiffL2AGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L2_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7389,7 +7389,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormDiff">Pointer to the computed L2-norm of differences. (3 * sizeof(double))</param>
         public void NormDiff_L2A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormDiff)
         {
-            int bufferSize = NormDiffL2AGetBufferHostSize();
+            SizeT bufferSize = NormDiffL2AGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormDiff.nppiNormDiff_L2_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormDiff.DevicePointer, buffer.DevicePointer);
@@ -7404,9 +7404,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_Inf. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormRelInfAGetBufferHostSize()
+        public SizeT NormRelInfAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelInfGetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelInfGetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7421,7 +7421,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelInfAGetBufferHostSize()"/></param>
         public void NormRel_InfA(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelInfAGetBufferHostSize();
+            SizeT bufferSize = NormRelInfAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_Inf_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7436,7 +7436,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_InfA(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelInfAGetBufferHostSize();
+            SizeT bufferSize = NormRelInfAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_Inf_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7450,9 +7450,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_L1. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormRelL1AGetBufferHostSize()
+        public SizeT NormRelL1AGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelL1GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelL1GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7467,7 +7467,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL1AGetBufferHostSize()"/></param>
         public void NormRel_L1A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelL1AGetBufferHostSize();
+            SizeT bufferSize = NormRelL1AGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L1_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7482,7 +7482,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_L1A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelL1AGetBufferHostSize();
+            SizeT bufferSize = NormRelL1AGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L1_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7496,9 +7496,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for NormRel_L2. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int NormRelL2AGetBufferHostSize()
+        public SizeT NormRelL2AGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRelL2GetBufferHostSize_8u_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiNormRelL2GetBufferHostSize_8u_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7513,7 +7513,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="NormRelL2AGetBufferHostSize()"/></param>
         public void NormRel_L2A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = NormRelL2AGetBufferHostSize();
+            SizeT bufferSize = NormRelL2AGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L2_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7528,7 +7528,7 @@ namespace ManagedCuda.NPP
         /// <param name="pNormRel">Pointer to the computed relative error for the infinity norm of two images. (3 * sizeof(double))</param>
         public void NormRel_L2A(NPPImage_8uC4 tpl, CudaDeviceVariable<double> pNormRel)
         {
-            int bufferSize = NormRelL2AGetBufferHostSize();
+            SizeT bufferSize = NormRelL2AGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.NormRel.nppiNormRel_L2_8u_AC4R(_devPtrRoi, _pitch, tpl.DevicePointerRoi, tpl.Pitch, _sizeRoi, pNormRel.DevicePointer, buffer.DevicePointer);
@@ -7545,9 +7545,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrFull_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int FullNormLevelAGetBufferHostSize()
+        public SizeT FullNormLevelAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiFullNormLevelGetBufferHostSize_8u32f_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFullNormLevelGetBufferHostSize_8u32f_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7562,7 +7562,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelAGetBufferHostSize()"/></param>
         public void CrossCorrFull_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = FullNormLevelAGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7577,7 +7577,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrFull_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = FullNormLevelAGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7592,9 +7592,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrSame_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int SameNormLevelAGetBufferHostSize()
+        public SizeT SameNormLevelAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiSameNormLevelGetBufferHostSize_8u32f_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSameNormLevelGetBufferHostSize_8u32f_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7609,7 +7609,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelAGetBufferHostSize()"/></param>
         public void CrossCorrSame_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SameNormLevelAGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7624,7 +7624,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrSame_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = SameNormLevelAGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7640,9 +7640,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrValid_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int ValidNormLevelAGetBufferHostSize()
+        public SizeT ValidNormLevelAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiValidNormLevelGetBufferHostSize_8u32f_AC4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiValidNormLevelGetBufferHostSize_8u32f_AC4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -7657,7 +7657,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelAGetBufferHostSize()"/></param>
         public void CrossCorrValid_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = ValidNormLevelAGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7672,7 +7672,7 @@ namespace ManagedCuda.NPP
         /// <param name="dst">Destination image</param>
         public void CrossCorrValid_NormLevelA(NPPImage_8uC4 tpl, NPPImage_32fC4 dst)
         {
-            int bufferSize = ValidNormLevelAGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u32f_AC4R(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, buffer.DevicePointer);
@@ -7690,9 +7690,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrFull_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int FullNormLevelScaledAGetBufferHostSize()
+        public SizeT FullNormLevelScaledAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiFullNormLevelGetBufferHostSize_8u_AC4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFullNormLevelGetBufferHostSize_8u_AC4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -7708,7 +7708,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="FullNormLevelScaledAGetBufferHostSize()"/></param>
         public void CrossCorrFull_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = FullNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelScaledAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -7724,7 +7724,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrFull_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = FullNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = FullNormLevelScaledAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -7739,9 +7739,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrSame_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int SameNormLevelScaledAGetBufferHostSize()
+        public SizeT SameNormLevelScaledAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiSameNormLevelGetBufferHostSize_8u_AC4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSameNormLevelGetBufferHostSize_8u_AC4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -7757,7 +7757,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="SameNormLevelScaledAGetBufferHostSize()"/></param>
         public void CrossCorrSame_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = SameNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelScaledAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -7773,7 +7773,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrSame_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = SameNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = SameNormLevelScaledAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -7789,9 +7789,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for CrossCorrValid_NormLevel. Not affecting Alpha.
         /// </summary>
         /// <returns></returns>
-        public int ValidNormLevelScaledAGetBufferHostSize()
+        public SizeT ValidNormLevelScaledAGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiValidNormLevelGetBufferHostSize_8u_AC4RSfs(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiValidNormLevelGetBufferHostSize_8u_AC4RSfs", status));
             NPPException.CheckNppStatus(status, this);
@@ -7807,7 +7807,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Allocated device memory with size of at <see cref="ValidNormLevelScaledAGetBufferHostSize()"/></param>
         public void CrossCorrValid_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = ValidNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelScaledAGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -7823,7 +7823,7 @@ namespace ManagedCuda.NPP
         /// <param name="nScaleFactor">Integer Result Scaling.</param>
         public void CrossCorrValid_NormLevelA(NPPImage_8uC4 tpl, NPPImage_8uC4 dst, int nScaleFactor)
         {
-            int bufferSize = ValidNormLevelScaledAGetBufferHostSize();
+            SizeT bufferSize = ValidNormLevelScaledAGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
 
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_8u_AC4RSfs(_devPtrRoi, _pitch, _sizeRoi, tpl.DevicePointerRoi, tpl.Pitch, tpl.SizeRoi, dst.DevicePointer, dst.Pitch, nScaleFactor, buffer.DevicePointer);
@@ -8561,7 +8561,7 @@ namespace ManagedCuda.NPP
         /// <param name="pError">Pointer to the computed error.</param>
         public void MaxError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError)
         {
-            int bufferSize = MaxErrorGetBufferHostSize();
+            SizeT bufferSize = MaxErrorGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_8u_C4R", status));
@@ -8577,7 +8577,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaxError operation.</param>
         public void MaxError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaxErrorGetBufferHostSize();
+            SizeT bufferSize = MaxErrorGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
@@ -8588,9 +8588,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for MaxError.
         /// </summary>
         /// <returns></returns>
-        public int MaxErrorGetBufferHostSize()
+        public SizeT MaxErrorGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MaximumError.nppiMaximumErrorGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumErrorGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -8606,7 +8606,7 @@ namespace ManagedCuda.NPP
         /// <param name="pError">Pointer to the computed error.</param>
         public void AverageError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError)
         {
-            int bufferSize = AverageErrorGetBufferHostSize();
+            SizeT bufferSize = AverageErrorGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_8u_C4R", status));
@@ -8622,7 +8622,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageError operation.</param>
         public void AverageError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = AverageErrorGetBufferHostSize();
+            SizeT bufferSize = AverageErrorGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.AverageError.nppiAverageError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
@@ -8633,9 +8633,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for AverageError.
         /// </summary>
         /// <returns></returns>
-        public int AverageErrorGetBufferHostSize()
+        public SizeT AverageErrorGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.AverageError.nppiAverageErrorGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageErrorGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -8651,7 +8651,7 @@ namespace ManagedCuda.NPP
         /// <param name="pError">Pointer to the computed error.</param>
         public void MaximumRelativeError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError)
         {
-            int bufferSize = MaximumRelativeErrorGetBufferHostSize();
+            SizeT bufferSize = MaximumRelativeErrorGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_8u_C4R", status));
@@ -8667,7 +8667,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the MaximumRelativeError operation.</param>
         public void MaximumRelativeError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = MaximumRelativeErrorGetBufferHostSize();
+            SizeT bufferSize = MaximumRelativeErrorGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
@@ -8678,9 +8678,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for MaximumRelativeError.
         /// </summary>
         /// <returns></returns>
-        public int MaximumRelativeErrorGetBufferHostSize()
+        public SizeT MaximumRelativeErrorGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.MaximumRelativeError.nppiMaximumRelativeErrorGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeErrorGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -8696,7 +8696,7 @@ namespace ManagedCuda.NPP
         /// <param name="pError">Pointer to the computed error.</param>
         public void AverageRelativeError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError)
         {
-            int bufferSize = AverageRelativeErrorGetBufferHostSize();
+            SizeT bufferSize = AverageRelativeErrorGetBufferHostSize();
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_8u_C4R", status));
@@ -8712,7 +8712,7 @@ namespace ManagedCuda.NPP
         /// <param name="buffer">Pointer to the user-allocated scratch buffer required for the AverageRelativeError operation.</param>
         public void AverageRelativeError(NPPImage_8uC4 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer)
         {
-            int bufferSize = AverageRelativeErrorGetBufferHostSize();
+            SizeT bufferSize = AverageRelativeErrorGetBufferHostSize();
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeError_8u_C4R(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer);
@@ -8723,9 +8723,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for AverageRelativeError.
         /// </summary>
         /// <returns></returns>
-        public int AverageRelativeErrorGetBufferHostSize()
+        public SizeT AverageRelativeErrorGetBufferHostSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.AverageRelativeError.nppiAverageRelativeErrorGetBufferHostSize_8u_C4R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeErrorGetBufferHostSize_8u_C4R", status));
             NPPException.CheckNppStatus(status, this);
@@ -10106,9 +10106,9 @@ namespace ManagedCuda.NPP
         /// Buffer size (in bytes) for nppiCrossCorrFull_NormLevelAdvanced functions.
         /// </summary>
         /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
-        public int CrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        public SizeT CrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrFull_NormLevel_GetAdvancedScratchBufferSize", status));
             NPPException.CheckNppStatus(status, this);
@@ -10118,9 +10118,9 @@ namespace ManagedCuda.NPP
         /// Buffer size (in bytes) for nppiCrossCorrSame_NormLevelAdvanced functions.
         /// </summary>
         /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
-        public int CrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        public SizeT CrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrSame_NormLevel_GetAdvancedScratchBufferSize", status));
             NPPException.CheckNppStatus(status, this);
@@ -10130,9 +10130,9 @@ namespace ManagedCuda.NPP
         /// Buffer size (in bytes) for nppiCrossCorrValid_NormLevelAdvanced functions.
         /// </summary>
         /// <param name="oTplRoiSize">Region-of-Interest (ROI) size of the template image.</param>
-        public int CrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
+        public SizeT CrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(NppiSize oTplRoiSize)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.ImageProximity.nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize(_sizeRoi, oTplRoiSize, sizeof(float), _channels, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCrossCorrValid_NormLevel_GetAdvancedScratchBufferSize", status));
             NPPException.CheckNppStatus(status, this);

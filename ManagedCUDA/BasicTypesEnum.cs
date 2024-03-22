@@ -1389,6 +1389,29 @@ namespace ManagedCuda.BasicTypes
         /// Applies to: compiler only
         /// </summary>
         MinCTAPerSM = 31,
+
+        /// <summary>
+        /// Maximum number threads in a thread block, computed as the product of
+        /// the maximum extent specifed for each dimension of the block. This limit
+        /// is guaranteed not to be exeeded in any invocation of the kernel. Exceeding
+        /// the the maximum number of threads results in runtime error or kernel launch
+        /// failure. For kernels already using PTX directive.maxntid, this option will
+        /// be ignored by default. Use::CU_JIT_OVERRIDE_DIRECTIVE_VALUES to let this
+        /// option take precedence over the PTX directive.<para/>
+        /// Option type: int<para/>
+        /// Applies to: compiler only
+        /// </summary>
+        MaxThreadsPerBlock = 32,
+
+        /// <summary>
+        /// This option lets the values specified using ::CU_JIT_MAX_REGISTERS,
+        /// ::CU_JIT_THREADS_PER_BLOCK, ::CU_JIT_MAX_THREADS_PER_BLOCK and
+        /// ::CU_JIT_MIN_CTA_PER_SM take precedence over any PTX directives.
+        /// (0: Disable, default; 1: Enable)<para/>
+        /// Option type: int\n<para/>
+        /// Applies to: compiler only
+        /// </summary>
+        OverrideDirectiveValues = 33,
     }
 
     /// <summary>
@@ -2292,6 +2315,23 @@ namespace ManagedCuda.BasicTypes
         /// Indicates a kernel launch error due to cluster misconfiguration.
         /// </summary>
         ErrorInvalidClusterSize = 912,
+
+
+        /// <summary>
+        /// Indiciates a function handle is not loaded when calling an API that requires a loaded function.
+        /// </summary>
+        ErrorFunctionNotLoaded = 913,
+
+        /// <summary>
+        /// This error indicates one or more resources passed in are not valid resource types for the operation.
+        /// </summary>
+        ErrorInvalidResourceType = 914,
+
+        /// <summary>
+        /// This error indicates one or more resources are insufficient or non-applicable for the operation.
+        /// </summary>
+        ErrorInvalidResourceConfiguration = 915,
+
         /// <summary>
         /// Unknown error
         /// </summary>
@@ -3845,7 +3885,37 @@ namespace ManagedCuda.BasicTypes
         /// event. The event must disable timing (i.e. must be created
         /// with the ::CU_EVENT_DISABLE_TIMING flag set).
         /// </summary>
-        CompletionEvent = 12
+        CompletionEvent = 12,
+        /// <summary>
+        /// Valid for graph nodes, launches. This attribute is graphs-only,
+        /// and passing it to a launch in a non-capturing stream will result
+        /// in an error.<para/>
+        /// ::CUlaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can
+        /// only be set to 0 or 1. Setting the field to 1 indicates that the
+        /// corresponding kernel node should be device-updatable. On success, a handle
+        /// will be returned via
+        /// ::CUlaunchAttributeValue::deviceUpdatableKernelNode::devNode which can be
+        /// passed to the various device-side update functions to update the node's
+        /// kernel parameters from within another kernel. For more information on the
+        /// types of device updates that can be made, as well as the relevant limitations
+        /// thereof, see ::cudaGraphKernelNodeUpdatesApply.
+        /// <para/>
+        /// Nodes which are device-updatable have additional restrictions compared to
+        /// regular kernel nodes. Firstly, device-updatable nodes cannot be removed
+        /// from their graph via ::cuGraphDestroyNode. Additionally, once opted-in
+        /// to this functionality, a node cannot opt out, and any attempt to set the
+        /// deviceUpdatable attribute to 0 will result in an error. Device-updatable
+        /// kernel nodes also cannot have their attributes copied to/from another kernel
+        /// node via ::cuGraphKernelNodeCopyAttributes. Graphs containing one or more
+        /// device-updatable nodes also do not allow multiple instantiation, and neither
+        /// the graph nor its instantiated version can be passed to ::cuGraphExecUpdate.
+        /// <para/>
+        /// If a graph contains device-updatable nodes and updates those nodes from the device
+        /// from within the graph, the graph must be uploaded with ::cuGraphUpload before it
+        /// is launched. For such a graph, if host-side executable graph updates are made to the
+        /// device-updatable nodes, the graph must be uploaded before it is launched again.
+        /// </summary>
+        DeviceUpdatableKernelNode = 13
     }
 
 
@@ -3983,5 +4053,46 @@ namespace ManagedCuda.BasicTypes
         LaunchOrder = 2
     }
 
+    /// <summary>
+    /// Types of async notification that can be sent
+    /// </summary>
+    public enum CUasyncNotificationType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        OverBudget = 0x1
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUfunctionLoadingState
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Unloaded = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        Loaded = 1
+    }
+
+    /// <summary>
+    /// Type of resource
+    /// </summary>
+    public enum CUdevResourceType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Invalid = 0,
+        /// <summary>
+        /// Streaming multiprocessors related information
+        /// </summary>
+        SM = 1,
+
+    }
     #endregion
 }

@@ -710,5 +710,22 @@ namespace ManagedCuda.CudaFFT
         //[DllImport(CUFFT_API_DLL_NAME)]
         //public static extern cufftResult cufftSetCompatibilityMode([In] cufftHandle plan, [In] Compatibility mode);
 
+        /// <summary>
+        /// Associates a cuFFT plan with a property identified by the key property. The value for the property is given by value propertyValueInt64, which is a signed long long integer.
+        /// </summary>
+        [DllImport(CUFFT_API_DLL_NAME)]
+        public static extern cufftResult cufftSetPlanPropertyInt64([In] cufftHandle plan, [In] cufftProperty property, [In] long inputValueInt);
+
+        /// <summary>
+        /// Retrieves the property value identified by the key property associated with the cuFFT plan plan. The value for the property, which is a signed long long integer, is set in the address space pointed by propertyValueInt64.
+        /// </summary>
+        [DllImport(CUFFT_API_DLL_NAME)]
+        public static extern cufftResult cufftGetPlanPropertyInt64([In] cufftHandle plan, [In] cufftProperty property, [In, Out] ref long returnPtrValue);
+
+        /// <summary>
+        /// Resets the value of the property identified by the key property, associated with the cuFFT plan plan, to its default value.
+        /// </summary>
+        [DllImport(CUFFT_API_DLL_NAME)]
+        public static extern cufftResult cufftResetPlanProperty([In] cufftHandle plan, [In] cufftProperty property);
     }
 }

@@ -293,6 +293,45 @@ namespace ManagedCuda
 
             return new CudaKernel(kernel, kernelName);
         }
+
+
+        /// <summary>
+        /// Retrieve the kernel handles within a library.<para/>
+        /// Returns in \p kernels a maximum number of \p numKernels kernel handles within \p lib.
+        /// The returned kernel handle becomes invalid when the library is unloaded.
+        /// </summary>
+        /// <param name="kernels">Buffer where the kernel handles are returned to</param>
+        /// <param name="numKernels">Maximum number of kernel handles may be returned to the buffer</param>
+        public void EnumerateKernels(CUkernel[] kernels, uint numKernels)
+        {
+            _library.EnumerateKernels(kernels, numKernels);
+        }
+
+        /// <summary>
+        /// Retrieve all the kernel handles within a library.<para/>
+        /// The returned kernel handle becomes invalid when the library is unloaded.
+        /// </summary>
+        public CUkernel[] EnumerateKernels()
+        {
+            return _library.EnumerateKernels();
+        }
+
+        /// <summary>
+        /// Retrieve all the kernel handles within a library.<para/>
+        /// (the managedCuda wrapper for CUfunction, not to be confused with CUkernel).
+        /// </summary>
+        public CudaKernel[] EnumerateCudaKernels()
+        {
+            CUkernel[] cukernels = EnumerateKernels();
+            CudaKernel[] cudakernels = new CudaKernel[cukernels.Length];
+
+            for (int i = 0; i < cukernels.Length; i++)
+            {
+                cudakernels[i] = new CudaKernel(cukernels[i]);
+            }
+
+            return cudakernels;
+        }
         #endregion
 
         #region Properties
@@ -303,6 +342,17 @@ namespace ManagedCuda
         public CUlibrary Library
         {
             get { return _library; }
+        }
+
+        /// <summary>
+        /// Returns the number of kernels within the library
+        /// </summary>
+        public uint KernelCount
+        {
+            get
+            {
+                return _library.KernelCount;
+            }
         }
         #endregion
     }

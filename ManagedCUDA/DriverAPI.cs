@@ -43,6 +43,7 @@ namespace ManagedCuda
         internal const string CUDA_OBSOLET_9_2 = "Don't use this CUDA API call with CUDA version >= 9.2.";
         internal const string CUDA_OBSOLET_11 = "Don't use this CUDA API call with CUDA version >= 11";
         internal const string CUDA_OBSOLET_12 = "Don't use this CUDA API call with CUDA version >= 12";
+        internal const string CUDA_OBSOLET_12_4 = "Don't use this CUDA API call with CUDA version >= 12.4";
 
 #if (NETCOREAPP)
         internal const string CUDA_DRIVER_API_DLL_NAME_LINUX = "libcuda";
@@ -93,7 +94,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(12, 3); }
+            get { return new Version(12, 4); }
         }
 
         #region Initialization
@@ -716,6 +717,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_12_4)]
             public static extern CUResult cuCtxGetSharedMemConfig(ref CUsharedconfig pConfig);
 
             /// <summary>
@@ -744,6 +746,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>, <see cref="CUResult.ErrorInvalidValue"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_12_4)]
             public static extern CUResult cuCtxSetSharedMemConfig(CUsharedconfig config);
 
             /// <summary>
@@ -1017,6 +1020,31 @@ namespace ManagedCuda
             public static extern CUResult cuModuleGetFunction(ref CUfunction hfunc, CUmodule hmod, string name);
 
             /// <summary>
+            /// Returns the number of functions within a module<para/>
+            /// Returns in \p count the number of functions in \p mod.
+            /// </summary>
+            /// <param name="count">Number of functions found within the module</param>
+            /// <param name="mod">Module to query</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuModuleGetFunctionCount(ref uint count, CUmodule mod);
+
+            /// <summary>
+            /// Returns the function handles within a module.<para/>
+            /// Returns in \p functions a maximum number of \p numFunctions function handles within \p mod.When
+            /// function loading mode is set to LAZY the function retrieved may be partially loaded. The loading
+            /// state of a function can be queried using ::cuFunctionIsLoaded. CUDA APIs may load the function
+            /// automatically when called with partially loaded function handle which may incur additional
+            /// latency.Alternatively, ::cuFunctionLoad can be used to explicitly load a function. The returned
+            /// function handles become invalid when the module is unloaded.
+            /// </summary>
+            /// <param name="functions">Buffer where the function handles are returned to</param>
+            /// <param name="numFunctions">Maximum number of function handles may be returned to the buffer</param>
+            /// <param name="mod">Module to query from</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuModuleEnumerateFunctions(CUfunction[] functions, uint numFunctions, CUmodule mod);
+
+
+            /// <summary>
             /// Returns in <c>dptr</c> and <c>bytes</c> the base pointer and size of the global of name <c>name</c> located in module <c>hmod</c>. If no
 			/// variable of that name exists, <see cref="cuModuleGetGlobal_v2"/> returns <see cref="CUResult.ErrorNotFound"/>. Both parameters <c>dptr</c>
             /// and <c>bytes</c> are optional. If one of them is <c>null</c>, it is ignored.
@@ -1265,6 +1293,27 @@ namespace ManagedCuda
             public static extern CUResult cuLibraryGetKernel(ref CUkernel pKernel, CUlibrary library, [MarshalAs(UnmanagedType.LPStr)] string name);
 
             /// <summary>
+            /// Returns the number of kernels within a library<para/>
+            /// Returns in \p count the number of kernels in \p lib.
+            /// </summary>
+            /// <param name="count">Number of kernels found within the library</param>
+            /// <param name="lib">Library to query</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuLibraryGetKernelCount(ref uint count, CUlibrary lib);
+
+            /// <summary>
+            /// Retrieve the kernel handles within a library.<para/>
+            /// Returns in \p kernels a maximum number of \p numKernels kernel handles within \p lib.
+            /// The returned kernel handle becomes invalid when the library is unloaded.
+            /// </summary>
+            /// <param name="kernels">Buffer where the kernel handles are returned to</param>
+            /// <param name="numKernels">Maximum number of kernel handles may be returned to the buffer</param>
+            /// <param name="lib">Library to query from</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuLibraryEnumerateKernels(CUkernel[] kernels, uint numKernels, CUlibrary lib);
+
+
+            /// <summary>
             /// Returns a module handle<para/>
             /// Returns in \p pMod the module handle associated with the current context located in library \p library.<para/>
             /// If module handle is not found, the call returns::CUDA_ERROR_NOT_FOUND.
@@ -1504,6 +1553,23 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuKernelGetName([MarshalAs(UnmanagedType.LPStr)] ref string name, CUkernel kernel);
+
+            /// <summary>
+            /// Returns the offset and size of a kernel parameter in the device-side parameter layout
+            /// Queries the kernel parameter at \p paramIndex into \p kernel's list of parameters, and returns
+            /// in \p paramOffset and \p paramSize the offset and size, respectively, where the parameter
+            /// will reside in the device-side parameter layout.This information can be used to update kernel
+            /// node parameters from the device via ::cudaGraphKernelNodeSetParam() and
+            /// ::cudaGraphKernelNodeUpdatesApply(). \p paramIndex must be less than the number of parameters
+            /// that \p kernel takes. \p paramSize can be set to NULL if only the parameter offset is desired.
+            /// </summary>
+            /// <param name="kernel">The kernel to query</param>
+            /// <param name="paramIndex">The parameter index to query</param>
+            /// <param name="paramOffset">Returns the offset into the device-side parameter layout at which the parameter resides</param>
+            /// <param name="paramSize">Optionally returns the size of the parameter in the device-side parameter layout</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuKernelGetParamInfo(CUkernel kernel, SizeT paramIndex, ref SizeT paramOffset, ref SizeT paramSize);
+
         }
         #endregion
 
@@ -2147,6 +2213,36 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuMemAllocManaged(ref CUdeviceptr dptr, SizeT bytesize, CUmemAttach_flags flags);
+
+            /// <summary>
+            /// Registers a callback function to receive async notifications<para/>
+            /// Registers \p callbackFunc to receive async notifications.<para/>
+            /// The \p userData parameter is passed to the callback function at async notification time.
+            /// Likewise, \p callback is also passed to the callback function to distinguish between
+            /// multiple registered callbacks.<para/>
+            /// The callback function being registered should be designed to return quickly (~10ms).  <para/>
+            /// Any long running tasks should be queued for execution on an application thread.
+            /// Callbacks may not call cuDeviceRegisterAsyncNotification or cuDeviceUnregisterAsyncNotification.
+            /// Doing so will result in ::CUDA_ERROR_NOT_PERMITTED.Async notification callbacks execute
+            /// in an undefined order and may be serialized.<para/>
+            /// Returns in \p* callback a handle representing the registered callback instance.
+            /// </summary>
+            /// <param name="device">The device on which to register the callback</param>
+            /// <param name="callbackFunc">The function to register as a callback</param>
+            /// <param name="userData">A generic pointer to user data. This is passed into the callback function.</param>
+            /// <param name="callback">A handle representing the registered callback instance</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, IntPtr userData, ref CUasyncCallbackHandle callback);
+
+            /// <summary>
+            /// Unregisters an async notification callback
+            /// Unregisters \p callback so that the corresponding callback function will stop receiving
+            /// async notifications.
+            /// </summary>
+            /// <param name="device">The device from which to remove \p callback.</param>
+            /// <param name="callback">The callback instance to unregister from receiving async notifications.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback);
 
 
             /// <summary>
@@ -7575,6 +7671,7 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes: <see cref="CUResult.Success"/>, <see cref="CUResult.ErrorInvalidValue"/>, <see cref="CUResult.ErrorDeinitialized"/>, <see cref="CUResult.ErrorNotInitialized"/>, 
             /// <see cref="CUResult.ErrorInvalidContext"/>.</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            [Obsolete(CUDA_OBSOLET_12_4)]
             public static extern CUResult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config);
 
             /// <summary>
@@ -7605,6 +7702,38 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuFuncGetName([MarshalAs(UnmanagedType.LPStr)] ref string name, CUfunction hfunc);
 
+            /// <summary>
+            /// Returns the offset and size of a kernel parameter in the device-side parameter layout<para/>
+            /// Queries the kernel parameter at \p paramIndex into \p func's list of parameters, and returns
+            /// in \p paramOffset and \p paramSize the offset and size, respectively, where the parameter
+            /// will reside in the device-side parameter layout.This information can be used to update kernel
+            /// node parameters from the device via ::cudaGraphKernelNodeSetParam() and
+            /// ::cudaGraphKernelNodeUpdatesApply(). \p paramIndex must be less than the number of parameters
+            /// that \p func takes. \p paramSize can be set to NULL if only the parameter offset is desired.
+            /// </summary>
+            /// <param name="func">The function to query</param>
+            /// <param name="paramIndex">The parameter index to query</param>
+            /// <param name="paramOffset">Returns the offset into the device-side parameter layout at which the parameter resides</param>
+            /// <param name="paramSize">Optionally returns the size of the parameter in the device-side parameter layout</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncGetParamInfo(CUfunction func, SizeT paramIndex, ref SizeT paramOffset, ref SizeT paramSize);
+
+            /// <summary>
+            /// Returns if the function is loaded<para/>
+            /// Returns in \p state the loading state of \p function.
+            /// </summary>
+            /// <param name="state">returned loading state</param>
+            /// <param name="function">the function to check</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncIsLoaded(ref CUfunctionLoadingState state, CUfunction function);
+
+            /// <summary>
+            /// Loads a function<para/>
+            /// Finalizes function loading for \p function.Calling this API with afully loaded function has no effect.
+            /// </summary>
+            /// <param name="function">the function to load</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuFuncLoad(CUfunction function);
         }
         #endregion
 
@@ -13508,6 +13637,294 @@ namespace ManagedCuda
                 SizeT size = sizeof(bool);
                 return cuCoredumpSetAttributeGlobal(attrib, ref value, ref size);
             }
+
+        }
+        #endregion
+
+        #region Green context
+        /// <summary>
+        /// Driver level API for creation and manipulation of green contexts
+        /// </summary>
+        public static class GreenContextAPI
+        {
+#if (NETCOREAPP)
+            static GreenContextAPI()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
+            /// <summary>
+            /// Creates a green context with a specified set of resources.<para/>
+            /// This API creates a green context with the resources specified in the descriptor \p desc and
+            /// returns it in the handle represented by \p phCtx.This API will retain the primary context on device \p dev,
+            /// which will is released when the green context is destroyed.It is advised to have the primary context active
+            /// before calling this API to avoid the heavy cost of triggering primary context initialization and
+            /// deinitialization multiple times.<para/>
+            /// The API does not set the green context current. In order to set it current, you need to explicitly set it current
+            /// by first converting the green context to a CUcontext using ::cuCtxFromGreenCtx and subsequently calling
+            /// ::cuCtxSetCurrent / ::cuCtxPushCurrent.It should be noted that a green context can be current to only one
+            /// thread at a time.There is no internal synchronization to make API calls accessing the same green context
+            /// from multiple threads work.<para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="phCtx">Pointer for the output handle to the green context</param>
+            /// <param name="desc">Descriptor generated via ::cuDevResourceGenerateDesc which contains the set of resources to be used</param>
+            /// <param name="dev">Device on which to create the green context.</param>
+            /// <param name="flags">One of the supported green context creation flags. \p CU_GREEN_CTX_DEFAULT_STREAM is required.</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxCreate(ref CUgreenCtx phCtx, CUdevResourceDesc desc, CUdevice dev, CUgreenCtxCreate_flags flags);
+
+            /// <summary>
+            /// Destroys a green context<para/>
+            /// Destroys the green context, releasing the primary context of the device that this green context was created for.<para/>
+            /// Any resources provisioned for this green context (that were initially available via the resource descriptor)
+            /// are released as well.
+            /// </summary>
+            /// <param name="hCtx">Green context to be destroyed</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxDestroy(CUgreenCtx hCtx);
+
+            /// <summary>
+            /// Converts a green context into the primary context<para/>
+            /// The API converts a green context into the primary context returned in \p pContext. It is important
+            /// to note that the converted context \p pContext is a normal primary context but with
+            /// the resources of the specified green context \p hCtx.Once converted, it can then
+            /// be used to set the context current with::cuCtxSetCurrent or with any of the CUDA APIs
+            /// that accept a CUcontext parameter.<para/>
+            /// Users are expected to call this API before calling any CUDA APIs that accept a
+            /// CUcontext. Failing to do so will result in the APIs returning::CUDA_ERROR_INVALID_CONTEXT.
+            /// </summary>
+            /// <param name="pContext">Returned primary context with green context resources</param>
+            /// <param name="hCtx">Green context to convert</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxFromGreenCtx(ref CUcontext pContext, CUgreenCtx hCtx);
+
+            /// <summary>
+            /// Get device resources<para/>
+            /// Get the \p type resources available to the \p device.<para/>
+            /// This may often be the starting point for further partitioning or configuring of resources.<para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="device">Device to get resource for</param>
+            /// <param name="resource">Output pointer to a CUdevResource structure</param>
+            /// <param name="type">Type of resource to retrieve</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDeviceGetDevResource(CUdevice device, ref CUdevResource resource, CUdevResourceType type);
+
+            /// <summary>
+            /// Get context resources<para/>
+            /// Get the \p type resources available to the context represented by \p hCtx 
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="hCtx">Context to get resource for</param>
+            /// <param name="resource">Output pointer to a CUdevResource structure</param>
+            /// <param name="type">Type of resource to retrieve</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxGetDevResource(CUcontext hCtx, ref CUdevResource resource, CUdevResourceType type);
+
+            /// <summary>
+            /// Get green context resources - Get the \p type resources available to the green context represented by \p hCtx
+            /// </summary>
+            /// <param name="hCtx">Green context to get resource for</param>
+            /// <param name="resource">Output pointer to a CUdevResource structure</param>
+            /// <param name="type">Type of resource to retrieve</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxGetDevResource(CUgreenCtx hCtx, ref CUdevResource resource, CUdevResourceType type);
+
+            /// <summary>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources.<para/>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources into \p nbGroups, adhering to the minimum SM count specified in \p minCount
+            /// and the usage flags in \p useFlags.If \p result is NULL, the API simulates a split and provides the amount of groups that
+            /// would be created in \p nbGroups. Otherwise, \p nbGroups must point to the amount of elements in \p result and on return,
+            /// the API will overwrite \p nbGroups with the amount actually created.The groups are written to the array in \p result.
+            /// \p nbGroups can be less than the total amount if a smaller number of groups is needed.
+            /// This API is used to spatially partition the input resource.The input resource needs to come from one of
+            /// ::cuDeviceGetDevResource, ::cuCtxGetDevResource, or::cuGreenCtxGetDevResource.
+            /// A limitation of the API is that the output results cannot be split again without
+            /// first creating a descriptor and a green context with that descriptor.
+            /// <para/>
+            /// When creating the groups, the API will take into account the performance and functional characteristics of the
+            /// input resource, and guarantee a split that will create a disjoint set of symmetrical partitions.This may lead to less groups created
+            /// than purely dividing the total SM count by the \p minCount due to cluster requirements or
+            /// alignment and granularity requirements for the minCount.
+            /// <para/>
+            /// The \p remainder set, might not have the same functional or performance guarantees as the groups in \p result.
+            /// Its use should be carefully planned and future partitions of the \p remainder set are discouraged.
+            /// <para/>
+            /// A successful API call must either have:
+            /// - A valid array of \p result pointers of size passed in \p nbGroups, with \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input. \p remaining and \p useFlags are optional.
+            /// - NULL passed in for \p result, with a valid integer pointer in \p nbGroups and \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input.
+            /// This queries the number of groups that would be created by the API.
+            /// <para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="result">Output array of \p CUdevResource resources. Can be NULL to query the number of groups.</param>
+            /// <param name="nbGroups">This is a pointer, specifying the number of groups that would be or should be created as described below.</param>
+            /// <param name="input">Input SM resource to be split. Must be a valid \p CU_DEV_RESOURCE_TYPE_SM resource.</param>
+            /// <param name="remaining">If the input resource cannot be cleanly split among \p nbGroups, the remaining is placed in here. Can be ommitted(NULL) if the user does not need the remaining set.</param>
+            /// <param name="useFlags">Flags specifying how these partitions are used or which constraints to abide by when splitting the input.</param>
+            /// <param name="minCount">Minimum number of SMs required</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevSmResourceSplitByCount(
+                [Out] CUdevResource[] result, ref uint nbGroups, ref CUdevResource input, [In, Out] ref CUdevResource remaining, uint useFlags, uint minCount);
+
+            /// <summary>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources.<para/>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources into \p nbGroups, adhering to the minimum SM count specified in \p minCount
+            /// and the usage flags in \p useFlags.If \p result is NULL, the API simulates a split and provides the amount of groups that
+            /// would be created in \p nbGroups. Otherwise, \p nbGroups must point to the amount of elements in \p result and on return,
+            /// the API will overwrite \p nbGroups with the amount actually created.The groups are written to the array in \p result.
+            /// \p nbGroups can be less than the total amount if a smaller number of groups is needed.
+            /// This API is used to spatially partition the input resource.The input resource needs to come from one of
+            /// ::cuDeviceGetDevResource, ::cuCtxGetDevResource, or::cuGreenCtxGetDevResource.
+            /// A limitation of the API is that the output results cannot be split again without
+            /// first creating a descriptor and a green context with that descriptor.
+            /// <para/>
+            /// When creating the groups, the API will take into account the performance and functional characteristics of the
+            /// input resource, and guarantee a split that will create a disjoint set of symmetrical partitions.This may lead to less groups created
+            /// than purely dividing the total SM count by the \p minCount due to cluster requirements or
+            /// alignment and granularity requirements for the minCount.
+            /// <para/>
+            /// The \p remainder set, might not have the same functional or performance guarantees as the groups in \p result.
+            /// Its use should be carefully planned and future partitions of the \p remainder set are discouraged.
+            /// <para/>
+            /// A successful API call must either have:
+            /// - A valid array of \p result pointers of size passed in \p nbGroups, with \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input. \p remaining and \p useFlags are optional.
+            /// - NULL passed in for \p result, with a valid integer pointer in \p nbGroups and \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input.
+            /// This queries the number of groups that would be created by the API.
+            /// <para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="result">Output array of \p CUdevResource resources. Can be NULL to query the number of groups.</param>
+            /// <param name="nbGroups">This is a pointer, specifying the number of groups that would be or should be created as described below.</param>
+            /// <param name="input">Input SM resource to be split. Must be a valid \p CU_DEV_RESOURCE_TYPE_SM resource.</param>
+            /// <param name="remaining">If the input resource cannot be cleanly split among \p nbGroups, the remaining is placed in here. Can be ommitted(NULL) if the user does not need the remaining set.</param>
+            /// <param name="useFlags">Flags specifying how these partitions are used or which constraints to abide by when splitting the input.</param>
+            /// <param name="minCount">Minimum number of SMs required</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevSmResourceSplitByCount(
+                IntPtr result, ref uint nbGroups, ref CUdevResource input, IntPtr remaining, uint useFlags, uint minCount);
+
+            /// <summary>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources.<para/>
+            /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources into \p nbGroups, adhering to the minimum SM count specified in \p minCount
+            /// and the usage flags in \p useFlags.If \p result is NULL, the API simulates a split and provides the amount of groups that
+            /// would be created in \p nbGroups. Otherwise, \p nbGroups must point to the amount of elements in \p result and on return,
+            /// the API will overwrite \p nbGroups with the amount actually created.The groups are written to the array in \p result.
+            /// \p nbGroups can be less than the total amount if a smaller number of groups is needed.
+            /// This API is used to spatially partition the input resource.The input resource needs to come from one of
+            /// ::cuDeviceGetDevResource, ::cuCtxGetDevResource, or::cuGreenCtxGetDevResource.
+            /// A limitation of the API is that the output results cannot be split again without
+            /// first creating a descriptor and a green context with that descriptor.
+            /// <para/>
+            /// When creating the groups, the API will take into account the performance and functional characteristics of the
+            /// input resource, and guarantee a split that will create a disjoint set of symmetrical partitions.This may lead to less groups created
+            /// than purely dividing the total SM count by the \p minCount due to cluster requirements or
+            /// alignment and granularity requirements for the minCount.
+            /// <para/>
+            /// The \p remainder set, might not have the same functional or performance guarantees as the groups in \p result.
+            /// Its use should be carefully planned and future partitions of the \p remainder set are discouraged.
+            /// <para/>
+            /// A successful API call must either have:
+            /// - A valid array of \p result pointers of size passed in \p nbGroups, with \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input. \p remaining and \p useFlags are optional.
+            /// - NULL passed in for \p result, with a valid integer pointer in \p nbGroups and \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+            /// Value of \p minCount must be between 0 and the SM count specified in \p input.
+            /// This queries the number of groups that would be created by the API.
+            /// <para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="result">Output array of \p CUdevResource resources. Can be NULL to query the number of groups.</param>
+            /// <param name="nbGroups">This is a pointer, specifying the number of groups that would be or should be created as described below.</param>
+            /// <param name="input">Input SM resource to be split. Must be a valid \p CU_DEV_RESOURCE_TYPE_SM resource.</param>
+            /// <param name="remaining">If the input resource cannot be cleanly split among \p nbGroups, the remaining is placed in here. Can be ommitted(NULL) if the user does not need the remaining set.</param>
+            /// <param name="useFlags">Flags specifying how these partitions are used or which constraints to abide by when splitting the input.</param>
+            /// <param name="minCount">Minimum number of SMs required</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevSmResourceSplitByCount(
+                [Out] CUdevResource[] result, ref uint nbGroups, ref CUdevResource input, IntPtr remaining, uint useFlags, uint minCount);
+
+            /// <summary>
+            /// Generate a resource descriptor
+            /// <para/>
+            /// Generates a resource descriptor with the set of resources specified in \p resources.
+            /// The generated resource descriptor is necessary for the creation of green contexts via the ::cuGreenCtxCreate API.
+            /// The API expects \p nbResources == 1, as there is only one type of resource and merging the same
+            /// types of resource is currently not supported.
+            /// <para/>
+            /// Note: The API is not supported on 32-bit platforms.
+            /// </summary>
+            /// <param name="phDesc">Output descriptor</param>
+            /// <param name="resources">Array of resources to be included in the descriptor</param>
+            /// <param name="nbResources">Number of resources passed in \p resources</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuDevResourceGenerateDesc(ref CUdevResourceDesc phDesc, CUdevResource[] resources, uint nbResources);
+
+            /// <summary>
+            /// Records an event.
+            /// <para/>
+            /// Captures in \phEvent all the activities of the green context of \phCtx
+            /// at the time of this call. \phEvent and \phCtx must be from the same
+            /// CUDA context. Calls such as ::cuEventQuery() or ::cuGreenCtxWaitEvent() will
+            /// then examine or wait for completion of the work that was captured. Uses of
+            /// \p hCtx after this call do not modify \p hEvent.
+            /// <para/>
+            /// \note The API will return an error if the specified green context \p hCtx
+            /// has a stream in the capture mode. In such a case, the call will invalidate
+            /// all the conflicting captures.
+            /// </summary>
+            /// <param name="hCtx">Green context to record event for</param>
+            /// <param name="hEvent">Event to record</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent);
+
+            /// <summary>
+            /// Make a green context wait on an event
+            /// <para/>
+            /// Makes all future work submitted to green context \phCtx wait for all work
+            /// captured in \phEvent. The synchronization will be performed on the device
+            /// and will not block the calling CPU thread. See ::cuGreenCtxRecordEvent()
+            /// for details on what is captured by an event.
+            /// <para/>
+            /// \note The API will return an error and invalidate the capture if the specified
+            /// event \p hEvent is part of an ongoing capture sequence.
+            /// </summary>
+            /// <param name="hCtx">Green context to wait</param>
+            /// <param name="hEvent">Event to wait on (may not be NULL)</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent);
+
+            /// <summary>
+            /// Query the green context associated with a stream
+            /// <para/>
+            /// Returns the CUDA green context that the stream is associated with, or NULL if the stream
+            /// is not associated with any green context.
+            /// <para/>
+            /// The stream handle \p hStream can refer to any of the following:
+            /// <para/>
+            /// - a stream created via any of the CUDA driver APIs such as ::cuStreamCreate.
+            ///   If during stream creation the context that was active in the calling thread was obtained
+            ///   with cuCtxFromGreenCtx, that green context is returned in \p phCtx.
+            ///   Otherwise, \p *phCtx is set to NULL instead.
+            /// <para/>
+            /// - special stream such as the NULL stream or ::CU_STREAM_LEGACY.
+            ///   In that case if context that is active in the calling thread was obtained
+            ///   with cuCtxFromGreenCtx, that green context is returned.
+            ///   Otherwise, \p *phCtx is set to NULL instead.
+            /// <para/>
+            /// Passing an invalid handle will result in undefined behavior.
+            /// </summary>
+            /// <param name="hStream">Handle to the stream to be queried</param>
+            /// <param name="phCtx">Returned green context associated with the stream</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuStreamGetGreenCtx(CUstream hStream, ref CUgreenCtx phCtx);
 
         }
         #endregion

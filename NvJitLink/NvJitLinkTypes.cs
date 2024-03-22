@@ -52,7 +52,21 @@ namespace ManagedCuda.NvJitLink
         /// <summary/>
         ErrorInternal,
         /// <summary/>
-        ErrorThreadPool
+        ErrorThreadPool,
+        /// <summary/>
+        UnrecognizedInput,
+        /// <summary/>
+        NullInput,
+        /// <summary/>
+        IncompatibleOptions,
+        /// <summary/>
+        IncorrectInputType,
+        /// <summary/>
+        ArchMismatch,
+        /// <summary/>
+        OutdatedLibrary,
+        /// <summary/>
+        MissingFatBin
     }
 
     /// <summary>
@@ -76,7 +90,11 @@ namespace ManagedCuda.NvJitLink
         /// <summary/>
         Object,
         /// <summary/>
-        Library
+        Library,
+        /// <summary>
+        /// will dynamically determine one of above types
+        /// </summary>
+        Any = 10
     }
 
     /// <summary>

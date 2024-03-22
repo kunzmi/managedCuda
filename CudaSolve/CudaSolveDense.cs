@@ -29,6 +29,7 @@ using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using ManagedCuda.CudaBlas;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaSolve
 {
@@ -4358,5 +4359,89 @@ namespace ManagedCuda.CudaSolve
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
         }
         #endregion
+
+        public void XlarftBufferSize(
+                    Params parameters,
+                    cusolverDirectMode direct,
+                    cusolverStorevMode storev,
+                    long N,
+                    long K,
+                    cudaDataType dataTypeV,
+                    CUdeviceptr d_V,
+                    long ldv,
+                    cudaDataType dataTypeTau,
+                    CUdeviceptr d_tau,
+                    cudaDataType dataTypeT,
+                    CUdeviceptr d_T,
+                    long ldt,
+                    cudaDataType computeType,
+                    ref SizeT workspaceInBytesOnDevice,
+                    ref SizeT workspaceInBytesOnHost)
+        {
+
+            res = CudaSolveNativeMethods.Dense.cusolverDnXlarft_bufferSize(
+                    _handle,
+                    parameters.ParamsHandle,
+                    direct,
+                    storev,
+                    N,
+                    K,
+                    dataTypeV,
+                    d_V,
+                    ldv,
+                    dataTypeTau,
+                    d_tau,
+                    dataTypeT,
+                    d_T,
+                    ldt,
+                    computeType,
+                    ref workspaceInBytesOnDevice,
+                    ref workspaceInBytesOnHost);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXlarft_bufferSize", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        public void Xlarft(
+                    Params parameters,
+                    cusolverDirectMode direct,
+                    cusolverStorevMode storev,
+                    long N,
+                    long K,
+                    cudaDataType dataTypeV,
+                    CUdeviceptr d_V,
+                    long ldv,
+                    cudaDataType dataTypeTau,
+                    CUdeviceptr d_tau,
+                    cudaDataType dataTypeT,
+                    CUdeviceptr d_T,
+                    long ldt,
+                    cudaDataType computeType,
+                    CudaDeviceVariable<byte> bufferOnDevice,
+                    byte[] bufferOnHost)
+        {
+
+            res = CudaSolveNativeMethods.Dense.cusolverDnXlarft(
+                    _handle,
+                    parameters.ParamsHandle,
+                    direct,
+                    storev,
+                    N,
+                    K,
+                    dataTypeV,
+                    d_V,
+                    ldv,
+                    dataTypeTau,
+                    d_tau,
+                    dataTypeT,
+                    d_T,
+                    ldt,
+                    computeType,
+                    bufferOnDevice.DevicePointer,
+                    bufferOnDevice.Size,
+                    bufferOnHost,
+                    bufferOnHost.Length);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXlarft", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
     }
 }

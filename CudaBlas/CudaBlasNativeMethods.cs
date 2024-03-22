@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
@@ -11632,7 +11633,173 @@ namespace ManagedCuda.CudaBlas
         #endregion
 
 
+        #region Batch GEMM new in Cuda 12.4
+        //the documentation doesn't mention the alpha/beta values to be device pointers...
+        //Even if pointer mode is DEVICE?
+        #region device pointer
+        ///// <summary>
+        ///// </summary>
+        //[DllImport(CUBLAS_API_DLL_NAME)]
+        //public static extern CublasStatus cublasSgemmGroupedBatched(CudaBlasHandle handle,
+        //                                                        Operation[] transa_array,
+        //                                                        Operation[] transb_array,
+        //                                                        int[] m_array,
+        //                                                        int[] n_array,
+        //                                                        int[] k_array,
+        //                                                        CUdeviceptr[] alpha_array,
+        //                                                        CUdeviceptr[] Aarray,
+        //                                                        int[] lda_array,
+        //                                                        CUdeviceptr[] Barray,
+        //                                                        int[] ldb_array,
+        //                                                        CUdeviceptr[] beta_array,
+        //                                                        CUdeviceptr[] Carray,
+        //                                                        int[] ldc_array,
+        //                                                        int group_count,
+        //                                                        int[] group_size);
 
+        ///// <summary>
+        ///// </summary>
+        //[DllImport(CUBLAS_API_DLL_NAME)]
+        //public static extern CublasStatus cublasSgemmGroupedBatched_64(CudaBlasHandle handle,
+        //                                                           Operation[] transa_array,
+        //                                                           Operation[] transb_array,
+        //                                                           long[] m_array,
+        //                                                           long[] n_array,
+        //                                                           long[] k_array,
+        //                                                           CUdeviceptr[] alpha_array,
+        //                                                           CUdeviceptr[] Aarray,
+        //                                                           long[] lda_array,
+        //                                                           CUdeviceptr[] Barray,
+        //                                                           long[] ldb_array,
+        //                                                           CUdeviceptr[] beta_array,
+        //                                                           CUdeviceptr[] Carray,
+        //                                                           long[] ldc_array,
+        //                                                           long group_count,
+        //                                                           long[] group_size);
+
+        ///// <summary>
+        ///// </summary>
+        //[DllImport(CUBLAS_API_DLL_NAME)]
+        //public static extern CublasStatus cublasDgemmGroupedBatched(CudaBlasHandle handle,
+        //                                                        Operation[] transa_array,
+        //                                                        Operation[] transb_array,
+        //                                                        int[] m_array,
+        //                                                        int[] n_array,
+        //                                                        int[] k_array,
+        //                                                        CUdeviceptr[] alpha_array,
+        //                                                        CUdeviceptr[] Aarray,
+        //                                                        int[] lda_array,
+        //                                                        CUdeviceptr[] Barray,
+        //                                                        int[] ldb_array,
+        //                                                        CUdeviceptr[] beta_array,
+        //                                                        CUdeviceptr[] Carray,
+        //                                                        int[] ldc_array,
+        //                                                        int group_count,
+        //                                                        int[] group_size);
+
+        ///// <summary>
+        ///// </summary>
+        //[DllImport(CUBLAS_API_DLL_NAME)]
+        //public static extern CublasStatus cublasDgemmGroupedBatched_64(CudaBlasHandle handle,
+        //                                                           Operation[] transa_array,
+        //                                                           Operation[] transb_array,
+        //                                                           long[] m_array,
+        //                                                           long[] n_array,
+        //                                                           long[] k_array,
+        //                                                           CUdeviceptr[] alpha_array,
+        //                                                           CUdeviceptr[] Aarray,
+        //                                                           long[] lda_array,
+        //                                                           CUdeviceptr[] Barray,
+        //                                                           long[] ldb_array,
+        //                                                           CUdeviceptr[] beta_array,
+        //                                                           CUdeviceptr[] Carray,
+        //                                                           long[] ldc_array,
+        //                                                           long group_count,
+        //                                                           long[] group_size);
+        #endregion
+        #region host pointer
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasSgemmGroupedBatched(CudaBlasHandle handle,
+                                                                Operation[] transa_array,
+                                                                Operation[] transb_array,
+                                                                int[] m_array,
+                                                                int[] n_array,
+                                                                int[] k_array,
+                                                                float[] alpha_array,
+                                                                CUdeviceptr Aarray,
+                                                                int[] lda_array,
+                                                                CUdeviceptr Barray,
+                                                                int[] ldb_array,
+                                                                float[] beta_array,
+                                                                CUdeviceptr Carray,
+                                                                int[] ldc_array,
+                                                                int group_count,
+                                                                int[] group_size);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasSgemmGroupedBatched_64(CudaBlasHandle handle,
+                                                                   Operation[] transa_array,
+                                                                   Operation[] transb_array,
+                                                                   long[] m_array,
+                                                                   long[] n_array,
+                                                                   long[] k_array,
+                                                                   float[] alpha_array,
+                                                                   CUdeviceptr Aarray,
+                                                                   long[] lda_array,
+                                                                   CUdeviceptr Barray,
+                                                                   long[] ldb_array,
+                                                                   float[] beta_array,
+                                                                   CUdeviceptr Carray,
+                                                                   long[] ldc_array,
+                                                                   long group_count,
+                                                                   long[] group_size);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasDgemmGroupedBatched(CudaBlasHandle handle,
+                                                                Operation[] transa_array,
+                                                                Operation[] transb_array,
+                                                                int[] m_array,
+                                                                int[] n_array,
+                                                                int[] k_array,
+                                                                double[] alpha_array,
+                                                                CUdeviceptr Aarray,
+                                                                int[] lda_array,
+                                                                CUdeviceptr Barray,
+                                                                int[] ldb_array,
+                                                                double[] beta_array,
+                                                                CUdeviceptr Carray,
+                                                                int[] ldc_array,
+                                                                int group_count,
+                                                                int[] group_size);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasDgemmGroupedBatched_64(CudaBlasHandle handle,
+                                                                   Operation[] transa_array,
+                                                                   Operation[] transb_array,
+                                                                   long[] m_array,
+                                                                   long[] n_array,
+                                                                   long[] k_array,
+                                                                   double[] alpha_array,
+                                                                   CUdeviceptr Aarray,
+                                                                   long[] lda_array,
+                                                                   CUdeviceptr Barray,
+                                                                   long[] ldb_array,
+                                                                   double[] beta_array,
+                                                                   CUdeviceptr Carray,
+                                                                   long[] ldc_array,
+                                                                   long group_count,
+                                                                   long[] group_size);
+        #endregion
+
+        #endregion
 
 
         #region TRSM - Batched Triangular Solver

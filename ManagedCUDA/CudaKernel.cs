@@ -104,6 +104,36 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// </summary>
+        internal CudaKernel(CUkernel cuKernel)
+        {
+            _function = cuKernel.GetCUfunction();
+            _module = _function.GetModule();
+            _kernelName = _function.GetName();
+
+            _blockDim.x = _blockDim.y = 16;
+            _blockDim.z = 1;
+            _gridDim.x = _gridDim.y = _gridDim.z = 1;
+
+            GetAttributes();
+        }
+
+        /// <summary>
+        /// </summary>
+        internal CudaKernel(CUfunction cuFunction)
+        {
+            _function = cuFunction;
+            _module = _function.GetModule();
+            _kernelName = _function.GetName();
+
+            _blockDim.x = _blockDim.y = 16;
+            _blockDim.z = 1;
+            _gridDim.x = _gridDim.y = _gridDim.z = 1;
+
+            GetAttributes();
+        }
+
+        /// <summary>
         /// Loads the given CUDA kernel from the CUmodule. Block and Grid dimensions must be set 
         /// before running the kernel. Shared memory size is set to 0.
         /// </summary>
@@ -3034,6 +3064,7 @@ namespace ManagedCuda
         ///   be natively eight bytes.
         /// </summary>
         /// <param name="config">requested shared memory configuration</param>
+        [Obsolete(DriverAPINativeMethods.CUDA_OBSOLET_12_4)]
         public void SetSharedMemConfig(CUsharedconfig config)
         {
             CUResult res;
@@ -3559,5 +3590,22 @@ namespace ManagedCuda
             SetComputeSize(computeSize.x, computeSize.y, computeSize.z);
         }
 
+
+#if (NETCOREAPP) //old .net framework doesn't support tupels
+        /// <summary>
+        /// Returns the offset and size of a kernel parameter in the device-side parameter layout<para/>
+        /// Queries the kernel parameter at \p paramIndex into \p func's list of parameters, and returns
+        /// in \p paramOffset and \p paramSize the offset and size, respectively, where the parameter
+        /// will reside in the device-side parameter layout.This information can be used to update kernel
+        /// node parameters from the device via ::cudaGraphKernelNodeSetParam() and
+        /// ::cudaGraphKernelNodeUpdatesApply(). \p paramIndex must be less than the number of parameters
+        /// that \p func takes. \p paramSize can be set to NULL if only the parameter offset is desired.
+        /// </summary>
+        /// <param name="paramIndex">The parameter index to query</param>
+        public (SizeT, SizeT) GetParamInfo(SizeT paramIndex)
+        {
+            return _function.GetParamInfo(paramIndex);
+        }
+#endif
     }
 }

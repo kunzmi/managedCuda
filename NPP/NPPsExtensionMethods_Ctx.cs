@@ -26,6 +26,7 @@
 
 using System;
 using System.Diagnostics;
+using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP.NPPsExtensions
 {
@@ -4274,9 +4275,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device scratch buffer size (in bytes) for 32f SumLn.
         /// This primitive provides the correct buffer size for nppsSumLn_32f.
         /// </summary>
-        public static int SumLnGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumLnGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.SumLn.nppsSumLnGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumLnGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -4301,9 +4302,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device scratch buffer size (in bytes) for 64f SumLn.
         /// This primitive provides the correct buffer size for nppsSumLn_64f.
         /// </summary>
-        public static int SumLnGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumLnGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.SumLn.nppsSumLnGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumLnGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -4328,9 +4329,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device scratch buffer size (in bytes) for 32f64f SumLn.
         /// This primitive provides the correct buffer size for nppsSumLn_32f64f.
         /// </summary>
-        public static int SumLnGetBufferSize64f(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumLnGetBufferSize64f(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.SumLn.nppsSumLnGetBufferSize_32f64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumLnGetBufferSize_32f64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -4355,9 +4356,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device scratch buffer size (in bytes) for 16s32f SumLn.
         /// This primitive provides the correct buffer size for nppsSumLn_16s32f.
         /// </summary>
-        public static int SumLnGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumLnGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.SumLn.nppsSumLnGetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumLnGetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7055,9 +7056,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_32f.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7067,9 +7068,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_32fc.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7079,9 +7080,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_64f.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7091,9 +7092,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_64fc.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7103,9 +7104,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_16s_Sfs.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_16s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_16s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7115,9 +7116,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_16sc_Sfs.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_16sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_16sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7127,9 +7128,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_16sc32sc_Sfs.
         /// </summary>
-        public static int SumGetBufferSize32sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize32sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_16sc32sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_16sc32sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7139,9 +7140,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_32s_Sfs.
         /// </summary>
-        public static int SumGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7151,9 +7152,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsSum_16s32s_Sfs.
         /// </summary>
-        public static int SumGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT SumGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Sum.nppsSumGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsSumGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7295,9 +7296,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMax_16s.
         /// </summary>
-        public static int MaxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7307,9 +7308,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMax_32s.
         /// </summary>
-        public static int MaxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7319,9 +7320,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMax_32f.
         /// </summary>
-        public static int MaxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7331,9 +7332,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMax_64f.
         /// </summary>
-        public static int MaxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7399,9 +7400,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxIndx_16s.
         /// </summary>
-        public static int MaxIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxIndxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxIndxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7411,9 +7412,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxIndx_32s.
         /// </summary>
-        public static int MaxIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxIndxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxIndxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7423,9 +7424,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxIndx_32f.
         /// </summary>
-        public static int MaxIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxIndxGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxIndxGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7435,9 +7436,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxIndx_64f.
         /// </summary>
-        public static int MaxIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxIndxGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxIndxGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7507,9 +7508,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxAbs_16s.
         /// </summary>
-        public static int MaxAbsGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxAbsGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxAbsGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxAbsGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7519,9 +7520,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxAbs_32s.
         /// </summary>
-        public static int MaxAbsGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxAbsGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxAbsGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxAbsGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7559,9 +7560,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxAbsIndx_16s.
         /// </summary>
-        public static int MaxAbsIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxAbsIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxAbsIndxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxAbsIndxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7571,9 +7572,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMaxAbsIndx_32s.
         /// </summary>
-        public static int MaxAbsIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaxAbsIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Max.nppsMaxAbsIndxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaxAbsIndxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7613,9 +7614,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMin_16s.
         /// </summary>
-        public static int MinGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7625,9 +7626,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMin_32s.
         /// </summary>
-        public static int MinGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7637,9 +7638,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMin_32f.
         /// </summary>
-        public static int MinGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7649,9 +7650,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMin_64f.
         /// </summary>
-        public static int MinGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7717,9 +7718,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinIndx_16s.
         /// </summary>
-        public static int MinIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinIndxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinIndxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7729,9 +7730,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinIndx_32s.
         /// </summary>
-        public static int MinIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinIndxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinIndxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7741,9 +7742,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinIndx_32f.
         /// </summary>
-        public static int MinIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinIndxGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinIndxGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7753,9 +7754,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinIndx_64f.
         /// </summary>
-        public static int MinIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinIndxGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinIndxGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7825,9 +7826,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinAbs_16s.
         /// </summary>
-        public static int MinAbsGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinAbsGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinAbsGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinAbsGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7837,9 +7838,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinAbs_32s.
         /// </summary>
-        public static int MinAbsGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinAbsGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinAbsGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinAbsGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7877,9 +7878,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinAbsIndx_16s.
         /// </summary>
-        public static int MinAbsIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinAbsIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinAbsIndxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinAbsIndxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7889,9 +7890,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMinAbsIndx_32s.
         /// </summary>
-        public static int MinAbsIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinAbsIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Min.nppsMinAbsIndxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinAbsIndxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7931,9 +7932,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_32f.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7943,9 +7944,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_32fc.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7955,9 +7956,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_64f.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7967,9 +7968,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_64fc.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7979,9 +7980,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_16s_Sfs.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_16s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_16s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -7991,9 +7992,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_32s_Sfs.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8003,9 +8004,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMean_16sc_Sfs.
         /// </summary>
-        public static int MeanGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanGetBufferSize_16sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanGetBufferSize_16sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8116,9 +8117,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsStdDev_32f.
         /// </summary>
-        public static int StdDevGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT StdDevGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsStdDevGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsStdDevGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8128,9 +8129,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsStdDev_64f.
         /// </summary>
-        public static int StdDevGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT StdDevGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsStdDevGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsStdDevGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8140,9 +8141,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsStdDev_16s32s_Sfs.
         /// </summary>
-        public static int StdDevGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT StdDevGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsStdDevGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsStdDevGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8152,9 +8153,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsStdDev_16s_Sfs.
         /// </summary>
-        public static int StdDevGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT StdDevGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsStdDevGetBufferSize_16s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsStdDevGetBufferSize_16s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8222,9 +8223,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMeanStdDev_32f.
         /// </summary>
-        public static int MeanStdDevGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanStdDevGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanStdDevGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanStdDevGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8234,9 +8235,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMeanStdDev_64f.
         /// </summary>
-        public static int MeanStdDevGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanStdDevGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanStdDevGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanStdDevGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8246,9 +8247,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMeanStdDev_16s32s_Sfs.
         /// </summary>
-        public static int MeanStdDevGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanStdDevGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanStdDevGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanStdDevGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8258,9 +8259,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device scratch buffer size (in bytes) for nppsMeanStdDev_16s_Sfs.
         /// </summary>
-        public static int MeanStdDevGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MeanStdDevGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MeanStdDev.nppsMeanStdDevGetBufferSize_16s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMeanStdDevGetBufferSize_16s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8333,9 +8334,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_8u.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8346,9 +8347,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_16s.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8359,9 +8360,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_16u.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8372,9 +8373,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_32s.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8385,9 +8386,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_32u.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8398,9 +8399,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_32f.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8411,9 +8412,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMax_64f.
         /// </summary>
 
-        public static int MinMaxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8529,9 +8530,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_8u.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8542,9 +8543,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_16s.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8555,9 +8556,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_16u.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8568,9 +8569,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_32s.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8581,9 +8582,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_32u.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8594,9 +8595,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_32f.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8607,9 +8608,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsMinMaxIndx_64f.
         /// </summary>
 
-        public static int MinMaxIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MinMaxIndxGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MinMaxIndex.nppsMinMaxIndxGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMinMaxIndxGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8739,9 +8740,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_32f.
         /// </summary>
 
-        public static int NormInfGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8766,9 +8767,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_64f.
         /// </summary>
 
-        public static int NormInfGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8793,9 +8794,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_16s32f.
         /// </summary>
 
-        public static int NormInfGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8820,9 +8821,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_32fc32f.
         /// </summary>
 
-        public static int NormInfGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_32fc32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_32fc32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8847,9 +8848,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_64fc64f.
         /// </summary>
 
-        public static int NormInfGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8874,9 +8875,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_Inf_16s32s_Sfs.
         /// </summary>
 
-        public static int NormInfGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormInfGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormInfGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormInfGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8902,9 +8903,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_32f.
         /// </summary>
 
-        public static int NormL1GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8929,9 +8930,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_64f.
         /// </summary>
 
-        public static int NormL1GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8956,9 +8957,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_16s32f.
         /// </summary>
 
-        public static int NormL1GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -8983,9 +8984,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_32fc64f.
         /// </summary>
 
-        public static int NormL1GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_32fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_32fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9010,9 +9011,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_64fc64f.
         /// </summary>
 
-        public static int NormL1GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9037,9 +9038,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_16s32s_Sfs.
         /// </summary>
 
-        public static int NormL1GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9065,9 +9066,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L1_16s64s_Sfs.
         /// </summary>
 
-        public static int NormL1GetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL1GetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL1GetBufferSize_16s64s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL1GetBufferSize_16s64s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9093,9 +9094,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_32f.
         /// </summary>
 
-        public static int NormL2GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9120,9 +9121,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_64f.
         /// </summary>
 
-        public static int NormL2GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9147,9 +9148,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_16s32f.
         /// </summary>
 
-        public static int NormL2GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9174,9 +9175,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_32fc64f.
         /// </summary>
 
-        public static int NormL2GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_32fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_32fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9201,9 +9202,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_64fc64f.
         /// </summary>
 
-        public static int NormL2GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9228,9 +9229,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2_16s32s_Sfs.
         /// </summary>
 
-        public static int NormL2GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2GetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2GetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9256,9 +9257,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNorm_L2Sqr_16s64s_Sfs.
         /// </summary>
 
-        public static int NormL2SqrGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormL2SqrGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.Norm.nppsNormL2SqrGetBufferSize_16s64s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormL2SqrGetBufferSize_16s64s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9284,9 +9285,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_32f.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9312,9 +9313,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_64f.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9340,9 +9341,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_16s32f.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9368,9 +9369,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_32fc32f.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_32fc32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_32fc32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9396,9 +9397,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_64fc64f.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9424,9 +9425,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_Inf_16s32s_Sfs.
         /// </summary>
 
-        public static int NormDiffInfGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffInfGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffInfGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffInfGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9453,9 +9454,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_32f.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9481,9 +9482,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_64f.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9509,9 +9510,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_16s32f.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9537,9 +9538,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_32fc64f.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_32fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_32fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9565,9 +9566,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_64fc64f.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9593,9 +9594,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_16s32s_Sfs.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9622,9 +9623,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L1_16s64s_Sfs.
         /// </summary>
 
-        public static int NormDiffL1GetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL1GetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL1GetBufferSize_16s64s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL1GetBufferSize_16s64s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9651,9 +9652,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_32f.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9679,9 +9680,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_64f.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9707,9 +9708,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_16s32f.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9735,9 +9736,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_32fc64f.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_32fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_32fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9763,9 +9764,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_64fc64f.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_64fc64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_64fc64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9791,9 +9792,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2_16s32s_Sfs.
         /// </summary>
 
-        public static int NormDiffL2GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2GetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2GetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2GetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9820,9 +9821,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsNormDiff_L2Sqr_16s64s_Sfs.
         /// </summary>
 
-        public static int NormDiffL2SqrGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT NormDiffL2SqrGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.NormDiff.nppsNormDiffL2SqrGetBufferSize_16s64s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsNormDiffL2SqrGetBufferSize_16s64s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9849,9 +9850,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32f.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9877,9 +9878,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9905,9 +9906,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32f32fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize32fc(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32fc(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32f32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32f32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9933,9 +9934,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32f64f.
         /// </summary>
 
-        public static int DotProdGetBufferSize64f(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64f(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32f64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32f64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9961,9 +9962,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32fc64fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize64fc(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64fc(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32fc64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32fc64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -9989,9 +9990,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32f32fc64fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize64fc(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64fc(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32f32fc64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32f32fc64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10017,9 +10018,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_64f.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10045,9 +10046,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_64fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10073,9 +10074,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_64f64fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize64fc(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64fc(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_64f64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_64f64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10101,9 +10102,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s64s.
         /// </summary>
 
-        public static int DotProdGetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s64s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s64s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10129,9 +10130,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16sc64sc.
         /// </summary>
 
-        public static int DotProdGetBufferSize64sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize64sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16sc64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16sc64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10157,9 +10158,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s16sc64sc.
         /// </summary>
 
-        public static int DotProdGetBufferSize16sc64sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize16sc64sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s16sc64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s16sc64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10185,9 +10186,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s32f.
         /// </summary>
 
-        public static int DotProdGetBufferSize32f(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32f(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10213,9 +10214,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16sc32fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize32fc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32fc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16sc32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16sc32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10241,9 +10242,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s16sc32fc.
         /// </summary>
 
-        public static int DotProdGetBufferSize32fc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32fc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s16sc32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s16sc32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10269,9 +10270,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10298,9 +10299,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10327,9 +10328,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32s_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10356,9 +10357,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10385,9 +10386,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s32s_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10414,9 +10415,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s16sc32sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize32sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s16sc32sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s16sc32sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10443,9 +10444,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s32s32s_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize32s32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32s32s(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s32s32s_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s32s32s_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10472,9 +10473,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16s16sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize16sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize16sc(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16s16sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16s16sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10501,9 +10502,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_16sc32sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize32sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32sc(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_16sc32sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_16sc32sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10530,9 +10531,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsDotProd_32s32sc_Sfs.
         /// </summary>
 
-        public static int DotProdGetBufferSize32sc(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT DotProdGetBufferSize32sc(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.DotProduct.nppsDotProdGetBufferSize_32s32sc_Sfs_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsDotProdGetBufferSize_32s32sc_Sfs_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10559,9 +10560,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsCountInRange_32s.
         /// </summary>
 
-        public static int CountInRangeGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT CountInRangeGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.CountInRange.nppsCountInRangeGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsCountInRangeGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10588,9 +10589,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsZeroCrossing_16s32f.
         /// </summary>
 
-        public static int ZeroCrossingGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT ZeroCrossingGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.ZeroCrossing.nppsZeroCrossingGetBufferSize_16s32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsZeroCrossingGetBufferSize_16s32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10616,9 +10617,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// Device-buffer size (in bytes) for nppsZeroCrossing_32f.
         /// </summary>
 
-        public static int ZeroCrossingGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT ZeroCrossingGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.ZeroCrossing.nppsZeroCrossingGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsZeroCrossingGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10855,9 +10856,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_8u.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10867,9 +10868,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_8s.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_8s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_8s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10879,9 +10880,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_16u.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10891,9 +10892,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_16s.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10903,9 +10904,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_16sc.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_16sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_16sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10915,9 +10916,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_32u.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10927,9 +10928,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_32s.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10939,9 +10940,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_32sc.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_32sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_32sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10951,9 +10952,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_64s.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_64s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_64s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10963,9 +10964,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_64sc.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10975,9 +10976,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_32f.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10987,9 +10988,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_32fc.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -10999,9 +11000,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_64f.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11011,9 +11012,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumError_64fc.
         /// </summary>
-        public static int MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumError.nppsMaximumErrorGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumErrorGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11233,9 +11234,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_8u.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11245,9 +11246,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_8s.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_8s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_8s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11257,9 +11258,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_16u.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11269,9 +11270,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_16s.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11281,9 +11282,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_16sc.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_16sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_16sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11293,9 +11294,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_32u.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11305,9 +11306,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_32s.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11317,9 +11318,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_32sc.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_32sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_32sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11329,9 +11330,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_64s.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_64s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_64s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11341,9 +11342,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_64sc.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11353,9 +11354,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_32f.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11365,9 +11366,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_32fc.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11377,9 +11378,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_64f.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11389,9 +11390,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageError_64fc.
         /// </summary>
-        public static int AverageErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageError.nppsAverageErrorGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageErrorGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11611,9 +11612,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_8u.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11623,9 +11624,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_8s.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_8s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_8s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11635,9 +11636,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_16u.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11647,9 +11648,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_16s.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11659,9 +11660,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_16sc.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_16sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_16sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11671,9 +11672,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_32u.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11683,9 +11684,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_32s.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11695,9 +11696,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_32sc.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_32sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_32sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11707,9 +11708,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_64s.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_64s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_64s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11719,9 +11720,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_64sc.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11731,9 +11732,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_32f.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11743,9 +11744,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_32fc.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11755,9 +11756,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_64f.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11767,9 +11768,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsMaximumRelativeError_64fc.
         /// </summary>
-        public static int MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT MaximumRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.MaximumRelativeError.nppsMaximumRelativeErrorGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsMaximumRelativeErrorGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -11989,9 +11990,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_8u.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<byte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_8u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_8u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12001,9 +12002,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_8s.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<sbyte> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_8s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_8s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12013,9 +12014,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_16u.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<ushort> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_16u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_16u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12025,9 +12026,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_16s.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<short> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_16s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_16s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12037,9 +12038,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_16sc.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp16sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_16sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_16sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12049,9 +12050,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_32u.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<uint> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_32u_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_32u_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12061,9 +12062,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_32s.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<int> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_32s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_32s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12073,9 +12074,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_32sc.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_32sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_32sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12085,9 +12086,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_64s.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<long> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_64s_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_64s_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12097,9 +12098,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_64sc.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64sc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_64sc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_64sc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12109,9 +12110,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_32f.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<float> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_32f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_32f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12121,9 +12122,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_32fc.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp32fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_32fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_32fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12133,9 +12134,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_64f.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<double> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_64f_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_64f_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);
@@ -12145,9 +12146,9 @@ namespace ManagedCuda.NPP.NPPsExtensions
         /// <summary>
         /// Device-buffer size (in bytes) for nppsAverageRelativeError_64fc.
         /// </summary>
-        public static int AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
+        public static SizeT AverageRelativeErrorGetBufferSize(this CudaDeviceVariable<Npp64fc> devVar, NppStreamContext nppStreamCtx)
         {
-            int size = 0;
+            SizeT size = 0;
             NppStatus status = NPPNativeMethods_Ctx.NPPs.AverageRelativeError.nppsAverageRelativeErrorGetBufferSize_64fc_Ctx(devVar.Size, ref size, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppsAverageRelativeErrorGetBufferSize_64fc_Ctx", status));
             NPPException.CheckNppStatus(status, devVar);

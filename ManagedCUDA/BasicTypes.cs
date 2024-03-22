@@ -863,6 +863,22 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         Recommended = 1
     }
+
+    /// <summary>
+    /// Flags for CUgreenCtxCreate
+    /// </summary>
+    [Flags]
+    public enum CUgreenCtxCreate_flags
+    {
+        /// <summary>
+        /// None
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Required. Creates a default stream to use inside the green context
+        /// </summary>
+        DefaultStream = 0x1
+    }
     #endregion
 
     #region Delegates
@@ -891,6 +907,15 @@ namespace ManagedCuda.BasicTypes
 	/// </summary>
     /// <param name="userData">Argument value passed to the function</param>
     public delegate void CUhostFn(IntPtr userData);
+
+    /// <summary>
+    /// CUDA async notification callback
+    /// </summary>
+    /// <param name="info">Information describing what actions to take as a result of this trim notification.</param>
+    /// <param name="userData">Pointer to user defined data provided at registration.</param>
+    /// <param name="callback">The callback handle associated with this specific callback.</param>
+    public delegate void CUasyncCallback(ref CUasyncNotificationInfo info, IntPtr userData, CUasyncCallbackHandle callback);
+
 
     #endregion
 

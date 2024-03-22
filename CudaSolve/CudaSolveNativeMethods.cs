@@ -6230,6 +6230,49 @@ namespace ManagedCuda.CudaSolve
                     );
 
             #endregion
+
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXlarft_bufferSize(
+                    cusolverDnHandle handle,
+                    cusolverDnParams parameters,
+                    cusolverDirectMode direct,
+                    cusolverStorevMode storev,
+                    long N,
+                    long K,
+                    cudaDataType dataTypeV,
+                    CUdeviceptr d_V,
+                    long ldv,
+                    cudaDataType dataTypeTau,
+                    CUdeviceptr d_tau,
+                    cudaDataType dataTypeT,
+                    CUdeviceptr d_T,
+                    long ldt,
+                    cudaDataType computeType,
+                    ref SizeT workspaceInBytesOnDevice,
+                    ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXlarft(
+                    cusolverDnHandle handle,
+                    cusolverDnParams parameters,
+                    cusolverDirectMode direct,
+                    cusolverStorevMode storev,
+                    long N,
+                    long K,
+                    cudaDataType dataTypeV,
+                    CUdeviceptr d_V,
+                    long ldv,
+                    cudaDataType dataTypeTau,
+                    CUdeviceptr d_tau,
+                    cudaDataType dataTypeT,
+                    CUdeviceptr d_T,
+                    long ldt,
+                    cudaDataType computeType,
+                    CUdeviceptr bufferOnDevice,
+                    SizeT workspaceInBytesOnDevice,
+                    byte[] bufferOnHost,
+                    SizeT workspaceInBytesOnHost);
         }
 
         /// <summary>

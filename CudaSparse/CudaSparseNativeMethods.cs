@@ -3704,6 +3704,7 @@ namespace ManagedCuda.CudaSparse
 		to a sparse matrix in BSR storage format. */
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseXcsr2bsrNnz(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -3718,6 +3719,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseXcsr2bsrNnz(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -3732,6 +3734,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseScsr2bsr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -3748,6 +3751,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseDcsr2bsr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -3764,6 +3768,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseCcsr2bsr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -3780,6 +3785,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseZcsr2bsr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int m,
@@ -4755,6 +4761,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseXgebsr2csr(cusparseContext handle,
                                               cusparseDirection dirA,
                                               int mb,
@@ -4770,6 +4777,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseSgebsr2csr(cusparseContext handle,
                                               cusparseDirection dirA,
                                               int mb,
@@ -4788,6 +4796,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseDgebsr2csr(cusparseContext handle,
                                               cusparseDirection dirA,
                                               int mb,
@@ -4806,6 +4815,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseCgebsr2csr(cusparseContext handle,
                                               cusparseDirection dirA,
                                               int mb,
@@ -4824,6 +4834,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.4")]
         public static extern cusparseStatus cusparseZgebsr2csr(cusparseContext handle,
                                               cusparseDirection dirA,
                                               int mb,
@@ -7320,6 +7331,19 @@ namespace ManagedCuda.CudaSparse
                         ref SizeT bufferSize);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMV_preprocess(cusparseContext handle,
+                        cusparseOperation opA,
+                        IntPtr alpha,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
+                        IntPtr beta,
+                        cusparseDnVecDescr vecY,
+                        cudaDataType computeType,
+                        SpMVAlg alg,
+                        CUdeviceptr externalBuffer);
+
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
         public static extern cusparseStatus cusparseSpMV(cusparseContext handle,
              cusparseOperation opA,
 
@@ -7347,6 +7371,17 @@ namespace ManagedCuda.CudaSparse
                         SpMVAlg alg,
                         ref SizeT bufferSize);
 
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpMV_preprocess(cusparseContext handle,
+                        cusparseOperation opA,
+                        CUdeviceptr alpha,
+                        cusparseConstSpMatDescr matA,
+                        cusparseConstDnVecDescr vecX,
+                        CUdeviceptr beta,
+                        cusparseDnVecDescr vecY,
+                        cudaDataType computeType,
+                        SpMVAlg alg,
+                        CUdeviceptr externalBuffer);
         #endregion
 
         #region SPARSE TRIANGULAR MATRIX SOLVE
@@ -7440,6 +7475,12 @@ namespace ManagedCuda.CudaSparse
                     cusparseSpSMAlg alg,
                     cusparseSpSMDescr spsmDescr);
 
+
+        [DllImport(CUSPARSE_API_DLL_NAME)]
+        public static extern cusparseStatus cusparseSpSM_updateMatrix(cusparseContext handle,
+                          cusparseSpSMDescr spsmDescr,
+                          CUdeviceptr newValues,
+                          cusparseSpSMUpdate updatePart);
         #endregion
 
         #region SPARSE TRIANGULAR VECTOR SOLVE

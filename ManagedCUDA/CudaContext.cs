@@ -610,6 +610,7 @@ namespace ManagedCuda
         /// - <see cref="CUsharedconfig.EightByteBankSize"/>: set shared memory bank width to
         ///   be natively eight bytes.
         /// </summary>
+        [Obsolete(DriverAPINativeMethods.CUDA_OBSOLET_12_4)]
         public void SetSharedMemConfig(CUsharedconfig config)
         {
             if (disposed) throw new ObjectDisposedException(this.ToString());
@@ -623,6 +624,7 @@ namespace ManagedCuda
         /// <summary>
         /// Returns the current shared memory configuration for the current context.
         /// </summary>
+        [Obsolete(DriverAPINativeMethods.CUDA_OBSOLET_12_4)]
         public CUsharedconfig GetSharedMemConfig()
         {
             if (disposed) throw new ObjectDisposedException(this.ToString());
@@ -5075,6 +5077,46 @@ namespace ManagedCuda
         {
             CUResult res = DriverAPINativeMethods.Limits.cuCtxSetLimit(limit, value);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxSetLimit", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Registers a callback function to receive async notifications<para/>
+        /// Registers \p callbackFunc to receive async notifications.<para/>
+        /// The \p userData parameter is passed to the callback function at async notification time.
+        /// Likewise, \p callback is also passed to the callback function to distinguish between
+        /// multiple registered callbacks.<para/>
+        /// The callback function being registered should be designed to return quickly (~10ms).  <para/>
+        /// Any long running tasks should be queued for execution on an application thread.
+        /// Callbacks may not call cuDeviceRegisterAsyncNotification or cuDeviceUnregisterAsyncNotification.
+        /// Doing so will result in ::CUDA_ERROR_NOT_PERMITTED.Async notification callbacks execute
+        /// in an undefined order and may be serialized.<para/>
+        /// Returns in \p* callback a handle representing the registered callback instance.
+        /// </summary>
+        /// <param name="callbackFunc">The function to register as a callback</param>
+        /// <param name="userData">A generic pointer to user data. This is passed into the callback function.</param>
+        public CUasyncCallbackHandle RegisterAsyncNotification(CUasyncCallback callbackFunc, IntPtr userData)
+        {
+            CUasyncCallbackHandle callback = new CUasyncCallbackHandle();
+
+            CUResult res = DriverAPINativeMethods.MemoryManagement.cuDeviceRegisterAsyncNotification(_device, callbackFunc, userData, ref callback);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceRegisterAsyncNotification", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+            return callback;
+        }
+
+        /// <summary>
+        /// Unregisters an async notification callback
+        /// Unregisters \p callback so that the corresponding callback function will stop receiving
+        /// async notifications.
+        /// </summary>
+        /// <param name="callback">The callback instance to unregister from receiving async notifications.</param>
+        public void UnRegisterAsyncNotification(CUasyncCallbackHandle callback)
+        {
+            CUResult res = DriverAPINativeMethods.MemoryManagement.cuDeviceUnregisterAsyncNotification(_device, callback);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceUnregisterAsyncNotification", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
         }

@@ -27,7 +27,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.Xml.Linq;
 
 namespace ManagedCuda.BasicTypes
 {
@@ -100,6 +99,20 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         public IntPtr Pointer;
+
+        /// <summary>
+        /// Get context resources<para/>
+        /// Get the \p type resources available to the context represented by \p hCtx 
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResource GetDevResource(CUdevResourceType type)
+        {
+            CUdevResource value = new CUdevResource();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuCtxGetDevResource(this, ref value, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxGetDevResource", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return value;
+        }
     }
 
     /// <summary>
@@ -114,9 +127,37 @@ namespace ManagedCuda.BasicTypes
         public int Pointer;
 
         /// <summary>
+        /// 
+        /// </summary>
+        public CUdevice(int deviceId)
+        {
+            CUResult res;
+            CUdevice temp = new CUdevice();
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGet(ref temp, deviceId);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGet", res));
+
+            if (res == CUResult.ErrorNotInitialized)
+            {
+                res = DriverAPINativeMethods.cuInit(CUInitializationFlags.None);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuInit", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+
+                res = DriverAPINativeMethods.DeviceManagement.cuDeviceGet(ref temp, deviceId);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGet", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+            }
+            else if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            this = temp;
+        }
+
+        /// <summary>
         /// Device that represents the CPU
         /// </summary>
-        static CUdevice CPU
+        public static CUdevice CPU
         {
             get
             {
@@ -129,7 +170,7 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Device that represents an invalid device
         /// </summary>
-        static CUdevice Invalid
+        public static CUdevice Invalid
         {
             get
             {
@@ -305,6 +346,21 @@ namespace ManagedCuda.BasicTypes
             return Pointer.ToString();
         }
         #endregion
+
+        /// <summary>
+        /// Get device resources<para/>
+        /// Get the \p type resources available to the \p device.<para/>
+        /// This may often be the starting point for further partitioning or configuring of resources.<para/>
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResource GetDevResource(CUdevResourceType type)
+        {
+            CUdevResource value = new CUdevResource();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuDeviceGetDevResource(this, ref value, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetDevResource", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return value;
+        }
     }
 
     /// <summary>
@@ -809,6 +865,55 @@ namespace ManagedCuda.BasicTypes
             if (res != CUResult.Success) throw new CudaException(res);
             return name;
         }
+
+
+#if (NETCOREAPP) //old .net framework doesn't support tupels
+        /// <summary>
+        /// Returns the offset and size of a kernel parameter in the device-side parameter layout<para/>
+        /// Queries the kernel parameter at \p paramIndex into \p func's list of parameters, and returns
+        /// in \p paramOffset and \p paramSize the offset and size, respectively, where the parameter
+        /// will reside in the device-side parameter layout.This information can be used to update kernel
+        /// node parameters from the device via ::cudaGraphKernelNodeSetParam() and
+        /// ::cudaGraphKernelNodeUpdatesApply(). \p paramIndex must be less than the number of parameters
+        /// that \p func takes. \p paramSize can be set to NULL if only the parameter offset is desired.
+        /// </summary>
+        /// <param name="paramIndex">The parameter index to query</param>
+        public (SizeT, SizeT) GetParamInfo(SizeT paramIndex)
+        {
+            SizeT offset = 0;
+            SizeT size = 0;
+            CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncGetParamInfo(this, paramIndex, ref offset, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetParamInfo", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return (offset, size);
+        }
+#endif
+
+        /// <summary>
+        /// Returns if the function is loaded<para/>
+        /// </summary>
+        public CUfunctionLoadingState IsLoaded
+        {
+            get
+            {
+                CUfunctionLoadingState ret = new CUfunctionLoadingState();
+                CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncIsLoaded(ref ret, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncIsLoaded", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Loads a function<para/>
+        /// Finalizes function loading for \p function.Calling this API with afully loaded function has no effect.
+        /// </summary>
+        public void Load()
+        {
+            CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncLoad(this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncLoad", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
     }
 
     /// <summary>
@@ -836,6 +941,60 @@ namespace ManagedCuda.BasicTypes
                 if (res != CUResult.Success) throw new CudaException(res);
                 return ret;
             }
+        }
+
+        /// <summary>
+        /// Returns the number of functions within the module
+        /// </summary>
+        public uint FunctionCount
+        {
+            get
+            {
+                uint fcount = 0;
+                CUResult res = DriverAPINativeMethods.ModuleManagement.cuModuleGetFunctionCount(ref fcount, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuModuleGetFunctionCount", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return fcount;
+            }
+        }
+
+        /// <summary>
+        /// Returns the function handles within a module.<para/>
+        /// Returns in \p functions a maximum number of \p numFunctions function handles within \p mod.When
+        /// function loading mode is set to LAZY the function retrieved may be partially loaded. The loading
+        /// state of a function can be queried using ::cuFunctionIsLoaded. CUDA APIs may load the function
+        /// automatically when called with partially loaded function handle which may incur additional
+        /// latency.Alternatively, ::cuFunctionLoad can be used to explicitly load a function. The returned
+        /// function handles become invalid when the module is unloaded.
+        /// </summary>
+        /// <param name="functions">Buffer where the function handles are returned to</param>
+        /// <param name="numFunctions">Maximum number of function handles may be returned to the buffer</param>
+        public void EnumerateFunctions(CUfunction[] functions, uint numFunctions)
+        {
+            CUResult res = DriverAPINativeMethods.ModuleManagement.cuModuleEnumerateFunctions(functions, numFunctions, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuModuleEnumerateFunctions", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Returns all the function handles within a module.<para/>
+        /// When
+        /// function loading mode is set to LAZY the function retrieved may be partially loaded. The loading
+        /// state of a function can be queried using ::cuFunctionIsLoaded. CUDA APIs may load the function
+        /// automatically when called with partially loaded function handle which may incur additional
+        /// latency.Alternatively, ::cuFunctionLoad can be used to explicitly load a function. The returned
+        /// function handles become invalid when the module is unloaded.
+        /// </summary>
+        public CUfunction[] EnumerateFunctions()
+        {
+            uint functionCount = FunctionCount;
+            CUfunction[] ret = new CUfunction[functionCount];
+
+            CUResult res = DriverAPINativeMethods.ModuleManagement.cuModuleEnumerateFunctions(ret, functionCount, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuModuleEnumerateFunctions", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return ret;
         }
     }
 
@@ -904,6 +1063,35 @@ namespace ManagedCuda.BasicTypes
                 if (res != CUResult.Success) throw new CudaException(res);
                 return ret;
             }
+        }
+
+        /// <summary>
+        /// Query the green context associated with a stream
+        /// <para/>
+        /// Returns the CUDA green context that the stream is associated with, or NULL if the stream
+        /// is not associated with any green context.
+        /// <para/>
+        /// The stream handle \p hStream can refer to any of the following:
+        /// <para/>
+        /// - a stream created via any of the CUDA driver APIs such as ::cuStreamCreate.
+        ///   If during stream creation the context that was active in the calling thread was obtained
+        ///   with cuCtxFromGreenCtx, that green context is returned in \p phCtx.
+        ///   Otherwise, \p *phCtx is set to NULL instead.
+        /// <para/>
+        /// - special stream such as the NULL stream or ::CU_STREAM_LEGACY.
+        ///   In that case if context that is active in the calling thread was obtained
+        ///   with cuCtxFromGreenCtx, that green context is returned.
+        ///   Otherwise, \p *phCtx is set to NULL instead.
+        /// <para/>
+        /// Passing an invalid handle will result in undefined behavior.
+        /// </summary>
+        public CUgreenCtx GetGreenContext()
+        {
+            CUgreenCtx ret = new CUgreenCtx();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuStreamGetGreenCtx(this, ref ret);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetGreenCtx", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return ret;
         }
     }
 
@@ -1851,6 +2039,53 @@ namespace ManagedCuda.BasicTypes
         /// 
         /// </summary>
         public IntPtr Pointer;
+
+
+
+        /// <summary>
+        /// Returns the number of kernels within the library
+        /// </summary>
+        public uint KernelCount
+        {
+            get
+            {
+                uint fcount = 0;
+                CUResult res = DriverAPINativeMethods.LibraryManagement.cuLibraryGetKernelCount(ref fcount, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuLibraryGetKernelCount", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return fcount;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve the kernel handles within a library.<para/>
+        /// Returns in \p kernels a maximum number of \p numKernels kernel handles within \p lib.
+        /// The returned kernel handle becomes invalid when the library is unloaded.
+        /// </summary>
+        /// <param name="kernels">Buffer where the kernel handles are returned to</param>
+        /// <param name="numKernels">Maximum number of kernel handles may be returned to the buffer</param>
+        public void EnumerateKernels(CUkernel[] kernels, uint numKernels)
+        {
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuLibraryEnumerateKernels(kernels, numKernels, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuLibraryEnumerateKernels", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Retrieve all the kernel handles within a library.<para/>
+        /// The returned kernel handle becomes invalid when the library is unloaded.
+        /// </summary>
+        public CUkernel[] EnumerateKernels()
+        {
+            uint kernelCount = KernelCount;
+            CUkernel[] ret = new CUkernel[kernelCount];
+
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuLibraryEnumerateKernels(ret, kernelCount, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuLibraryEnumerateKernels", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return ret;
+        }
     }
 
     /// <summary>
@@ -2262,6 +2497,117 @@ namespace ManagedCuda.BasicTypes
             if (res != CUResult.Success) throw new CudaException(res);
             return name;
         }
+
+#if (NETCOREAPP) //old .net framework doesn't support tupels
+        /// <summary>
+        /// Returns the offset and size of a kernel parameter in the device-side parameter layout
+        /// Queries the kernel parameter at \p paramIndex into \p kernel's list of parameters, and returns
+        /// in \p paramOffset and \p paramSize the offset and size, respectively, where the parameter
+        /// will reside in the device-side parameter layout.This information can be used to update kernel
+        /// node parameters from the device via ::cudaGraphKernelNodeSetParam() and
+        /// ::cudaGraphKernelNodeUpdatesApply(). \p paramIndex must be less than the number of parameters
+        /// that \p kernel takes. \p paramSize can be set to NULL if only the parameter offset is desired.
+        /// </summary>
+        /// <param name="paramIndex">The parameter index to query</param>
+        public (SizeT, SizeT) GetParamInfo(SizeT paramIndex)
+        {
+            SizeT offset = 0;
+            SizeT size = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetParamInfo(this, paramIndex, ref offset, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetParamInfo", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return (offset, size);
+        }
+#endif
     }
+
+
+    /// <summary>
+    /// CUDA graph device node handle
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgraphDeviceNode
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// CUDA async notification callback handle
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUasyncCallbackHandle
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// A green context handle. This handle can be used safely from only one CPU thread at a time.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUgreenCtx
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+    }
+
+    /// <summary>
+    /// An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUdevResourceDesc
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr Pointer;
+
+        /// <summary>
+        /// Generate a resource descriptor
+        /// <para/>
+        /// Generates a resource descriptor with the set of resources specified in \p resources.
+        /// The generated resource descriptor is necessary for the creation of green contexts via the ::cuGreenCtxCreate API.
+        /// The API expects \p nbResources == 1, as there is only one type of resource and merging the same
+        /// types of resource is currently not supported.
+        /// <para/>
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResourceDesc(CUdevResource[] resources)
+        {
+            CUdevResourceDesc temp = new CUdevResourceDesc();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuDevResourceGenerateDesc(ref temp, resources, (uint)resources.Length);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevResourceGenerateDesc", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            this = temp;
+        }
+
+        /// <summary>
+        /// Generate a resource descriptor
+        /// <para/>
+        /// Generates a resource descriptor with the set of resources specified in \p resources.
+        /// The generated resource descriptor is necessary for the creation of green contexts via the ::cuGreenCtxCreate API.
+        /// The API expects \p nbResources == 1, as there is only one type of resource and merging the same
+        /// types of resource is currently not supported.
+        /// <para/>
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResourceDesc(CUdevResource resource)
+        {
+            CUdevResource[] resources = new CUdevResource[] { resource };
+            CUdevResourceDesc temp = new CUdevResourceDesc();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuDevResourceGenerateDesc(ref temp, resources, (uint)resources.Length);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevResourceGenerateDesc", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            this = temp;
+        }
+    }
+
     #endregion
 }

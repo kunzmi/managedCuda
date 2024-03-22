@@ -27,6 +27,7 @@
 #define ADD_MISSING_CTX
 using System;
 using System.Diagnostics;
+using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -288,7 +289,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods_Ctx.NPPi.MaximumError.nppiMaximumError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumError_16sc_C1R_Ctx", status));
@@ -305,7 +306,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaxError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = MaxErrorGetBufferHostSize(nppStreamCtx);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods_Ctx.NPPi.MaximumError.nppiMaximumError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
@@ -316,9 +317,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for MaxError.
         /// </summary>
         /// <returns></returns>
-        public int MaxErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
+        public SizeT MaxErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods_Ctx.NPPi.MaximumError.nppiMaximumErrorGetBufferHostSize_16sc_C1R_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumErrorGetBufferHostSize_16sc_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
@@ -335,7 +336,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods_Ctx.NPPi.AverageError.nppiAverageError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageError_16sc_C1R_Ctx", status));
@@ -352,7 +353,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = AverageErrorGetBufferHostSize(nppStreamCtx);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods_Ctx.NPPi.AverageError.nppiAverageError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
@@ -363,9 +364,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for AverageError.
         /// </summary>
         /// <returns></returns>
-        public int AverageErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
+        public SizeT AverageErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods_Ctx.NPPi.AverageError.nppiAverageErrorGetBufferHostSize_16sc_C1R_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageErrorGetBufferHostSize_16sc_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
@@ -382,7 +383,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaximumRelativeError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods_Ctx.NPPi.MaximumRelativeError.nppiMaximumRelativeError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeError_16sc_C1R_Ctx", status));
@@ -399,7 +400,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void MaximumRelativeError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = MaximumRelativeErrorGetBufferHostSize(nppStreamCtx);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods_Ctx.NPPi.MaximumRelativeError.nppiMaximumRelativeError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
@@ -410,9 +411,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for MaximumRelativeError.
         /// </summary>
         /// <returns></returns>
-        public int MaximumRelativeErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
+        public SizeT MaximumRelativeErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods_Ctx.NPPi.MaximumRelativeError.nppiMaximumRelativeErrorGetBufferHostSize_16sc_C1R_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiMaximumRelativeErrorGetBufferHostSize_16sc_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
@@ -429,7 +430,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageRelativeError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
             CudaDeviceVariable<byte> buffer = new CudaDeviceVariable<byte>(bufferSize);
             status = NPPNativeMethods_Ctx.NPPi.AverageRelativeError.nppiAverageRelativeError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeError_16sc_C1R_Ctx", status));
@@ -446,7 +447,7 @@ namespace ManagedCuda.NPP
         /// <param name="nppStreamCtx">NPP stream context.</param>
         public void AverageRelativeError(NPPImage_16scC1 src2, CudaDeviceVariable<double> pError, CudaDeviceVariable<byte> buffer, NppStreamContext nppStreamCtx)
         {
-            int bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
+            SizeT bufferSize = AverageRelativeErrorGetBufferHostSize(nppStreamCtx);
             if (bufferSize > buffer.Size) throw new NPPException("Provided buffer is too small.");
 
             status = NPPNativeMethods_Ctx.NPPi.AverageRelativeError.nppiAverageRelativeError_16sc_C1R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pError.DevicePointer, buffer.DevicePointer, nppStreamCtx);
@@ -457,9 +458,9 @@ namespace ManagedCuda.NPP
         /// Device scratch buffer size (in bytes) for AverageRelativeError.
         /// </summary>
         /// <returns></returns>
-        public int AverageRelativeErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
+        public SizeT AverageRelativeErrorGetBufferHostSize(NppStreamContext nppStreamCtx)
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods_Ctx.NPPi.AverageRelativeError.nppiAverageRelativeErrorGetBufferHostSize_16sc_C1R_Ctx(_sizeRoi, ref bufferSize, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiAverageRelativeErrorGetBufferHostSize_16sc_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);

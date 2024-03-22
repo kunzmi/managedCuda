@@ -126,6 +126,7 @@
     <Compile Include="CudaPageLockedHostMemory2D.cs" />
     <Compile Include="CudaPageLockedHostMemory3D.cs" />
     <Compile Include="CudaRegisteredHostMemory.cs" />
+    <Compile Include="GreenContext.cs" />
     <Compile Include="ICudaGraphicsInteropResource.cs" />
     <Compile Include="CudaDirectXInteropResource.cs" />
     <Compile Include="CudaOpenGLBufferInteropResource.cs" />

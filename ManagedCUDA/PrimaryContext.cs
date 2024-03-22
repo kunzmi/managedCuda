@@ -152,6 +152,18 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Create a new instace of managed Cuda.
+        /// Using <see cref="CUCtxFlags.SchedAuto"/>
+        /// </summary>
+        public PrimaryContext(CUcontext ctx, CUdevice device, int deviceID)
+            : base(true, deviceID)
+        {
+            _context = ctx;
+            _device = device;
+            _deviceID = deviceID;
+        }
+
+        /// <summary>
         /// For dispose
         /// </summary>
         ~PrimaryContext()

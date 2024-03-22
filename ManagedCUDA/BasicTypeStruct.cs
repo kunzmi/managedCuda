@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ManagedCuda.BasicTypes
@@ -4210,6 +4211,22 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DeviceUpdatableKernelNode
+        {
+            /// <summary>
+            /// Whether or not the resulting kernel node should be device-updatable.
+            /// </summary>
+            int deviceUpdatable;
+            /// <summary>
+            /// Returns a handle to pass to the various device-side update functions.
+            /// </summary>
+            CUgraphDeviceNode devNode;
+        }
+
+        /// <summary>
         /// Attribute ::CUaccessPolicyWindow.
         /// </summary>
         [FieldOffset(0)]
@@ -4265,6 +4282,11 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(0)]
         CUlaunchMemSyncDomain memSyncDomain;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        DeviceUpdatableKernelNode deviceUpdatableKernelNode;
 
         /// <summary>
         /// Pad to 64 bytes
@@ -4825,6 +4847,7 @@ namespace ManagedCuda.BasicTypes
     /// default to a zero-initialized value if not specified.A zero-initialized struct indicates a
     /// standard full serialization of two nodes with memory visibility.
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct CUgraphEdgeData
     {
         /// <summary>
@@ -4862,5 +4885,181 @@ namespace ManagedCuda.BasicTypes
         public byte[] reserved;
     }
 
+
+
+    /// <summary>
+    /// Information passed to the user via the async notification callback
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OverBudget
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public ulong bytesOverBudget;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUasyncNotificationInfoUnion
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        public OverBudget overBudget;
+    }
+
+    /// <summary>
+    /// Information passed to the user via the async notification callback
+    /// </summary>
+    public struct CUasyncNotificationInfo
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUasyncNotificationType type;
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUasyncNotificationInfoUnion info;
+    }
+
+
+    /// <summary>
+    /// Data for SM-related resources
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUdevSmResource
+    {
+        /// <summary>
+        /// The amount of streaming multiprocessors available in this resource. This is an output parameter only, do not write to this field.
+        /// </summary>
+        public uint smCount;
+    }
+
+    /// <summary>
+    /// A tagged union describing different resources identified by the type field. This structure should not be directly modified outside of the API that created it.
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUdevResource
+    {
+        /// <summary>
+        /// Type of resource, dictates which union field was last set
+        /// </summary>
+        [FieldOffset(0)]
+        public CUdevResourceType type;
+        /// <summary>
+        /// Resource corresponding to CU_DEV_RESOURCE_TYPE_SM \p. type.
+        /// </summary>
+        [FieldOffset(96)]
+        public CUdevSmResource sm;
+
+        [FieldOffset(144 - 1)]
+        byte _oversize;
+
+        /// <summary>
+        /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources.<para/>
+        /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources into \p nbGroups, adhering to the minimum SM count specified in \p minCount
+        /// and the usage flags in \p useFlags.If \p result is NULL, the API simulates a split and provides the amount of groups that
+        /// would be created in \p nbGroups. Otherwise, \p nbGroups must point to the amount of elements in \p result and on return,
+        /// the API will overwrite \p nbGroups with the amount actually created.The groups are written to the array in \p result.
+        /// \p nbGroups can be less than the total amount if a smaller number of groups is needed.
+        /// This API is used to spatially partition the input resource.The input resource needs to come from one of
+        /// ::cuDeviceGetDevResource, ::cuCtxGetDevResource, or::cuGreenCtxGetDevResource.
+        /// A limitation of the API is that the output results cannot be split again without
+        /// first creating a descriptor and a green context with that descriptor.
+        /// <para/>
+        /// When creating the groups, the API will take into account the performance and functional characteristics of the
+        /// input resource, and guarantee a split that will create a disjoint set of symmetrical partitions.This may lead to less groups created
+        /// than purely dividing the total SM count by the \p minCount due to cluster requirements or
+        /// alignment and granularity requirements for the minCount.
+        /// <para/>
+        /// The \p remainder set, might not have the same functional or performance guarantees as the groups in \p result.
+        /// Its use should be carefully planned and future partitions of the \p remainder set are discouraged.
+        /// <para/>
+        /// A successful API call must either have:
+        /// - A valid array of \p result pointers of size passed in \p nbGroups, with \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+        /// Value of \p minCount must be between 0 and the SM count specified in \p input. \p remaining and \p useFlags are optional.
+        /// - NULL passed in for \p result, with a valid integer pointer in \p nbGroups and \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+        /// Value of \p minCount must be between 0 and the SM count specified in \p input.
+        /// This queries the number of groups that would be created by the API.
+        /// <para/>
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResource[] SmResourceSplitByCount(uint useFlags, uint minCount)
+        {
+            CUdevResource[] resources = new CUdevResource[0];
+            uint groupCount = 0;
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuDevSmResourceSplitByCount(IntPtr.Zero, ref groupCount, ref this, IntPtr.Zero, useFlags, minCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevSmResourceSplitByCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            if (groupCount == 0)
+            {
+                return resources;
+            }
+
+            resources = new CUdevResource[groupCount];
+            res = DriverAPINativeMethods.GreenContextAPI.cuDevSmResourceSplitByCount(resources, ref groupCount, ref this, IntPtr.Zero, useFlags, minCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevSmResourceSplitByCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return resources;
+        }
+
+        /// <summary>
+        /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources.<para/>
+        /// Splits \p CU_DEV_RESOURCE_TYPE_SM resources into \p nbGroups, adhering to the minimum SM count specified in \p minCount
+        /// and the usage flags in \p useFlags.If \p result is NULL, the API simulates a split and provides the amount of groups that
+        /// would be created in \p nbGroups. Otherwise, \p nbGroups must point to the amount of elements in \p result and on return,
+        /// the API will overwrite \p nbGroups with the amount actually created.The groups are written to the array in \p result.
+        /// \p nbGroups can be less than the total amount if a smaller number of groups is needed.
+        /// This API is used to spatially partition the input resource.The input resource needs to come from one of
+        /// ::cuDeviceGetDevResource, ::cuCtxGetDevResource, or::cuGreenCtxGetDevResource.
+        /// A limitation of the API is that the output results cannot be split again without
+        /// first creating a descriptor and a green context with that descriptor.
+        /// <para/>
+        /// When creating the groups, the API will take into account the performance and functional characteristics of the
+        /// input resource, and guarantee a split that will create a disjoint set of symmetrical partitions.This may lead to less groups created
+        /// than purely dividing the total SM count by the \p minCount due to cluster requirements or
+        /// alignment and granularity requirements for the minCount.
+        /// <para/>
+        /// The \p remainder set, might not have the same functional or performance guarantees as the groups in \p result.
+        /// Its use should be carefully planned and future partitions of the \p remainder set are discouraged.
+        /// <para/>
+        /// A successful API call must either have:
+        /// - A valid array of \p result pointers of size passed in \p nbGroups, with \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+        /// Value of \p minCount must be between 0 and the SM count specified in \p input. \p remaining and \p useFlags are optional.
+        /// - NULL passed in for \p result, with a valid integer pointer in \p nbGroups and \p Input of type \p CU_DEV_RESOURCE_TYPE_SM.
+        /// Value of \p minCount must be between 0 and the SM count specified in \p input.
+        /// This queries the number of groups that would be created by the API.
+        /// <para/>
+        /// Note: The API is not supported on 32-bit platforms.
+        /// </summary>
+        public CUdevResource[] SmResourceSplitByCount(uint useFlags, uint minCount, ref CUdevResource remaining)
+        {
+            remaining = new CUdevResource();
+            CUdevResource[] resources = new CUdevResource[0];
+            uint groupCount = 0;
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuDevSmResourceSplitByCount(IntPtr.Zero, ref groupCount, ref this, IntPtr.Zero, useFlags, minCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevSmResourceSplitByCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            if (groupCount == 0)
+            {
+                return resources;
+            }
+
+            resources = new CUdevResource[groupCount];
+            res = DriverAPINativeMethods.GreenContextAPI.cuDevSmResourceSplitByCount(resources, ref groupCount, ref this, ref remaining, useFlags, minCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDevSmResourceSplitByCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return resources;
+        }
+    }
     #endregion
 }

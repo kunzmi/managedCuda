@@ -151,6 +151,27 @@ namespace ManagedCuda.NvJitLink
                 case nvJitLinkResult.ErrorThreadPool:
                     message = "ErrorThreadPool";
                     break;
+                case nvJitLinkResult.UnrecognizedInput:
+                    message = "UnrecognizedInput";
+                    break;
+                case nvJitLinkResult.NullInput:
+                    message = "NullInput";
+                    break;
+                case nvJitLinkResult.IncompatibleOptions:
+                    message = "IncompatibleOptions";
+                    break;
+                case nvJitLinkResult.IncorrectInputType:
+                    message = "IncorrectInputType";
+                    break;
+                case nvJitLinkResult.ArchMismatch:
+                    message = "ArchMismatch";
+                    break;
+                case nvJitLinkResult.OutdatedLibrary:
+                    message = "OutdatedLibrary";
+                    break;
+                case nvJitLinkResult.MissingFatBin:
+                    message = "MissingFatBin";
+                    break;
                 default:
                     break;
             }

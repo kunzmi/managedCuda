@@ -416,6 +416,15 @@ namespace ManagedCuda
                 case CUResult.ErrorInvalidClusterSize:
                     message = "Indicates a kernel launch error due to cluster misconfiguration.";
                     break;
+                case CUResult.ErrorFunctionNotLoaded:
+                    message = "Indiciates a function handle is not loaded when calling an API that requires a loaded function.";
+                    break;
+                case CUResult.ErrorInvalidResourceType:
+                    message = "This error indicates one or more resources passed in are not valid resource types for the operation.";
+                    break;
+                case CUResult.ErrorInvalidResourceConfiguration:
+                    message = "This error indicates one or more resources are insufficient or non-applicable for the operation.";
+                    break;
                 case CUResult.ErrorUnknown:
                     message = "This indicates that an unknown internal error has occurred.";
                     break;
