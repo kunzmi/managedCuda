@@ -3940,8 +3940,13 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(24)]
         public SizeT maxSize;
+        /// <summary>
+        /// Bitmask indicating intended usage for the pool.
+        /// </summary>
+        [FieldOffset(28)]
+        public ushort usage;
         ///// <summary/>
-        //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 56, ArraySubType = UnmanagedType.U1)]
+        //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 54, ArraySubType = UnmanagedType.U1)]
         [FieldOffset(84)]
         int reserved;
     }
@@ -4287,6 +4292,12 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(0)]
         DeviceUpdatableKernelNode deviceUpdatableKernelNode;
+
+        /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+        /// </summary>
+        [FieldOffset(0)]
+        uint sharedMemCarveout;
 
         /// <summary>
         /// Pad to 64 bytes
@@ -5060,6 +5071,42 @@ namespace ManagedCuda.BasicTypes
 
             return resources;
         }
+    }
+
+    /// <summary>
+    /// CIG Context Create Params
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUctxCigParam
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public CUcigDataType sharedDataType;
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr sharedData;
+    }
+
+    /// <summary>
+    /// Params for creating CUDA context. Exactly one of execAffinityParams and cigParams must be non-NULL.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUctxCreateParams
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr execAffinityParams;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int numExecAffinityParams;
+        /// <summary>
+        /// 
+        /// </summary>
+        public IntPtr cigParams;
     }
     #endregion
 }

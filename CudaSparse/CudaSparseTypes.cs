@@ -391,7 +391,9 @@ namespace ManagedCuda.CudaSparse
         /// <summary/>
         CUSPARSE_SPMM_CSR_ALG3 = 12,
         /// <summary/>
-        CUSPARSE_SPMM_BLOCKED_ELL_ALG1 = 13
+        CUSPARSE_SPMM_BLOCKED_ELL_ALG1 = 13,
+        /// <summary/>
+        CUSPARSE_SPMM_BSR_ALG1 = 14
     }
 
     /// <summary>

@@ -207,7 +207,60 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// 4 channel unsigned normalized block-compressed (BC7 compression) format with sRGB encoding
         /// </summary>
-        BC7UNormSRGB = 0x9e
+        BC7UNormSRGB = 0x9e,
+        /// <summary>
+        /// 10-bit YUV planar format, with 4:2:0 sampling
+        /// </summary>
+        P010 = 0x9f,
+        /// <summary>
+        /// 16-bit YUV planar format, with 4:2:0 sampling
+        /// </summary>
+        P016 = 0xa1,
+        /// <summary>
+        /// 8-bit YUV planar format, with 4:2:2 sampling
+        /// </summary>
+        NV16 = 0xa2,
+        /// <summary>
+        /// 10-bit YUV planar format, with 4:2:2 sampling
+        /// </summary>
+        P210 = 0xa3,
+        /// <summary>
+        /// 16-bit YUV planar format, with 4:2:2 sampling
+        /// </summary>
+        P216 = 0xa4,
+        /// <summary>
+        /// 2 channel, 8-bit YUV packed planar format, with 4:2:2 sampling
+        /// </summary>
+        YUY2 = 0xa5,
+        /// <summary>
+        /// 2 channel, 10-bit YUV packed planar format, with 4:2:2 sampling
+        /// </summary>
+        Y210 = 0xa6,
+        /// <summary>
+        /// 2 channel, 16-bit YUV packed planar format, with 4:2:2 sampling
+        /// </summary>
+        Y216 = 0xa7,
+        /// <summary>
+        /// 4 channel, 8-bit YUV packed planar format, with 4:4:4 sampling
+        /// </summary>
+        AYUV = 0xa8,
+        /// <summary>
+        /// 10-bit YUV packed planar format, with 4:4:4 sampling
+        /// </summary>
+        Y410 = 0xa9,
+        /// <summary>
+        /// 4 channel, 12-bit YUV packed planar format, with 4:4:4 sampling 
+        /// </summary>
+        Y416 = 0xb1,
+        /// <summary>
+        /// 3 channel 8-bit YUV planar format, with 4:4:4 sampling
+        /// </summary>
+        Y444_PLANAR8 = 0xb2,
+        /// <summary>
+        /// 3 channel 10-bit YUV planar format, with 4:4:4 sampling
+        /// </summary>
+        Y444_PLANAR10 = 0xb3
+
     }
 
     /// <summary>
@@ -860,11 +913,11 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         UnifiedFunctionPointers = 129,
         /// <summary>
-        /// 
+        /// NUMA configuration of a device: value is of type ::CUdeviceNumaConfig enum
         /// </summary>
         NumaConfig = 130,
         /// <summary>
-        /// 
+        /// NUMA node ID of the GPU memory
         /// </summary>
         NumaID = 131,
         /// <summary>
@@ -879,6 +932,10 @@ namespace ManagedCuda.BasicTypes
         /// NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
         /// </summary>
         HostNumaID = 134,
+        /// <summary>
+        /// Device supports CIG with D3D12.
+        /// </summary>
+        D3D12CIGSupported = 135,
         /// <summary>
         /// Max elems...
         /// </summary>
@@ -1682,7 +1739,20 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// A size in bytes for L2 persisting lines cache size
         /// </summary>
-        PersistingL2CacheSize = 0x06
+        PersistingL2CacheSize = 0x06,
+        /// <summary>
+        /// A maximum size in bytes of shared memory available to CUDA kernels on a CIG context. Can only be queried, cannot be set
+        /// </summary>
+        SharedMemSize = 0x07,
+        /// <summary>
+        /// A non-zero value indicates this CUDA context is a CIG-enabled context. Can only be queried, cannot be set
+        /// </summary>
+        CigEnabled = 0x08,
+        /// <summary>
+        /// When set to a non-zero value, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, 
+        /// if the kernel uses more shared memory than available
+        /// </summary>
+        CigSharedMemFallbackEnabled = 0x09,
     }
 
     /// <summary>
@@ -3345,11 +3415,25 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Identifier for ::CUkernelNodeAttrValue::accessPolicyWindow.
         /// </summary>
-        AccessPolicyWindow = 1,
+        AccessPolicyWindow = CUlaunchAttributeID.AccessPolicyWindow,
         /// <summary>
         /// Allows a kernel node to be cooperative (see ::cuLaunchCooperativeKernel).
         /// </summary>
-        Cooperative = 2
+        Cooperative = CUlaunchAttributeID.Cooperative,
+        /// <summary/>
+        ClusterDimension = CUlaunchAttributeID.ClusterDimension,
+        /// <summary/>
+        ClusterSchedulingPolicyPreference = CUlaunchAttributeID.ClusterSchedulingPolicyPreference,
+        /// <summary/>
+        Priority = CUlaunchAttributeID.Priority,
+        /// <summary/>
+        MemSyncDomainMap = CUlaunchAttributeID.MemSyncDomainMap,
+        /// <summary/>
+        MemSyncDomain = CUlaunchAttributeID.MemSyncDomain,
+        /// <summary/>
+        DeviceUpdatableKernelNode = CUlaunchAttributeID.DeviceUpdatableKernelNode,
+        /// <summary/>
+        PreferredSharedMemoryCarveout = CUlaunchAttributeID.PreferredSharedMemoryCarveout
     }
 
     /// <summary>
@@ -3915,7 +3999,17 @@ namespace ManagedCuda.BasicTypes
         /// is launched. For such a graph, if host-side executable graph updates are made to the
         /// device-updatable nodes, the graph must be uploaded before it is launched again.
         /// </summary>
-        DeviceUpdatableKernelNode = 13
+        DeviceUpdatableKernelNode = 13,
+        /// <summary>
+        /// Valid for launches. On devices where the L1 cache and shared memory use the
+        /// same hardware resources, setting ::CUlaunchAttributeValue::sharedMemCarveout to a
+        /// percentage between 0-100 signals the CUDA driver to set the shared memory carveout
+        /// preference, in percent of the total shared memory for that kernel launch. 
+        /// This attribute takes precedence over ::CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
+        /// This is only a hint, and the CUDA driver can choose a different configuration if
+        /// required for the launch.
+        /// </summary>
+        PreferredSharedMemoryCarveout = 14
     }
 
 
@@ -3964,11 +4058,13 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         Pipe,
         /// <summary/>
+        GenerationFlags,
+        /// <summary/>
         Max
     }
 
     /// <summary>
-    /// 
+    /// CUDA device NUMA configuration
     /// </summary>
     public enum CUdeviceNumaConfig
     {
@@ -4092,6 +4188,18 @@ namespace ManagedCuda.BasicTypes
         /// Streaming multiprocessors related information
         /// </summary>
         SM = 1,
+
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CUcigDataType
+    {
+        /// <summary>
+        /// D3D12 Command Queue Handle
+        /// </summary>
+        D3D12CommandQueue = 0x1
 
     }
     #endregion

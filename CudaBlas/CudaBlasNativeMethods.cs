@@ -24,12 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaBlas
 {
@@ -11797,6 +11796,195 @@ namespace ManagedCuda.CudaBlas
                                                                    long[] ldc_array,
                                                                    long group_count,
                                                                    long[] group_size);
+
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx(CudaBlasHandle handle,
+                                                                 Operation[] transa_array,
+                                                                 Operation[] transb_array,
+                                                                 int[] m_array,
+                                                                 int[] n_array,
+                                                                 int[] k_array,
+                                                                 float[] alpha_array,
+                                                                 CUdeviceptr Aarray,
+                                                                 cudaDataType Atype,
+                                                                 int[] lda_array,
+                                                                 CUdeviceptr Barray,
+                                                                 cudaDataType Btype,
+                                                                 int[] ldb_array,
+                                                                 float[] beta_array,
+                                                                 CUdeviceptr Carray,
+                                                                 cudaDataType Ctype,
+                                                                 int[] ldc_array,
+                                                                 int group_count,
+                                                                 int[] group_size,
+                                                                 ComputeType computeType);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx(CudaBlasHandle handle,
+                                                                 Operation[] transa_array,
+                                                                 Operation[] transb_array,
+                                                                 int[] m_array,
+                                                                 int[] n_array,
+                                                                 int[] k_array,
+                                                                 float[] alpha_array,
+                                                                 CUdeviceptr Aarray,
+                                                                 cudaDataType Atype,
+                                                                 int[] lda_array,
+                                                                 CUdeviceptr Barray,
+                                                                 cudaDataType Btype,
+                                                                 int[] ldb_array,
+                                                                 double[] beta_array,
+                                                                 CUdeviceptr Carray,
+                                                                 cudaDataType Ctype,
+                                                                 int[] ldc_array,
+                                                                 int group_count,
+                                                                 int[] group_size,
+                                                                 ComputeType computeType);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx(CudaBlasHandle handle,
+                                                                 Operation[] transa_array,
+                                                                 Operation[] transb_array,
+                                                                 int[] m_array,
+                                                                 int[] n_array,
+                                                                 int[] k_array,
+                                                                 double[] alpha_array,
+                                                                 CUdeviceptr Aarray,
+                                                                 cudaDataType Atype,
+                                                                 int[] lda_array,
+                                                                 CUdeviceptr Barray,
+                                                                 cudaDataType Btype,
+                                                                 int[] ldb_array,
+                                                                 float[] beta_array,
+                                                                 CUdeviceptr Carray,
+                                                                 cudaDataType Ctype,
+                                                                 int[] ldc_array,
+                                                                 int group_count,
+                                                                 int[] group_size,
+                                                                 ComputeType computeType);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx(CudaBlasHandle handle,
+                                                                 Operation[] transa_array,
+                                                                 Operation[] transb_array,
+                                                                 int[] m_array,
+                                                                 int[] n_array,
+                                                                 int[] k_array,
+                                                                 double[] alpha_array,
+                                                                 CUdeviceptr Aarray,
+                                                                 cudaDataType Atype,
+                                                                 int[] lda_array,
+                                                                 CUdeviceptr Barray,
+                                                                 cudaDataType Btype,
+                                                                 int[] ldb_array,
+                                                                 double[] beta_array,
+                                                                 CUdeviceptr Carray,
+                                                                 cudaDataType Ctype,
+                                                                 int[] ldc_array,
+                                                                 int group_count,
+                                                                 int[] group_size,
+                                                                 ComputeType computeType);
+
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx_64(CudaBlasHandle handle,
+                                                                    Operation[] transa_array,
+                                                                    Operation[] transb_array,
+                                                                    long[] m_array,
+                                                                    long[] n_array,
+                                                                    long[] k_array,
+                                                                    float[] alpha_array,
+                                                                    CUdeviceptr Aarray,
+                                                                    cudaDataType Atype,
+                                                                    long[] lda_array,
+                                                                    CUdeviceptr Barray,
+                                                                    cudaDataType Btype,
+                                                                    long[] ldb_array,
+                                                                    float[] beta_array,
+                                                                    CUdeviceptr Carray,
+                                                                    cudaDataType Ctype,
+                                                                    long[] ldc_array,
+                                                                    long group_count,
+                                                                    long[] group_size,
+                                                                    ComputeType computeType);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx_64(CudaBlasHandle handle,
+                                                                    Operation[] transa_array,
+                                                                    Operation[] transb_array,
+                                                                    long[] m_array,
+                                                                    long[] n_array,
+                                                                    long[] k_array,
+                                                                    double[] alpha_array,
+                                                                    CUdeviceptr Aarray,
+                                                                    cudaDataType Atype,
+                                                                    long[] lda_array,
+                                                                    CUdeviceptr Barray,
+                                                                    cudaDataType Btype,
+                                                                    long[] ldb_array,
+                                                                    double[] beta_array,
+                                                                    CUdeviceptr Carray,
+                                                                    cudaDataType Ctype,
+                                                                    long[] ldc_array,
+                                                                    long group_count,
+                                                                    long[] group_size,
+                                                                    ComputeType computeType);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx_64(CudaBlasHandle handle,
+                                                                    Operation[] transa_array,
+                                                                    Operation[] transb_array,
+                                                                    long[] m_array,
+                                                                    long[] n_array,
+                                                                    long[] k_array,
+                                                                    float[] alpha_array,
+                                                                    CUdeviceptr Aarray,
+                                                                    cudaDataType Atype,
+                                                                    long[] lda_array,
+                                                                    CUdeviceptr Barray,
+                                                                    cudaDataType Btype,
+                                                                    long[] ldb_array,
+                                                                    double[] beta_array,
+                                                                    CUdeviceptr Carray,
+                                                                    cudaDataType Ctype,
+                                                                    long[] ldc_array,
+                                                                    long group_count,
+                                                                    long[] group_size,
+                                                                    ComputeType computeType);
+        /// <summary>
+        /// </summary>
+        [DllImport(CUBLAS_API_DLL_NAME)]
+        public static extern CublasStatus cublasGemmGroupedBatchedEx_64(CudaBlasHandle handle,
+                                                                    Operation[] transa_array,
+                                                                    Operation[] transb_array,
+                                                                    long[] m_array,
+                                                                    long[] n_array,
+                                                                    long[] k_array,
+                                                                    double[] alpha_array,
+                                                                    CUdeviceptr Aarray,
+                                                                    cudaDataType Atype,
+                                                                    long[] lda_array,
+                                                                    CUdeviceptr Barray,
+                                                                    cudaDataType Btype,
+                                                                    long[] ldb_array,
+                                                                    float[] beta_array,
+                                                                    CUdeviceptr Carray,
+                                                                    cudaDataType Ctype,
+                                                                    long[] ldc_array,
+                                                                    long group_count,
+                                                                    long[] group_size,
+                                                                    ComputeType computeType);
+
         #endregion
 
         #endregion

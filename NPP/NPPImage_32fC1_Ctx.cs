@@ -25,9 +25,9 @@
 
 
 #define ADD_MISSING_CTX
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -6194,6 +6194,39 @@ namespace ManagedCuda.NPP
                     _devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, ptrThreshold, ptrValue, nppStreamCtx);
             }
             Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx", _dataType.ToString(), _channels.ToString(), status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region Profiles
+
+        /// <summary>
+        /// One-channel 32-bit Circular radial profile based upon a specified center point.
+        /// </summary>
+        /// <param name="oCenter">center of circle that radial profile is computed from.  Center does not have to be on the image.</param>
+        /// <param name="pProfileData">pointer to output NppiProfileData array containing count, mean, and std_dev as a function of radius.</param>
+        /// <param name="nProfileSamples">number of radii to be sampled: from 0 through nProfileSamples-1.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CircularRadialProfile(NppiPoint32f oCenter, CudaDeviceVariable<NppiProfileData> pProfileData, ushort nProfileSamples, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.Profiles.nppiCircularRadialProfile_32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, oCenter, pProfileData.DevicePointer, nProfileSamples, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCircularRadialProfile_32f_C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// One-channel 32-bit Elliptical radial profile based upon a specified center point, angle, and astigmatism.
+        /// </summary>
+        /// <param name="oCenter">center of circle that radial profile is computed from.  Center does not have to be on the image.</param>
+        /// <param name="nAstigmatismRatio">ratio of orientation axis to orthogonal axis.  (i.e. 1.5 means stretched 1.5x)</param>
+        /// <param name="nOrientationRadians">orientation of the astigmatism, clockwise in radians with 0.0 being vertical.</param>
+        /// <param name="pProfileData">pointer to output NppiProfileData array containing count, mean, and std_dev as a function of radius.</param>
+        /// <param name="nProfileSamples">number of radii to be sampled: from 0 through nProfileSamples-1.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void EllipticalRadialProfile(NppiPoint32f oCenter, float nAstigmatismRatio, float nOrientationRadians, CudaDeviceVariable<NppiProfileData> pProfileData, ushort nProfileSamples, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.Profiles.nppiEllipticalRadialProfile_32f_C1R_Ctx(_devPtrRoi, _pitch, _sizeRoi, oCenter, nAstigmatismRatio, nOrientationRadians, pProfileData.DevicePointer, nProfileSamples, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEllipticalRadialProfile_32f_C1R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
         #endregion

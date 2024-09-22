@@ -24,9 +24,9 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using ManagedCuda.VectorTypes;
 using ManagedCuda.BasicTypes;
+using ManagedCuda.VectorTypes;
+using System;
 
 namespace ManagedCuda
 {
@@ -162,6 +162,7 @@ namespace ManagedCuda
         private CUdeviceNumaConfig _numaConfig;
         private int _numaID;
         private int _hostNumaID;
+        private bool _d3D12CIGSupported;
 
 
 
@@ -1285,6 +1286,15 @@ namespace ManagedCuda
         {
             get { return this._hostNumaID; }
             internal set { this._hostNumaID = value; }
+        }
+
+        /// <summary>
+        /// Device supports CIG with D3D12.
+        /// </summary>
+        public bool D3D12CIGSupported
+        {
+            get { return this._d3D12CIGSupported; }
+            internal set { this._d3D12CIGSupported = value; }
         }
     }
 }

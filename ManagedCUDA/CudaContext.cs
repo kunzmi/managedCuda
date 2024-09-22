@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
-using System.Runtime.InteropServices;
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda
 {
@@ -135,12 +135,12 @@ namespace ManagedCuda
             _deviceID = -1;
             _contextOwner = false;
             _device = new CUdevice();
+            CUgreenCtx greenCtx = new CUgreenCtx(); //dummy
 
-            res = DriverAPINativeMethods.Streams.cuStreamGetCtx(stream.Stream, ref _context);
+            res = DriverAPINativeMethods.Streams.cuStreamGetCtx(stream.Stream, ref _context, ref greenCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetCtx", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
-
         }
 
         /// <summary>
@@ -274,6 +274,75 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxCreate_v3", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
+            _contextOwner = true;
+        }
+
+
+        /// <summary>
+        /// Create a new instace of managed Cuda with execution affinity
+        /// </summary>
+        /// <param name="deviceId">DeviceID.</param>
+        /// <param name="flags">Context creation flags.</param>
+        /// <param name="cigParams">Context creation parameters</param>
+        public CudaContext(int deviceId, CUCtxFlags flags, CUctxCigParam cigParams)
+        {
+            CUResult res;
+            int deviceCount = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+
+            if (res == CUResult.ErrorNotInitialized)
+            {
+                res = DriverAPINativeMethods.cuInit(CUInitializationFlags.None);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuInit", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+
+                res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetCount(ref deviceCount);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetCount", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+            }
+            else if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            if (deviceCount == 0)
+            {
+                throw new CudaException(CUResult.ErrorNoDevice, "Cuda initialization error: There is no device supporting CUDA", null);
+            }
+
+            _deviceID = deviceId;
+
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGet(ref _device, deviceId);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGet", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+
+            CUctxCreateParams createParams = new CUctxCreateParams();
+            createParams.execAffinityParams = IntPtr.Zero;
+            createParams.numExecAffinityParams = 0;
+
+            GCHandle ptrCigParams = new GCHandle();
+
+            try
+            {
+                ptrCigParams = GCHandle.Alloc(cigParams, GCHandleType.Pinned);
+                createParams.cigParams = ptrCigParams.AddrOfPinnedObject();
+
+                res = DriverAPINativeMethods.ContextManagement.cuCtxCreate_v4(ref _context, ref createParams, flags, _device);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxCreate_v4", res));
+                if (res != CUResult.Success)
+                    throw new CudaException(res);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                ptrCigParams.Free();
+            }
+
             _contextOwner = true;
         }
 
@@ -5120,6 +5189,58 @@ namespace ManagedCuda
             if (res != CUResult.Success)
                 throw new CudaException(res);
         }
+
+        /// <summary>
+        /// Records an event.<para/>
+        /// Captures in \p hEvent all the activities of the context \p hCtx
+        /// at the time of this call. \p hEvent and \p hCtx must be from the same
+        /// CUDA context, otherwise::CUDA_ERROR_INVALID_HANDLE will be returned.
+        /// Calls such as ::cuEventQuery() or ::cuCtxWaitEvent() will then examine
+        /// or wait for completion of the work that was captured.
+        /// Uses of \p hCtx after this call do not modify \p hEvent.
+        /// If the context passed to \p hCtx is the primary context, \p hEvent will
+        /// capture all the activities of the primary context and its green contexts.
+        /// If the context passed to \p hCtx is a context converted from green context
+        /// via::cuCtxFromGreenCtx(), \p hEvent will capture only the activities of the green context.
+        /// <para/>
+        /// \note The API will return ::CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED if the
+        /// specified context \p hCtx has a stream in the capture mode.In such a case,
+        /// the call will invalidate all the conflicting captures.
+        /// </summary>
+        /// <param name="hEvent">Event to record.</param>
+        public void RecordEvent(CudaEvent hEvent)
+        {
+            CUResult res = DriverAPINativeMethods.ContextManagement.cuCtxRecordEvent(_context, hEvent.Event);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxRecordEvent", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Make a context wait on an event<para/>
+        /// Makes all future work submitted to context \p hCtx wait for all work
+        /// captured in \p hEvent.The synchronization will be performed on the device
+        /// and will not block the calling CPU thread.See ::cuCtxRecordEvent()
+        /// for details on what is captured by an event.
+        /// If the context passed to \p hCtx is the primary context, the primary context
+        /// and its green contexts will wait for \p hEvent.
+        /// If the context passed to \p hCtx is a context converted from green context
+        /// via ::cuCtxFromGreenCtx(), the green context will wait for \p hEvent.
+        /// <para/>
+        /// \note \p hEvent may be from a different context or device than \p hCtx.
+        /// <para/>
+        /// \note The API will return ::CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED and
+        /// invalidate the capture if the specified event \p hEvent is part of an ongoing
+        /// capture sequence or if the specified context \p hCtx has a stream in the capture mode.
+        /// </summary>
+        /// <param name="hEvent">Event to record.</param>
+        public void WaitEvent(CudaEvent hEvent)
+        {
+            CUResult res = DriverAPINativeMethods.ContextManagement.cuCtxWaitEvent(_context, hEvent.Event);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuCtxWaitEvent", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
+        }
         #endregion
 
         #region Static methods
@@ -6242,6 +6363,12 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
             if (res != CUResult.Success) throw new CudaException(res);
             props.HostNumaID = hostNumaID;
+
+            int d3D12CIGSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref d3D12CIGSupported, CUDeviceAttribute.D3D12CIGSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.D3D12CIGSupported = d3D12CIGSupported != 0;
 
             return props;
         }

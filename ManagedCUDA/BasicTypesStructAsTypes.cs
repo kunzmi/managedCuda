@@ -25,8 +25,8 @@
 
 
 using System;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.BasicTypes
 {
@@ -2519,6 +2519,20 @@ namespace ManagedCuda.BasicTypes
             return (offset, size);
         }
 #endif
+
+        /// <summary>
+        /// Returns a library handle<para/>
+        /// Returns in \p pLib the handle of the library for the requested kernel \p kernel
+        /// </summary>
+        public CUlibrary GetLibrary()
+        {
+            CUlibrary library = new CUlibrary();
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetLibrary(ref library, this);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetLibrary", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return library;
+        }
+
     }
 
 

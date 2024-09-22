@@ -24,13 +24,13 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
+using ManagedCuda.VectorTypes;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 namespace ManagedCuda
 {
@@ -94,7 +94,7 @@ namespace ManagedCuda
         /// </summary>
         public static Version Version
         {
-            get { return new Version(12, 4); }
+            get { return new Version(12, 6); }
         }
 
         #region Initialization
@@ -522,6 +522,137 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxCreate_v3(ref CUcontext pctx, CUexecAffinityParam[] paramsArray, int numParams, CUCtxFlags flags, CUdevice dev);
 
+            /// <summary>
+            /// Create a CUDA context<para/>
+            /// Creates a new CUDA context and associates it with the calling thread.The
+            /// \p flags parameter is described below.The context is created with a usage
+            /// count of 1 and the caller of ::cuCtxCreate() must call::cuCtxDestroy()
+            /// when done using the context.If a context is already current to the thread,
+            /// it is supplanted by the newly created context and may be restored by a subsequent
+            /// call to::cuCtxPopCurrent().
+            /// 
+            /// CUDA context can be created with execution affinity.The type and the amount of
+            /// execution resource the context can use is limited by \p paramsArray and \p numExecAffinityParams
+            /// in \p execAffinity.The \p paramsArray is an array of \p CUexecAffinityParam and the \p numExecAffinityParams
+            /// describes the size of the paramsArray. If two \p CUexecAffinityParam in the array have the same type,
+            /// the latter execution affinity parameter overrides the former execution affinity parameter.
+            /// The supported execution affinity types are:
+            /// - ::CU_EXEC_AFFINITY_TYPE_SM_COUNT limits the portion of SMs that the context can use.The portion
+            ///   of SMs is specified as the number of SMs via \p CUexecAffinitySmCount. This limit will be internally
+            /// rounded up to the next hardware-supported amount. Hence, it is imperative to query the actual execution
+            ///   affinity of the context via \p cuCtxGetExecAffinity after context creation.Currently, this attribute
+            ///   is only supported under Volta+ MPS.
+            /// 
+            /// CUDA context can be created in CIG(CUDA in Graphics) mode by setting /p cigParams.Hardware support
+            /// and software support for graphics clients can be determined using ::cuDeviceGetAttribute() with
+            /// ::CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED.Data from graphics client is shared with CUDA via
+            /// the /p sharedData in /pcigParams.For D3D12, /p sharedData is a ID3D12CommandQueue handle.
+            /// 
+            /// Either /p execAffinityParams or /p cigParams can be set to a non-null value.Setting both to a
+            /// non-null value will result in an undefined behavior.
+            /// 
+            /// The three LSBs of the \p flags parameter can be used to control how the OS
+            /// thread, which owns the CUDA context at the time of an API call, interacts
+            /// with the OS scheduler when waiting for results from the GPU.Only one of
+            /// the scheduling flags can be set when creating a context.
+            /// 
+            /// - ::CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
+            /// results from the GPU. This can decrease latency when waiting for the GPU,
+            /// but may lower the performance of CPU threads if they are performing work in
+            /// parallel with the CUDA thread.
+            /// 
+            /// - ::CU_CTX_SCHED_YIELD: Instruct CUDA to yield its thread when waiting for
+            /// results from the GPU. This can increase latency when waiting for the GPU,
+            /// but can increase the performance of CPU threads performing work in parallel
+            /// with the GPU.
+            /// 
+            /// - ::CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the CPU thread on a
+            /// synchronization primitive when waiting for the GPU to finish work.
+            /// 
+            /// - ::CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU thread on a
+            /// synchronization primitive when waiting for the GPU to finish work. 
+            /// <b>Deprecated:</b> This flag was deprecated as of CUDA 4.0 and was
+            /// replaced with ::CU_CTX_SCHED_BLOCKING_SYNC.
+            /// 
+            /// - ::CU_CTX_SCHED_AUTO: The default value if the \p flags parameter is zero,
+            /// uses a heuristic based on the number of active CUDA contexts in the
+            /// process \e C and the number of logical processors in the system \e P. If
+            /// \e C > \e P, then CUDA will yield to other OS threads when waiting for
+            /// the GPU (::CU_CTX_SCHED_YIELD), otherwise CUDA will not yield while
+            /// waiting for results and actively spin on the processor (::CU_CTX_SCHED_SPIN).
+            /// Additionally, on Tegra devices, ::CU_CTX_SCHED_AUTO uses a heuristic based on
+            /// the power profile of the platform and may choose::CU_CTX_SCHED_BLOCKING_SYNC
+            /// for low-powered devices.
+            /// 
+            /// - ::CU_CTX_MAP_HOST: Instruct CUDA to support mapped pinned allocations.
+            /// This flag must be set in order to allocate pinned host memory that is
+            /// accessible to the GPU.
+            /// 
+            /// - ::CU_CTX_LMEM_RESIZE_TO_MAX: Instruct CUDA to not reduce local memory
+            /// after resizing local memory for a kernel. This can prevent thrashing by
+            /// local memory allocations when launching many kernels with high local
+            /// memory usage at the cost of potentially increased memory usage. 
+            /// <b>Deprecated:</b> This flag is deprecated and the behavior enabled
+            /// by this flag is now the default and cannot be disabled.
+            /// Instead, the per-thread stack size can be controlled with::cuCtxSetLimit().
+            /// 
+            /// - ::CU_CTX_COREDUMP_ENABLE: If GPU coredumps have not been enabled globally
+            /// with::cuCoredumpSetAttributeGlobal or environment variables, this flag can
+            /// be set during context creation to instruct CUDA to create a coredump if
+            /// this context raises an exception during execution. These environment variables
+            /// are described in the CUDA-GDB user guide under the "GPU core dump support"
+            /// section.
+            /// The initial attributes will be taken from the global attributes at the time of
+            /// context creation.The other attributes that control coredump output can be
+            /// modified by calling ::cuCoredumpSetAttribute from the created context after
+            /// it becomes current.This flag is not supported when CUDA context is created in
+            /// CIG(CUDA in Graphics) mode.
+            /// 
+            /// - ::CU_CTX_USER_COREDUMP_ENABLE: If user-triggered GPU coredumps have not
+            /// been enabled globally with::cuCoredumpSetAttributeGlobal or environment
+            /// variables, this flag can be set during context creation to instruct CUDA to
+            /// create a coredump if data is written to a certain pipe that is present in the
+            /// OS space.These environment variables are described in the CUDA-GDB user
+            /// guide under the "GPU core dump support" section.
+            /// It is important to note that the pipe name* must* be set with
+            /// ::cuCoredumpSetAttributeGlobal before creating the context if this flag is
+            /// used.Setting this flag implies that::CU_CTX_COREDUMP_ENABLE is set.
+            /// The initial attributes will be taken from the global attributes at the time of
+            /// context creation.The other attributes that control coredump output can be
+            /// modified by calling ::cuCoredumpSetAttribute from the created context after
+            /// it becomes current.
+            /// Setting this flag on any context creation is equivalent to setting the
+            /// ::CU_COREDUMP_ENABLE_USER_TRIGGER attribute to \p true globally.
+            /// This flag is not supported when CUDA context is created in
+            /// CIG(CUDA in Graphics) mode.
+            /// 
+            /// - ::CU_CTX_SYNC_MEMOPS: Ensures that synchronous memory operations initiated
+            /// on this context will always synchronize. See further documentation in the
+            /// section titled "API Synchronization behavior" to learn more about cases when
+            /// synchronous memory operations can exhibit asynchronous behavior.
+            /// 
+            /// Context creation will fail with ::CUDA_ERROR_UNKNOWN if the compute mode of
+            /// the device is ::CU_COMPUTEMODE_PROHIBITED. The function ::cuDeviceGetAttribute()
+            /// can be used with ::CU_DEVICE_ATTRIBUTE_COMPUTE_MODE to determine the
+            /// compute mode of the device. The <i>nvidia-smi</i> tool can be used to set
+            /// the compute mode for *devices.
+            /// Documentation for <i> nvidia - smi </i> can be obtained by passing a
+            /// -h option to it.
+            /// 
+            /// Context creation will fail with::CUDA_ERROR_INVALID_VALUE if invalid parameter was
+            /// passed by client to create the CUDA context.
+            /// 
+            /// Context creation in CIG mode will fail with::CUDA_ERROR_NOT_SUPPORTED if CIG is not supported
+            /// by the device or the driver.
+            /// </summary>
+            /// <param name="pctx">Returned context handle of the new context</param>
+            /// <param name="ctxCreateParams">Context creation parameters</param>
+            /// <param name="flags">Context creation flags</param>
+            /// <param name="dev">Device to create context on</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxCreate_v4(ref CUcontext pctx, ref CUctxCreateParams ctxCreateParams, CUCtxFlags flags, CUdevice dev);
+
 
             /// <summary>
             /// Destroys the CUDA context specified by <c>ctx</c>. The context <c>ctx</c> will be destroyed regardless of how many threads it is current to.
@@ -636,7 +767,9 @@ namespace ManagedCuda
             public static extern CUResult cuCtxGetDevice(ref CUdevice device);
 
             /// <summary>
-            /// Blocks until the device has completed all preceding requested tasks. <see cref="cuCtxSynchronize"/> returns an error if one of the
+            /// Blocks until the current context has completed all preceding requested tasks.
+            /// If the current context is the primary context, green contexts that have been created will also be synchronized.
+            /// <see cref="cuCtxSynchronize"/> returns an error if one of the
             /// preceding tasks failed. If the context was created with the <see cref="CUCtxFlags.BlockingSync"/> flag, the CPU thread will
             /// block until the GPU context has finished its work.
             /// </summary>
@@ -791,6 +924,50 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuCtxGetExecAffinity(ref CUexecAffinityParam pExecAffinity, CUexecAffinityType type);
+
+            /// <summary>
+            /// Records an event.<para/>
+            /// Captures in \p hEvent all the activities of the context \p hCtx
+            /// at the time of this call. \p hEvent and \p hCtx must be from the same
+            /// CUDA context, otherwise::CUDA_ERROR_INVALID_HANDLE will be returned.
+            /// Calls such as ::cuEventQuery() or ::cuCtxWaitEvent() will then examine
+            /// or wait for completion of the work that was captured.
+            /// Uses of \p hCtx after this call do not modify \p hEvent.
+            /// If the context passed to \p hCtx is the primary context, \p hEvent will
+            /// capture all the activities of the primary context and its green contexts.
+            /// If the context passed to \p hCtx is a context converted from green context
+            /// via::cuCtxFromGreenCtx(), \p hEvent will capture only the activities of the green context.
+            /// <para/>
+            /// \note The API will return ::CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED if the
+            /// specified context \p hCtx has a stream in the capture mode.In such a case,
+            /// the call will invalidate all the conflicting captures.
+            /// </summary>
+            /// <param name="hCtx">Context to record event for</param>
+            /// <param name="hEvent">Event to record</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent);
+
+            /// <summary>
+            /// Make a context wait on an event<para/>
+            /// Makes all future work submitted to context \p hCtx wait for all work
+            /// captured in \p hEvent.The synchronization will be performed on the device
+            /// and will not block the calling CPU thread.See ::cuCtxRecordEvent()
+            /// for details on what is captured by an event.
+            /// If the context passed to \p hCtx is the primary context, the primary context
+            /// and its green contexts will wait for \p hEvent.
+            /// If the context passed to \p hCtx is a context converted from green context
+            /// via ::cuCtxFromGreenCtx(), the green context will wait for \p hEvent.
+            /// <para/>
+            /// \note \p hEvent may be from a different context or device than \p hCtx.
+            /// <para/>
+            /// \note The API will return ::CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED and
+            /// invalidate the capture if the specified event \p hEvent is part of an ongoing
+            /// capture sequence or if the specified context \p hCtx has a stream in the capture mode.
+            /// </summary>
+            /// <param name="hCtx">Context to wait</param>
+            /// <param name="hEvent">Event to wait on</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent);
 
             /// <summary>
             /// Returns the flags for the current context<para/>
@@ -1334,6 +1511,15 @@ namespace ManagedCuda
             /// <returns>CUDA Error Codes</returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuKernelGetFunction(ref CUfunction pFunc, CUkernel kernel);
+
+            /// <summary>
+            /// Returns a library handle<para/>
+            /// Returns in \p pLib the handle of the library for the requested kernel \p kernel
+            /// </summary>
+            /// <param name="pLib">Returned library handle</param>
+            /// <param name="kernel">Kernel to retrieve library handle</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuKernelGetLibrary(ref CUlibrary pLib, CUkernel kernel);
 
             /// <summary>
             /// Returns a global device pointer<para/>
@@ -9299,6 +9485,40 @@ namespace ManagedCuda
             public static extern CUResult cuStreamGetCtx(CUstream hStream, ref CUcontext pctx);
 
             /// <summary>
+            /// Query the contexts associated with a stream<para/>
+            /// Returns the contexts that the stream is associated with.
+            /// <para/>
+            /// If the stream is associated with a green context, the API returns the green context in \p pGreenCtx
+            /// and the primary context of the associated device in \p pCtx.
+            /// <para/>
+            /// If the stream is associated with a regular context, the API returns the regular context in \p pCtx
+            /// and NULL in \p pGreenCtx.
+            /// <para/>
+            /// The stream handle \p hStream can refer to any of the following:
+            /// <para/>
+            /// - a stream created via any of the CUDA driver APIs such as ::cuStreamCreate,
+            ///   ::cuStreamCreateWithPriority and ::cuGreenCtxStreamCreate, or their runtime API equivalents such as
+            ///   ::cudaStreamCreate, ::cudaStreamCreateWithFlags and ::cudaStreamCreateWithPriority.
+            /// Passing an invalid handle will result in undefined behavior.<para/>
+            /// - any of the special streams such as the NULL stream, ::CU_STREAM_LEGACY and
+            ///   ::CU_STREAM_PER_THREAD. The runtime API equivalents of these are also accepted,
+            /// which are NULL, ::cudaStreamLegacy and ::cudaStreamPerThread respectively.
+            ///   If any of the special handles are specified, the API will operate on the context current to the
+            ///   calling thread. If a green context (that was converted via::cuCtxFromGreenCtx() before setting it current)
+            ///   is current to the calling thread, the API will return the green context in \p pGreenCtx
+            ///   and the primary context of the associated device in \p pCtx.If a regular context is current,
+            /// the API returns the regular context in \p pCtx and NULL in \p pGreenCtx.
+            ///   Note that specifying::CU_STREAM_PER_THREAD or ::cudaStreamPerThread will return ::CUDA_ERROR_INVALID_HANDLE
+            ///   if a green context is current to the calling thread.<para/>
+            /// If no context is current to the calling thread, ::CUDA_ERROR_INVALID_CONTEXT is returned.
+            /// </summary>
+            /// <param name="hStream">Handle to the stream to be queried</param>
+            /// <param name="pCtx">Returned regular context associated with the stream</param>
+            /// <param name="pGreenCtx">Returned green context if the stream is associated with a green context or NULL if not</param>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetCtx_v2" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetCtx(CUstream hStream, ref CUcontext pCtx, ref CUgreenCtx pGreenCtx);
+
+            /// <summary>
             /// Attach memory to a stream asynchronously
             /// <para/>
             /// Enqueues an operation in <c>hStream</c> to specify stream association of
@@ -13926,6 +14146,34 @@ namespace ManagedCuda
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuStreamGetGreenCtx(CUstream hStream, ref CUgreenCtx phCtx);
 
+            /// <summary>
+            /// Create a stream for use in the green context
+            /// 
+            /// Creates a stream for use in the specified green context \p greenCtx and returns a handle in \p phStream.
+            /// The stream can be destroyed by calling::cuStreamDestroy(). Note that the API ignores the context that
+            /// is current to the calling thread and creates a stream in the specified green context \p greenCtx.
+            /// 
+            /// The supported values for \p flags are:
+            /// - ::CU_STREAM_NON_BLOCKING: This must be specified. It indicates that work running in the created
+            ///   stream may run concurrently with work in the default stream, and that
+            ///   the created stream should perform no implicit synchronization with the default stream.
+            /// 
+            /// Specifying \p priority affects the scheduling priority of work in the stream. Priorities provide a
+            /// hint to preferentially run work with higher priority when possible, but do not preempt
+            /// already-running work or provide any other functional guarantee on execution order.
+            /// \p priority follows a convention where lower numbers represent higher priorities.
+            /// '0' represents default priority.The range of meaningful numerical priorities can
+            /// be queried using ::cuCtxGetStreamPriorityRange. If the specified priority is
+            /// outside the numerical range returned by::cuCtxGetStreamPriorityRange,
+            /// it will automatically be clamped to the lowest or the highest number in the range.
+            /// </summary>
+            /// <param name="phStream">Returned newly created stream</param>
+            /// <param name="greenCtx">Green context for which to create the stream for</param>
+            /// <param name="flags">Flags for stream creation. \p CU_STREAM_NON_BLOCKING must be specified.</param>
+            /// <param name="priority">Stream priority. Lower numbers represent higher priorities. See::cuCtxGetStreamPriorityRange for more information about meaningful stream priorities that can be passed.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuGreenCtxStreamCreate(ref CUstream phStream, CUgreenCtx greenCtx, CUStreamFlags flags, int priority);
         }
         #endregion
     }

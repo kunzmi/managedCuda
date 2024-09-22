@@ -24,11 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
-using System.Diagnostics;
 
 namespace ManagedCuda.NPP
 {
@@ -4977,6 +4977,26 @@ namespace ManagedCuda.NPP
         /// longest per contour pixel count in image
         /// </summary>
         public uint nLongestImageContourPixelCount;
+    }
+
+    /// <summary>
+    /// Profile data type for radial and linear profiles
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NppiProfileData
+    {
+        /// <summary>
+        /// profile data pixel count.
+        /// </summary>
+        public int nPixels;
+        /// <summary>
+        /// profile data mean intensity.
+        /// </summary>
+        public float nMeanIntensity;
+        /// <summary>
+        /// profile data standard deviation intensity.
+        /// </summary>
+        public float nStdDevIntensity;
     }
     #endregion
 }

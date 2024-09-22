@@ -24,16 +24,14 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
+using System;
 using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
 
 namespace ManagedCuda
 {
     /// <summary>
-    /// The primary context unique per device and it's shared with CUDA runtime API.
-    /// Those functions allows seemless integration with other libraries using CUDA.
+    /// A green context handle. This handle can be used safely from only one CPU thread at a time.
     /// </summary>
     public class GreenContext : IDisposable
     {
@@ -90,6 +88,25 @@ namespace ManagedCuda
 
             _device = dev;
             _contextOwner = true;
+        }
+
+        /// <summary>
+        /// Create a new instace of a cuda green context from the given CudaStream
+        /// Note: doesn't throw an exception if the returned green context is NULL!
+        /// </summary>
+        /// <param name="stream">The stream to query</param>
+        public GreenContext(CudaStream stream)
+        {
+            CUResult res;
+
+            _contextOwner = false;
+            _device = new CUdevice();
+            CUcontext ctx = new CUcontext();//dummy
+
+            res = DriverAPINativeMethods.Streams.cuStreamGetCtx(stream.Stream, ref ctx, ref _ctx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetCtx", res));
+            if (res != CUResult.Success)
+                throw new CudaException(res);
         }
 
 
@@ -210,6 +227,42 @@ namespace ManagedCuda
             CUResult res = DriverAPINativeMethods.GreenContextAPI.cuGreenCtxWaitEvent(_ctx, cudaEvent.Event);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGreenCtxWaitEvent", res));
             if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Create a stream for use in the green context
+        /// 
+        /// Creates a stream for use in the specified green context \p greenCtx and returns a handle in \p phStream.
+        /// The stream can be destroyed by calling::cuStreamDestroy(). Note that the API ignores the context that
+        /// is current to the calling thread and creates a stream in the specified green context \p greenCtx.
+        /// 
+        /// The supported values for \p flags are:
+        /// - ::CU_STREAM_NON_BLOCKING: This must be specified. It indicates that work running in the created
+        ///   stream may run concurrently with work in the default stream, and that
+        ///   the created stream should perform no implicit synchronization with the default stream.
+        /// 
+        /// Specifying \p priority affects the scheduling priority of work in the stream. Priorities provide a
+        /// hint to preferentially run work with higher priority when possible, but do not preempt
+        /// already-running work or provide any other functional guarantee on execution order.
+        /// \p priority follows a convention where lower numbers represent higher priorities.
+        /// '0' represents default priority.The range of meaningful numerical priorities can
+        /// be queried using ::cuCtxGetStreamPriorityRange. If the specified priority is
+        /// outside the numerical range returned by::cuCtxGetStreamPriorityRange,
+        /// it will automatically be clamped to the lowest or the highest number in the range.
+        /// </summary>
+        /// <param name="flags">Flags for stream creation. \p CU_STREAM_NON_BLOCKING must be specified.</param>
+        /// <param name="priority">Stream priority. Lower numbers represent higher priorities. See::cuCtxGetStreamPriorityRange for more information about meaningful stream priorities that can be passed.</param>
+        /// <returns></returns>
+        public CudaStream CreateStream(CUStreamFlags flags, int priority)
+        {
+            CUstream stream = new CUstream();
+
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuGreenCtxStreamCreate(ref stream, _ctx, flags, priority);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGreenCtxStreamCreate", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            CudaStream cudaStream = new CudaStream(stream, true);
+            return cudaStream;
         }
     }
 }

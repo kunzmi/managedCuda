@@ -24,11 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.CudaFFT
 {
@@ -306,6 +305,7 @@ namespace ManagedCuda.CudaFFT
 
     public enum cufftProperty
     {
-        PatientJit_Int64 = 1
+        PatientJit_Int64 = 1,
+        MaxNumHostThreads_Int64 = 1
     }
 }

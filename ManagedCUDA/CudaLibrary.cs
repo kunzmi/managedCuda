@@ -24,8 +24,8 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
+using System;
 using System.Diagnostics;
 
 namespace ManagedCuda
@@ -185,6 +185,14 @@ namespace ManagedCuda
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuLibraryLoadData", res));
             if (res != CUResult.Success)
                 throw new CudaException(res);
+        }
+
+        /// <summary>
+        /// Get library from CUkernel
+        /// </summary>
+        public CudaLibrary(CUkernel kernel)
+        {
+            _library = kernel.GetLibrary();
         }
 
         /// <summary>

@@ -258,7 +258,12 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// This flag if set indicates that the CUDA array or CUDA mipmapped array will allow deferred memory mapping
         /// </summary>
-        DeferredMapping = 0x80
+        DeferredMapping = 0x80,
+
+        /// <summary>
+        /// This flag indicates that the CUDA array will be used for hardware accelerated video encode/decode operations.
+        /// </summary>
+        VideoEncodeDecode = 0x100
     }
 
     /// <summary>
@@ -878,6 +883,55 @@ namespace ManagedCuda.BasicTypes
         /// Required. Creates a default stream to use inside the green context
         /// </summary>
         DefaultStream = 0x1
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Flags]
+    public enum CUdevSmResourceSplit_flags
+    {
+        /// <summary>
+        /// None
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// 
+        /// </summary>
+        IgnoreSMCoscheduling = 0x1,
+        /// <summary>
+        /// 
+        /// </summary>
+        MaxPotentialClusterSize = 0x2
+    }
+
+    /// <summary>
+    /// Flags for controlling coredump contents
+    /// </summary>
+    [Flags]
+    public enum CUCoredumpGenerationFlags
+    {
+        /// <summary/>
+        DefaultFlags = 0,
+        /// <summary/>
+        SkipNonRelocatedElfImages = (1 << 0),
+        /// <summary/>
+        SkipGlobalMemory = (1 << 1),
+        /// <summary/>
+        SkipSharedMemory = (1 << 2),
+        /// <summary/>
+        SkipLocalMemory = (1 << 3),
+        /// <summary/>
+        SkipAbort = (1 << 4),
+        /// <summary/>
+        SkipConstbankMemory = (1 << 5),
+
+        /// <summary/>
+        LeightWeightFlags = SkipNonRelocatedElfImages
+                                         | SkipGlobalMemory
+                                         | SkipSharedMemory
+                                         | SkipLocalMemory
+                                         | SkipConstbankMemory
     }
     #endregion
 

@@ -24,8 +24,8 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
+using System;
 
 namespace ManagedCuda
 {
@@ -1270,11 +1270,36 @@ namespace ManagedCuda
         //
         private static int cudaOccMaxBlocksPerSMBlockBarrierLimit(
             int ctaLimitBlocks,
+            ref cudaOccDeviceProp properties,
             ref cudaOccFuncAttributes attributes)
         {
             int numBarriersAvailable = ctaLimitBlocks * 2;
             int numBarriersUsed = attributes.numBlockBarriers;
             int maxBlocks = int.MaxValue;
+
+            switch (properties.computeMajor)
+            {
+                case 5:
+                case 6:
+                case 7:
+                    numBarriersAvailable = ctaLimitBlocks * 2;
+                    break;
+                case 8:
+                    if (properties.computeMinor == 0)
+                    {
+                        numBarriersAvailable = ctaLimitBlocks * 2;
+                    }
+                    else
+                    {
+                        numBarriersAvailable = ctaLimitBlocks;
+                    }
+                    break;
+                case 9:
+                    numBarriersAvailable = ctaLimitBlocks * 2;
+                    break;
+                default:
+                    throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+            }
 
             if (numBarriersUsed != 0)
             {
@@ -1426,7 +1451,7 @@ namespace ManagedCuda
             {
                 // Limits due to barrier/SM
                 //
-                ctaLimitBars = cudaOccMaxBlocksPerSMBlockBarrierLimit(ctaLimitBlocks, ref attributes);
+                ctaLimitBars = cudaOccMaxBlocksPerSMBlockBarrierLimit(ctaLimitBlocks, ref properties, ref attributes);
 
                 // Recompute overall limit based on barrier/SM
                 //

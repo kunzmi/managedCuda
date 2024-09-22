@@ -56,6 +56,8 @@ namespace ManagedCuda.NvJitLink
         /// <summary/>
         UnrecognizedInput,
         /// <summary/>
+        ErrorFinalize,
+        /// <summary/>
         NullInput,
         /// <summary/>
         IncompatibleOptions,
@@ -91,6 +93,8 @@ namespace ManagedCuda.NvJitLink
         Object,
         /// <summary/>
         Library,
+        /// <summary/>
+        Index,
         /// <summary>
         /// will dynamically determine one of above types
         /// </summary>

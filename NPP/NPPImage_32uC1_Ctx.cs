@@ -25,9 +25,9 @@
 
 
 #define ADD_MISSING_CTX
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -708,6 +708,43 @@ namespace ManagedCuda.NPP
             NPPException.CheckNppStatus(status, this);
         }
 #endif
+        #endregion
+
+        #region DeBayer
+        // we won't define a NPPImage_32uC3 class just for this single method...
+        ///// <summary>
+        ///// Grayscale Color Filter Array to RGB Color Debayer conversion. Generates one RGB color pixel for every grayscale source pixel.<para/>
+        ///// Source and destination images must have even width and height.  Missing pixel colors are generated using bilinear interpolation
+        ///// with chroma correlation of generated green values (eInterpolation MUST be set to 0). eGrid allows the user to specify the Bayer grid 
+        ///// registration position at source image location oSrcROI.x, oSrcROI.y relative to pSrc.
+        ///// </summary>
+        ///// <param name="dest">Destination image</param>
+        ///// <param name="eGrid">enumeration value specifying bayer grid registration position at location oSrcROI.x, oSrcROI.y relative to pSrc.</param>
+        ///// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
+        ///// <param name="nppStreamCtx">NPP stream context.</param>
+        //public void CFAToRGB(NPPImage_32uC3 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation, NppStreamContext nppStreamCtx)
+        //{
+        //    status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGB_32u_C1C3R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nppStreamCtx);
+        //    Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGB_32u_C1C3R_Ctx", status));
+        //    NPPException.CheckNppStatus(status, this);
+        //}
+        /// <summary>
+        /// Grayscale Color Filter Array to RGB Color Debayer conversion. Generates one RGB color pixel for every grayscale source pixel.<para/>
+        /// Source and destination images must have even width and height.  Missing pixel colors are generated using bilinear interpolation
+        /// with chroma correlation of generated green values (eInterpolation MUST be set to 0). eGrid allows the user to specify the Bayer grid 
+        /// registration position at source image location oSrcROI.x, oSrcROI.y relative to pSrc.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eGrid">enumeration value specifying bayer grid registration position at location oSrcROI.x, oSrcROI.y relative to pSrc.</param>
+        /// <param name="eInterpolation">MUST be <see cref="InterpolationMode.Undefined"/></param>
+        /// <param name="nAlpha">constant alpha value to be written to each destination pixel</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void CFAToRGB(NPPImage_32uC4 dest, NppiBayerGridPosition eGrid, InterpolationMode eInterpolation, uint nAlpha, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.ColorDebayer.nppiCFAToRGBA_32u_C1AC4R_Ctx(_devPtr, _pitch, _sizeOriginal, new NppiRect(_pointRoi, _sizeRoi + _pointRoi), dest.DevicePointerRoi, dest.Pitch, eGrid, eInterpolation, nAlpha, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiCFAToRGBA_32u_C1AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
         #endregion
     }
 }

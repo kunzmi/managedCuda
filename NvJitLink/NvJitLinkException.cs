@@ -154,6 +154,9 @@ namespace ManagedCuda.NvJitLink
                 case nvJitLinkResult.UnrecognizedInput:
                     message = "UnrecognizedInput";
                     break;
+                case nvJitLinkResult.ErrorFinalize:
+                    message = "ErrorFinalize";
+                    break;
                 case nvJitLinkResult.NullInput:
                     message = "NullInput";
                     break;

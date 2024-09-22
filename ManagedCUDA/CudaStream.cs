@@ -24,9 +24,9 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda
 {
@@ -57,6 +57,15 @@ namespace ManagedCuda
         {
             _stream = stream;
             _isOwner = false;
+        }
+
+        /// <summary>
+        /// Creates a new wrapper for an existing stream
+        /// </summary>
+		public CudaStream(CUstream stream, bool isOwner)
+        {
+            _stream = stream;
+            _isOwner = isOwner;
         }
 
         /// <summary>
