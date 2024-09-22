@@ -55,6 +55,18 @@ namespace ManagedCuda.NPP
         /// </summary>
         Cubic = 4,
         /// <summary>
+        /// Two-parameter cubic filter (B=1, C=0).
+        /// </summary>
+        CubicBspline = 5,
+        /// <summary>
+        /// Two-parameter cubic filter (B=0, C=1/2).
+        /// </summary>
+        CubicCatmullRom = 6,
+        /// <summary>
+        /// Two-parameter cubic filter (B=1/2, C=3/10).
+        /// </summary>
+        CubicB05C03 = 7,
+        /// <summary>
         /// Super sampling.
         /// </summary>
         SuperSampling = 8,
