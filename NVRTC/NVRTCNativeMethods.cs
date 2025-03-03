@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NVRTC
 {
@@ -305,5 +305,81 @@ namespace ManagedCuda.NVRTC
         public static extern nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog,
                                         [MarshalAs(UnmanagedType.LPStr)] string name_expression, ref IntPtr lowered_name);
 
+
+
+        /// <summary>
+        /// retrieve the current size of the PCH Heap.
+        /// </summary>
+        /// <param name="ret">pointer to location where the size of the PCH Heap will be stored</param>
+        /// <returns></returns>
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcGetPCHHeapSize(ref SizeT ret);
+
+        /// <summary>
+        /// Set the size of the PCH Heap. The requested size may be rounded up to a platform dependent
+        /// alignment (e.g.page size). If the PCH Heap has already been allocated, the heap memory will 
+        /// be freed and a new PCH Heap will be allocated.
+        /// </summary>
+        /// <param name="size">requested size of the PCH Heap, in bytes</param>
+        /// <returns></returns>
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcSetPCHHeapSize(SizeT size);
+
+        /// <summary>
+        /// Returns the PCH creation status. <para/>
+        /// NVRTC_SUCCESS indicates that the PCH was successfully created. <para/>
+        /// NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation 
+        /// was attempted, either because PCH functionality was not requested during
+        /// the preceding nvrtcCompileProgram call, or automatic PCH processing was
+        /// requested, and compiler chose not to create a PCH file. <para/>
+        /// NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+        /// potentially have been created, but the compiler ran out space in the PCH
+        /// heap. In this scenario, the nvrtcGetPCHHeapSizeRequired() can be used to
+        /// query the required heap size, the heap can be reallocated for this size with
+        /// nvrtcSetPCHHeapSize() and PCH creation may be reattempted again invoking
+        /// nvrtcCompileProgram() with a new NVRTC program instance. <para/>
+        /// NVRTC_ERROR_PCH_CREATE indicates that an error condition prevented the
+        /// PCH file from being created.
+        /// </summary>
+        /// <param name="prog">CUDA Runtime Compilation program.</param>
+        /// <returns></returns>
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog);
+
+        /// <summary>
+        /// retrieve the required size of the PCH heap required to compile the given program. The size retrieved using this function is only valid if nvrtcGetPCHCreateStatus() returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+        /// </summary>
+        /// <param name="prog">CUDA Runtime Compilation program.</param>
+        /// <param name="size">pointer to location where the required size of the PCH Heap will be stored</param>
+        /// <returns></returns>
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, ref SizeT size);
+
+        /// <summary>
+        /// nvrtcSetFlowCallback registers a callback function that the compiler 
+        ///          will invoke at different points during a call to nvrtcCompileProgram,
+        ///          and the callback function can decide whether to cancel compilation by
+        ///          returning specific values.
+        /// <para/>
+        /// The callback function must satisfy the following constraints:<para/>
+        /// (1) Its signature should be:<para/>
+        /// int callback(void* param1, void* param2);<para/>
+        /// When invoking the callback, the compiler will always pass \p payload to
+        /// param1 so that the callback may make decisions based on \p payload.It'll
+        ///     always pass NULL to param2 for now which is reserved for future extensions.<para/>
+        /// (2) It must return 1 to cancel compilation or 0 to continue. <para/>
+        ///     Other return values are reserved for future use.<para/>
+        /// (3) It must return consistent values.Once it returns 1 at one point, it must
+        ///     return 1 in all following invocations during the current nvrtcCompileProgram
+        /// call in progress.<para/>    
+        /// (4) It must be thread-safe.<para/>
+        /// (5) It must not invoke any nvrtc/libnvvm/ptx APIs.
+        /// </summary>
+        /// <param name="prog"></param>
+        /// <param name="callback"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, setFlowCallback callback, IntPtr payload);
     }
 }

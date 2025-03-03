@@ -24,8 +24,8 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
+using System;
 using System.Diagnostics;
 
 namespace ManagedCuda
@@ -91,6 +91,43 @@ namespace ManagedCuda
             _tensormap = new CUtensorMap();
             res = DriverAPINativeMethods.TensorCoreManagment.cuTensorMapEncodeIm2col(ref _tensormap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, pixelBoxLowerCorner, pixelBoxUpperCorner, channelsPerPixel, pixelsPerColumn, elementStrides, interleave, swizzle, l2Promotion, oobFill);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuTensorMapEncodeIm2col", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+        }
+
+
+        /// <summary>
+        /// Create a tensor map descriptor object representing im2col memory region, but where
+        /// the elements are exclusively loaded along the W dimension.<para/>
+        /// Creates a descriptor for Tensor Memory Access(TMA) object specified by the parameters
+        /// describing a im2col memory layout and where the row is always loaded along the W dimension
+        /// and returns it in \p tensorMap. This assumes the tensor layout in memory is either NDHWC,
+        /// NHWC, or NWC.<para/>
+        /// This API is only supported on devices of compute capability 10.0 or higher.<para/>
+        /// Additionally, a tensor map object is an opaque value, and, as such, should only be
+        /// accessed through CUDA APIs and PTX.<para/>
+        /// Note that::CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA can only be used when \p tensorDataType represents a floating-point data type,
+        /// and when \p tensorDataType is not::CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN8B, ::CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN16B, and::CU_TENSOR_MAP_DATA_TYPE_16U6_ALIGN16B.
+        /// </summary>
+        /// <param name="tensorDataType">Tensor data type</param>
+        /// <param name="tensorRank">Dimensionality of tensor; must be at least 3</param>
+        /// <param name="globalAddress">Starting address of memory region described by tensor</param>
+        /// <param name="globalDim">Array containing tensor size (number of elements) along each of the \p tensorRank dimensions</param>
+        /// <param name="globalStrides">Array containing stride size (in bytes) along each of the \p tensorRank - 1 dimensions</param>
+        /// <param name="pixelBoxLowerCornerWidth">Width offset of left box corner</param>
+        /// <param name="pixelBoxUpperCornerWidth">Width offset of right box corner</param>
+        /// <param name="channelsPerPixel">Number of channels per pixel</param>
+        /// <param name="pixelsPerColumn">Number of pixels per column</param>
+        /// <param name="elementStrides">Array containing traversal stride in each of the \p tensorRank dimensions</param>
+        /// <param name="interleave">Type of interleaved layout the tensor addresses</param>
+        /// <param name="mode">W or W128 mode</param>
+        /// <param name="swizzle">Bank swizzling pattern inside shared memory</param>
+        /// <param name="l2Promotion">L2 promotion size</param>
+        /// <param name="oobFill">Indicate whether zero or special NaN constant will be used to fill out-of-bound elements</param>
+        public CudaTensorMap(CUtensorMapDataType tensorDataType, uint tensorRank, CUdeviceptr globalAddress, ulong[] globalDim, ulong[] globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, uint channelsPerPixel, uint pixelsPerColumn, uint[] elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill)
+        {
+            _tensormap = new CUtensorMap();
+            res = DriverAPINativeMethods.TensorCoreManagment.cuTensorMapEncodeIm2colWide(ref _tensormap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, channelsPerPixel, pixelsPerColumn, elementStrides, interleave, mode, swizzle, l2Promotion, oobFill);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuTensorMapEncodeIm2colWide", res));
             if (res != CUResult.Success) throw new CudaException(res);
         }
 

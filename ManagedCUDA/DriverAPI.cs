@@ -27,6 +27,7 @@
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -7388,7 +7389,128 @@ namespace ManagedCuda
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy3DPeerAsync" + CUDA_PTSZ)]
             public static extern CUResult cuMemcpy3DPeerAsync(ref CUDAMemCpy3DPeer pCopy, CUstream hStream);
 
+            /// <summary>
+            /// Performs a batch of memory copies asynchronously.<para/>
+            /// Performs a batch of memory copies.The batch as a whole executes in stream order but copies within a
+            /// batch are not guaranteed to execute in any specific order.This API only supports pointer-to-pointer copies.
+            /// For copies involving CUDA arrays, please see ::cuMemcpy3DBatchAsync.<para/>
+            /// Performs memory copies from source buffers specified in \p srcs to destination buffers specified in \p dsts.
+            /// The size of each copy is specified in \p sizes. All three arrays must be of the same length as specified
+            /// by \p count. Since there are no ordering guarantees for copies within a batch, specifying any dependent copies
+            /// within a batch will result in undefined behavior.<para/>
+            /// Every copy in the batch has to be associated with a set of attributes specified in the \p attrs array.
+            /// Each entry in this array can apply to more than one copy. This can be done by specifying in the \p attrsIdxs array,
+            /// the index of the first copy that the corresponding entry in the \p attrs array applies to.Both \p attrs and
+            /// \p attrsIdxs must be of the same length as specified by \p numAttrs. For example, if a batch has 10 copies listed
+            /// in dst/src/sizes, the first 6 of which have one set of attributes and the remaining 4 another, then \p numAttrs
+            /// will be 2, \p attrsIdxs will be { 0, 6}
+            /// and \p attrs will contains the two sets of attributes.Note that the first entry
+            /// in \p attrsIdxs must always be 0. Also, each entry must be greater than the previous entry and the last entry should be
+            /// less than \p count.Furthermore, \p numAttrs must be lesser than or equal to \p count.
+            /// <para/>
+            /// The::CUmemcpyAttributes::srcAccessOrder indicates the source access ordering to be observed for copies associated
+            /// with the attribute.If the source access order is set to ::CU_MEMCPY_SRC_ACCESS_ORDER_STREAM, then the source will
+            /// be accessed in stream order. If the source access order is set to ::CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL then
+            /// it indicates that access to the source pointer can be out of stream order and all accesses must be complete before
+            /// the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior
+            /// operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope
+            /// that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the
+            /// need for the user to synchronize the stream after the API call. If the source access order is set to
+            /// ::CU_MEMCPY_SRC_ACCESS_ORDER_ANY then it indicates that access to the source pointer can be out of stream order and the
+            /// accesses can happen even after the API call returns. This flag is suited for host pointers allocated
+            /// outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory.
+            /// Specifying this flag allows the driver to optimize the copy on certain platforms.Each memcpy operation in the batch must
+            /// have a valid ::CUmemcpyAttributes corresponding to it including the appropriate srcAccessOrder setting, otherwise the API
+            /// will return ::CUDA_ERROR_INVALID_VALUE.<para/>            ///
+            /// The ::CUmemcpyAttributes::srcLocHint and ::CUmemcpyAttributes::dstLocHint allows applications to specify hint locations
+            /// for operands of a copy when the operand doesn't have a fixed location. That is, these hints are
+            /// only applicable for managed memory pointers on devices where ::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS is true or
+            /// system-allocated pageable memory on devices where ::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS is true.
+            /// For other cases, these hints are ignored.<para/>
+            /// The::CUmemcpyAttributes::flags field can be used to specify certain flags for copies.Setting the
+            /// ::CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE flag indicates that the associated copies should preferably overlap with
+            /// any compute work. Note that this flag is a hint and can be ignored depending on the platform and other parameters of the copy.<para/>
+            /// If any error is encountered while parsing the batch, the index within the batch where the error was encountered
+            /// will be returned in \p failIdx. 
+            /// </summary>
+            /// <param name="dsts">Array of destination pointers.</param>
+            /// <param name="srcs">Array of memcpy source pointers.</param>
+            /// <param name="sizes">Array of sizes for memcpy operations.</param>
+            /// <param name="count">Size of \p dsts, \p srcs and \p sizes arrays</param>
+            /// <param name="attrs">Array of memcpy attributes.</param>
+            /// <param name="attrsIdxs">Array of indices to specify which copies each entry in the \p attrs array applies to.
+            /// The attributes specified in attrs[k] will be applied to copies starting from attrsIdxs[k]
+            /// through attrsIdxs[k + 1] - 1. Also attrs[numAttrs - 1] will apply to copies starting from
+            /// attrsIdxs[numAttrs - 1] through count - 1.</param>
+            /// <param name="numAttrs">Size of \p attrs and \p attrsIdxs arrays.</param>
+            /// <param name="failIdx">Pointer to a location to return the index of the copy where a failure was encountered. The value will be SIZE_MAX if the error doesn't pertain to any specific copy.</param>
+            /// <param name="hStream">The stream to enqueue the operations in. Must not be legacy NULL stream.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpyBatchAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemcpyBatchAsync(CUdeviceptr[] dsts, CUdeviceptr[] srcs, SizeT[] sizes, SizeT count,
+                                                CUmemcpyAttributes[] attrs, SizeT[] attrsIdxs, SizeT numAttrs,
+                                                ref SizeT failIdx, CUstream hStream);
 
+            /// <summary>
+            /// Performs a batch of 3D memory copies asynchronously.<para/>
+            /// Performs a batch of memory copies.The batch as a whole executes in stream order but copies within a
+            /// batch are not guaranteed to execute in any specific order.Note that this means specifying any dependent
+            /// copies within a batch will result in undefined behavior.
+            /// <para/>
+            /// Performs memory copies as specified in the \p opList array.The length of this array is specified in \p numOps.
+            /// Each entry in this array describes a copy operation.This includes among other things, the source and destination
+            /// operands for the copy as specified in ::CUDA_MEMCPY3D_BATCH_OP::src and ::CUDA_MEMCPY3D_BATCH_OP::dst respectively.
+            /// The source and destination operands of a copy can either be a pointer or a CUDA array.The width, height and depth
+            /// of a copy is specified in ::CUDA_MEMCPY3D_BATCH_OP::extent.The width, height and depth of a copy are specified in
+            /// elements and must not be zero.For pointer-to-pointer copies, the element size is considered to be 1. For pointer
+            /// to CUDA array or vice versa copies, the element size is determined by the CUDA array.For CUDA array to CUDA array copies,
+            /// the element size of the two CUDA arrays must match.
+            /// <para/>
+            /// For a given operand, if ::CUmemcpy3DOperand::type is specified as ::CU_MEMCPY_OPERAND_TYPE_POINTER, then
+            /// ::CUmemcpy3DOperand::op::ptr will be used. The::CUmemcpy3DOperand::op::ptr::ptr field must contain the pointer where
+            /// the copy should begin.The ::CUmemcpy3DOperand::op::ptr::rowLength field specifies the length of each row in elements and
+            /// must either be zero or be greater than or equal to the width of the copy specified in ::CUDA_MEMCPY3D_BATCH_OP::extent::width.
+            /// The ::CUmemcpy3DOperand::op::ptr::layerHeight field specifies the height of each layer and must either be zero or be greater than
+            /// or equal to the height of the copy specified in ::CUDA_MEMCPY3D_BATCH_OP::extent::height.When either of these values is zero,
+            /// that aspect of the operand is considered to be tightly packed according to the copy extent. For managed memory pointers on devices where
+            /// ::CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS is true or system-allocated pageable memory on devices where
+            /// ::CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS is true, the::CUmemcpy3DOperand::op::ptr::locHint field can be used to hint
+            /// the location of the operand.
+            /// <para/>
+            /// If an operand's type is specified as ::CU_MEMCPY_OPERAND_TYPE_ARRAY, then ::CUmemcpy3DOperand::op::array will be used.
+            /// The::CUmemcpy3DOperand::op::array::array field specifies the CUDA array and::CUmemcpy3DOperand::op::array::offset specifies
+            /// the 3D offset into that array where the copy begins.
+            /// <para/>
+            /// The::CUmemcpyAttributes::srcAccessOrder indicates the source access ordering to be observed for copies associated
+            /// with the attribute.If the source access order is set to ::CU_MEMCPY_SRC_ACCESS_ORDER_STREAM, then the source will
+            /// be accessed in stream order. If the source access order is set to ::CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL then
+            /// it indicates that access to the source pointer can be out of stream order and all accesses must be complete before
+            /// the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior
+            /// operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope
+            /// that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the
+            /// need for the user to synchronize the stream after the API call. If the source access order is set to
+            /// ::CU_MEMCPY_SRC_ACCESS_ORDER_ANY then it indicates that access to the source pointer can be out of stream order and the
+            /// accesses can happen even after the API call returns. This flag is suited for host pointers allocated
+            /// outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory.
+            /// Specifying this flag allows the driver to optimize the copy on certain platforms.Each memcopy operation in \p opList must
+            /// have a valid srcAccessOrder setting, otherwise this API will return ::CUDA_ERROR_INVALID_VALUE.
+            /// <para/>
+            /// The ::CUmemcpyAttributes::flags field can be used to specify certain flags for copies.Setting the
+            /// ::CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE flag indicates that the associated copies should preferably overlap with
+            /// any compute work. Note that this flag is a hint and can be ignored depending on the platform and other parameters of the copy.
+            /// <para/>
+            /// If any error is encountered while parsing the batch, the index within the batch where the error was encountered
+            /// will be returned in \p failIdx.  
+            /// </summary>
+            /// <param name="numOps">Total number of memcpy operations.</param>
+            /// <param name="opList">Array of size \p numOps containing the actual memcpy operations.</param>
+            /// <param name="failIdx">Pointer to a location to return the index of the copy where a failure was encountered. The value will be SIZE_MAX if the error doesn't pertain to any specific copy.</param>
+            /// <param name="flags">Flags for future use, must be zero now.</param>
+            /// <param name="hStream">The stream to enqueue the operations in. Must not be default NULL stream.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy3DBatchAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemcpy3DBatchAsync(SizeT numOps, CUDA_MEMCPY3D_BATCH_OP[] opList,
+                                                  ref SizeT failIdx, ulong flags, CUstream hStream);
 
             // 1D functions
             // system <-> device memory
@@ -7516,6 +7638,53 @@ namespace ManagedCuda
             /// <remarks>Note that this function may also return error codes from previous, asynchronous launches.</remarks></returns>   
 			[DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemcpy3DAsync_v2" + CUDA_PTSZ)]
             public static extern CUResult cuMemcpy3DAsync_v2(ref CUDAMemCpy3D pCopy, CUstream hStream);
+
+            /// <summary>
+            /// Submit a batch of \p count independent decompression operations.<para/>
+            /// Each of the \p count decompression operations is described by a
+            /// single entry in the \p paramsArray array.Once the batch has been
+            /// submitted, the function will return, and decompression will happen
+            /// asynchronously w.r.t.the CPU.To the work completion tracking
+            /// mechanisms in the CUDA driver, the batch will be considered a single
+            /// unit of work and processed according to stream semantics, i.e., it
+            /// is not possible to query the completion of individual decompression
+            /// operations within a batch.
+            /// The memory pointed to by each of ::CUmemDecompressParams.src,
+            /// ::CUmemDecompressParams.dst, and::CUmemDecompressParams.dstActBytes,
+            /// must be capable of usage with the hardware decompress feature.That
+            /// is, for each of said pointers, the pointer attribute
+            /// ::CU_POINTER_ATTRIBUTE_IS_MEM_DECOMPRESS_CAPABLE should give a
+            /// non-zero value. To ensure this, the memory backing the pointers
+            /// should have been allocated using one of the following CUDA memory
+            /// allocators:
+            /// ::cuMemAlloc()
+            /// ::cuMemCreate() with the usage flag::CU_MEM_CREATE_USAGE_HW_DECOMPRESS
+            /// ::cuMemAllocFromPoolAsync() from a pool that was created with
+            /// the usage flag ::CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS
+            /// Additionally, ::CUmemDecompressParams.src, ::CUmemDecompressParams.dst,
+            /// and ::CUmemDecompressParams.dstActBytes, must all be accessible from
+            /// the device associated with the context where \p stream was created.
+            /// For information on how to ensure this, see the documentation for the
+            /// allocator of interest.
+            /// </summary>
+            /// <param name="paramsArray">The array of structures describing the independent decompression operations.</param>
+            /// <param name="count">The number of entries in \p paramsArray array.</param>
+            /// <param name="flags">Must be 0.</param>
+            /// <param name="errorIndex">The index into \p paramsArray of the decompression operation for which the error returned by this
+            /// function pertains to.If \p index is SIZE_MAX and the value returned is not::CUDA_SUCCESS, then the
+            /// error returned by this function should be considered a general error that does not pertain to a
+            /// particular decompression operation. May be \p NULL, in which case, no index will be recorded in the
+            /// event of error.</param>
+            /// <param name="stream">The stream where the work will be enqueued.</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuMemBatchDecompressAsync" + CUDA_PTSZ)]
+            public static extern CUResult cuMemBatchDecompressAsync(
+                CUmemDecompressParams[] paramsArray,
+                SizeT count,
+                uint flags,
+                ref SizeT errorIndex,
+                CUstream stream
+            );
         }
         #endregion
 
@@ -9139,6 +9308,36 @@ namespace ManagedCuda
             public static extern CUResult cuEventElapsedTime(ref float pMilliseconds, CUevent hStart, CUevent hEnd);
 
             /// <summary>
+            /// Computes the elapsed time between two events<para/>
+            /// Computes the elapsed time between two events(in milliseconds with a
+            /// resolution of around 0.5 microseconds). Note this API is not guaranteed
+            /// to return the latest errors for pending work. As such this API is intended to
+            /// serve as an elapsed time calculation only and any polling for completion on the
+            /// events to be compared should be done with::cuEventQuery instead.<para/>
+            /// If either event was last recorded in a non-NULL stream, the resulting time
+            /// may be greater than expected(even if both used the same stream handle). This
+            /// happens because the ::cuEventRecord() operation takes place asynchronously
+            /// and there is no guarantee that the measured latency is actually just between
+            /// the two events.Any number of other different stream operations could execute
+            /// in between the two measured events, thus altering the timing in a significant
+            /// way.<para/>
+            /// If ::cuEventRecord() has not been called on either event then
+            /// ::CUDA_ERROR_INVALID_HANDLE is returned. If ::cuEventRecord() has been called
+            /// on both events but one or both of them has not yet been completed(that is,
+            /// ::cuEventQuery() would return ::CUDA_ERROR_NOT_READY on at least one of the
+            /// events), ::CUDA_ERROR_NOT_READY is returned.If either event was created with
+            /// the ::CU_EVENT_DISABLE_TIMING flag, then this function will return
+            /// ::CUDA_ERROR_INVALID_HANDLE.
+            /// </summary>
+            /// <param name="pMilliseconds">Time between \p hStart and \p hEnd in ms</param>
+            /// <param name="hStart">Starting event</param>
+            /// <param name="hEnd">Ending event</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuEventElapsedTime_v2(ref float pMilliseconds, CUevent hStart, CUevent hEnd);
+
+
+            /// <summary>
             /// Wait on a memory location<para/>
             /// Enqueues a synchronization of the stream on the given memory location. Work
             /// ordered after the operation will block until the given condition on the
@@ -9459,6 +9658,16 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetPriority" + CUDA_PTSZ)]
             public static extern CUResult cuStreamGetPriority(CUstream hStream, ref int priority);
+
+            /// <summary>
+            /// Returns the device handle of the stream<para/>
+            /// Returns in \p* device the device handle of the stream
+            /// </summary>
+            /// <param name="hStream">Handle to the stream to be queried</param>
+            /// <param name="device">Returns the device to which a stream belongs </param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME, EntryPoint = "cuStreamGetDevice" + CUDA_PTSZ)]
+            public static extern CUResult cuStreamGetDevice(CUstream hStream, ref CUdevice device);
 
             /// <summary>
             /// Query the flags of a given stream<para/>
@@ -13311,6 +13520,40 @@ namespace ManagedCuda
             public static extern CUResult cuTensorMapEncodeIm2col(ref CUtensorMap tensorMap, CUtensorMapDataType tensorDataType, uint tensorRank, CUdeviceptr globalAddress, ulong[] globalDim, ulong[] globalStrides, int[] pixelBoxLowerCorner, int[] pixelBoxUpperCorner, uint channelsPerPixel, uint pixelsPerColumn, uint[] elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill);
 
             /// <summary>
+            /// Create a tensor map descriptor object representing im2col memory region, but where
+            /// the elements are exclusively loaded along the W dimension.<para/>
+            /// Creates a descriptor for Tensor Memory Access(TMA) object specified by the parameters
+            /// describing a im2col memory layout and where the row is always loaded along the W dimension
+            /// and returns it in \p tensorMap. This assumes the tensor layout in memory is either NDHWC,
+            /// NHWC, or NWC.<para/>
+            /// This API is only supported on devices of compute capability 10.0 or higher.<para/>
+            /// Additionally, a tensor map object is an opaque value, and, as such, should only be
+            /// accessed through CUDA APIs and PTX.<para/>
+            /// Note that::CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA can only be used when \p tensorDataType represents a floating-point data type,
+            /// and when \p tensorDataType is not::CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN8B, ::CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN16B, and::CU_TENSOR_MAP_DATA_TYPE_16U6_ALIGN16B.
+            /// </summary>
+            /// <param name="tensorMap">Tensor map object to create</param>
+            /// <param name="tensorDataType">Tensor data type</param>
+            /// <param name="tensorRank">Dimensionality of tensor; must be at least 3</param>
+            /// <param name="globalAddress">Starting address of memory region described by tensor</param>
+            /// <param name="globalDim">Array containing tensor size (number of elements) along each of the \p tensorRank dimensions</param>
+            /// <param name="globalStrides">Array containing stride size (in bytes) along each of the \p tensorRank - 1 dimensions</param>
+            /// <param name="pixelBoxLowerCornerWidth">Width offset of left box corner</param>
+            /// <param name="pixelBoxUpperCornerWidth">Width offset of right box corner</param>
+            /// <param name="channelsPerPixel">Number of channels per pixel</param>
+            /// <param name="pixelsPerColumn">Number of pixels per column</param>
+            /// <param name="elementStrides">Array containing traversal stride in each of the \p tensorRank dimensions</param>
+            /// <param name="interleave">Type of interleaved layout the tensor addresses</param>
+            /// <param name="mode">W or W128 mode</param>
+            /// <param name="swizzle">Bank swizzling pattern inside shared memory</param>
+            /// <param name="l2Promotion">L2 promotion size</param>
+            /// <param name="oobFill">Indicate whether zero or special NaN constant will be used to fill out-of-bound elements</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuTensorMapEncodeIm2colWide(ref CUtensorMap tensorMap, CUtensorMapDataType tensorDataType, uint tensorRank, CUdeviceptr globalAddress, ulong[] globalDim, ulong[] globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, uint channelsPerPixel, uint pixelsPerColumn, uint[] elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill);
+
+
+            /// <summary>
             /// Modify an existing tensor map descriptor with an updated global address<para/>
             /// Modifies the descriptor for Tensor Memory Access (TMA) object passed in \p tensorMap with an updated \p globalAddress.<para/>
             /// Tensor map objects are only supported on devices of compute capability 9.0 or higher.
@@ -14174,6 +14417,104 @@ namespace ManagedCuda
             /// <returns></returns>
             [DllImport(CUDA_DRIVER_API_DLL_NAME)]
             public static extern CUResult cuGreenCtxStreamCreate(ref CUstream phStream, CUgreenCtx greenCtx, CUStreamFlags flags, int priority);
+        }
+        #endregion
+
+        #region Checkpointing
+        /// <summary>
+        /// CUDA checkpoint and restore functionality of the low-level
+        /// CUDA driver API
+        /// This sections describes the checkpoint and restore functions of the low-level
+        /// CUDA driver application programming interface.
+        /// The CUDA checkpoint and restore API's provide a way to save and restore GPU
+        /// state for full process checkpoints when used with CPU side process
+        /// checkpointing solutions.They can also be used to pause GPU work and suspend
+        /// a CUDA process to allow other applications to make use of GPU resources.
+        /// Checkpoint and restore capabilities are currently restricted to Linux.
+        /// </summary>
+        public static class CheckpointingAPI
+        {
+#if (NETCOREAPP)
+            static CheckpointingAPI()
+            {
+                DriverAPINativeMethods.Init();
+            }
+#endif
+
+            /// <summary>
+            /// Returns the restore thread ID for a CUDA process
+            /// Returns in \p* tid the thread ID of the CUDA restore thread for the process
+            /// specified by \p pid.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="tid">Returned restore thread ID</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessGetRestoreThreadId(int pid, ref int tid);
+
+            /// <summary>
+            /// Returns the process state of a CUDA process
+            /// Returns in \p *state the current state of the CUDA process specified by \p pid.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="state">Returned CUDA process state</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessGetState(int pid, ref CUprocessState state);
+
+            /// <summary>
+            /// Lock a running CUDA process
+            /// Lock the CUDA process specified by \p pid which will block further CUDA API
+            /// calls.Process must be in the RUNNING state in order to lock.
+            /// Upon successful return the process will be in the LOCKED state.
+            /// If timeoutMs is specified and the timeout is reached the process will be left
+            /// in the RUNNING state upon return.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="args">Optional lock operation arguments</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessLock(int pid, ref CUcheckpointLockArgs args);
+
+            /// <summary>
+            /// Checkpoint a CUDA process's GPU memory contents
+            /// Checkpoints a CUDA process specified by \p pid that is in the LOCKED
+            /// state.The GPU memory contents will be brought into host memory and all
+            /// underlying references will be released.Process must be in the LOCKED state
+            /// to checkpoint.
+            /// Upon successful return the process will be in the CHECKPOINTED state.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="args">Optional checkpoint operation arguments</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessCheckpoint(int pid, ref CUcheckpointCheckpointArgs args);
+
+            /// <summary>
+            /// Restore a CUDA process's GPU memory contents from its last checkpoint
+            /// Restores a CUDA process specified by \p pid from its last checkpoint.Process
+            /// must be in the CHECKPOINTED state to restore.
+            /// Upon successful return the process will be in the LOCKED state.
+            /// CUDA process restore requires persistence mode to be enabled or::cuInit to
+            /// have been called before execution.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="args">Optional restore operation arguments</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessRestore(int pid, ref CUcheckpointRestoreArgs args);
+
+            /// <summary>
+            /// Unlock a CUDA process to allow CUDA API calls
+            /// Unlocks a process specified by \p pid allowing it to resume making CUDA API
+            /// calls.Process must be in the LOCKED state.
+            /// Upon successful return the process will be in the RUNNING state.
+            /// </summary>
+            /// <param name="pid">The process ID of the CUDA process</param>
+            /// <param name="args">Optional unlock operation arguments</param>
+            /// <returns></returns>
+            [DllImport(CUDA_DRIVER_API_DLL_NAME)]
+            public static extern CUResult cuCheckpointProcessUnlock(int pid, ref CUcheckpointUnlockArgs args);
         }
         #endregion
     }

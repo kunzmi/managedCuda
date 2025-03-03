@@ -24,8 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace ManagedCuda.BasicTypes
@@ -4216,6 +4219,33 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION
+        /// that represents the desired preferred cluster dimensions for the kernel.
+        /// Opaque type with the following fields:<para/>
+        /// - \p x - The X dimension of the preferred cluster, in blocks. Must
+        /// be a divisor of the grid X dimension, and must be a
+        /// multiple of the \p x field of ::CUlaunchAttributeValue::clusterDim.<para/>
+        /// - \p y - The Y dimension of the preferred cluster, in blocks. Must
+        /// be a divisor of the grid Y dimension, and must be a
+        /// multiple of the \p y field of ::CUlaunchAttributeValue::clusterDim.<para/>
+        /// - \p z - The Z dimension of the preferred cluster, in blocks. Must be
+        /// equal to the \p z field of ::CUlaunchAttributeValue::clusterDim.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct PreferredClusterDim
+        {
+            /// <summary>
+            /// </summary>
+            public uint x;
+            /// <summary>
+            /// </summary>
+            public uint y;
+            /// <summary>
+            /// </summary>
+            public uint z;
+        }
+
+        /// <summary>
         /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
@@ -4287,6 +4317,11 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         [FieldOffset(0)]
         CUlaunchMemSyncDomain memSyncDomain;
+        /// <summary>
+        /// 
+        /// </summary>
+        [FieldOffset(0)]
+        PreferredClusterDim preferredClusterDim;
         /// <summary>
         /// 
         /// </summary>
@@ -4832,7 +4867,8 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         public CUgraphConditionalNodeType type;
         /// <summary>
-        /// Size of graph output array. Must be 1.
+        /// Size of graph output array. Allowed values are 1 for CU_GRAPH_COND_TYPE_WHILE, 1 or 2
+        /// for CU_GRAPH_COND_TYPE_IF, or any value greater than zero for CU_GRAPH_COND_TYPE_SWITCH.
         /// </summary>
         public uint size;
         /// <summary>
@@ -5108,5 +5144,270 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         public IntPtr cigParams;
     }
+
+    /// <summary>
+    /// CUDA checkpoint optional lock arguments
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUcheckpointLockArgs
+    {
+        /// <summary>
+        /// Timeout in milliseconds to attempt to lock the process, 0 indicates no timeout
+        /// </summary>
+        public uint timeoutMs;
+        /// <summary>
+        /// Reserved for future use, must be zero
+        /// </summary>
+        public uint reserved0;
+        /// <summary>
+        /// Reserved for future use, must be zeroed
+        /// </summary>
+        ulong reserved1;
+        ulong reserved2;
+        ulong reserved3;
+        ulong reserved4;
+        ulong reserved5;
+        ulong reserved6;
+        ulong reserved7;
+    }
+
+    /// <summary>
+    /// CUDA checkpoint optional checkpoint arguments
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUcheckpointCheckpointArgs
+    {
+        /// <summary>
+        /// Reserved for future use, must be zeroed
+        /// </summary>
+        ulong reserved0;
+        ulong reserved1;
+        ulong reserved2;
+        ulong reserved3;
+        ulong reserved4;
+        ulong reserved5;
+        ulong reserved6;
+        ulong reserved7;
+    }
+
+    /// <summary>
+    /// CUDA checkpoint optional restore arguments
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUcheckpointRestoreArgs
+    {
+        /// <summary>
+        /// Reserved for future use, must be zeroed
+        /// </summary>
+        ulong reserved0;
+        ulong reserved1;
+        ulong reserved2;
+        ulong reserved3;
+        ulong reserved4;
+        ulong reserved5;
+        ulong reserved6;
+        ulong reserved7;
+    }
+
+    /// <summary>
+    /// CUDA checkpoint optional unlock arguments
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUcheckpointUnlockArgs
+    {
+        /// <summary>
+        /// Reserved for future use, must be zeroed
+        /// </summary>
+        ulong reserved0;
+        ulong reserved1;
+        ulong reserved2;
+        ulong reserved3;
+        ulong reserved4;
+        ulong reserved5;
+        ulong reserved6;
+        ulong reserved7;
+    }
+
+    /// <summary>
+    /// Attributes specific to copies within a batch. For more details on usage see ::cuMemcpyBatchAsync.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUmemcpyAttributes
+    {
+        /// <summary>
+        /// Source access ordering to be observed for copies with this attribute.
+        /// </summary>
+        public CUmemcpySrcAccessOrder srcAccessOrder;
+        /// <summary>
+        /// Hint location for the source operand. Ignored when the pointers are not managed memory or memory allocated outside CUDA.
+        /// </summary>
+        public CUmemLocation srcLocHint;
+        /// <summary>
+        /// Hint location for the destination operand. Ignored when the pointers are not managed memory or memory allocated outside CUDA.
+        /// </summary>
+        public CUmemLocation dstLocHint;
+        /// <summary>
+        /// Additional flags for copies with this attribute. See ::CUmemcpyFlags
+        /// </summary>
+        public CUmemcpyFlags flags;
+    }
+
+
+    /// <summary>
+    /// Struct representing offset into a CUarray in elements
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUoffset3D
+    {
+        /// <summary/>
+        public SizeT x;
+        /// <summary/>
+        public SizeT y;
+        /// <summary/>
+        public SizeT z;
+    }
+
+    /// <summary>
+    /// Struct representing width/height/depth of a CUarray in elements
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUextent3D
+    {
+        /// <summary/>
+        public SizeT width;
+        /// <summary/>
+        public SizeT height;
+        /// <summary/>
+        public SizeT depth;
+    }
+
+
+    /// <summary>
+    /// Struct representing an operand for copy with ::cuMemcpy3DBatchAsync
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CUmemcpy3DOperand
+    {
+        /// <summary>
+        /// Struct representing an operand when ::CUmemcpy3DOperand::type is ::CU_MEMCPY_OPERAND_TYPE_POINTER
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Ptr
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            public CUdeviceptr ptr;
+            /// <summary>
+            /// Length of each row in elements.
+            /// </summary>
+            public SizeT rowLength;
+            /// <summary>
+            /// Height of each layer in elements.
+            /// </summary>
+            public SizeT layerHeight;
+            /// <summary>
+            /// Hint location for the operand. Ignored when the pointers are not managed memory or memory allocated outside CUDA.
+            /// </summary>
+            public CUmemLocation locHint;
+        }
+
+        /// <summary>
+        /// Struct representing an operand when ::CUmemcpy3DOperand::type is ::CU_MEMCPY_OPERAND_TYPE_ARRAY
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Array
+        {
+            /// <summary/>
+            public CUarray array;
+            /// <summary/>
+            public CUoffset3D offset;
+        }
+
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUmemcpy3DOperandType type;
+
+        /// <summary/>
+        [FieldOffset(4)]
+        public Ptr ptr;
+
+        /// <summary/>
+        [FieldOffset(4)]
+        public Array array;
+    }
+
+    /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUDA_MEMCPY3D_BATCH_OP
+    {
+        /// <summary>
+        /// Source memcpy operand.
+        /// </summary>
+        public CUmemcpy3DOperand src;
+        /// <summary>
+        /// Destination memcpy operand.
+        /// </summary>
+        public CUmemcpy3DOperand dst;
+        /// <summary>
+        /// Extents of the memcpy between src and dst. The width, height and depth components must not be 0.
+        /// </summary>
+        public CUextent3D extent;
+        /// <summary>
+        /// Source access ordering to be observed for copy from src to dst.
+        /// </summary>
+        public CUmemcpySrcAccessOrder srcAccessOrder;
+        /// <summary>
+        /// Additional flags for copies with this attribute. See ::CUmemcpyFlags
+        /// </summary>
+        public CUmemcpyFlags flags;
+    }
+
+
+    /// <summary>
+    /// Structure describing the parameters that compose a single decompression operation.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUmemDecompressParams
+    {
+        /// <summary>
+        /// The number of bytes to be read and decompressed from ::CUmemDecompressParams_st.src.
+        /// </summary>
+        public SizeT srcNumBytes;
+        /// <summary>
+        /// The number of bytes that the decompression operation will be expected to
+        /// write to::CUmemDecompressParams_st.dst.This value is optional; if
+        /// present, it may be used by the CUDA driver as a heuristic for scheduling
+        /// the individual decompression operations.
+        /// </summary>
+        public SizeT dstNumBytes;
+        /// <summary>
+        /// After the decompression operation has completed, the actual number of
+        /// bytes written to::CUmemDecompressParams.dst will be recorded as a 32-bit
+        /// unsigned integer in the memory at this address.
+        /// </summary>
+        public IntPtr dstActBytes;
+        /// <summary>
+        /// Pointer to a buffer of at least ::CUmemDecompressParams_st.srcNumBytes compressed bytes.
+        /// </summary>
+        public IntPtr src;
+        /// <summary>
+        /// Pointer to a buffer where the decompressed data will be written. The number of bytes
+        /// written to this location will be recorded in the memory
+        /// pointed to by::CUmemDecompressParams_st.dstActBytes
+        /// </summary>
+        public IntPtr dst;
+        /// <summary>
+        /// The decompression algorithm to use.
+        /// </summary>
+        public CUmemDecompressAlgorithm algo;
+        /// <summary>
+        /// These 20 bytes are unused and must be zeroed. This ensures compatibility if additional fields are added in the future.
+        /// </summary>
+        ulong padding0;
+        ulong padding1;
+        uint padding2;
+    }
+
     #endregion
 }

@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using ManagedCuda.BasicTypes;
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaSolve
 {
@@ -255,6 +255,7 @@ namespace ManagedCuda.CudaSolve
         /// assumed that this array is sorted by row and by column within each row. The array size is nnzU.</param>
         /// <param name="h_P">the left permutation (often associated with pivoting). The array size in n.</param>
         /// <param name="h_Q">the right permutation (often associated with reordering). The array size in n.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void SetupHost(int n, int nnzA, int[] h_csrRowPtrA, int[] h_csrColIndA, double[] h_csrValA, int nnzL, int[] h_csrRowPtrL, int[] h_csrColIndL,
             double[] h_csrValL, int nnzU, int[] h_csrRowPtrU, int[] h_csrColIndU, double[] h_csrValU, int[] h_P, int[] h_Q)
         {
@@ -300,6 +301,7 @@ namespace ManagedCuda.CudaSolve
         /// assumed that this array is sorted by row and by column within each row. The array size is nnzU.</param>
         /// <param name="P">the left permutation (often associated with pivoting). The array size in n.</param>
         /// <param name="Q">the right permutation (often associated with reordering). The array size in n.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void cusolverRfSetupDevice(int n, int nnzA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> csrValA, int nnzL,
             CudaDeviceVariable<int> csrRowPtrL, CudaDeviceVariable<int> csrColIndL, CudaDeviceVariable<double> csrValL, int nnzU, CudaDeviceVariable<int> csrRowPtrU,
             CudaDeviceVariable<int> csrColIndU, CudaDeviceVariable<double> csrValU, CudaDeviceVariable<int> P, CudaDeviceVariable<int> Q)
@@ -331,6 +333,7 @@ namespace ManagedCuda.CudaSolve
         /// and by column within each row. The array size is nnzA.</param>
         /// <param name="P">the left permutation (often associated with pivoting). The array size in n.</param>
         /// <param name="Q">the right permutation (often associated with reordering). The array size in n.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void ResetValues(int n, int nnzA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> csrValA,
             CudaDeviceVariable<double> P, CudaDeviceVariable<double> Q)
         {
@@ -344,6 +347,7 @@ namespace ManagedCuda.CudaSolve
         /// <summary>
         /// This routine performs the appropriate analysis of parallelism available in the LU refactorization depending upon the algorithm chosen by the user.
         /// </summary>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void Analyze()
         {
             res = CudaSolveNativeMethods.Refactorization.cusolverRfAnalyze(_handle);
@@ -354,6 +358,7 @@ namespace ManagedCuda.CudaSolve
         /// <summary>
         /// This routine performs the LU re-factorization
         /// </summary>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void Refactor()
         {
             res = CudaSolveNativeMethods.Refactorization.cusolverRfRefactor(_handle);
@@ -373,6 +378,7 @@ namespace ManagedCuda.CudaSolve
         /// This array has also an extra entry at the end that stores the number of non-zero elements in the matrix $M$. The array size is n+1.</param>
         /// <param name="Mi">the array of column indices corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
         /// <param name="Mx">the array of values corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void AccessBundledFactorsDevice(out int nnzM, out CudaDeviceVariable<int> Mp, out CudaDeviceVariable<int> Mi, out CudaDeviceVariable<double> Mx)
         {
             CUdeviceptr d_mp = new CUdeviceptr();
@@ -401,6 +407,7 @@ namespace ManagedCuda.CudaSolve
         /// This array has also an extra entry at the end that stores the number of non-zero elements in the matrix $M$. The array size is n+1.</param>
         /// <param name="h_Mi">the array of column indices corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
         /// <param name="h_Mx">the array of values corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void ExtractBundledFactorsHost(int n, out int h_nnzM, out int[] h_Mp, out int[] h_Mi, out double[] h_Mx)
         {
             h_nnzM = 0;
@@ -450,6 +457,7 @@ namespace ManagedCuda.CudaSolve
         /// row and by column within each row. The array size is h_nnzU.</param>
         /// <param name="h_csrValU">the array of values corresponding to the non-zero elements in the matrix U. It is assumed that this array is sorted by row
         /// and by column within each row. The array size is h_nnzU.</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void ExtractSplitFactorsHost(int n, out int h_nnzL, out int[] h_csrRowPtrL, out int[] h_csrColIndL, out double[] h_csrValL, out int h_nnzU, out int[] h_csrRowPtrU, out int[] h_csrColIndU, out double[] h_csrValU)
         {
             h_nnzL = 0;
@@ -509,6 +517,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="ldt">the leading dimension of dense matrix Temp (ldt &gt;= n).</param>
         /// <param name="XF">the dense matrix that contains the righthand-sides F and solutions X (of size ldxf*nrhs).</param>
         /// <param name="ldxf">the leading dimension of dense matrix XF (ldxf &gt;= n).</param>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public void Solve(CudaDeviceVariable<int> P, CudaDeviceVariable<int> Q, int nrhs, double[] Temp, int ldt, double[] XF, int ldxf)
         {
             res = CudaSolveNativeMethods.Refactorization.cusolverRfSolve(_handle, P.DevicePointer, Q.DevicePointer, nrhs, Temp, ldt, XF, ldxf);

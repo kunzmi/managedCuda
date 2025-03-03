@@ -23,14 +23,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 using ManagedCuda.CudaBlas;
 using ManagedCuda.CudaSparse;
+using ManagedCuda.VectorTypes;
+using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 
 namespace ManagedCuda.CudaSolve
@@ -6021,6 +6021,44 @@ namespace ManagedCuda.CudaSolve
                 SizeT workspaceInBytesOnHost,
                 CUdeviceptr info);
 
+            /* 64-bit API for batched SYEV */
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsyevBatched_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigMode jobz,
+                FillMode uplo,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeW,
+                CUdeviceptr W,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost,
+                long batchSize);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsyevBatched(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigMode jobz,
+                FillMode uplo,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeW,
+                CUdeviceptr W,
+                cudaDataType computeType,
+                CUdeviceptr bufferOnDevice,
+                SizeT workspaceInBytesOnDevice,
+                byte[] bufferOnHost,
+                SizeT workspaceInBytesOnHost,
+                CUdeviceptr info,
+                long batchSize);
+
             /* 64-bit API for SYEVDX */
             [DllImport(CUSOLVE_API_DLL_NAME)]
             public static extern cusolverStatus cusolverDnXsyevdx_bufferSize(
@@ -6062,6 +6100,54 @@ namespace ManagedCuda.CudaSolve
                 ref long meig64,
                 cudaDataType dataTypeW,
                 CUdeviceptr W,
+                cudaDataType computeType,
+                CUdeviceptr bufferOnDevice,
+                SizeT workspaceInBytesOnDevice,
+                byte[] bufferOnHost,
+                SizeT workspaceInBytesOnHost,
+                CUdeviceptr info);
+
+            /* 64-bit API for GEEV */
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXgeev_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigMode jobvl,
+                cusolverEigMode jobvr,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeW,
+                CUdeviceptr W,
+                cudaDataType dataTypeVL,
+                CUdeviceptr VL,
+                long ldvl,
+                cudaDataType dataTypeVR,
+                CUdeviceptr VR,
+                long ldvr,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXgeev(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigMode jobvl,
+                cusolverEigMode jobvr,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeW,
+                CUdeviceptr W,
+                cudaDataType dataTypeVL,
+                CUdeviceptr VL,
+                long ldvl,
+                cudaDataType dataTypeVR,
+                CUdeviceptr VR,
+                long ldvr,
                 cudaDataType computeType,
                 CUdeviceptr bufferOnDevice,
                 SizeT workspaceInBytesOnDevice,
@@ -6355,6 +6441,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpScsrlsvluHost(cusolverSpHandle handle, int n, int nnzA, cusparseMatDescr descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x, ref int singularity);
 
             /// <summary>
@@ -6374,6 +6461,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpDcsrlsvluHost(cusolverSpHandle handle, int n, int nnzA, cusparseMatDescr descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x, ref int singularity);
 
             /// <summary>
@@ -6393,6 +6481,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpCcsrlsvluHost(cusolverSpHandle handle, int n, int nnzA, cusparseMatDescr descrA, cuFloatComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuFloatComplex[] b, float tol, int reorder, cuFloatComplex[] x, ref int singularity);
 
             /// <summary>
@@ -6412,6 +6501,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpZcsrlsvluHost(cusolverSpHandle handle, int n, int nnzA, cusparseMatDescr descrA, cuDoubleComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuDoubleComplex[] b, double tol, int reorder, cuDoubleComplex[] x, ref int singularity);
 
             #endregion
@@ -6590,6 +6680,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpScsrlsvcholHost(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, float[] csrVal, int[] csrRowPtr, int[] csrColInd, float[] b, float tol, int reorder, float[] x, ref int singularity);
 
             /// <summary>
@@ -6609,6 +6700,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpDcsrlsvcholHost(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, double[] csrVal, int[] csrRowPtr, int[] csrColInd, double[] b, double tol, int reorder, double[] x, ref int singularity);
 
             /// <summary>
@@ -6628,6 +6720,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpCcsrlsvcholHost(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, cuFloatComplex[] csrVal, int[] csrRowPtr, int[] csrColInd, cuFloatComplex[] b, float tol, int reorder, cuFloatComplex[] x, ref int singularity);
 
             /// <summary>
@@ -6647,6 +6740,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpZcsrlsvcholHost(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, cuDoubleComplex[] csrVal, int[] csrRowPtr, int[] csrColInd, cuDoubleComplex[] b, double tol, int reorder, cuDoubleComplex[] x, ref int singularity);
 
 
@@ -6667,6 +6761,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpScsrlsvchol(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
 
             /// <summary>
@@ -6686,6 +6781,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpDcsrlsvchol(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
 
             /// <summary>
@@ -6705,6 +6801,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpCcsrlsvchol(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, float tol, int reorder, CUdeviceptr x, ref int singularity);
 
             /// <summary>
@@ -6724,6 +6821,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
             /// <param name="singularity">-1 if A is symmetric postive definite.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverSpZcsrlsvchol(cusolverSpHandle handle, int m, int nnz, cusparseMatDescr descrA, CUdeviceptr csrVal, CUdeviceptr csrRowPtr, CUdeviceptr csrColInd, CUdeviceptr b, double tol, int reorder, CUdeviceptr x, ref int singularity);
 
             #endregion
@@ -7605,6 +7703,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="h_Q">the right permutation (often associated with reordering). The array size in n.</param>
             /// <param name="handle">the pointer to the cuSolverRF library handle.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfSetupHost(int n, int nnzA, int[] h_csrRowPtrA, int[] h_csrColIndA, double[] h_csrValA, int nnzL, int[] h_csrRowPtrL, int[] h_csrColIndL, double[] h_csrValL, int nnzU, int[] h_csrRowPtrU, int[] h_csrColIndU, double[] h_csrValU, int[] h_P, int[] h_Q, cusolverRfHandle handle);
 
             /// <summary>This routine assembles the internal data structures of the cuSolverRF library. It is often
@@ -7645,6 +7744,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="Q">the right permutation (often associated with reordering). The array size in n.</param>
             /// <param name="handle">the pointer to the cuSolverRF library handle.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfSetupDevice(int n, int nnzA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr csrValA, int nnzL,
                 CUdeviceptr csrRowPtrL, CUdeviceptr csrColIndL, CUdeviceptr csrValL, int nnzU, CUdeviceptr csrRowPtrU, CUdeviceptr csrColIndU, CUdeviceptr csrValU,
                 CUdeviceptr P, CUdeviceptr Q, cusolverRfHandle handle);
@@ -7671,6 +7771,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="Q">the right permutation (often associated with reordering). The array size in n.</param>
             /// <param name="handle">the pointer to the cuSolverRF library handle.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfResetValues(int n, int nnzA, CUdeviceptr csrRowPtrA, CUdeviceptr csrColIndA, CUdeviceptr csrValA,
                 CUdeviceptr P, CUdeviceptr Q, cusolverRfHandle handle);
 
@@ -7680,6 +7781,7 @@ namespace ManagedCuda.CudaSolve
             /// </summary>
             /// <param name="handle">the pointer to the cuSolverRF library handle.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfAnalyze(cusolverRfHandle handle);
 
             /// <summary>
@@ -7687,6 +7789,7 @@ namespace ManagedCuda.CudaSolve
             /// </summary>
             /// <param name="handle">the pointer to the cuSolverRF library handle.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfRefactor(cusolverRfHandle handle);
 
 
@@ -7703,6 +7806,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="Mi">the array of column indices corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
             /// <param name="Mx">the array of values corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfAccessBundledFactorsDevice(cusolverRfHandle handle, ref int nnzM, ref CUdeviceptr Mp, ref CUdeviceptr Mi, ref CUdeviceptr Mx);
 
             /// <summary>
@@ -7718,6 +7822,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="h_Mi">the array of column indices corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
             /// <param name="h_Mx">the array of values corresponding to the non-zero elements in the matrix M. It is assumed that this array is sorted by row and by column within each row. The array size is nnzM.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfExtractBundledFactorsHost(cusolverRfHandle handle, ref int h_nnzM, ref IntPtr h_Mp, ref IntPtr h_Mi, ref IntPtr h_Mx);
 
             /// <summary>
@@ -7741,6 +7846,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="h_csrValU">the array of values corresponding to the non-zero elements in the matrix U. It is assumed that this array is sorted by row
             /// and by column within each row. The array size is h_nnzU.</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfExtractSplitFactorsHost(cusolverRfHandle handle, ref int h_nnzL, ref IntPtr h_csrRowPtrL, ref IntPtr h_csrColIndL, ref IntPtr h_csrValL, ref int h_nnzU, ref IntPtr h_csrRowPtrU, ref IntPtr h_csrColIndU, ref IntPtr h_csrValU);
 
             /// <summary>
@@ -7756,6 +7862,7 @@ namespace ManagedCuda.CudaSolve
             /// <param name="XF">the dense matrix that contains the righthand-sides F and solutions X (of size ldxf*nrhs).</param>
             /// <param name="ldxf">the leading dimension of dense matrix XF (ldxf &gt;= n).</param>
             [DllImport(CUSOLVE_API_DLL_NAME)]
+            [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
             public static extern cusolverStatus cusolverRfSolve(cusolverRfHandle handle, CUdeviceptr P, CUdeviceptr Q, int nrhs, double[] Temp, int ldt, double[] XF, int ldxf);
 
             #endregion

@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using System.Diagnostics;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
+using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ManagedCuda.CudaSparse
@@ -196,6 +196,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, float alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd,
             float beta, CudaDeviceVariable<float> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -223,6 +224,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, double alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
             double beta, CudaDeviceVariable<double> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -250,6 +252,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, cuFloatComplex alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
             cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -277,6 +280,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, cuDoubleComplex alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
             cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -304,6 +308,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<float> alpha, CudaDeviceVariable<float> A, int lda, int nnz, CudaDeviceVariable<float> xVal, CudaDeviceVariable<int> xInd,
             CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -331,6 +336,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<double> alpha, CudaDeviceVariable<double> A, int lda, int nnz, CudaDeviceVariable<double> xVal, CudaDeviceVariable<int> xInd,
             CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -358,6 +364,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuFloatComplex> alpha, CudaDeviceVariable<cuFloatComplex> A, int lda, int nnz, CudaDeviceVariable<cuFloatComplex> xVal, CudaDeviceVariable<int> xInd,
             CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -385,6 +392,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="y">dense vector of m elements if op(A) = A, and of n elements if op(A) = A^T or op(A) = A^H</param>
         /// <param name="idxBase">0 or 1, for 0 based or 1 based indexing, respectively</param>
         /// <param name="pBuffer">working space buffer, of size given by Xgemvi_getBufferSize()</param>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Gemvi(cusparseOperation transA, int m, int n, CudaDeviceVariable<cuDoubleComplex> alpha, CudaDeviceVariable<cuDoubleComplex> A, int lda, int nnz, CudaDeviceVariable<cuDoubleComplex> xVal, CudaDeviceVariable<int> xInd,
             CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y, IndexBase idxBase, CudaDeviceVariable<byte> pBuffer)
         {
@@ -401,6 +409,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="n">number of columns of matrix Y.</param>
         /// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
         /// <returns>number of elements needed the buffer used in gemvi().</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public int GemviSBufferSize(cusparseOperation transA, int m, int n, int nnz)
         {
             int size = 0;
@@ -418,6 +427,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="n">number of columns of matrix Y.</param>
         /// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
         /// <returns>number of elements needed the buffer used in gemvi().</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public int GemviDBufferSize(cusparseOperation transA, int m, int n, int nnz)
         {
             int size = 0;
@@ -435,6 +445,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="n">number of columns of matrix Y.</param>
         /// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
         /// <returns>number of elements needed the buffer used in gemvi().</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public int GemviCBufferSize(cusparseOperation transA, int m, int n, int nnz)
         {
             int size = 0;
@@ -452,6 +463,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="n">number of columns of matrix Y.</param>
         /// <param name="nnz">number of nonzero entries of vector x multiplying A.</param>
         /// <returns>number of elements needed the buffer used in gemvi().</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public int GemviZBufferSize(cusparseOperation transA, int m, int n, int nnz)
         {
             int size = 0;
@@ -1333,6 +1345,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
         /// <param name="C">array of dimensions (ldc, n).</param>
         /// <param name="ldc">leading dimension of C. It must be at least max(l,m) if op(A)=A and at least max(l,k) otherwise.</param>
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public void Bsrmm(cusparseDirection dirA, cusparseOperation transA, cusparseOperation transB, int mb, int n, int kb, int nnzb,
                                     float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                     CudaDeviceVariable<int> bsrColIndA, int blockSize, CudaDeviceVariable<float> B, int ldb, float beta, CudaDeviceVariable<float> C, int ldc)
@@ -1371,6 +1384,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
         /// <param name="C">array of dimensions (ldc, n).</param>
         /// <param name="ldc">leading dimension of C. It must be at least max(l,m) if op(A)=A and at least max(l,k) otherwise.</param>
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public void Bsrmm(cusparseDirection dirA, cusparseOperation transA, cusparseOperation transB, int mb, int n, int kb, int nnzb,
                                     double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                     CudaDeviceVariable<int> bsrColIndA, int blockSize, CudaDeviceVariable<double> B, int ldb, double beta, CudaDeviceVariable<double> C, int ldc)
@@ -1408,6 +1422,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
         /// <param name="C">array of dimensions (ldc, n).</param>
         /// <param name="ldc">leading dimension of C. It must be at least max(l,m) if op(A)=A and at least max(l,k) otherwise.</param>
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public void Bsrmm(cusparseDirection dirA, cusparseOperation transA, cusparseOperation transB, int mb, int n, int kb, int nnzb,
                                     cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                     CudaDeviceVariable<int> bsrColIndA, int blockSize, CudaDeviceVariable<cuFloatComplex> B, int ldb, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> C, int ldc)
@@ -1445,6 +1460,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="beta">scalar used for multiplication. If beta is zero, C does not have to be a valid input.</param>
         /// <param name="C">array of dimensions (ldc, n).</param>
         /// <param name="ldc">leading dimension of C. It must be at least max(l,m) if op(A)=A and at least max(l,k) otherwise.</param>
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public void Bsrmm(cusparseDirection dirA, cusparseOperation transA, cusparseOperation transB, int mb, int n, int kb, int nnzb,
                                     cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                     CudaDeviceVariable<int> bsrColIndA, int blockSize, CudaDeviceVariable<cuDoubleComplex> B, int ldb, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> C, int ldc)
@@ -5988,6 +6004,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row
         /// and the end of the last row plus one.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Bsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseSbsr2csr(_handle, dirA, mb, nb, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
@@ -6014,6 +6031,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row
         /// and the end of the last row plus one.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Bsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseDbsr2csr(_handle, dirA, mb, nb, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
@@ -6040,6 +6058,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row
         /// and the end of the last row plus one.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Bsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseCbsr2csr(_handle, dirA, mb, nb, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
@@ -6066,6 +6085,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="csrRowPtrC">integer array of m + 1 elements that contains the start of every row
         /// and the end of the last row plus one.</param>
         /// <param name="csrColIndC">integer array of nnz column indices of the non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Bsr2csr(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> csrValC, CudaDeviceVariable<int> csrRowPtrC, CudaDeviceVariable<int> csrColIndC)
         {
             res = CudaSparseNativeMethods.cusparseZbsr2csr(_handle, dirA, mb, nb, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, descrC.Descriptor, csrValC.DevicePointer, csrRowPtrC.DevicePointer, csrColIndC.DevicePointer);
@@ -6296,6 +6316,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="rowBlockDimC">number of rows within a block of C.</param>
         /// <param name="colBlockDimC">number of columns within a block of C.</param>
         /// <returns>number of bytes of the buffer used in csr2gebsrNnz() and csr2gebsr().</returns>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public SizeT Gebsr2gebsrBufferSize(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA,
             CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, int rowBlockDimC, int colBlockDimC)
         {
@@ -6323,6 +6344,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="rowBlockDimC">number of rows within a block of C.</param>
         /// <param name="colBlockDimC">number of columns within a block of C.</param>
         /// <returns>number of bytes of the buffer used in csr2gebsrNnz() and csr2gebsr().</returns>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public SizeT Gebsr2gebsrBufferSize(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA,
             CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, int rowBlockDimC, int colBlockDimC)
         {
@@ -6350,6 +6372,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="rowBlockDimC">number of rows within a block of C.</param>
         /// <param name="colBlockDimC">number of columns within a block of C.</param>
         /// <returns>number of bytes of the buffer used in csr2gebsrNnz() and csr2gebsr().</returns>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public SizeT Gebsr2gebsrBufferSize(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA,
             CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, int rowBlockDimC, int colBlockDimC)
         {
@@ -6377,6 +6400,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="rowBlockDimC">number of rows within a block of C.</param>
         /// <param name="colBlockDimC">number of columns within a block of C.</param>
         /// <returns>number of bytes of the buffer used in csr2gebsrNnz() and csr2gebsr().</returns>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public SizeT Gebsr2gebsrBufferSize(cusparseDirection dirA, int mb, int nb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA,
             CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, int rowBlockDimC, int colBlockDimC)
         {
@@ -6996,6 +7020,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="nnzTotalDevHostPtr">total number of nonzero blocks of C.<para/>
         /// nnzTotalDevHostPtr is the same as bsrRowPtrC[mc]-bsrRowPtrC[0]</param>
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsrNnz(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA,
                                    int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> bsrRowPtrC, int rowBlockDimC, int colBlockDimC, CudaDeviceVariable<int> nnzTotalDevHostPtr, CudaDeviceVariable<byte> buffer)
         {
@@ -7032,6 +7057,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="nnzTotalDevHostPtr">total number of nonzero blocks of C.<para/>
         /// nnzTotalDevHostPtr is the same as bsrRowPtrC[mc]-bsrRowPtrC[0]</param>
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsrNnz(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA,
                                    int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<int> bsrRowPtrC, int rowBlockDimC, int colBlockDimC, ref int nnzTotalDevHostPtr, CudaDeviceVariable<byte> buffer)
         {
@@ -7069,6 +7095,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
         /// <param name="bsrValA">array of nnzb*rowBlockDimA*colBlockDimA non-zero elements of matrix A.</param>
         /// <param name="bsrValC">array of nnzc*rowBlockDimC*colBlockDimC non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsr(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                 CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<float> bsrValC,
                                 CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC, int rowBlockDimC, int colBlockDimC, CudaDeviceVariable<byte> buffer)
@@ -7109,6 +7136,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
         /// <param name="bsrValA">array of nnzb*rowBlockDimA*colBlockDimA non-zero elements of matrix A.</param>
         /// <param name="bsrValC">array of nnzc*rowBlockDimC*colBlockDimC non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsr(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                 CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<double> bsrValC,
                                 CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC, int rowBlockDimC, int colBlockDimC, CudaDeviceVariable<byte> buffer)
@@ -7149,6 +7177,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
         /// <param name="bsrValA">array of nnzb*rowBlockDimA*colBlockDimA non-zero elements of matrix A.</param>
         /// <param name="bsrValC">array of nnzc*rowBlockDimC*colBlockDimC non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsr(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                 CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuFloatComplex> bsrValC,
                                 CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC, int rowBlockDimC, int colBlockDimC, CudaDeviceVariable<byte> buffer)
@@ -7189,6 +7218,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="buffer">buffer allocated by the user, the size is return by gebsr2gebsr_bufferSizeExt.</param>
         /// <param name="bsrValA">array of nnzb*rowBlockDimA*colBlockDimA non-zero elements of matrix A.</param>
         /// <param name="bsrValC">array of nnzc*rowBlockDimC*colBlockDimC non-zero elements of matrix C.</param>
+        [Obsolete("Deprecated in Cuda 12.8")]
         public void Gebsr2gebsr(cusparseDirection dirA, int mb, int nb, int nnzb, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA,
                                 CudaDeviceVariable<int> bsrColIndA, int rowBlockDimA, int colBlockDimA, CudaSparseMatrixDescriptor descrC, CudaDeviceVariable<cuDoubleComplex> bsrValC,
                                 CudaDeviceVariable<int> bsrRowPtrC, CudaDeviceVariable<int> bsrColIndC, int rowBlockDimC, int colBlockDimC, CudaDeviceVariable<byte> buffer)
@@ -9523,6 +9553,7 @@ namespace ManagedCuda.CudaSparse
 
         #region Vector Vector
 
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Axpby<indexT, dataTIn>(CudaDeviceVariable<dataTIn> alpha, ConstSparseVector<indexT, dataTIn> vecX,
             CudaDeviceVariable<dataTIn> beta, DenseVector<dataTIn> vecY)
             where indexT : struct where dataTIn : struct
@@ -9533,6 +9564,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void Axpby<indexT, dataTIn>(dataTIn alpha, ConstSparseVector<indexT, dataTIn> vecX,
             dataTIn beta, DenseVector<dataTIn> vecY)
             where indexT : struct where dataTIn : struct
@@ -9618,6 +9650,7 @@ namespace ManagedCuda.CudaSparse
             }
         }
 
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public SizeT VV_bufferSize<indexT, dataTIn, dataTCompute>(cusparseOperation opX, ConstSparseVector<indexT, dataTIn> vecX,
             ConstDenseVector<dataTIn> vecY, CudaDeviceVariable<dataTCompute> result)
             where indexT : struct where dataTIn : struct where dataTCompute : struct
@@ -9630,6 +9663,7 @@ namespace ManagedCuda.CudaSparse
             return size;
         }
 
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public SizeT VV_bufferSize<indexT, dataTIn, dataTCompute>(cusparseOperation opX, ConstSparseVector<indexT, dataTIn> vecX,
             ConstDenseVector<dataTIn> vecY, ref dataTCompute result)
             where indexT : struct where dataTIn : struct where dataTCompute : struct
@@ -9653,6 +9687,7 @@ namespace ManagedCuda.CudaSparse
             }
             return size;
         }
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void VV<indexT, dataTIn, dataTCompute>(cusparseOperation opX, ConstSparseVector<indexT, dataTIn> vecX,
             ConstDenseVector<dataTIn> vecY, CudaDeviceVariable<dataTCompute> result, CudaDeviceVariable<byte> buffer)
             where indexT : struct where dataTIn : struct where dataTCompute : struct
@@ -9663,6 +9698,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public void VV<indexT, dataTIn, dataTCompute>(cusparseOperation opX, ConstSparseVector<indexT, dataTIn> vecX,
             ConstDenseVector<dataTIn> vecY, ref dataTCompute result, CudaDeviceVariable<byte> buffer)
             where indexT : struct where dataTIn : struct where dataTCompute : struct

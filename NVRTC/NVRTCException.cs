@@ -166,6 +166,18 @@ namespace ManagedCuda.NVRTC
                 case nvrtcResult.TimeFileWriteFailed:
                     message = "TimeFileWriteFailed error.";
                     break;
+                case nvrtcResult.NoPCHCreateAttempted:
+                    message = "NoPCHCreateAttempted error.";
+                    break;
+                case nvrtcResult.PCHCreateHeapExhausted:
+                    message = "PCHCreateHeapExhausted error.";
+                    break;
+                case nvrtcResult.PCHCreate:
+                    message = "PCHCreate error.";
+                    break;
+                case nvrtcResult.Cancelled:
+                    message = "Cancelled error.";
+                    break;
                 default:
                     break;
             }

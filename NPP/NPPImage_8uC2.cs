@@ -24,9 +24,9 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -47,7 +47,7 @@ namespace ManagedCuda.NPP
             _sizeOriginal.height = nHeightPixels;
             _sizeRoi.width = nWidthPixels;
             _sizeRoi.height = nHeightPixels;
-            _channels = 1;
+            _channels = 2;
             _isOwner = true;
             _typeSize = sizeof(byte);
             _dataType = NppDataType.NPP_8U;
@@ -80,7 +80,7 @@ namespace ManagedCuda.NPP
             _sizeRoi.width = width;
             _sizeRoi.height = height;
             _pitch = pitch;
-            _channels = 1;
+            _channels = 2;
             _isOwner = isOwner;
             _typeSize = sizeof(byte);
             _dataType = NppDataType.NPP_8U;

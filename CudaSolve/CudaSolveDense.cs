@@ -24,12 +24,13 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
+using ManagedCuda.CudaBlas;
+using ManagedCuda.VectorTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
-using ManagedCuda.CudaBlas;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ManagedCuda.CudaSolve
 {
@@ -4138,6 +4139,47 @@ namespace ManagedCuda.CudaSolve
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
         }
 
+        public void XsyevBatchedBufferSize(
+            Params parameters,
+            cusolverEigMode jobz,
+            FillMode uplo,
+            long n,
+            cudaDataType dataTypeA,
+            CUdeviceptr A,
+            long lda,
+            cudaDataType dataTypeW,
+            CUdeviceptr W,
+            cudaDataType computeType,
+            ref SizeT workspaceInBytesOnDevice,
+            ref SizeT workspaceInBytesOnHost,
+            long batchSize)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnXsyevBatched_bufferSize(_handle, parameters.ParamsHandle, jobz, uplo, n, dataTypeA, A, lda, dataTypeW, W, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost, batchSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevBatched_bufferSize", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        public void XsyevBatched(
+            Params parameters,
+            cusolverEigMode jobz,
+            FillMode uplo,
+            long n,
+            cudaDataType dataTypeA,
+            CUdeviceptr A,
+            long lda,
+            cudaDataType dataTypeW,
+            CUdeviceptr W,
+            cudaDataType computeType,
+            CudaDeviceVariable<byte> bufferOnDevice,
+            byte[] bufferOnHost,
+            CudaDeviceVariable<int> info,
+            long batchSize)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnXsyevBatched(_handle, parameters.ParamsHandle, jobz, uplo, n, dataTypeA, A, lda, dataTypeW, W, computeType, bufferOnDevice.DevicePointer, bufferOnDevice.SizeInBytes, bufferOnHost, bufferOnHost.Length, info.DevicePointer, batchSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevBatched", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
         /* 64-bit API for SYEVDX */
 
         public void XsyevdxBufferSize(
@@ -4174,6 +4216,59 @@ namespace ManagedCuda.CudaSolve
             res = CudaSolveNativeMethods.Dense.cusolverDnXsyevdx(_handle, parameters.ParamsHandle, jobz, range, uplo, n, dataTypeA, A, lda, vl, vu, il, iu,
                 ref h_meig, dataTypeW, W, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXsyevdx", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+            return h_meig;
+        }
+
+
+        public void XgeevBufferSize(
+            Params parameters,
+            cusolverEigMode jobvl,
+            cusolverEigMode jobvr,
+            long n,
+            cudaDataType dataTypeA,
+            CUdeviceptr A,
+            long lda,
+            cudaDataType dataTypeW,
+            CUdeviceptr W,
+            cudaDataType dataTypeVL,
+            CUdeviceptr VL,
+            long ldvl,
+            cudaDataType dataTypeVR,
+            CUdeviceptr VR,
+            long ldvr,
+            cudaDataType computeType,
+            ref SizeT workspaceInBytesOnDevice,
+            ref SizeT workspaceInBytesOnHost)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnXgeev_bufferSize(_handle, parameters.ParamsHandle, jobvl, jobvr, n, dataTypeA, A, lda, dataTypeW,
+                W, dataTypeVL, VL, ldvl, dataTypeVR, VR, ldvr, computeType, ref workspaceInBytesOnDevice, ref workspaceInBytesOnHost);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgeev_bufferSize", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+
+        public long Xgeev(Params parameters,
+            cusolverEigMode jobvl,
+                cusolverEigMode jobvr,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeW,
+                CUdeviceptr W,
+                cudaDataType dataTypeVL,
+                CUdeviceptr VL,
+                long ldvl,
+                cudaDataType dataTypeVR,
+                CUdeviceptr VR,
+                long ldvr,
+            cudaDataType computeType, CudaDeviceVariable<byte> work, byte[] workHost, CudaDeviceVariable<int> info)
+        {
+            long h_meig = 0;
+            res = CudaSolveNativeMethods.Dense.cusolverDnXgeev(_handle, parameters.ParamsHandle, jobvl, jobvr, n, dataTypeA, A, lda, dataTypeW,
+                W, dataTypeVL, VL, ldvl, dataTypeVR, VR, ldvr, computeType, work.DevicePointer, work.SizeInBytes, workHost, workHost.Length, info.DevicePointer);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnXgeev", res));
             if (res != cusolverStatus.Success) throw new CudaSolveException(res);
             return h_meig;
         }

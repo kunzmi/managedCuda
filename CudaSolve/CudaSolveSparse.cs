@@ -24,11 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
+using ManagedCuda.CudaSparse;
+using ManagedCuda.VectorTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
-using ManagedCuda.CudaSparse;
 
 namespace ManagedCuda.CudaSolve
 {
@@ -165,6 +165,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no ordering if reorder=0. Otherwise, symrcm is used to reduce zero fill-in.</param>
         /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvluHost(int n, int nnzA, CudaSparseMatrixDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x)
         {
             int singularity = 0;
@@ -188,6 +189,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no ordering if reorder=0. Otherwise, symrcm is used to reduce zero fill-in.</param>
         /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvluHost(int n, int nnzA, CudaSparseMatrixDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, double tol, int reorder, double[] x)
         {
             int singularity = 0;
@@ -211,6 +213,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no ordering if reorder=0. Otherwise, symrcm is used to reduce zero fill-in.</param>
         /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvluHost(int n, int nnzA, CudaSparseMatrixDescriptor descrA, cuFloatComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuFloatComplex[] b, float tol, int reorder, cuFloatComplex[] x)
         {
             int singularity = 0;
@@ -234,6 +237,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no ordering if reorder=0. Otherwise, symrcm is used to reduce zero fill-in.</param>
         /// <param name="x">solution vector of size n, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvluHost(int n, int nnzA, CudaSparseMatrixDescriptor descrA, cuDoubleComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuDoubleComplex[] b, double tol, int reorder, cuDoubleComplex[] x)
         {
             int singularity = 0;
@@ -448,6 +452,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvcholHost(int m, int nnz, CudaSparseMatrixDescriptor descrA, float[] csrValA, int[] csrRowPtrA, int[] csrColIndA, float[] b, float tol, int reorder, float[] x)
         {
             int singularity = 0;
@@ -471,6 +476,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvcholHost(int m, int nnz, CudaSparseMatrixDescriptor descrA, double[] csrValA, int[] csrRowPtrA, int[] csrColIndA, double[] b, float tol, int reorder, double[] x)
         {
             int singularity = 0;
@@ -494,6 +500,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvcholHost(int m, int nnz, CudaSparseMatrixDescriptor descrA, cuFloatComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuFloatComplex[] b, float tol, int reorder, cuFloatComplex[] x)
         {
             int singularity = 0;
@@ -517,6 +524,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int CsrlsvcholHost(int m, int nnz, CudaSparseMatrixDescriptor descrA, cuDoubleComplex[] csrValA, int[] csrRowPtrA, int[] csrColIndA, cuDoubleComplex[] b, float tol, int reorder, cuDoubleComplex[] x)
         {
             int singularity = 0;
@@ -541,6 +549,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int Csrlsvchol(int m, int nnz, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<float> b, float tol, int reorder, CudaDeviceVariable<float> x)
         {
             int singularity = 0;
@@ -564,6 +573,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int Csrlsvchol(int m, int nnz, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<double> b, float tol, int reorder, CudaDeviceVariable<double> x)
         {
             int singularity = 0;
@@ -587,6 +597,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int Csrlsvchol(int m, int nnz, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuFloatComplex> b, float tol, int reorder, CudaDeviceVariable<cuFloatComplex> x)
         {
             int singularity = 0;
@@ -610,6 +621,7 @@ namespace ManagedCuda.CudaSolve
         /// <param name="reorder">no effect.</param>
         /// <param name="x">solution vector of size m, x = inv(A)*b.</param>
         /// <returns>-1 if A is invertible. Otherwise, first index j such that U(j,j)≈0</returns>
+        [Obsolete("Marked deprecated in Cuda 12.8: cuDSS")]
         public int Csrlsvchol(int m, int nnz, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> csrValA, CudaDeviceVariable<int> csrRowPtrA, CudaDeviceVariable<int> csrColIndA, CudaDeviceVariable<cuDoubleComplex> b, float tol, int reorder, CudaDeviceVariable<cuDoubleComplex> x)
         {
             int singularity = 0;

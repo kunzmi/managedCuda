@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using ManagedCuda.BasicTypes;
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.NPP
 {
@@ -48,7 +48,7 @@ namespace ManagedCuda.NPP
             _sizeOriginal.height = nHeightPixels;
             _sizeRoi.width = nWidthPixels;
             _sizeRoi.height = nHeightPixels;
-            _channels = 1;
+            _channels = 3;
             _isOwner = true;
             _typeSize = Marshal.SizeOf(typeof(Npp16sc));
 
@@ -79,7 +79,7 @@ namespace ManagedCuda.NPP
             _sizeRoi.width = width;
             _sizeRoi.height = height;
             _pitch = pitch;
-            _channels = 1;
+            _channels = 3;
             _isOwner = isOwner;
             _typeSize = Marshal.SizeOf(typeof(Npp16sc));
         }

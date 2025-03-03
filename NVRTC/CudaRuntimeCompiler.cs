@@ -24,11 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NVRTC
 {
@@ -185,6 +185,30 @@ namespace ManagedCuda.NVRTC
                 throw new NVRTCException(res);
 
             return archs;
+        }
+
+        /// <summary>
+        /// Retrieve the current size of the PCH Heap.
+        /// </summary>
+        public static SizeT GetPCHHeapSize()
+        {
+            SizeT size = 0;
+            nvrtcResult res = NVRTCNativeMethods.nvrtcGetPCHHeapSize(ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPCHHeapSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+            return size;
+        }
+
+        /// <summary>
+        /// Set the size of the PCH Heap.
+        /// </summary>
+        public static void SetPCHHeapSize(SizeT size)
+        {
+            nvrtcResult res = NVRTCNativeMethods.nvrtcSetPCHHeapSize(size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcSetPCHHeapSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
         }
         #endregion
 
@@ -385,6 +409,36 @@ namespace ManagedCuda.NVRTC
 
             //ret ptr is freed when _program is destroyed!
             return Marshal.PtrToStringAnsi(ret);
+        }
+
+        /// <summary/>
+        public nvrtcResult GetPCHCreateStatus()
+        {
+            res = NVRTCNativeMethods.nvrtcGetPCHCreateStatus(_program);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPCHCreateStatus", res));
+
+            return res;
+        }
+
+        /// <summary/>
+        public SizeT GetPCHHeapSizeRequired()
+        {
+            SizeT size = new SizeT();
+            res = NVRTCNativeMethods.nvrtcGetPCHHeapSizeRequired(_program, ref size);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetPCHHeapSizeRequired", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            return size;
+        }
+
+        /// <summary/>
+        public void SetFlowCallback(setFlowCallback callback, IntPtr payload)
+        {
+            res = NVRTCNativeMethods.nvrtcSetFlowCallback(_program, callback, payload);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcSetFlowCallback", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
         }
         #endregion
     }

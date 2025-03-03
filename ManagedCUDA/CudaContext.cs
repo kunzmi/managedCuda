@@ -6370,6 +6370,36 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.D3D12CIGSupported = d3D12CIGSupported != 0;
 
+            int memDecompressAlgorithmMask = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref memDecompressAlgorithmMask, CUDeviceAttribute.MemDecompressAlgorithmMask, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MemDecompressAlgorithmMask = (CUmemDecompressAlgorithm)memDecompressAlgorithmMask;
+
+            int memDecompressMaximumLength = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref memDecompressMaximumLength, CUDeviceAttribute.MemDecompressMaximumLength, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.MemDecompressMaximumLength = memDecompressMaximumLength;
+
+            int gpuPciDeviceID = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref gpuPciDeviceID, CUDeviceAttribute.GpuPciDeviceID, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.GpuPciDeviceID = gpuPciDeviceID;
+
+            int gpuPciSubsystemID = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref gpuPciSubsystemID, CUDeviceAttribute.GpuPciSubsystemID, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.GpuPciSubsystemID = gpuPciSubsystemID;
+
+            int hostNUMAMultinodeIPCSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref hostNUMAMultinodeIPCSupported, CUDeviceAttribute.HostNUMAMultinodeIPCSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.HostNUMAMultinodeIPCSupported = hostNUMAMultinodeIPCSupported != 0;
+
             return props;
         }
 

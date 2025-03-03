@@ -59,7 +59,15 @@ namespace ManagedCuda.NVRTC
         /// <summary/>
         InternalError = 11,
         /// <summary/>
-        TimeFileWriteFailed = 12
+        TimeFileWriteFailed = 12,
+        /// <summary/>
+        NoPCHCreateAttempted = 13,
+        /// <summary/>
+        PCHCreateHeapExhausted = 14,
+        /// <summary/>
+        PCHCreate = 15,
+        /// <summary/>
+        Cancelled = 16
     }
 
     /// <summary>
@@ -73,4 +81,9 @@ namespace ManagedCuda.NVRTC
         /// </summary>
         public IntPtr Pointer;
     }
+
+    /// <summary>
+    /// Prototype for device memory release
+    /// </summary>
+    public delegate int setFlowCallback(IntPtr param1, IntPtr param2);
 }

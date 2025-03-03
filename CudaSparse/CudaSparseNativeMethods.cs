@@ -24,11 +24,11 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
+using ManagedCuda.VectorTypes;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using ManagedCuda.BasicTypes;
-using ManagedCuda.VectorTypes;
 
 
 namespace ManagedCuda.CudaSparse
@@ -246,6 +246,7 @@ namespace ManagedCuda.CudaSparse
         #region ref host
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -263,11 +264,13 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgemvi_bufferSize(cusparseContext handle,
                                     cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -285,11 +288,13 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgemvi_bufferSize(cusparseContext handle,
                                     cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -307,11 +312,13 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgemvi_bufferSize(cusparseContext handle,
                                     cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -329,6 +336,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgemvi_bufferSize(cusparseContext handle,
                                     cusparseOperation transA, int m, int n, int nnz, ref int pBufferSize);
 
@@ -338,6 +346,7 @@ namespace ManagedCuda.CudaSparse
         #region ref device
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -355,6 +364,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -372,6 +382,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -389,6 +400,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Marked deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgemvi(cusparseContext handle,
                                     cusparseOperation transA,
                                     int m,
@@ -1020,6 +1032,7 @@ namespace ManagedCuda.CudaSparse
                                                        ref int position);
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public static extern cusparseStatus cusparseSbsrmm(cusparseContext handle,
                                             cusparseDirection dirA,
                                             cusparseOperation transA,
@@ -1042,6 +1055,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public static extern cusparseStatus cusparseDbsrmm(cusparseContext handle,
                                             cusparseDirection dirA,
                                             cusparseOperation transA,
@@ -1063,6 +1077,7 @@ namespace ManagedCuda.CudaSparse
                                             int ldc);
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public static extern cusparseStatus cusparseCbsrmm(cusparseContext handle,
                                             cusparseDirection dirA,
                                             cusparseOperation transA,
@@ -1084,6 +1099,7 @@ namespace ManagedCuda.CudaSparse
                                             int ldc);
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8, replace with cusparseSpMM")]
         public static extern cusparseStatus cusparseZbsrmm(cusparseContext handle,
                                             cusparseDirection dirA,
                                             cusparseOperation transA,
@@ -3803,6 +3819,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSbsr2csr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int mb,
@@ -3819,6 +3836,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDbsr2csr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int mb,
@@ -3835,6 +3853,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCbsr2csr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int mb,
@@ -3851,6 +3870,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZbsr2csr(cusparseContext handle,
                                             cusparseDirection dirA,
                                             int mb,
@@ -5070,6 +5090,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgebsr2gebsr_bufferSize(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5087,6 +5108,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgebsr2gebsr_bufferSize(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5104,6 +5126,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgebsr2gebsr_bufferSize(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5121,6 +5144,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgebsr2gebsr_bufferSize(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5138,6 +5162,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgebsr2gebsr_bufferSizeExt(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5155,6 +5180,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgebsr2gebsr_bufferSizeExt(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5172,6 +5198,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgebsr2gebsr_bufferSizeExt(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5189,6 +5216,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgebsr2gebsr_bufferSizeExt(cusparseContext handle,
                                                              cusparseDirection dirA,
                                                              int mb,
@@ -5206,6 +5234,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseXgebsr2gebsrNnz(cusparseContext handle,
                                                      cusparseDirection dirA,
                                                      int mb,
@@ -5224,6 +5253,7 @@ namespace ManagedCuda.CudaSparse
                                                      CUdeviceptr pBuffer);
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseXgebsr2gebsrNnz(cusparseContext handle,
                                                      cusparseDirection dirA,
                                                      int mb,
@@ -5243,6 +5273,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSgebsr2gebsr(cusparseContext handle,
                                                   cusparseDirection dirA,
                                                   int mb,
@@ -5264,6 +5295,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseDgebsr2gebsr(cusparseContext handle,
                                                   cusparseDirection dirA,
                                                   int mb,
@@ -5285,6 +5317,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseCgebsr2gebsr(cusparseContext handle,
                                                   cusparseDirection dirA,
                                                   int mb,
@@ -5306,6 +5339,7 @@ namespace ManagedCuda.CudaSparse
 
         /// <summary/>
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseZgebsr2gebsr(cusparseContext handle,
                                                   cusparseDirection dirA,
                                                   int mb,
@@ -7223,12 +7257,14 @@ namespace ManagedCuda.CudaSparse
         // #############################################################################
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
               IntPtr alpha,
               cusparseConstSpVecDescr vecX,
               IntPtr beta,
               cusparseDnVecDescr vecY);
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseAxpby(cusparseContext handle,
               CUdeviceptr alpha,
               cusparseConstSpVecDescr vecX,
@@ -7262,6 +7298,7 @@ namespace ManagedCuda.CudaSparse
 
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSpVV_bufferSize(cusparseContext handle,
                         cusparseOperation opX,
                         cusparseConstSpVecDescr vecX,
@@ -7271,6 +7308,7 @@ namespace ManagedCuda.CudaSparse
                         cudaDataType computeType,
                         ref SizeT bufferSize);
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSpVV_bufferSize(cusparseContext handle,
                         cusparseOperation opX,
                         cusparseConstSpVecDescr vecX,
@@ -7281,6 +7319,7 @@ namespace ManagedCuda.CudaSparse
                         ref SizeT bufferSize);
 
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSpVV(cusparseContext handle,
              cusparseOperation opX,
              cusparseConstSpVecDescr vecX,
@@ -7289,6 +7328,7 @@ namespace ManagedCuda.CudaSparse
              cudaDataType computeType,
              CUdeviceptr externalBuffer);
         [DllImport(CUSPARSE_API_DLL_NAME)]
+        [Obsolete("Deprecated in Cuda 12.8")]
         public static extern cusparseStatus cusparseSpVV(cusparseContext handle,
              cusparseOperation opX,
              cusparseConstSpVecDescr vecX,

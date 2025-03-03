@@ -324,6 +324,18 @@ namespace ManagedCuda
         }
 
         /// <summary>
+        /// Returns the device handle of the stream
+        /// </summary>
+        public CUdevice GetDevice()
+        {
+            CUdevice device = new CUdevice();
+            CUResult res = DriverAPINativeMethods.Streams.cuStreamGetDevice(_stream, ref device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetDevice", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return device;
+        }
+
+        /// <summary>
         /// Wait on a memory location<para/>
         /// Enqueues a synchronization of the stream on the given memory location. Work
         /// ordered after the operation will block until the given condition on the

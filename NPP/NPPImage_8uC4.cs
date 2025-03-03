@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using ManagedCuda.BasicTypes;
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ManagedCuda.NPP
 {
@@ -8076,7 +8076,7 @@ namespace ManagedCuda.NPP
         /// <param name="aLevels">Host pointer to an array of 3 user defined number of input/output mapping points, one per 3D cube edge.
         /// aLevels[0] represents the number of x axis levels (Red), aLevels[1] represents the number of y axis levels (Green), 
         /// and aLevels[2] represets the number of z axis levels (Blue).</param>
-        public void LUTTrilinear(NPPImage_8uC4 dst, CudaDeviceVariable<int> pValues, int[] pLevels0, int[] pLevels1, int[] pLevels2, int[] aLevels)
+        public void LUTTrilinear(NPPImage_8uC4 dst, CudaDeviceVariable<int> pValues, byte[] pLevels0, byte[] pLevels1, byte[] pLevels2, int[] aLevels)
         {
             GCHandle h0 = new GCHandle(), h1 = new GCHandle(), h2 = new GCHandle();
             try
@@ -8122,7 +8122,7 @@ namespace ManagedCuda.NPP
         /// <param name="aLevels">Host pointer to an array of 3 user defined number of input/output mapping points, one per 3D cube edge.
         /// aLevels[0] represents the number of x axis levels (Red), aLevels[1] represents the number of y axis levels (Green), 
         /// and aLevels[2] represets the number of z axis levels (Blue).</param>
-        public void LUTTrilinearA(NPPImage_8uC4 dst, CudaDeviceVariable<int> pValues, int[] pLevels0, int[] pLevels1, int[] pLevels2, int[] aLevels)
+        public void LUTTrilinearA(NPPImage_8uC4 dst, CudaDeviceVariable<int> pValues, byte[] pLevels0, byte[] pLevels1, byte[] pLevels2, int[] aLevels)
         {
             GCHandle h0 = new GCHandle(), h1 = new GCHandle(), h2 = new GCHandle();
             try
@@ -8167,7 +8167,7 @@ namespace ManagedCuda.NPP
         /// <param name="aLevels">Host pointer to an array of 3 user defined number of input/output mapping points, one per 3D cube edge.
         /// aLevels[0] represents the number of x axis levels (Red), aLevels[1] represents the number of y axis levels (Green), 
         /// and aLevels[2] represets the number of z axis levels (Blue).</param>
-        public void LUTTrilinearA(CudaDeviceVariable<int> pValues, int[] pLevels0, int[] pLevels1, int[] pLevels2, int[] aLevels)
+        public void LUTTrilinearA(CudaDeviceVariable<int> pValues, byte[] pLevels0, byte[] pLevels1, byte[] pLevels2, int[] aLevels)
         {
             GCHandle h0 = new GCHandle(), h1 = new GCHandle(), h2 = new GCHandle();
             try

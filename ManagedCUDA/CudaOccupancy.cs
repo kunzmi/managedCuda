@@ -382,7 +382,9 @@ namespace ManagedCuda
                 case 6:
                 case 7: return 256;
                 case 8:
-                case 9: return 128;
+                case 9:
+                case 10:
+                case 12: return 128;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
         }
@@ -400,7 +402,9 @@ namespace ManagedCuda
                 case 6: return 255;
                 case 7:
                 case 8:
-                case 9: return 256;
+                case 9:
+                case 10:
+                case 12: return 256;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
         }
@@ -418,7 +422,9 @@ namespace ManagedCuda
                 case 6:
                 case 7:
                 case 8:
-                case 9: return 256;
+                case 9:
+                case 10:
+                case 12: return 256;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
         }
@@ -445,6 +451,8 @@ namespace ManagedCuda
                 case 7: return 4;
                 case 8: return 4;
                 case 9: return 4;
+                case 10: return 4;
+                case 12: return 4;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
         }
@@ -484,6 +492,18 @@ namespace ManagedCuda
                     return value;
                 case 9:
                     return 32;
+                case 10:
+                    if (properties.computeMinor == 1)
+                    {
+                        value = 24;
+                    }
+                    else
+                    {
+                        value = 32;
+                    }
+                    return value;
+                case 12:
+                    return 24;
                 default: throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
         }
@@ -673,6 +693,103 @@ namespace ManagedCuda
                         }
                         break;
                     }
+                case 10:
+                    {
+                        switch (properties.computeMinor)
+                        {
+                            // GB10x GPUs in Blackwell family have the below compute minors and corresponding
+                            // shared memory configs
+                            case 0:
+                            case 1:
+                                if (size == 0)
+                                {
+                                    shMemSize = 0;
+                                }
+                                else if (size <= 8 * 1024)
+                                {
+                                    shMemSize = 8 * 1024;
+                                }
+                                else if (size <= 16 * 1024)
+                                {
+                                    shMemSize = 16 * 1024;
+                                }
+                                else if (size <= 32 * 1024)
+                                {
+                                    shMemSize = 32 * 1024;
+                                }
+                                else if (size <= 64 * 1024)
+                                {
+                                    shMemSize = 64 * 1024;
+                                }
+                                else if (size <= 100 * 1024)
+                                {
+                                    shMemSize = 100 * 1024;
+                                }
+                                else if (size <= 132 * 1024)
+                                {
+                                    shMemSize = 132 * 1024;
+                                }
+                                else if (size <= 164 * 1024)
+                                {
+                                    shMemSize = 164 * 1024;
+                                }
+                                else if (size <= 196 * 1024)
+                                {
+                                    shMemSize = 196 * 1024;
+                                }
+                                else if (size <= 228 * 1024)
+                                {
+                                    shMemSize = 228 * 1024;
+                                }
+                                else
+                                {
+                                    throw new CudaOccupancyException(cudaOccError.ErrorInvalidInput);
+                                }
+                                break;
+                            default:
+                                throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+                        }
+                    }
+                    break;
+                case 12:
+                    {
+                        switch (properties.computeMinor)
+                        {
+                            case 0:
+                                if (size == 0)
+                                {
+                                    shMemSize = 0;
+                                }
+                                else if (size <= 8 * 1024)
+                                {
+                                    shMemSize = 8 * 1024;
+                                }
+                                else if (size <= 16 * 1024)
+                                {
+                                    shMemSize = 16 * 1024;
+                                }
+                                else if (size <= 32 * 1024)
+                                {
+                                    shMemSize = 32 * 1024;
+                                }
+                                else if (size <= 64 * 1024)
+                                {
+                                    shMemSize = 64 * 1024;
+                                }
+                                else if (size <= 100 * 1024)
+                                {
+                                    shMemSize = 100 * 1024;
+                                }
+                                else
+                                {
+                                    throw new CudaOccupancyException(cudaOccError.ErrorInvalidInput);
+                                }
+                                break;
+                            default:
+                                throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
+                        }
+                    }
+                    break;
                 default:
                     throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);
             }
@@ -840,6 +957,8 @@ namespace ManagedCuda
                 case 7:
                 case 8:
                 case 9:
+                case 10:
+                case 12:
                     switch (shmemLimitConfig)
                     {
                         //default:
@@ -1296,6 +1415,19 @@ namespace ManagedCuda
                     break;
                 case 9:
                     numBarriersAvailable = ctaLimitBlocks * 2;
+                    break;
+                case 10:
+                    if (properties.computeMinor == 1)
+                    {
+                        numBarriersAvailable = ctaLimitBlocks;
+                    }
+                    else
+                    {
+                        numBarriersAvailable = ctaLimitBlocks * 2;
+                    }
+                    break;
+                case 12:
+                    numBarriersAvailable = ctaLimitBlocks;
                     break;
                 default:
                     throw new CudaOccupancyException(cudaOccError.ErrorUnknownDevice);

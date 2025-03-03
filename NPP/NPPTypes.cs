@@ -439,24 +439,6 @@ namespace ManagedCuda.NPP
     public enum NppRoundMode
     {
         /// <summary>
-        /// Round towards zero (truncation).<para/> 
-        /// All fractional numbers of the form integer.decimals are truncated to
-        /// integer.<para/>
-        /// - roundZero(1.5) = 1<para/>
-        /// - roundZero(1.9) = 1<para/>
-        /// - roundZero(-2.5) = -2<para/>
-        /// </summary>
-        Zero,
-        /// <summary>
-        /// Round towards zero (truncation).<para/> 
-        /// All fractional numbers of the form integer.decimals are truncated to
-        /// integer.<para/>
-        /// - roundZero(1.5) = 1<para/>
-        /// - roundZero(1.9) = 1<para/>
-        /// - roundZero(-2.5) = -2<para/>
-        /// </summary>
-        RoundTowardZero,
-        /// <summary>
         /// Round to the nearest even integer.<para/>
         /// All fractional numbers are rounded to their nearest integer. The ambiguous
         /// cases (i.e. integer.5) are rounded to the closest even integer.<para/>
@@ -497,7 +479,25 @@ namespace ManagedCuda.NPP
         /// - roundFinancial(0.5)  = 1<para/>
         /// - roundFinancial(-1.5) = -2<para/>
         /// </summary>
-        RoundNearestTiesAwayFromZero = Financial
+        RoundNearestTiesAwayFromZero = Financial,
+        /// <summary>
+        /// Round towards zero (truncation).<para/> 
+        /// All fractional numbers of the form integer.decimals are truncated to
+        /// integer.<para/>
+        /// - roundZero(1.5) = 1<para/>
+        /// - roundZero(1.9) = 1<para/>
+        /// - roundZero(-2.5) = -2<para/>
+        /// </summary>
+        Zero,
+        /// <summary>
+        /// Round towards zero (truncation).<para/> 
+        /// All fractional numbers of the form integer.decimals are truncated to
+        /// integer.<para/>
+        /// - roundZero(1.5) = 1<para/>
+        /// - roundZero(1.9) = 1<para/>
+        /// - roundZero(-2.5) = -2<para/>
+        /// </summary>
+        RoundTowardZero = Zero
     }
 
     /// <summary>

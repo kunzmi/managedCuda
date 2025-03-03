@@ -24,10 +24,10 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-using System;
 using ManagedCuda.BasicTypes;
-using System.Runtime.Serialization;
+using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace ManagedCuda
 {
@@ -251,6 +251,9 @@ namespace ManagedCuda
                 case CUResult.UnsupportedDeviceSync:
                     message = "This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.";
                     break;
+                case CUResult.Contained:
+                    message = "This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.";
+                    break;
                 case CUResult.ErrorInvalidSource:
                     message = "This indicates that the device kernel source is invalid. This includes compilation/linker errors encountered in device code or user error.";
                     break;
@@ -338,6 +341,9 @@ namespace ManagedCuda
                 case CUResult.ErrorCooperativeLaunchTooLarge:
                     message = "This error indicates that the number of blocks launched per grid for a kernel that was launched via either ::cuLaunchCooperativeKernel or ::cuLaunchCooperativeKernelMultiDevice exceeds the maximum number of blocks as allowed by ::cuOccupancyMaxActiveBlocksPerMultiprocessor or ::cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags times the number of multiprocessors as specified by the device attribute ::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT.";
                     break;
+                case CUResult.TensorMemoryLeak:
+                    message = "An exception occurred on the device while exiting a kernel using tensor memory: the tensor memory was not completely deallocated. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.";
+                    break;
                 case CUResult.ErrorNotPermitted:
                     message = "This error indicates that the attempted operation is not permitted.";
                     break;
@@ -424,6 +430,9 @@ namespace ManagedCuda
                     break;
                 case CUResult.ErrorInvalidResourceConfiguration:
                     message = "This error indicates one or more resources are insufficient or non-applicable for the operation.";
+                    break;
+                case CUResult.KeyRotation:
+                    message = "This error indicates that an error happened during the key rotation sequence.";
                     break;
                 case CUResult.ErrorUnknown:
                     message = "This indicates that an unknown internal error has occurred.";

@@ -25,6 +25,7 @@
 
 
 using System;
+using System.IO;
 
 namespace ManagedCuda.BasicTypes
 {
@@ -932,6 +933,19 @@ namespace ManagedCuda.BasicTypes
                                          | SkipSharedMemory
                                          | SkipLocalMemory
                                          | SkipConstbankMemory
+    }
+
+
+    /// <summary>
+    /// Flag for requesting handle type for address range.
+    /// </summary>
+    [Flags]
+    public enum CUmemRangeFlags
+    {
+        /// <summary>
+        /// Indicates that DMA_BUF handle should be mapped via PCIe BAR1
+        /// </summary>
+        DMA_BUFMappingTypePCIE = 0x1
     }
     #endregion
 

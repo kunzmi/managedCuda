@@ -163,7 +163,11 @@ namespace ManagedCuda
         private int _numaID;
         private int _hostNumaID;
         private bool _d3D12CIGSupported;
-
+        private CUmemDecompressAlgorithm _memDecompressAlgorithmMask;
+        private int _memDecompressMaximumLength;
+        private int _gpuPciDeviceID;
+        private int _gpuPciSubsystemID;
+        private bool _hostNUMAMultinodeIPCSupported;
 
 
 
@@ -1295,6 +1299,47 @@ namespace ManagedCuda
         {
             get { return this._d3D12CIGSupported; }
             internal set { this._d3D12CIGSupported = value; }
+        }
+
+        /// <summary>
+        /// The returned valued shall be interpreted as a bitmask, where the individual bits are described by the ::CUmemDecompressAlgorithm enum.
+        /// </summary>
+        public CUmemDecompressAlgorithm MemDecompressAlgorithmMask
+        {
+            get { return this._memDecompressAlgorithmMask; }
+            internal set { this._memDecompressAlgorithmMask = value; }
+        }
+        /// <summary>
+        /// The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
+        /// </summary>
+        public int MemDecompressMaximumLength
+        {
+            get { return this._memDecompressMaximumLength; }
+            internal set { this._memDecompressMaximumLength = value; }
+        }
+        /// <summary>
+        /// The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+        /// </summary>
+        public int GpuPciDeviceID
+        {
+            get { return this._gpuPciDeviceID; }
+            internal set { this._gpuPciDeviceID = value; }
+        }
+        /// <summary>
+        /// The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+        /// </summary>
+        public int GpuPciSubsystemID
+        {
+            get { return this._gpuPciSubsystemID; }
+            internal set { this._gpuPciSubsystemID = value; }
+        }
+        /// <summary>
+        /// Device supports HOST_NUMA location IPC between nodes in a multi-node system.
+        /// </summary>
+        public bool HostNUMAMultinodeIPCSupported
+        {
+            get { return this._hostNUMAMultinodeIPCSupported; }
+            internal set { this._hostNUMAMultinodeIPCSupported = value; }
         }
     }
 }

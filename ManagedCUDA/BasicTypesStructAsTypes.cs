@@ -803,6 +803,21 @@ namespace ManagedCuda.BasicTypes
             }
         }
 
+        /// <summary>
+        /// Returns a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
+        /// </summary>
+        public bool AttributeIsHWDecompressCapable
+        {
+            get
+            {
+                int ret = 0;
+                CUResult res = DriverAPINativeMethods.MemoryManagement.cuPointerGetAttribute(ref ret, CUPointerAttribute.IsHWDecompressCapable, this);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuPointerGetAttribute", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+                return ret != 0;
+            }
+        }
+
         #endregion
     }
 

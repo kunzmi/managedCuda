@@ -24,9 +24,9 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -5491,9 +5491,9 @@ namespace ManagedCuda.NPP
         /// Calculate scratch buffer sizes needed for 1 channel 8-bit unsigned integer watershed segmentation function based on destination image oSizeROI width and height.
         /// </summary>
         /// <returns></returns>
-        public int SegmentWatershedGetBufferSize()
+        public SizeT SegmentWatershedGetBufferSize()
         {
-            int bufferSize = 0;
+            SizeT bufferSize = 0;
             status = NPPNativeMethods.NPPi.WatershedSegmentation.nppiSegmentWatershedGetBufferSize_16u_C1R(_sizeRoi, ref bufferSize);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiSegmentWatershedGetBufferSize_16u_C1R", status));
             NPPException.CheckNppStatus(status, this);

@@ -259,8 +259,19 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// 3 channel 10-bit YUV planar format, with 4:4:4 sampling
         /// </summary>
-        Y444_PLANAR10 = 0xb3
-
+        Y444_PLANAR10 = 0xb3,
+        /// <summary>
+        /// 3 channel 8-bit YUV semi-planar format, with 4:4:4 sampling
+        /// </summary>
+        YUV444_8bit_SemiPlanar = 0xb4,
+        /// <summary>
+        /// 3 channel 16-bit YUV semi-planar format, with 4:4:4 sampling
+        /// </summary>
+        YUV444_16bit_SemiPlanar = 0xb5,
+        /// <summary>
+        /// 4 channel unorm R10G10B10A2 RGB format
+        /// </summary>
+        UNORM_INT_101010_2 = 0x50,
     }
 
     /// <summary>
@@ -937,6 +948,26 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         D3D12CIGSupported = 135,
         /// <summary>
+        /// The returned valued shall be interpreted as a bitmask, where the individual bits are described by the ::CUmemDecompressAlgorithm enum.
+        /// </summary>
+        MemDecompressAlgorithmMask = 136,
+        /// <summary>
+        /// The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
+        /// </summary>
+        MemDecompressMaximumLength = 137,
+        /// <summary>
+        /// The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+        /// </summary>
+        GpuPciDeviceID = 139,
+        /// <summary>
+        /// The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+        /// </summary>
+        GpuPciSubsystemID = 140,
+        /// <summary>
+        /// Device supports HOST_NUMA location IPC between nodes in a multi-node system.
+        /// </summary>
+        HostNUMAMultinodeIPCSupported = 143,
+        /// <summary>
         /// Max elems...
         /// </summary>
         MAX
@@ -1563,11 +1594,35 @@ namespace ManagedCuda.BasicTypes
         /// Compute device class 9.0.
         /// </summary>
         Compute_90 = 90,
+        /// <summary>
+        /// Compute device class 10.0.
+        /// </summary>
+        Compute_100 = 100,
+        /// <summary>
+        /// Compute device class 10.1.
+        /// </summary>
+        Compute_101 = 101,
+        /// <summary>
+        /// Compute device class 12.0.
+        /// </summary>
+        Compute_120 = 120,
 
         /// <summary>
         /// Compute device class 9.0. with accelerated features.
         /// </summary>
-        Compute_90A = 0x10000 + Compute_90
+        Compute_90A = 0x10000 + Compute_90,
+        /// <summary>
+        /// Compute device class 10.0. with accelerated features.
+        /// </summary>
+        Compute_100A = 0x10000 + Compute_100,
+        /// <summary>
+        /// Compute device class 10.1 with accelerated features.
+        /// </summary>
+        Compute_101A = 0x10000 + Compute_101,
+        /// <summary>
+        /// Compute device class 12.0. with accelerated features.
+        /// </summary>
+        Compute_120A = 0x10000 + Compute_120,
         // Indicates that compute device class supports accelerated features.
         // #define CU_COMPUTE_ACCELERATED_TARGET_BASE   0x10000
     }
@@ -1749,7 +1804,7 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         CigEnabled = 0x08,
         /// <summary>
-        /// When set to a non-zero value, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, 
+        /// When set to zero, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, 
         /// if the kernel uses more shared memory than available
         /// </summary>
         CigSharedMemFallbackEnabled = 0x09,
@@ -2018,6 +2073,17 @@ namespace ManagedCuda.BasicTypes
         UnsupportedDeviceSync = 225,
 
         /// <summary>
+        /// This indicates that an exception occurred on the device that is now
+        /// contained by the GPU's error containment capability. Common causes are -
+        /// a. Certain types of invalid accesses of peer GPU memory over nvlink
+        /// b. Certain classes of hardware errors
+        /// This leaves the process in an inconsistent state and any further CUDA
+        /// work will return the same error. To continue using CUDA, the process must
+        /// be terminated and relaunched.
+        /// </summary>
+        Contained = 226,
+
+        /// <summary>
         /// This indicates that the device kernel source is invalid. This includes
         /// compilation/linker errors encountered in device code or user error.
         /// </summary>
@@ -2220,8 +2286,13 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         ErrorCooperativeLaunchTooLarge = 720,
 
-
-
+        /// <summary>
+        /// An exception occurred on the device while exiting a kernel using tensor memory: the
+        /// tensor memory was not completely deallocated. This leaves the process in an inconsistent
+        /// state and any further CUDA work will return the same error. To continue using CUDA, the
+        /// process must be terminated and relaunched.
+        /// </summary>
+        TensorMemoryLeak = 721,
 
         //Removed in update CUDA version 3.1 -> 3.2
         ///// <summary>
@@ -2403,6 +2474,11 @@ namespace ManagedCuda.BasicTypes
         ErrorInvalidResourceConfiguration = 915,
 
         /// <summary>
+        /// This error indicates that an error happened during the key rotation sequence.
+        /// </summary>
+        KeyRotation = 916,
+
+        /// <summary>
         /// Unknown error
         /// </summary>
         ErrorUnknown = 999,
@@ -2575,8 +2651,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// A process-wide unique id corresponding to the physical allocation the pointer belongs to
         /// </summary>
-        MemoryBlockID = 20
-
+        MemoryBlockID = 20,
+        /// <summary>
+        /// Returns in \p *data a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
+        /// </summary>
+        IsHWDecompressCapable = 21
     }
 
     /// <summary>
@@ -3478,7 +3557,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// This flag if set indicates that the memory will be used as a tile pool.
         /// </summary>
-        TilePool = 0x1
+        TilePool = 0x1,
+        /// <summary>
+        /// This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
+        /// </summary>
+        HWDecompress = 0x2
     }
 
     /// <summary>
@@ -3500,6 +3583,7 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         ReadWrite = 0x3
     }
+
 
     /// <summary>
     /// Sparse subresource types
@@ -3743,7 +3827,13 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         TFloat32,
         /// <summary/>
-        TFloat32_FTZ
+        TFloat32_FTZ,
+        /// <summary/>
+        _16U4_Align8B,
+        /// <summary/>
+        _16U4_Align16B,
+        /// <summary/>
+        _16U6_Align16B
     }
 
     /// <summary>
@@ -3771,7 +3861,13 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         Swizzle64B,
         /// <summary/>
-        Swizzle128B
+        Swizzle128B,
+        /// <summary/>
+        Swizzle128B_ATOM_32B,
+        /// <summary/>
+        Swizzle128B_ATOM_32B_FLIP_8B,
+        /// <summary/>
+        Swizzle128B_ATOM_64B
     }
 
     /// <summary>
@@ -3798,6 +3894,17 @@ namespace ManagedCuda.BasicTypes
         None = 0,
         /// <summary/>
         NanRequestZeroFMA
+    }
+
+    /// <summary>
+    /// Tensor map Im2Col wide mode
+    /// </summary>
+    public enum CUtensorMapIm2ColWideMode
+    {
+        /// <summary/>
+        W = 0,
+        /// <summary/>
+        W128
     }
 
 
@@ -3841,7 +3948,11 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// Instantiation for device launch failed due to the nodes belonging to different contexts
         /// </summary>
-        MultipleCtxsNotSupported = 4
+        MultipleCtxsNotSupported = 4,
+        /// <summary>
+        /// One or more conditional handles are not associated with conditional nodes
+        /// </summary>
+        ConditionalHandleUnused = 5
     }
 
 
@@ -3946,6 +4057,45 @@ namespace ManagedCuda.BasicTypes
         /// ::CUlaunchAttributeValue::memSyncDomain.
         /// </summary>
         MemSyncDomain = 10,
+        /// <summary>
+        /// Valid for graph nodes, launches. Set
+        /// ::CUlaunchAttributeValue::preferredClusterDim
+        /// to allow the kernel launch to specify a preferred substitute
+        /// cluster dimension. Blocks may be grouped according to either
+        /// the dimensions specified with this attribute (grouped into a
+        /// "preferred substitute cluster"), or the one specified with
+        /// ::CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION attribute (grouped
+        /// into a "regular cluster"). The cluster dimensions of a
+        /// "preferred substitute cluster" shall be an integer multiple
+        /// greater than zero of the regular cluster dimensions. The
+        /// device will attempt - on a best-effort basis - to group
+        /// thread blocks into preferred clusters over grouping them
+        /// into regular clusters. When it deems necessary (primarily
+        /// when the device temporarily runs out of physical resources
+        /// to launch the larger preferred clusters), the device may
+        /// switch to launch the regular clusters instead to attempt to
+        /// utilize as much of the physical device resources as possible.
+        /// <para/>
+        /// Each type of cluster will have its enumeration / coordinate
+        /// setup as if the grid consists solely of its type of cluster.
+        /// For example, if the preferred substitute cluster dimensions
+        /// double the regular cluster dimensions, there might be
+        /// simultaneously a regular cluster indexed at (1,0,0), and a
+        /// preferred cluster indexed at (1,0,0). In this example, the
+        /// preferred substitute cluster (1,0,0) replaces regular
+        /// clusters (2,0,0) and (3,0,0) and groups their blocks.
+        /// <para/>
+        /// This attribute will only take effect when a regular cluster
+        /// dimension has been specified. The preferred substitute
+        /// cluster dimension must be an integer multiple greater than
+        /// zero of the regular cluster dimension and must divide the
+        /// grid. It must also be no more than `maxBlocksPerCluster`, if
+        /// it is set in the kernel's `__launch_bounds__`. Otherwise it
+        /// must be less than the maximum value the driver can support.
+        /// Otherwise, setting this attribute to a value physically
+        /// unable to fit on any particular device is permitted. 
+        /// </summary>
+        PreferredClusterDimension = 11,
         /// <summary>
         /// Valid for launches. Set
         /// ::CUlaunchAttributeValue::launchCompletionEvent to record the event.
@@ -4079,6 +4229,29 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
+    /// CUDA Process States
+    /// </summary>
+    public enum CUprocessState
+    {
+        /// <summary>
+        /// Default process state
+        /// </summary>
+        Running = 0,
+        /// <summary>
+        /// CUDA API locks are taken so further CUDA API calls will block
+        /// </summary>
+        Locked,
+        /// <summary>
+        /// Application memory contents have been checkpointed and underlying allocations and device handles have been released
+        /// </summary>
+        Checkpointed,
+        /// <summary>
+        /// Application entered an uncorrectable error during the checkpoint/restore process
+        /// </summary>
+        Failed,
+    }
+
+    /// <summary>
     /// CUGraphCondAssign
     /// </summary>
     public enum CUGraphCondAssign
@@ -4099,13 +4272,17 @@ namespace ManagedCuda.BasicTypes
     public enum CUgraphConditionalNodeType
     {
         /// <summary>
-        /// Conditional'if' Node. Body executed once if condition value is non-zero.
+        /// Conditional'if/else' Node. Body[0] executed if condition is non-zero.  If \p size == 2, an optional ELSE graph is created and this is executed if the condition is zero.
         /// </summary>
         If = 0,
         /// <summary>
         /// Conditional 'while' Node. Body executed repeatedly while condition value is non-zero.
         /// </summary>
         While = 1,
+        /// <summary>
+        /// Conditional 'switch' Node. Body[n] is executed once, where 'n' is the value of the condition. If the condition does not match a body index, no body is launched.
+        /// </summary>
+        Switch = 2
     }
 
     /// <summary>
@@ -4201,6 +4378,96 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         D3D12CommandQueue = 0x1
 
+    }
+
+
+    /// <summary>
+    /// Flags to specify for copies within a batch. For more details see ::cuMemcpyBatchAsync.
+    /// </summary>
+    public enum CUmemcpyFlags
+    {
+        /// <summary>
+        /// Default
+        /// </summary>
+        Default = 0x0,
+
+        /// <summary>
+        /// Hint to the driver to try and overlap the copy with compute work on the SMs.
+        /// </summary>
+        PreferOverlapWithCompute = 0x1
+    }
+
+    /// <summary>
+    /// These flags allow applications to convey the source access ordering CUDA must maintain.
+    /// The destination will always be accessed in stream order.
+    /// </summary>
+    public enum CUmemcpySrcAccessOrder
+    {
+        /// <summary>
+        /// Default invalid.
+        /// </summary>
+        Invalid = 0x0,
+
+        /// <summary>
+        /// Indicates that access to the source pointer must be in stream order.
+        /// </summary>
+        Stream = 0x1,
+
+        /// <summary>
+        /// Indicates that access to the source pointer can be out of stream order and
+        /// all accesses must be complete before the API call returns. This flag is suited for
+        /// ephemeral sources (ex., stack variables) when it's known that no prior operations
+        /// in the stream can be accessing the memory and also that the lifetime of the memory
+        /// is limited to the scope that the source variable was declared in. Specifying
+        /// this flag allows the driver to optimize the copy and removes the need for the user
+        /// to synchronize the stream after the API call.
+        /// </summary>
+        DuringAPICall = 0x2,
+
+        /// <summary>
+        /// Indicates that access to the source pointer can be out of stream order and the accesses
+        /// can happen even after the API call returns. This flag is suited for host pointers
+        /// allocated outside CUDA (ex., via malloc) when it's known that no prior operations
+        /// in the stream can be accessing the memory. Specifying this flag allows the driver
+        /// to optimize the copy on certain platforms.
+        /// </summary>
+        Any = 0x3,
+    }
+
+
+    /// <summary>
+    /// These flags allow applications to convey the operand type for individual copies specified in ::cuMemcpy3DBatchAsync.
+    /// </summary>
+    public enum CUmemcpy3DOperandType
+    {
+        /// <summary>
+        /// Memcpy operand is a valid pointer.
+        /// </summary>
+        Pointer = 0x1,
+        /// <summary>
+        /// Memcpy operand is a CUarray.
+        /// </summary>
+        Array = 0x2
+    }
+
+    /// <summary>
+    /// Bitmasks for CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK.
+    /// </summary>
+    [Flags]
+    public enum CUmemDecompressAlgorithm
+    {
+        /// <summary>
+        /// Decompression is unsupported.
+        /// </summary>
+        Unsupported = 0,
+        /// <summary>
+        /// Deflate is supported.
+        /// </summary>
+        Deflate = 1 << 0,
+        /// <summary>
+        /// Snappy is supported.
+        /// </summary>
+        Snappy = 1 << 1
     }
     #endregion
 }
