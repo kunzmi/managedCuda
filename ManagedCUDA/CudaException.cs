@@ -428,6 +428,9 @@ namespace ManagedCuda
                 case CUResult.KeyRotation:
                     message = "This error indicates that an error happened during the key rotation sequence.";
                     break;
+                case CUResult.StreamDetached:
+                    message = "This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream's operational capabilities.";
+                    break;
                 case CUResult.ErrorUnknown:
                     message = "This indicates that an unknown internal error has occurred.";
                     break;

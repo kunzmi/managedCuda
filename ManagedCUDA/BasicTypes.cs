@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -888,10 +889,20 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
+    /// Flags for a CUdevSmResource group
+    /// </summary>
+    [Flags]
+    public enum CUdevSmResourceGroup_flags
+    {
+        Default = 0,
+        Backfill = 0x1,
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     [Flags]
-    public enum CUdevSmResourceSplit_flags
+    public enum CUdevSmResourceSplitByCount_flags
     {
         /// <summary>
         /// None
@@ -927,6 +938,8 @@ namespace ManagedCuda.BasicTypes
         SkipAbort = (1 << 4),
         /// <summary/>
         SkipConstbankMemory = (1 << 5),
+        /// <summary/>
+        GzipCompress = (1 << 6),
 
         /// <summary/>
         LeightWeightFlags = SkipNonRelocatedElfImages
@@ -990,7 +1003,16 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     public delegate void CUlogsCallback(IntPtr data, CUlogLevel logLevel, IntPtr message, SizeT length);
 
-
+    /// <summary>
+    /// Callback function prototype for GPU coredump status notifications<para/>
+    /// This callback will be invoked when a GPU coredump begins or completes,
+    /// depending on which registration function was used.The callback executes
+    /// synchronously during the coredump process.
+    /// </summary>
+    /// <param name="userData">User-provided data pointer that was passed during registration</param>
+    /// <param name="pid">Process ID of the faulted process</param>
+    /// <param name="dev">Device ordinal where the coredump occurred</param>
+    public delegate void CUcoredumpStatusCallback(IntPtr userData, int pid, CUdevice dev);
     #endregion
 
 }

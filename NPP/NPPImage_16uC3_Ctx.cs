@@ -2567,24 +2567,6 @@ namespace ManagedCuda.NPP
         }
 
         /// <summary>
-        /// Compute levels with even distribution.
-        /// </summary>
-        /// <param name="nLevels">The number of levels being computed. nLevels must be at least 2, otherwise an NPP_-
-        /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
-        /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
-        /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>An array of size nLevels which receives the levels being computed.</returns>
-        public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
-        {
-            int[] Levels = new int[nLevels];
-            status = NPPNativeMethods_Ctx.NPPi.Histogram.nppiEvenLevelsHost_32s_Ctx(Levels, nLevels, nLowerBound, nUpperBound, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEvenLevelsHost_32s_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return Levels;
-        }
-
-        /// <summary>
         /// Histogram with evenly distributed bins. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="histogram">Allocated device memory of size nLevels (3 Variables)</param>
@@ -6335,6 +6317,39 @@ namespace ManagedCuda.NPP
             int[] arraySrcPitch = new int[] { src0.Pitch, src1.Pitch, src2.Pitch };
             NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nAlpha, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_16u_ColorTwist32f_P3AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+
+        #region New in Cuda 13.x
+
+        /// <summary>
+        /// Three unsigned 8-bit planar RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+        /// </summary>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToUYVP(NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel planar 16-bit unsigned RGB to YCbCr color conversion.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void RGBToUYVP(NPPImage_16uC1 src0, NPPImage_16uC1 src1, NPPImage_16uC1 src2, NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx(arraySrc, src0.Pitch, src0.PointRoi, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx", status));
             NPPException.CheckNppStatus(status, null);
         }
         #endregion

@@ -206,6 +206,94 @@ namespace ManagedCuda.CudaSolve
         }
         #endregion
 
+        #region Fixed-point FP64 emulation configuration APIs
+
+        /// <summary>
+        /// </summary>
+        public void SetFixedPointEmulationMantissaControl(cudaEmulationMantissaControl control)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnSetFixedPointEmulationMantissaControl(_handle, control);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSetFixedPointEmulationMantissaControl", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        /// <summary>
+        /// </summary>
+        public cudaEmulationMantissaControl GetFixedPointEmulationMantissaControl()
+        {
+            cudaEmulationMantissaControl control = new cudaEmulationMantissaControl();
+            res = CudaSolveNativeMethods.Dense.cusolverDnGetFixedPointEmulationMantissaControl(_handle, ref control);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnGetFixedPointEmulationMantissaControl", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+
+            return control;
+        }
+        /// <summary>
+        /// </summary>
+        public void SetFixedPointEmulationMaxMantissaBitCount(int mantissaBitCount)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnSetFixedPointEmulationMaxMantissaBitCount(_handle, mantissaBitCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSetFixedPointEmulationMaxMantissaBitCount", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        /// <summary>
+        /// </summary>
+        public int GetFixedPointEmulationMaxMantissaBitCount()
+        {
+            int mantissaBitCount = 0;
+            res = CudaSolveNativeMethods.Dense.cusolverDnGetFixedPointEmulationMaxMantissaBitCount(_handle, ref mantissaBitCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnGetFixedPointEmulationMaxMantissaBitCount", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+
+            return mantissaBitCount;
+        }
+
+
+        /// <summary>
+        /// </summary>
+        public void SetFixedPointEmulationMantissaBitOffset(int mantissaBitOffset)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnSetFixedPointEmulationMantissaBitOffset(_handle, mantissaBitOffset);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSetFixedPointEmulationMantissaBitOffset", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        /// <summary>
+        /// </summary>
+        public int GetFixedPointEmulationMantissaBitOffset()
+        {
+            int mantissaBitOffset = 0;
+            res = CudaSolveNativeMethods.Dense.cusolverDnGetFixedPointEmulationMantissaBitOffset(_handle, ref mantissaBitOffset);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnGetFixedPointEmulationMantissaBitOffset", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+
+            return mantissaBitOffset;
+        }
+
+        /// <summary>
+        /// </summary>
+        public void SetEmulationSpecialValuesSupport(cudaEmulationSpecialValuesSupport mask)
+        {
+            res = CudaSolveNativeMethods.Dense.cusolverDnSetEmulationSpecialValuesSupport(_handle, mask);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnSetEmulationSpecialValuesSupport", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+        }
+
+        /// <summary>
+        /// </summary>
+        public cudaEmulationSpecialValuesSupport GetEmulationSpecialValuesSupport()
+        {
+            cudaEmulationSpecialValuesSupport mask = new cudaEmulationSpecialValuesSupport();
+            res = CudaSolveNativeMethods.Dense.cusolverDnGetEmulationSpecialValuesSupport(_handle, ref mask);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cusolverDnGetEmulationSpecialValuesSupport", res));
+            if (res != cusolverStatus.Success) throw new CudaSolveException(res);
+
+            return mask;
+        }
+
+        #endregion
+
         #region Cholesky factorization and its solver
         /// <summary>
         /// This function computes the Cholesky factorization of a Hermitian positive-definite matrix.

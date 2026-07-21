@@ -1421,4 +1421,35 @@ namespace ManagedCuda
             _ptrValue = (IntPtr)value;
         }
     }
+
+
+    /// <summary>
+    /// This option specifies the maximum number of concurrent threads to use
+    /// when compiling device code. If the specified value is 1, the option will
+    /// be ignored. If the specified value is 0, the number of threads will match
+    /// the number of CPUs on the underlying machine. Otherwise, if the option is
+    /// N, then up to N threads will be used.<para/>
+    /// This option is ignored if the env var CUDA_BINARY_LOADER_THREAD_COUNT is set.<para/>
+    /// Option type: unsigned int<para/>
+    /// Applies to: compiler and linker
+    /// </summary>
+    public class CudaJOBinaryLoaderThreadCount : CudaJitOption
+    {
+        /// <summary>
+        /// This option specifies the maximum number of concurrent threads to use
+        /// when compiling device code. If the specified value is 1, the option will
+        /// be ignored. If the specified value is 0, the number of threads will match
+        /// the number of CPUs on the underlying machine. Otherwise, if the option is
+        /// N, then up to N threads will be used.<para/>
+        /// This option is ignored if the env var CUDA_BINARY_LOADER_THREAD_COUNT is set.<para/>
+        /// Option type: unsigned int<para/>
+        /// Applies to: compiler and linker
+        /// </summary>
+        /// <param name="value"></param>
+        public CudaJOBinaryLoaderThreadCount(uint value)
+        {
+            _option = CUJITOption.BinaryLoaderThreadCount;
+            _ptrValue = (IntPtr)value;
+        }
+    }
 }

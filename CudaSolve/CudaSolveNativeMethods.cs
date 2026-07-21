@@ -43,7 +43,7 @@ namespace ManagedCuda.CudaSolve
 #if (NETCOREAPP)
         internal const string CUSOLVE_API_DLL_NAME_LINUX = "cusolver";
         internal const string CUSOLVE_SHORT_VERSION_LINUX = "12";
-        internal const string CUSOLVE_LONG_VERSION_LINUX = "12.0.4.66";
+        internal const string CUSOLVE_LONG_VERSION_LINUX = "12.2.0.11";
 
         static CudaSolveNativeMethods()
         {
@@ -154,6 +154,47 @@ namespace ManagedCuda.CudaSolve
 
             [DllImport(CUSOLVE_API_DLL_NAME)]
             public static extern cusolverStatus cusolverDnGetEmulationStrategy(cusolverDnHandle handle, ref cudaEmulationStrategy strategy);
+
+            // Fixed-point FP64 emulation configuration APIs
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnSetFixedPointEmulationMantissaControl(
+              cusolverDnHandle handle,
+              cudaEmulationMantissaControl control);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnGetFixedPointEmulationMantissaControl(
+              cusolverDnHandle handle,
+              ref cudaEmulationMantissaControl control);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnSetFixedPointEmulationMaxMantissaBitCount(
+              cusolverDnHandle handle,
+              int mantissaBitCount);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnGetFixedPointEmulationMaxMantissaBitCount(
+              cusolverDnHandle handle,
+              ref int mantissaBitCount);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnSetFixedPointEmulationMantissaBitOffset(
+              cusolverDnHandle handle,
+              int mantissaBitOffset);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnGetFixedPointEmulationMantissaBitOffset(
+              cusolverDnHandle handle,
+              ref int mantissaBitOffset);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnSetEmulationSpecialValuesSupport(
+              cusolverDnHandle handle,
+              cudaEmulationSpecialValuesSupport mask);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnGetEmulationSpecialValuesSupport(
+              cusolverDnHandle handle,
+              ref cudaEmulationSpecialValuesSupport mask);
             #endregion
 
             #region Cholesky factorization and its solver
@@ -2760,6 +2801,107 @@ namespace ManagedCuda.CudaSolve
                 CUdeviceptr work,
                 int lwork,
                 CUdeviceptr info);
+            #endregion
+
+            #region new in Cuda 13.2
+
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsygvd_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigType itype,
+                cusolverEigMode jobz,
+                FillMode uplo,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr d_A,
+                long lda,
+                cudaDataType dataTypeB,
+                CUdeviceptr d_B,
+                long ldb,
+                cudaDataType dataTypeW,
+                CUdeviceptr d_W,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsygvd(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigType itype,
+                cusolverEigMode jobz,
+                FillMode uplo,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr d_A,
+                long lda,
+                cudaDataType dataTypeB,
+                CUdeviceptr d_B,
+                long ldb,
+                cudaDataType dataTypeW,
+                CUdeviceptr d_W,
+                cudaDataType computeType,
+                CUdeviceptr bufferOnDevice,
+                SizeT workspaceInBytesOnDevice,
+                byte[] bufferOnHost,
+                SizeT workspaceInBytesOnHost,
+                CUdeviceptr d_info);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsygvdx_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigType itype,
+                cusolverEigMode jobz,
+                FillMode uplo,
+                long n,
+                cudaDataType dataTypeA,
+                CUdeviceptr d_A,
+                long lda,
+                cudaDataType dataTypeB,
+                CUdeviceptr d_B,
+                long ldb,
+                CUdeviceptr vl,
+                CUdeviceptr vu,
+                long il,
+                long iu,
+                ref long meig,
+                cudaDataType dataTypeW,
+                CUdeviceptr d_W,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXsygvdx(
+              cusolverDnHandle handle,
+              cusolverDnParams parameters,
+              cusolverEigType itype,
+              cusolverEigMode jobz,
+              cusolverEigRange range,
+              FillMode uplo,
+              long n,
+              cudaDataType dataTypeA,
+              CUdeviceptr d_A,
+              long lda,
+              cudaDataType dataTypeB,
+              CUdeviceptr d_B,
+              long ldb,
+              CUdeviceptr vl,
+              CUdeviceptr vu,
+              long il,
+              long iu,
+              ref long meig,
+              cudaDataType dataTypeW,
+              CUdeviceptr d_W,
+              cudaDataType computeType,
+              CUdeviceptr bufferOnDevice,
+              SizeT workspaceInBytesOnDevice,
+              byte[] bufferOnHost,
+              SizeT workspaceInBytesOnHost,
+              CUdeviceptr d_info);
             #endregion
 
 
@@ -5828,6 +5970,43 @@ namespace ManagedCuda.CudaSolve
                 SizeT workspaceInBytesOnHost,
                 CUdeviceptr info);
 
+            /* 64-bit API for STEDC */
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXstedc_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                cusolverEigComp compz,
+                long n,
+                cudaDataType dataTypeDE,
+                CUdeviceptr D,
+                CUdeviceptr E,
+                cudaDataType dataTypeZ,
+                CUdeviceptr Z,
+                long ldz,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXstedc(
+               cusolverDnHandle handle,
+               cusolverDnParams parameters,
+               cusolverEigComp compz,
+               long n,
+               cudaDataType dataTypeDE,
+               CUdeviceptr D,
+               CUdeviceptr E,
+               cudaDataType dataTypeZ,
+               CUdeviceptr Z,
+               long ldz,
+               cudaDataType computeType,
+               CUdeviceptr bufferOnDevice,
+               SizeT workspaceInBytesOnDevice,
+               byte[] bufferOnHost,
+               SizeT workspaceInBytesOnHost,
+               CUdeviceptr info);
+
+
             /* 64-bit API for batched SYEV */
             [DllImport(CUSOLVE_API_DLL_NAME)]
             public static extern cusolverStatus cusolverDnXsyevBatched_bufferSize(
@@ -6166,6 +6345,48 @@ namespace ManagedCuda.CudaSolve
                     SizeT workspaceInBytesOnDevice,
                     byte[] bufferOnHost,
                     SizeT workspaceInBytesOnHost);
+
+
+            /* Public APIs for cusolverDnXpolar. */
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXpolar_bufferSize(
+                cusolverDnHandle handle,
+                cusolverDnParams parameters,
+                FillMode uplo,
+                long M,
+                long N,
+                cudaDataType dataTypeA,
+                CUdeviceptr A,
+                long lda,
+                cudaDataType dataTypeH,
+                CUdeviceptr H,
+                long ldh,
+                cudaDataType computeType,
+                ref SizeT workspaceInBytesOnDevice,
+                ref SizeT workspaceInBytesOnHost);
+
+            [DllImport(CUSOLVE_API_DLL_NAME)]
+            public static extern cusolverStatus cusolverDnXpolar(
+              cusolverDnHandle handle,
+              cusolverDnParams parameters,
+              FillMode uplo,
+              long M,
+              long N,
+              cudaDataType dataTypeA,
+              CUdeviceptr A,
+              long lda,
+              cudaDataType dataTypeH,
+              CUdeviceptr H,
+              long ldh,
+              cudaDataType computeType,
+              CUdeviceptr bufferOnDevice,
+              long workspaceInBytesOnDevice,
+              byte[] bufferOnHost,
+              long workspaceInBytesOnHost,
+              CUdeviceptr d_res_nrm,   /* [device] res = |A - Up*H| */
+              CUdeviceptr d_A_nrmF,    /* [device] A_nrmF = |A|_F */
+              CUdeviceptr d_rcond,     /* [device] rcond = 1/cond(A, 'fro') */
+              CUdeviceptr d_info       /* [device] */);
         }
 
         /// <summary>

@@ -6465,6 +6465,12 @@ namespace ManagedCuda
             if (res != CUResult.Success) throw new CudaException(res);
             props.OnlyPartialHostNativeAtomicSupported = onlyPartialHostNativeAtomicSupported != 0;
 
+            int atomicReductionSupported = 0;
+            res = DriverAPINativeMethods.DeviceManagement.cuDeviceGetAttribute(ref atomicReductionSupported, CUDeviceAttribute.AtomicReductionSupported, device);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuDeviceGetAttribute", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            props.AtomicReductionSupported = atomicReductionSupported != 0;
+
             return props;
         }
 

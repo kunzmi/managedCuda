@@ -40554,19 +40554,19 @@ namespace ManagedCuda.NPP
                     NPPNativeMethods.Init();
                 }
 #endif
-                /// <summary>
-                /// Compute levels with even distribution.
-                /// </summary>
-                /// <param name="hpLevels">A host pointer to array which receives the levels being</param>
-                /// <param name="nLevels">The number of levels being computed. nLevels must be at least</param>
-                /// <param name="nLowerLevel">Lower boundary value of the lowest level.</param>
-                /// <param name="nUpperLevel">Upper boundary value of the greatest level.</param>
-                /// <param name="nppStreamCtx">NPP stream context.</param>
-                /// <returns>
-                /// Error code.
-                /// </returns>
-                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-                public static extern NppStatus nppiEvenLevelsHost_32s_Ctx(int[] hpLevels, int nLevels, int nLowerLevel, int nUpperLevel, NppStreamContext nppStreamCtx);
+                ///// <summary>
+                ///// Compute levels with even distribution.
+                ///// </summary>
+                ///// <param name="hpLevels">A host pointer to array which receives the levels being</param>
+                ///// <param name="nLevels">The number of levels being computed. nLevels must be at least</param>
+                ///// <param name="nLowerLevel">Lower boundary value of the lowest level.</param>
+                ///// <param name="nUpperLevel">Upper boundary value of the greatest level.</param>
+                ///// <param name="nppStreamCtx">NPP stream context.</param>
+                ///// <returns>
+                ///// Error code.
+                ///// </returns>
+                //[DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                //public static extern NppStatus nppiEvenLevelsHost_32s_Ctx(int[] hpLevels, int nLevels, int nLowerLevel, int nUpperLevel, NppStreamContext nppStreamCtx);
 
 
                 /// <summary>
@@ -88615,6 +88615,34 @@ namespace ManagedCuda.NPP
                              MaskSize eMaskSize, short nLowThreshold, short nHighThreshold, NppiNorm eNorm,
                              NppiBorderType eBorderType, CUdeviceptr pDeviceBuffer, NppStreamContext nppStreamCtx);
 
+
+                /// <summary>
+                /// 3 channel 8-bit unsigned color to 1 channel 8-bit unsigned black (0x00) and white (0xFF) image with border control.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcSize">Source image width and height in pixels relative to pSrc.</param>
+                /// <param name="oSrcOffset">The pixel offset that pSrc points to relative to the origin of the source image. </param>
+                /// <param name="pDst">output edge destination_image_pointer.</param>
+                /// <param name="nDstStep">output edge destination_image_line_step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eFilterType">selects between Sobel or Scharr filter type.</param>
+                /// <param name="eMaskSize">fixed filter mask size to use.</param>
+                /// <param name="nLowThreshold">low hysteresis threshold value.</param>
+                /// <param name="nHighThreshold">high hysteresis threshold value.</param>
+                /// <param name="eNorm">gradient distance method to use.</param>
+                /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+                /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterCannyBorderGetBufferSize() above)</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns>
+                /// <see cref="NppStatus.StepError"/>, <see cref="NppStatus.NotEvenStepError"/>, <see cref="NppStatus.NullPointerError"/>, <see cref="NppStatus.AlignmentError"/>, <see cref="NppStatus.StepError"/>, <see cref="NppStatus.SizeError"/>
+                /// </returns>
+                [DllImport(NPPIF_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiFilterCannyBorder_8u_C3C1R_Ctx(CUdeviceptr pSrc, int nSrcStep, NppiSize oSrcSize, NppiPoint oSrcOffset,
+                                                         CUdeviceptr pDst, int nDstStep, NppiSize oSizeROI, DifferentialKernel eFilterType,
+                                                   MaskSize eMaskSize, short nLowThreshold, short nHighThreshold, NppiNorm eNorm,
+                                                   NppiBorderType eBorderType, CUdeviceptr pDeviceBuffer, NppStreamContext nppStreamCtx);
+
             }
 
 
@@ -99045,6 +99073,28 @@ namespace ManagedCuda.NPP
                 public static extern NppStatus nppiWMSSSIM_8u_C3R_Ctx(CUdeviceptr pSrc1, int nSrc1Step, CUdeviceptr pSrc2, int nSrc2Step,
                            NppiSize oSizeROI, CUdeviceptr pMSSSIM, CUdeviceptr pDeviceBuffer, NppStreamContext nppStreamCtx);
 
+
+                /// <summary>
+                /// Four-channel 8-bit unsigned image MS-SSIM*.
+                /// This function uses the algorithm described in the paper by Wang et.al.
+                /// Wang, Z., Simoncelli, E.P., Bovik, A.C.Multiscale Structural Similarity for Image Quality Assessment.In: The
+                /// Thirty-Seventh Asilomar Conference on Signals, Systems and Computers, 2003, 13981402. Pacific Grove, CA, USA: IEEE,
+                /// 2003. https://doi.org/10.1109/ACSSC.2003.1292216. <para/>
+                /// NOTE: this API call can only process oSizeROI dimensions 16px by 16px and above.Any oSizeROI dimensions less than 16px by 16px
+                /// will result in undefined behaviour.
+                /// </summary>
+                /// <param name="pSrc1">Source-Image Pointer.</param>
+                /// <param name="nSrc1Step">Source-Image Line Step.</param>
+                /// <param name="pSrc2">Source-Image Pointer.</param>
+                /// <param name="nSrc2Step">Source-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="pMSSSIM">Pointer to the computed MS-SSIM of two images. </param>
+                /// <param name="pDeviceBuffer">Pointer to the required device memory allocation, Scratch Buffer and Host Pointer. </param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiWMSSSIM_8u_C4R_Ctx(CUdeviceptr pSrc1, int nSrc1Step, CUdeviceptr pSrc2, int nSrc2Step,
+                           NppiSize oSizeROI, CUdeviceptr pMSSSIM, CUdeviceptr pDeviceBuffer, NppStreamContext nppStreamCtx);
+
                 /// <summary>
                 /// Buffer size for \ref nppiMSE_8u_C1R.
                 /// </summary>
@@ -99125,6 +99175,15 @@ namespace ManagedCuda.NPP
                 /// <param name="nppStreamCtx">NPP stream context.</param>
                 [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
                 public static extern NppStatus nppiWMSSSIMGetBufferHostSize_8u_C3R_Ctx(NppiSize oSizeROI, ref SizeT hpBufferSize/* host pointer */, NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Buffer size for \ref nppiWMSSSIM_8u_C4R.
+                /// </summary>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="hpBufferSize">Required buffer size. Important: hpBufferSize is a </param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, ref SizeT hpBufferSize/* host pointer */, NppStreamContext nppStreamCtx);
 
                 /// <summary>
                 /// 1 channel 8-bit unsigned MSE for a batch of image pairs for a single ROI.
@@ -99251,6 +99310,23 @@ namespace ManagedCuda.NPP
                 public static extern NppStatus nppiWMSSSIMBatch_8u_C3R_Ctx(CUdeviceptr pSrc1BatchList, CUdeviceptr pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, CUdeviceptr pWMSSSIM, CUdeviceptr pDeviceBufferList, NppStreamContext nppStreamCtx);
 
                 /// <summary>
+                /// 4 channel 8-bit unsigned WMSSSIM for a batch of image pairs for a single ROI.
+                /// Provided oSizeROI will be used for all images passed in pSrc1BatchList and pSrc2BatchList
+                /// arguments. API user must ensure that provided ROI (oSizeROI) does not go beyond the borders of any of provided images.
+                /// NOTE: this API call can only process ROI dimensions 16 pixels by 16 pixels and above. Any ROI dimensions less than 16 pixels by 16 pixels
+                /// will result in undefined behaviour.
+                /// </summary>
+                /// <param name="pSrc1BatchList">\ref source_batch_images_pointer device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
+                /// <param name="pSrc2BatchList">\ref source_batch_images_pointer device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
+                /// <param name="nBatchSize">Number of \ref NppiImageDescriptor, NppiBufferDescriptor, and new max number structures/values processed in this call (must be > 1).</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI) ROI width and height of ALL images in the batch, MUST match the ROI used when the label markers UF image was generated.</param>
+                /// <param name="pWMSSSIM">Device memory pointer to output array of the computed WMSSSIM for nBatchSize * sizeof(Npp32f) * 3 image pairs. </param>
+                /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiWMSSSIMBatch_8u_C4R_Ctx(CUdeviceptr pSrc1BatchList, CUdeviceptr pSrc2BatchList, int nBatchSize, NppiSize oSizeROI, CUdeviceptr pWMSSSIM, CUdeviceptr pDeviceBufferList, NppStreamContext nppStreamCtx);
+
+                /// <summary>
                 /// Buffer size for a single image pair in the batch of image pairs for \ref nppiMSEBatch_8u_C1R
                 /// For common parameter descriptions, see \ref CommonGetBufferHostSizeParameters.
                 /// </summary>
@@ -99305,6 +99381,13 @@ namespace ManagedCuda.NPP
                 /// </summary>
                 [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
                 public static extern NppStatus nppiWMSSSIMBatchGetBufferHostSize_8u_C3R_Ctx(NppiSize oSizeROI, ref SizeT hpBufferSize, NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Buffer size for a single image pair in the batch of image pairs for \ref nppiWMSSSIMBatch_8u_C4R.
+                /// For common parameter descriptions, see \ref CommonGetBufferHostSizeParameters.
+                /// </summary>
+                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx(NppiSize oSizeROI, ref SizeT hpBufferSize, NppStreamContext nppStreamCtx);
 
                 /// <summary>
                 /// 1 channel 8-bit unsigned MSE for a batch of image pairs with per-image ROI
@@ -99385,6 +99468,20 @@ namespace ManagedCuda.NPP
                 /// <param name="nppStreamCtx">NPP stream context.</param>
                 [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
                 public static extern NppStatus nppiWMSSSIMBatch_8u_C3R_Advanced_Ctx(CUdeviceptr pSrc1BatchList, CUdeviceptr pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, CUdeviceptr pWMSSSIM, CUdeviceptr pDeviceBufferList, NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// 4 channel 8-bit unsigned WMSSSIM for a batch of image pairs with per-image ROI
+                /// NOTE: It is the user's responsibility to make sure the dimensions of per-image ROIs are 16 pixels by 16 pixels and above. Any per-image ROI dimensions less than 16 pixels by 16 pixels will result in undefined behaviour.
+                /// </summary>
+                /// <param name="pSrc1BatchList">\ref source_batch_images_pointer device memory pointer to the list of device memory image descriptors.</param>
+                /// <param name="pSrc2BatchList">\ref source_batch_images_pointer device memory pointer to the list of device memory image descriptors.</param>
+                /// <param name="nBatchSize">Number of \ref NppiImageDescriptor, NppiBufferDescriptor, and new max number structures/values processed in this call (must be > 1).</param>
+                /// <param name="oMaxSizeROI">Region-of-Interest (ROI) maximum ROI width and height of ALL images in the batch.</param>
+                /// <param name="pWMSSSIM">Device memory pointer to output array of the computed WMSSSIM for nBatchSize * sizeof(Npp32f) * 3 image pairs. </param>
+                /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                [DllImport(NPPIST_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx(CUdeviceptr pSrc1BatchList, CUdeviceptr pSrc2BatchList, int nBatchSize, NppiSize oMaxSizeROI, CUdeviceptr pWMSSSIM, CUdeviceptr pDeviceBufferList, NppStreamContext nppStreamCtx);
 
 
 
@@ -99919,6 +100016,281 @@ namespace ManagedCuda.NPP
                 public static extern NppStatus nppiSegmentWatershed_16u_C1IR_Ctx(CUdeviceptr pSrcDst, int nSrcDstStep, CUdeviceptr pMarkerLabels, int nMarkerLabelsStep, NppiNorm eNorm,
                                               NppiWatershedSegmentBoundaryType eSegmentBoundaryType, NppiSize oSizeROI, CUdeviceptr pDeviceMemoryBuffer, NppStreamContext nppStreamCtx);
 
+            }
+
+            /// <summary>
+            /// RGB to UYVP color conversion.
+            /// </summary>
+            public static class RGBToUYVP
+            {
+#if (NETCOREAPP)
+                static RGBToUYVP()
+                {
+                    NPPNativeMethods.Init();
+                }
+#endif
+                /// <summary>
+                /// Three unsigned 8-bit packed RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                       NppiPoint oSrcOffset,
+                                       CUdeviceptr pDst, int nDstStep,
+                                       NppiSize oSizeROI,
+                                       NppiColorSpace eColorSpace,
+                                       NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three unsigned 8-bit planar RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx(
+                                       [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] CUdeviceptr[] pSrc, int nSrcStep,
+                                       NppiPoint oSrcOffset,
+                                       CUdeviceptr pDst, int nDstStep,
+                                       NppiSize oSizeROI,
+                                       NppiColorSpace eColorSpace,
+                                       NppStreamContext nppStreamCtx);
+
+
+
+                /// <summary>
+                /// Four unsigned 8-bit packed RGBA channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                         NppiPoint oSrcOffset,
+                                         CUdeviceptr pDst, int nDstStep,
+                                         NppiSize oSizeROI,
+                                         NppiColorSpace eColorSpace,
+                                         NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three unsigned 16-bit packed RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGB_16u_ToUYVP_10u_C3C3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                        NppiPoint oSrcOffset,
+                                        CUdeviceptr pDst, int nDstStep,
+                                        NppiSize oSizeROI,
+                                        NppiColorSpace eColorSpace,
+                                        NppStreamContext nppStreamCtx);
+
+
+
+
+                /// <summary>
+                /// Three unsigned 16-bit planar RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel
+                /// </summary>
+                /// <param name="pSrc">host memory array containing device memory image plane origin pointers</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGB_16u_ToUYVP_10u_P3C3R_Ctx(
+                                        [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] CUdeviceptr[] pSrc, int nSrcStep,
+                                        NppiPoint oSrcOffset,
+                                        CUdeviceptr pDst, int nDstStep,
+                                        NppiSize oSizeROI,
+                                        NppiColorSpace eColorSpace,
+                                        NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Four unsigned 16-bit packed RGBA channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The input color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                          NppiPoint oSrcOffset,
+                                          CUdeviceptr pDst, int nDstStep,
+                                          NppiSize oSizeROI,
+                                          NppiColorSpace eColorSpace,
+                                          NppStreamContext nppStreamCtx);
+            }
+
+            /// <summary>
+            /// UYVP to RGB color conversion.
+            /// </summary>
+            public static class UYVPToRGB
+            {
+#if (NETCOREAPP)
+                static UYVPToRGB()
+                {
+                    NPPNativeMethods.Init();
+                }
+#endif
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 8-bit channels RGB.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="srcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="dstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx(CUdeviceptr pSrc, int srcStep,
+                                       NppiPoint oSrcOffset,
+                                       CUdeviceptr pDst, int dstStep,
+                                       NppiSize oSizeROI,
+                                       NppiColorSpace eColorSpace,
+                                       NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to four unsigned packed 8-bit channels RGBA.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="alpha"></param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                        NppiPoint oSrcOffset,
+                                        CUdeviceptr pDst, int nDstStep,
+                                        NppiSize oSizeROI,
+                                        NppiColorSpace eColorSpace,
+                                        byte alpha,
+                                        NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned planar 8-bit channels RGB.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">host memory array containing device memory image plane destination pointers.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                       NppiPoint oSrcOffset,
+                                       [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] CUdeviceptr[] pDst, int nDstStep,
+                                       NppiSize oSizeROI,
+                                       NppiColorSpace eColorSpace,
+                                       NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 16-bit channels RGB.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="srcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="dstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx(CUdeviceptr pSrc, int srcStep,
+                                        NppiPoint oSrcOffset,
+                                        CUdeviceptr pDst, int dstStep,
+                                        NppiSize oSizeROI,
+                                        NppiColorSpace eColorSpace,
+                                        NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to four unsigned packed 16-bit channels RGBA.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">Destination-Image Pointer.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="alpha"></param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                         NppiPoint oSrcOffset,
+                                         CUdeviceptr pDst, int nDstStep,
+                                         NppiSize oSizeROI,
+                                         NppiColorSpace eColorSpace, ushort alpha,
+                                         NppStreamContext nppStreamCtx);
+
+                /// <summary>
+                /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned planar 16-bit channels RGB.
+                /// </summary>
+                /// <param name="pSrc">Source-Image Pointer.</param>
+                /// <param name="nSrcStep">Source-Image Line Step.</param>
+                /// <param name="oSrcOffset">pSrc pixel offset relative to image origin, currently must be 0,0.</param>
+                /// <param name="pDst">host memory array containing device memory image plane destination pointers.</param>
+                /// <param name="nDstStep">Destination-Image Line Step.</param>
+                /// <param name="oSizeROI">Region-of-Interest (ROI).</param>
+                /// <param name="eColorSpace">The output color space.</param>
+                /// <param name="nppStreamCtx">NPP stream context.</param>
+                /// <returns></returns>
+                [DllImport(NPPICC_API_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+                public static extern NppStatus nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx(CUdeviceptr pSrc, int nSrcStep,
+                                        NppiPoint oSrcOffset,
+                                        [In, MarshalAs(UnmanagedType.LPArray, SizeConst = 3)] CUdeviceptr[] pDst, int nDstStep,
+                                        NppiSize oSizeROI,
+                                        NppiColorSpace eColorSpace,
+                                        NppStreamContext nppStreamCtx);
             }
         }
 

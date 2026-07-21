@@ -328,6 +328,26 @@ namespace ManagedCuda.NVRTC
         }
 
         /// <summary/>
+        public byte[] GetTileIR()
+        {
+            SizeT tileIRSize = new SizeT();
+
+            res = NVRTCNativeMethods.nvrtcGetTileIRSize(_program, ref tileIRSize);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetTileIRSize", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            byte[] tileIRCode = new byte[tileIRSize];
+
+            res = NVRTCNativeMethods.nvrtcGetTileIR(_program, tileIRCode);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nvrtcGetTileIR", res));
+            if (res != nvrtcResult.Success)
+                throw new NVRTCException(res);
+
+            return tileIRCode;
+        }
+
+        /// <summary/>
         public string GetPTXAsString()
         {
             byte[] ptxCode = GetPTX();

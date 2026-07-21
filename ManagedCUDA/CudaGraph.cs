@@ -870,6 +870,22 @@ namespace ManagedCuda
         {
             get { return _graph; }
         }
+
+        /// <summary>
+        /// Returns the id of a given graph
+        /// </summary>
+        public uint Id
+        {
+            get
+            {
+                uint id = 0;
+                CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphGetId(_graph, ref id);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphGetId", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return id;
+            }
+        }
         #endregion
     }
 }

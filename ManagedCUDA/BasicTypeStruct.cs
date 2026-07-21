@@ -2554,6 +2554,39 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary/>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamMemOpAtomicReductionParams
+    {
+        /// <summary>
+        /// </summary>
+        public CUstreamBatchMemOpType operation;
+        /// <summary>
+        /// Must be 0
+        /// </summary>
+        public uint flags;
+        /// <summary>
+        /// See ::CUstreamAtomicReductionOpType
+        /// </summary>
+        public CUstreamAtomicReductionOpType reductionOp;
+        /// <summary>
+        /// See ::CUstreamAtomicReductionDataType
+        /// </summary>
+        public CUstreamAtomicReductionDataType dataType;
+        /// <summary>
+        /// The address the atomic operation will be operated on
+        /// </summary>
+        public CUdeviceptr address;
+        /// <summary>
+        /// The operand value the atomic operation will operate with
+        /// </summary>
+        public ulong value;
+        /// <summary>
+        /// For driver internal use. Initial value is unimportant.
+        /// </summary>
+        public CUdeviceptr alias;
+    }
+
+    /// <summary/>
     [StructLayout(LayoutKind.Explicit)]
     public struct CUstreamBatchMemOpParams
     {
@@ -2572,6 +2605,9 @@ namespace ManagedCuda.BasicTypes
         /// <summary/>
         [FieldOffset(0)]
         public CUstreamMemOpMemoryBarrierParams memoryBarrier;
+        /// <summary/>
+        [FieldOffset(0)]
+        public CUstreamMemOpAtomicReductionParams atomicReduction;
         //In cuda header, an ulong[6] fixes the union size to 48 bytes, we
         //achieve the same in C# if we set at offset 40 an simple ulong
         [FieldOffset(5 * 8)]
@@ -3144,6 +3180,10 @@ namespace ManagedCuda.BasicTypes
         /// Argument to pass to the function
         /// </summary>
         public IntPtr userData;
+        /// <summary>
+        /// The sync mode to use for the host task
+        /// </summary>
+        public uint syncMode;
     }
 
     /// <summary>
@@ -3160,6 +3200,10 @@ namespace ManagedCuda.BasicTypes
         /// Argument to pass to the function
         /// </summary>
         public IntPtr userData;
+        /// <summary>
+        /// The sync mode to use for the host task
+        /// </summary>
+        public uint syncMode;
     }
 
     /// <summary>
@@ -3996,6 +4040,9 @@ namespace ManagedCuda.BasicTypes
     [StructLayout(LayoutKind.Sequential)]
     public struct CUexecAffinityParam
     {
+        /// <summary>
+        /// Type of execution affinity.
+        /// </summary>
         CUexecAffinityType type;
         CUexecAffinityParamUnion param;
     }
@@ -4255,91 +4302,103 @@ namespace ManagedCuda.BasicTypes
             /// <summary>
             /// Whether or not the resulting kernel node should be device-updatable.
             /// </summary>
-            int deviceUpdatable;
+            public int deviceUpdatable;
             /// <summary>
             /// Returns a handle to pass to the various device-side update functions.
             /// </summary>
-            CUgraphDeviceNode devNode;
+            public CUgraphDeviceNode devNode;
         }
 
         /// <summary>
         /// Attribute ::CUaccessPolicyWindow.
         /// </summary>
         [FieldOffset(0)]
-        CUaccessPolicyWindow accessPolicyWindow;
+        public CUaccessPolicyWindow accessPolicyWindow;
         /// <summary>
         /// Nonzero indicates a cooperative kernel (see ::cuLaunchCooperativeKernel).
         /// </summary>
         [FieldOffset(0)]
-        int cooperative;
+        public int cooperative;
         /// <summary>
         /// ::CUsynchronizationPolicy for work queued up in this stream
         /// </summary>
         [FieldOffset(0)]
-        CUsynchronizationPolicy syncPolicy;
+        public CUsynchronizationPolicy syncPolicy;
 
         /// <summary>
         /// Cluster dimensions for the kernel node.
         /// </summary>
         [FieldOffset(0)]
-        ClusterDim clusterDim;
+        public ClusterDim clusterDim;
         /// <summary>
         /// Cluster scheduling policy preference for the kernel node.
         /// </summary>
         [FieldOffset(0)]
-        CUclusterSchedulingPolicy clusterSchedulingPolicyPreference;
+        public CUclusterSchedulingPolicy clusterSchedulingPolicyPreference;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        int programmaticStreamSerializationAllowed;
+        public int programmaticStreamSerializationAllowed;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        ProgrammaticEvent programmaticEvent;
+        public ProgrammaticEvent programmaticEvent;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        LaunchCompletionEvent launchCompletionEvent;
+        public LaunchCompletionEvent launchCompletionEvent;
         /// <summary>
         /// Execution priority of the kernel.
         /// </summary>
         [FieldOffset(0)]
-        int priority;
+        public int priority;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        CUlaunchMemSyncDomainMap memSyncDomainMap;
+        public CUlaunchMemSyncDomainMap memSyncDomainMap;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        CUlaunchMemSyncDomain memSyncDomain;
+        public CUlaunchMemSyncDomain memSyncDomain;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        PreferredClusterDim preferredClusterDim;
+        public PreferredClusterDim preferredClusterDim;
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        DeviceUpdatableKernelNode deviceUpdatableKernelNode;
+        public DeviceUpdatableKernelNode deviceUpdatableKernelNode;
 
         /// <summary>
         /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         /// </summary>
         [FieldOffset(0)]
-        uint sharedMemCarveout;
+        public uint sharedMemCarveout;
 
         /// <summary>
         /// 
         /// </summary>
         [FieldOffset(0)]
-        uint nvlinkUtilCentricScheduling;
+        public uint nvlinkUtilCentricScheduling;
+
+        /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE
+        /// </summary>
+        [FieldOffset(0)]
+        CUlaunchAttributePortableClusterMode portableClusterSizeMode;
+
+        /// <summary>
+        /// Value of launch attribute ::CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE. See ::CUsharedMemoryMode for acceptable values.
+        /// </summary>
+        [FieldOffset(0)]
+        CUsharedMemoryMode sharedMemoryMode;
 
         /// <summary>
         /// Pad to 64 bytes
@@ -4591,6 +4650,7 @@ namespace ManagedCuda.BasicTypes
             {
                 host.fn = Marshal.GetFunctionPointerForDelegate(hostNodeParams.fn);
             }
+            host.syncMode = hostNodeParams.syncMode;
         }
         /// <summary>
         /// Fills the internal CudaMemAllocNodeParams structure that allocates additional memory. Each Set call must be followed by a call to Get() in order to free the internally allocated memory!
@@ -5124,6 +5184,78 @@ namespace ManagedCuda.BasicTypes
         }
     }
 
+
+    /// <summary>
+    /// Data for workqueue configuration related resources
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUdevWorkqueueConfigResource
+    {
+        /// <summary>
+        /// The device on which the workqueue resources are available
+        /// </summary>
+        public CUdevice device;
+        /// <summary>
+        /// The expected maximum number of concurrent stream-ordered workloads
+        /// </summary>
+        public uint wqConcurrencyLimit;
+        /// <summary>
+        /// The sharing scope for the workqueue resources
+        /// </summary>
+        public CUdevWorkqueueConfigScope sharingScope;
+    }
+
+    /// <summary>
+    /// Handle to a pre-existing workqueue related resource
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUdevWorkqueueResource
+    {
+        //40 bytes
+        //Reserved for future use
+        ulong reserved0;
+        ulong reserved1;
+        ulong reserved2;
+        ulong reserved3;
+        ulong reserved4;
+    }
+
+    /// <summary>
+    /// Input data for splitting SMs
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CU_DEV_SM_RESOURCE_GROUP_PARAMS
+    {
+        /// <summary>
+        /// The amount of SMs available in this resource.
+        /// </summary>
+        public uint smCount;
+        /// <summary>
+        /// The amount of co-scheduled SMs grouped together for locality purposes.
+        /// </summary>
+        public uint coscheduledSmCount;
+        /// <summary>
+        /// When possible, combine co-scheduled groups together into larger groups of this size.
+        /// </summary>
+        public uint preferredCoscheduledSmCount;
+        /// <summary>
+        /// The flags set on this SM resource group. For possible values see ::CUdevSmResourceGroup_flags
+        /// </summary>
+        public uint flags;
+        uint reserved0;
+        uint reserved1;
+        uint reserved2;
+        uint reserved3;
+        uint reserved4;
+        uint reserved5;
+        uint reserved6;
+        uint reserved7;
+        uint reserved8;
+        uint reserved9;
+        uint reserved10;
+        uint reserved11;
+    }
+
     /// <summary>
     /// CIG Context Create Params
     /// </summary>
@@ -5141,24 +5273,54 @@ namespace ManagedCuda.BasicTypes
     }
 
     /// <summary>
-    /// Params for creating CUDA context. Exactly one of execAffinityParams and cigParams must be non-NULL.
+    /// Params for creating CUDA context. Both execAffinityParams and cigParams cannot be non-NULL at the same time. 
+    /// If both are NULL, the context will be created as a regular CUDA context.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CUctxCreateParams
     {
         /// <summary>
-        /// 
+        /// Array of execution affinity parameters to limit context resources (e.g., SM count). Only supported Volta+ MPS.Mutually exclusive with cigParams.
         /// </summary>
         public IntPtr execAffinityParams;
         /// <summary>
-        /// 
+        /// Number of elements in execAffinityParams array. Must be 0 if execAffinityParams is NULL.
         /// </summary>
         public int numExecAffinityParams;
         /// <summary>
-        /// 
+        /// CIG (CUDA in Graphics) parameters for sharing data from D3D12/Vulkan graphics clients. Mutually exclusive with execAffinityParams.
         /// </summary>
         public IntPtr cigParams;
     }
+
+    /// <summary>
+    /// CIG Stream Capture Params
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamCigParam
+    {
+        /// <summary>
+        /// Type of shared data from graphics client (D3D12).
+        /// </summary>
+        public CUstreamCigDataType streamSharedDataType;
+        /// <summary>
+        /// Graphics client data handle (ID3D12CommandList/ID3D12GraphicsCommandList).
+        /// </summary>
+        public IntPtr streamSharedData;
+    }
+
+    /// <summary>
+    /// Params for capturing CUDA stream to CIG streamCigParams must be non-NULL.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUstreamCigCaptureParams
+    {
+        /// <summary>
+        /// CIG (CUDA in Graphics) parameters for sharing command list data from D3D12 graphics clients. (type: CUstreamCigParam*)
+        /// </summary>
+        public IntPtr streamCigParams;
+    }
+
 
     /// <summary>
     /// CUDA checkpoint optional lock arguments

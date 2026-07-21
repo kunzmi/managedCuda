@@ -41,7 +41,7 @@ namespace ManagedCuda.CudaRand
 #if (NETCOREAPP)
         internal const string CURAND_API_DLL_NAME_LINUX = "curand";
         internal const string CURAND_SHORT_VERSION_LINUX = "10";
-        internal const string CURAND_LONG_VERSION_LINUX = "10.4.0.35";
+        internal const string CURAND_LONG_VERSION_LINUX = "10.4.2.66";
 
         static CudaRandNativeMethods()
         {

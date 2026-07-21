@@ -24,9 +24,9 @@
 //  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
-using ManagedCuda.BasicTypes;
 
 namespace ManagedCuda.NPP
 {
@@ -154,34 +154,5 @@ namespace ManagedCuda.NPP
         }
         #endregion
 
-        #region ColorTwist
-        /// <summary>
-        /// An input color twist matrix with floating-point pixel values is applied
-        /// within ROI.
-        /// </summary>
-        /// <param name="dest">Destination image</param>
-        /// <param name="twistMatrix">The color twist matrix with floating-point pixel values [3,4].</param>
-        public void ColorTwist(NPPImage_16fC2 dest, float[,] twistMatrix)
-        {
-            status = NPPNativeMethods.NPPi.ColorTwist.nppiColorTwist32f_16f_C2R(_devPtrRoi, _pitch, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, twistMatrix);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2R", status));
-            NPPException.CheckNppStatus(status, this);
-        }
-
-        /// <summary>
-        /// in place color twist.
-        /// 
-        /// An input color twist matrix with floating-point coefficient values is applied
-        /// within ROI.
-        /// </summary>
-        /// <param name="aTwist">The color twist matrix with floating-point coefficient values. [3,4]</param>
-        public void ColorTwist(float[,] aTwist)
-        {
-            status = NPPNativeMethods.NPPi.ColorTwist.nppiColorTwist32f_16f_C2IR(_devPtrRoi, _pitch, _sizeRoi, aTwist);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiColorTwist32f_16f_C2IR", status));
-            NPPException.CheckNppStatus(status, this);
-        }
-
-        #endregion
     }
 }

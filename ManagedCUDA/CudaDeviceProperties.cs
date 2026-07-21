@@ -175,6 +175,7 @@ namespace ManagedCuda
         private bool _hostVirtualMemoryManagementSupported;
         private bool _hostAllocDMABufSupported;
         private bool _onlyPartialHostNativeAtomicSupported;
+        private bool _atomicReductionSupported;
 
 
 
@@ -1403,6 +1404,14 @@ namespace ManagedCuda
         {
             get { return this._onlyPartialHostNativeAtomicSupported; }
             internal set { this._onlyPartialHostNativeAtomicSupported = value; }
+        }
+        /// <summary>
+        /// Device supports atomic reduction operations in stream batch memory operations
+        /// </summary>
+        public bool AtomicReductionSupported
+        {
+            get { return this._atomicReductionSupported; }
+            internal set { this._atomicReductionSupported = value; }
         }
     }
 }

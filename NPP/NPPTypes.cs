@@ -138,6 +138,10 @@ namespace ManagedCuda.NPP
         /// Not supported mode error.
         /// </summary>
         NotSupportedModeError = -9999,
+        /// <summary>
+        /// Application and NPP library version mismatch.
+        /// </summary>
+        LibraryVersionMismatchError = -9998,
         /// <summary>Invalid host memory pointer error.</summary>
         InvalidHostPointerError = -1032,
         /// <summary>Invalid device memory pointer error.</summary>
@@ -753,6 +757,31 @@ namespace ManagedCuda.NPP
         /// <summary/>
         NPP_CH_P4
     }
+
+
+    /// <summary>
+    /// Color space enumeration
+    /// </summary>
+    public enum NppiColorSpace
+    {
+        /// <summary>
+        /// no color space defined. used for simple transcoding.
+        /// </summary>
+        TranscodeOnly,
+        /// <summary>
+        /// BT601 colorspace used within JPEG images covering 0..255.
+        /// </summary>
+        BT601JPEG,
+        /// <summary>
+        /// BT709 High Definition TV colorspace.
+        /// </summary>
+        BT709HDTV,
+        /// <summary>
+        /// BT2020 High Definition TV colorspace.
+        /// </summary>
+        BT2020HDTV
+    }
+
     #endregion
 
     #region Structs

@@ -488,6 +488,7 @@ namespace ManagedCuda.CudaSparse
         Diagonal = 1
     }
 
+    [Obsolete("Deprecated in Cuda 13.1")]
     public enum cusparseSpMMOpAlg
     {
         Default = 0,
@@ -791,6 +792,7 @@ namespace ManagedCuda.CudaSparse
     /// 
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [Obsolete("Deprecated in Cuda 13.1")]
     public struct cusparseSpMMOpPlan
     {
         /// <summary>

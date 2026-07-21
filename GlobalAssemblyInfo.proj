@@ -2,11 +2,11 @@
   <PropertyGroup>
     <Authors>Michael Kunz</Authors> 
     <Company>Michael Kunz</Company> 
-    <Copyright>Copyright © Michael Kunz and Artic Imaging 2025</Copyright>
+    <Copyright>Copyright © Michael Kunz and Artic Imaging 2026</Copyright>
 	
-    <Version>13.0.60</Version>
-    <AssemblyVersion>13.0.60</AssemblyVersion> 
-    <FileVersion>13.0.60</FileVersion> 
+    <Version>13.2.64</Version>
+    <AssemblyVersion>13.2.64</AssemblyVersion> 
+    <FileVersion>13.2.64</FileVersion> 
   </PropertyGroup> 
 </Project>
 

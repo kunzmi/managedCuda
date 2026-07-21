@@ -198,6 +198,10 @@ namespace ManagedCuda.NvJpeg
         /// One channel: YUYV YUYV ... (U and V are at half horizontal resolution - 422)
         /// </summary>
         YUY2 = 9,
+        /// <summary>
+        /// return decompressed image as is in interleaved format
+        /// </summary>
+        UnchangedI = 10,
     }
 
 

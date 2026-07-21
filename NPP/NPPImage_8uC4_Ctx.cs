@@ -1427,23 +1427,6 @@ namespace ManagedCuda.NPP
             return bufferSize;
         }
 
-        /// <summary>
-        /// Compute levels with even distribution.
-        /// </summary>
-        /// <param name="nLevels">The number of levels being computed. nLevels must be at least 2, otherwise an NPP_-
-        /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
-        /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
-        /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>An array of size nLevels which receives the levels being computed.</returns>
-        public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
-        {
-            int[] Levels = new int[nLevels];
-            status = NPPNativeMethods_Ctx.NPPi.Histogram.nppiEvenLevelsHost_32s_Ctx(Levels, nLevels, nLowerBound, nUpperBound, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEvenLevelsHost_32s_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return Levels;
-        }
 
         /// <summary>
         /// Scratch-buffer size for HistogramEven. Not affecting Alpha channel. 
@@ -10729,6 +10712,87 @@ namespace ManagedCuda.NPP
                     _devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, ptrThreshold, ptrValue, nppStreamCtx);
             }
             Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx", _dataType.ToString(), NppiChannels.NPP_CH_A4.ToString(), status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region New in Cuda 13.x
+
+
+        /// <summary>
+        /// Three-channel 8-bit unsigned image MS-SSIM*.
+        /// This function uses the algorithm described in the paper by Wang et.al.
+        /// Wang, Z., Simoncelli, E.P., Bovik, A.C.Multiscale Structural Similarity for Image Quality Assessment.In: The
+        /// Thirty-Seventh Asilomar Conference on Signals, Systems and Computers, 2003, 13981402. Pacific Grove, CA, USA: IEEE,
+        /// 2003. https://doi.org/10.1109/ACSSC.2003.1292216. <para/>
+        /// NOTE: this API call can only process oSizeROI dimensions 16px by 16px and above.Any oSizeROI dimensions less than 16px by 16px
+        /// will result in undefined behaviour.
+        /// </summary>
+        /// <param name="src2">2nd source image</param>
+        /// <param name="pMSSSIM">Pointer to the computed SSIM of two images. </param>
+        /// <param name="pDeviceBuffer">Pointer to the required device memory allocation. Use \ref nppiWMSSSIMGetBufferHostSize_8u_C4R to compute the required size (in bytes).</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void WMSSSIM(NPPImage_8uC4 src2, CudaDeviceVariable<float> pMSSSIM, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.IQA.nppiWMSSSIM_8u_C4R_Ctx(_devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, pMSSSIM.DevicePointer, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWMSSSIM_8u_C4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiWMSSSIM_8u_C4R.
+        /// </summary>
+        public SizeT WMSSSIMGetBufferHostSize(NppStreamContext nppStreamCtx)
+        {
+            SizeT ret = 0;
+            status = NPPNativeMethods_Ctx.NPPi.IQA.nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx(_sizeRoi, ref ret, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWMSSSIMGetBufferHostSize_8u_C4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+        /// <summary>
+        /// Buffer size for \ref nppiWMSSSIMBatch_8u_C4R.
+        /// </summary>
+        public SizeT WMSSSIMBatchGetBufferHostSize(NppStreamContext nppStreamCtx)
+        {
+            SizeT ret = 0;
+            status = NPPNativeMethods_Ctx.NPPi.IQA.nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx(_sizeRoi, ref ret, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWMSSSIMBatchGetBufferHostSize_8u_C4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 4 channel 8-bit unsigned WMSSSIM for a batch of image pairs with per-image ROI
+        /// </summary>
+        /// <param name="oMaxSizeROI">maximum ROI width and height of ALL images in the batch.</param>
+        /// <param name="pBatchSrc1">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
+        /// <param name="pBatchSrc2">device memory pointer to the list of device memory image descriptors, per image oSize must be initialized.</param>
+        /// <param name="pWMSSSIM">Device memory pointer to output array of the computed WMSSSIM for nBatchSize* sizeof(Npp32f)* 3 image pairs.</param>
+        /// <param name="pDeviceBufferList">Device memory pointer to the list of NppiBufferDescriptor buffer descriptors specifying per image device
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        /// memory buffer pointers and size as returned by at least one WMSSSIMBatchGetBufferHostSize call.</param>
+        public static void WMSSSIMBatchAdvanced(NppiSize oMaxSizeROI, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc1, CudaDeviceVariable<NppiImageDescriptor> pBatchSrc2, CudaDeviceVariable<float> pWMSSSIM,
+                                        CudaDeviceVariable<NppiBufferDescriptor> pDeviceBufferList, NppStreamContext nppStreamCtx)
+        {
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.IQA.nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx(pBatchSrc1.DevicePointer, pBatchSrc2.DevicePointer, pBatchSrc1.Size, oMaxSizeROI, pWMSSSIM.DevicePointer,
+                pDeviceBufferList.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiWMSSSIMBatch_8u_C4R_Advanced_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+        /// <summary>
+        /// Four unsigned 8-bit packed RGBA channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+        /// </summary>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToUYVP(NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBA_8u_ToUYVP_10u_AC4C3R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
         #endregion

@@ -1322,23 +1322,6 @@ namespace ManagedCuda.NPP
             return bufferSize;
         }
 
-        /// <summary>
-        /// Compute levels with even distribution.
-        /// </summary>
-        /// <param name="nLevels">The number of levels being computed. nLevels must be at least 2, otherwise an NPP_-
-        /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
-        /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
-        /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>An array of size nLevels which receives the levels being computed.</returns>
-        public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
-        {
-            int[] Levels = new int[nLevels];
-            status = NPPNativeMethods_Ctx.NPPi.Histogram.nppiEvenLevelsHost_32s_Ctx(Levels, nLevels, nLowerBound, nUpperBound, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEvenLevelsHost_32s_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return Levels;
-        }
 
         /// <summary>
         /// Histogram with evenly distributed bins. Buffer is internally allocated and freed.
@@ -8228,6 +8211,23 @@ namespace ManagedCuda.NPP
                     _devPtrRoi, _pitch, src2.DevicePointerRoi, src2.Pitch, _sizeRoi, ptrThreshold, ptrValue, nppStreamCtx);
             }
             Debug.WriteLine(String.Format("{0:G}, {1} (Datatype: {2}, Channels: {3}): {4}", DateTime.Now, "nppiFusedAbsDiff_Threshold_GTVal_I_Ctx", _dataType.ToString(), NppiChannels.NPP_CH_A4.ToString(), status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+        #region New in Cuda 13.x
+
+
+        /// <summary>
+        /// Four unsigned 16-bit packed RGBA channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+        /// </summary>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToUYVP(NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGBA_16u_ToUYVP_10u_AC4C3R_Ctx", status));
             NPPException.CheckNppStatus(status, this);
         }
         #endregion

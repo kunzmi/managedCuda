@@ -7259,6 +7259,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, float alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<float> x, float beta, CudaDeviceVariable<float> y)
         {
             res = CudaSparseNativeMethods.cusparseSbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, ref alpha, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, ref beta, y.DevicePointer);
@@ -7290,6 +7291,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, double alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<double> x, double beta, CudaDeviceVariable<double> y)
         {
             res = CudaSparseNativeMethods.cusparseDbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, ref alpha, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, ref beta, y.DevicePointer);
@@ -7321,6 +7323,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, cuFloatComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<cuFloatComplex> x, cuFloatComplex beta, CudaDeviceVariable<cuFloatComplex> y)
         {
             res = CudaSparseNativeMethods.cusparseCbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, ref alpha, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, ref beta, y.DevicePointer);
@@ -7352,6 +7355,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, cuDoubleComplex alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<cuDoubleComplex> x, cuDoubleComplex beta, CudaDeviceVariable<cuDoubleComplex> y)
         {
             res = CudaSparseNativeMethods.cusparseZbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, ref alpha, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, ref beta, y.DevicePointer);
@@ -7384,6 +7388,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, CudaDeviceVariable<float> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<float> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<float> x, CudaDeviceVariable<float> beta, CudaDeviceVariable<float> y)
         {
             res = CudaSparseNativeMethods.cusparseSbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
@@ -7415,6 +7420,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, CudaDeviceVariable<double> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<double> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<double> x, CudaDeviceVariable<double> beta, CudaDeviceVariable<double> y)
         {
             res = CudaSparseNativeMethods.cusparseDbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
@@ -7446,6 +7452,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, CudaDeviceVariable<cuFloatComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuFloatComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<cuFloatComplex> x, CudaDeviceVariable<cuFloatComplex> beta, CudaDeviceVariable<cuFloatComplex> y)
         {
             res = CudaSparseNativeMethods.cusparseCbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
@@ -7477,6 +7484,7 @@ namespace ManagedCuda.CudaSparse
         /// <param name="x">vector of nb*blockDim elements.</param>
         /// <param name="beta">scalar used for multiplication. If beta is zero, y does not have to be a valid input.</param>
         /// <param name="y">vector of mb*blockDim element.</param>
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void Bsrmv(cusparseDirection dirA, cusparseOperation transA, int mb, int nb, CudaDeviceVariable<cuDoubleComplex> alpha, CudaSparseMatrixDescriptor descrA, CudaDeviceVariable<cuDoubleComplex> bsrValA, CudaDeviceVariable<int> bsrRowPtrA, CudaDeviceVariable<int> bsrColIndA, int blockDim, CudaDeviceVariable<cuDoubleComplex> x, CudaDeviceVariable<cuDoubleComplex> beta, CudaDeviceVariable<cuDoubleComplex> y)
         {
             res = CudaSparseNativeMethods.cusparseZbsrmv(_handle, dirA, transA, mb, nb, (int)bsrColIndA.Size, alpha.DevicePointer, descrA.Descriptor, bsrValA.DevicePointer, bsrRowPtrA.DevicePointer, bsrColIndA.DevicePointer, blockDim, x.DevicePointer, beta.DevicePointer, y.DevicePointer);
@@ -10436,6 +10444,7 @@ namespace ManagedCuda.CudaSparse
 
 
 
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void GEMMreuse_workEstimation<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, ConstSparseMatrix<indexT, dataTAB> matA,
             ConstSparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, ref SizeT bufferSize1, CudaDeviceVariable<byte> buffer1)
             where indexT : struct where dataTAB : struct where dataTC : struct
@@ -10446,6 +10455,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void GEMMreuse_nnz<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, ConstSparseMatrix<indexT, dataTAB> matA,
             ConstSparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr,
             ref SizeT bufferSize2, CudaDeviceVariable<byte> buffer2, ref SizeT bufferSize3, CudaDeviceVariable<byte> buffer3, ref SizeT bufferSize4, CudaDeviceVariable<byte> buffer4)
@@ -10457,6 +10467,7 @@ namespace ManagedCuda.CudaSparse
             if (res != cusparseStatus.Success)
                 throw new CudaSparseException(res);
         }
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void GEMMreuse_copy<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, ConstSparseMatrix<indexT, dataTAB> matA,
             ConstSparseMatrix<indexT, dataTAB> matB, SparseMatrix<indexT, dataTC> matC, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr, ref SizeT bufferSize5, CudaDeviceVariable<byte> buffer5)
             where indexT : struct where dataTAB : struct where dataTC : struct
@@ -10467,6 +10478,7 @@ namespace ManagedCuda.CudaSparse
                 throw new CudaSparseException(res);
         }
 
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void GEMMreuse_compute<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, dataTAB alpha, ConstSparseMatrix<indexT, dataTAB> matA,
             ConstSparseMatrix<indexT, dataTAB> matB, dataTC beta, SparseMatrix<indexT, dataTC> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
             where indexT : struct where dataTAB : struct where dataTC : struct
@@ -10492,6 +10504,7 @@ namespace ManagedCuda.CudaSparse
             }
         }
 
+        [Obsolete("Deprecated in Cuda 13.1")]
         public void GEMMreuse_compute<indexT, dataTAB, dataTC>(cusparseOperation opA, cusparseOperation opB, CudaDeviceVariable<dataTAB> alpha, ConstSparseMatrix<indexT, dataTAB> matA,
             ConstSparseMatrix<indexT, dataTAB> matB, CudaDeviceVariable<dataTC> beta, SparseMatrix<indexT, dataTC> matC, cudaDataType computeType, cusparseSpGEMMAlg alg, SpGEMMDescr spgemmDescr)
             where indexT : struct where dataTAB : struct where dataTC : struct
@@ -10573,6 +10586,7 @@ namespace ManagedCuda.CudaSparse
 
         #endregion
 
+        [Obsolete("Deprecated in Cuda 13.1")]
         public SpMMOpPlan CreateSpMMOpPlan<IndexTypeA, DataTypeA, DataTypeB, DataTypeC>(cusparseOperation opA,
                           cusparseOperation opB,
                           ConstSparseMatrix<IndexTypeA, DataTypeA> matA,

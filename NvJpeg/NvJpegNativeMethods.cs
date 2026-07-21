@@ -41,7 +41,7 @@ namespace ManagedCuda.NvJpeg
 #if (NETCOREAPP)
         internal const string NVJPEG_API_DLL_NAME_LINUX = "nvjpeg";
         internal const string NVJPEG_SHORT_VERSION_LINUX = "13";
-        internal const string NVJPEG_LONG_VERSION_LINUX = "13.0.1.86";
+        internal const string NVJPEG_LONG_VERSION_LINUX = "13.1.0.59";
 
         static NvJpegNativeMethods()
         {

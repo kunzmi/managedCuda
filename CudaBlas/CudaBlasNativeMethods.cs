@@ -44,7 +44,7 @@ namespace ManagedCuda.CudaBlas
 #if (NETCOREAPP)
         internal const string CUBLAS_API_DLL_NAME_LINUX = "cublas";
         internal const string CUBLAS_SHORT_VERSION_LINUX = "13";
-        internal const string CUBLAS_LONG_VERSION_LINUX = "13.1.0.3";
+        internal const string CUBLAS_LONG_VERSION_LINUX = "13.4.1.3";
 
         static CudaBlasNativeMethods()
         {

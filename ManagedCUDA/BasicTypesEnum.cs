@@ -272,6 +272,62 @@ namespace ManagedCuda.BasicTypes
         /// 4 channel unorm R10G10B10A2 RGB format
         /// </summary>
         UNORM_INT_101010_2 = 0x50,
+        /// <summary>
+        /// 4 channel unsigned 8-bit YUV packed format, with 4:2:2 sampling
+        /// </summary>
+        UINT8_PACKED_422 = 0x51,
+        /// <summary>
+        /// 4 channel unsigned 8-bit YUV packed format, with 4:4:4 sampling
+        /// </summary>
+        UINT8_PACKED_444 = 0x52,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV semi-planar format, with 4:2:0 sampling
+        /// </summary>
+        UINT8_SEMIPLANAR_420 = 0x53,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV semi-planar format, with 4:2:0 sampling
+        /// </summary>
+        UINT16_SEMIPLANAR_420 = 0x54,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV semi-planar format, with 4:2:2 sampling
+        /// </summary>
+        UINT8_SEMIPLANAR_422 = 0x55,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV semi-planar format, with 4:2:2 sampling
+        /// </summary>
+        UINT16_SEMIPLANAR_422 = 0x56,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV semi-planar format, with 4:4:4 sampling
+        /// </summary>
+        UINT8_SEMIPLANAR_444 = 0x57,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV semi-planar format, with 4:4:4 sampling
+        /// </summary>
+        UINT16_SEMIPLANAR_444 = 0x58,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV planar format, with 4:2:0 sampling
+        /// </summary>
+        UINT8_PLANAR_420 = 0x59,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV planar format, with 4:2:0 sampling
+        /// </summary>
+        UINT16_PLANAR_420 = 0x5a,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV planar format, with 4:2:2 sampling
+        /// </summary>
+        UINT8_PLANAR_422 = 0x5b,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV planar format, with 4:2:2 sampling
+        /// </summary>
+        UINT16_PLANAR_422 = 0x5c,
+        /// <summary>
+        /// 3 channel unsigned 8-bit YUV planar format, with 4:4:4 sampling
+        /// </summary>
+        UINT8_PLANAR_444 = 0x5d,
+        /// <summary>
+        /// 3 channel unsigned 16-bit YUV planar format, with 4:4:4 sampling
+        /// </summary>
+        UINT16_PLANAR_444 = 0x5e,
     }
 
     /// <summary>
@@ -996,6 +1052,10 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         OnlyPartialHostNativeAtomicSupported = 147,
         /// <summary>
+        /// Device supports atomic reduction operations in stream batch memory operations
+        /// </summary>
+        AtomicReductionSupported = 148,
+        /// <summary>
         /// Max elems...
         /// </summary>
         MAX
@@ -1539,6 +1599,18 @@ namespace ManagedCuda.BasicTypes
         /// Applies to: compiler only
         /// </summary>
         SplitCompile = 34,
+
+        /// <summary>
+        /// This option specifies the maximum number of concurrent threads to use
+        /// when compiling device code. If the specified value is 1, the option will
+        /// be ignored. If the specified value is 0, the number of threads will match
+        /// the number of CPUs on the underlying machine. Otherwise, if the option is
+        /// N, then up to N threads will be used.<para/>
+        /// This option is ignored if the env var CUDA_BINARY_LOADER_THREAD_COUNT is set.<para/>
+        /// Option type: unsigned int<para/>
+        /// Applies to: compiler and linker
+        /// </summary>
+        BinaryLoaderThreadCount = 35,
     }
 
     /// <summary>
@@ -2565,6 +2637,14 @@ namespace ManagedCuda.BasicTypes
         KeyRotation = 916,
 
         /// <summary>
+        /// This error indicates that the requested operation is not permitted because the
+        /// stream is in a detached state. This can occur if the green context associated
+        /// with the stream has been destroyed, limiting the stream's operational capabilities.
+        /// </summary>
+        StreamDetached = 917,
+
+
+        /// <summary>
         /// Unknown error
         /// </summary>
         ErrorUnknown = 999,
@@ -3259,6 +3339,10 @@ namespace ManagedCuda.BasicTypes
         /// </summary>
         Barrier = 6,
         /// <summary>
+        /// Perform an atomic reduction.
+        /// </summary>
+        AtomicReduction = 8,
+        /// <summary>
         /// This has the same effect as ::CU_STREAM_WAIT_VALUE_FLUSH, but as a standalone operation.
         /// </summary>
         FlushRemoteWrites = 3
@@ -3560,7 +3644,10 @@ namespace ManagedCuda.BasicTypes
         /// Location is a host NUMA node of the current thread, id is ignored
         /// </summary>
         HostNUMACurrent = 0x4,
-
+        /// <summary>
+        /// Location is not visible but device is accessible, id is always CU_DEVICE_INVALID
+        /// </summary>
+        Invisible = 0x5,
     }
 
     /// <summary>
@@ -3805,22 +3892,103 @@ namespace ManagedCuda.BasicTypes
     /// </summary>
     public enum CUmemPool_attribute
     {
-        /// <summary/>
+        /// <summary>
+        /// (value type = int)
+        /// Allow cuMemAllocAsync to use memory asynchronously freed
+        /// in another streams as long as a stream ordering dependency
+        /// of the allocating stream on the free action exists.
+        /// Cuda events and null stream interactions can create the required
+        /// stream ordered dependencies. (default enabled)
+        /// </summary>
         ReuseFollowEventDependencies = 1,
-        /// <summary/>
+        /// <summary>
+        /// (value type = int)
+        /// Allow reuse of already completed frees when there is no dependency
+        /// between the free and allocation. (default enabled)
+        /// </summary>
         ReuseAllowOpportunistic,
-        /// <summary/>
+        /// <summary>
+        /// (value type = int)
+        /// Allow cuMemAllocAsync to insert new stream dependencies
+        /// in order to establish the stream ordering required to reuse
+        /// a piece of memory released by cuMemFreeAsync(default enabled).
+        /// </summary>
         ReuseAllowInternalDependencies,
-        /// <summary/>
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// Amount of reserved memory in bytes to hold onto before trying
+        /// to release memory back to the OS.When more than the release
+        /// threshold bytes of memory are held by the memory pool, the
+        /// allocator will try to release memory back to the OS on the
+        /// next call to stream, event or context synchronize. (default 0)
+        /// </summary>
         ReleaseThreshold,
-        /// <summary/>
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// Amount of backing memory currently allocated for the mempool.
+        /// </summary>
         ReservedMemCurrent,
-        /// <summary/>
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// High watermark of backing memory allocated for the mempool since the
+        /// last time it was reset.High watermark can only be reset to zero.
+        /// </summary>
         ReservedMemHigh,
-        /// <summary/>
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// Amount of memory from the pool that is currently in use by the application.
+        /// </summary>
         UsedMemCurrent,
-        /// <summary/>
-        UsedMemHigh
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// High watermark of the amount of memory from the pool that was in use by the application since
+        /// the last time it was reset.High watermark can only be reset to zero.
+        /// </summary>
+        UsedMemHigh,
+        /// <summary>
+        /// (value type = CUmemAllocationType)
+        /// The allocation type of the mempool
+        /// </summary>
+        AllocationType,
+
+        /// <summary>
+        /// (value type = CUmemAllocationHandleType)
+        /// Available export handle types for the mempool. For imported pools this
+        /// value is always CU_MEM_HANDLE_TYPE_NONE as an imported pool cannot be
+        /// re-exported
+        /// </summary>
+        ExportHangleTypes,
+
+        /// <summary>
+        /// (value type = int)
+        /// The location id for the mempool. If the location type for this pool is
+        /// CU_MEM_LOCATION_TYPE_INVISIBLE then ID will be CU_DEVICE_INVALID.
+        /// </summary>
+        LocationID,
+
+        /// <summary>
+        /// (value type = CUmemLocationType)
+        /// The location type for the mempool. For imported memory pools where the
+        /// device is not directly visible to the importing process or pools imported
+        /// via fabric handles across nodes this will be
+        /// CU_MEM_LOCATION_TYPE_INVISIBLE.
+        /// </summary>
+        LocationType,
+
+        /// <summary>
+        /// (value type = cuuint64_t)
+        /// Maximum size of the pool in bytes, this value may be higher than what was
+        /// initially passed to cuMemPoolCreate due to alignment requirements. A
+        /// value of 0 indicates no maximum size. For CU_MEM_ALLOCATION_TYPE_MANAGED
+        /// and IPC imported pools this value will be system dependent.
+        /// </summary>
+        MaxPoolSize,
+
+        /// <summary>
+        /// (value type = int)
+        /// Indicates whether the pool has hardware compresssion enabled
+        /// </summary>
+        HWDecompressEnabled,
     }
 
     /// <summary>
@@ -4097,6 +4265,34 @@ namespace ManagedCuda.BasicTypes
         Gpu = 0x1
     }
 
+    /// <summary>
+    /// Atomic reduction operation types for ::CUstreamBatchMemOpParams::atomicReduction::reductionOp
+    /// </summary>
+    public enum CUstreamAtomicReductionOpType
+    {
+        /// <summary>
+        /// Performs an atomic OR: *(address) = *(address) | value
+        /// </summary>
+        Or = CUatomicOperation.Or,
+        /// <summary>
+        /// Performs an atomic AND: *(address) = *(address) & value
+        /// </summary>
+        And = CUatomicOperation.And,
+        /// <summary>
+        /// Performs an atomic ADD: *(address) = *(address) + value
+        /// </summary>
+        Add = CUatomicOperation.IntegerAdd,
+    }
+
+    /// <summary>
+    /// Atomic reduction data types for ::CUstreamBatchMemOpParams::atomicReduction::dataType
+    /// </summary>
+    public enum CUstreamAtomicReductionDataType
+    {
+        Unsigned32 = CUatomicOperationCapability.Unsigned | CUatomicOperationCapability.Scalar32 | CUatomicOperationCapability.Reduction,
+        Unsigned64 = CUatomicOperationCapability.Unsigned | CUatomicOperationCapability.Scalar64 | CUatomicOperationCapability.Reduction,
+    }
+
 
     /// <summary>
     /// Graph instantiation results
@@ -4346,7 +4542,18 @@ namespace ManagedCuda.BasicTypes
         /// the attribute may not improve the performance of either the targeted kernel or the encapsulating application.<para/>
         /// Valid values for ::CUlaunchAttributeValue::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
         /// </summary>
-        NVLinkUtilCentricScheduling = 16
+        NVLinkUtilCentricScheduling = 16,
+        /// <summary>
+        /// Valid for graph nodes, launches. This controls whether the kernel launch is allowed to use a
+        /// non-portable cluster size. Valid values for ::CUlaunchAttributeValue::portableClusterSizeMode are
+        /// described in ::CUlaunchAttributePortableClusterMode. Any other value will return ::CUDA_ERROR_INVALID_VALUE
+        /// </summary>
+        PortableClusterSizeMode = 17,
+        /// <summary>
+        /// Valid for graph nodes, launches. This indicates if the kernel
+        /// is allowed to use a non-portable dynamic shared memory mode.
+        /// </summary>
+        SharedMemoryMode = 18
     }
 
 
@@ -4552,7 +4759,30 @@ namespace ManagedCuda.BasicTypes
         /// Streaming multiprocessors related information
         /// </summary>
         SM = 1,
+        /// <summary>
+        /// Workqueue configuration related information
+        /// </summary>
+        WorkqueueConfig = 1000,
+        /// <summary>
+        /// Pre-existing workqueue related information
+        /// </summary>
+        Workqueue = 10000,
 
+    }
+
+    /// <summary>
+    /// Sharing scope for workqueues
+    /// </summary>
+    public enum CUdevWorkqueueConfigScope
+    {
+        /// <summary>
+        /// Use all shared workqueue resources across all contexts. Default driver behaviour.
+        /// </summary>
+        DeviceCtx = 0,
+        /// <summary>
+        /// When possible, use non-overlapping workqueue resources with other balanced green contexts.
+        /// </summary>
+        GreenCtxBalanced = 1
     }
 
     /// <summary>
@@ -4722,7 +4952,11 @@ namespace ManagedCuda.BasicTypes
         /// Cannot be used as an argument to cuGraphExecUpdate;<para/>
         /// Cannot have additional memory allocation or free nodes added.
         /// </summary>
-        Move = 1
+        Move = 1,
+        /// <summary>
+        /// Invalid ownership flag. Set when params are queried to prevent accidentally reusing the driver-owned graph object
+        /// </summary>
+        Invalid = -1,
     }
 
 
@@ -4761,6 +4995,58 @@ namespace ManagedCuda.BasicTypes
         /// <summary>
         /// </summary>
         Warning = 1
+    }
+
+    /// <summary>
+    /// Enum for defining applicability of portable cluster size, used with ::cuLaunchKernelEx
+    /// </summary>
+    public enum CUlaunchAttributePortableClusterMode
+    {
+        /// <summary>
+        /// The default to use for allowing non-portable cluster size on launch - uses current function
+        /// attribute for ::CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Specifies that the cluster size requested must be a portable size
+        /// </summary>
+        RequirePortable = 1,
+        /// <summary>
+        /// Specifies that the cluster size requested may be a non-portable size
+        /// </summary>
+        AllowNonPortable = 2
+    }
+
+
+    /// <summary>
+    /// Shared memory related attributes for use with ::cuLaunchKernelEx
+    /// </summary>
+    public enum CUsharedMemoryMode
+    {
+        /// <summary>
+        /// The default to use for shared memory on launch - uses current function
+        /// attribute for ::CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Specifies that the dynamic shared size bytes requested must be a portable size within
+        /// the bounds of ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK
+        /// </summary>
+        RequirePortable = 1,
+        /// <summary>
+        /// Specifies that the dynamic shared size bytes requested may be a non-portable size but still within
+        /// the bounds of ::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN
+        /// </summary>
+        AllowNonPortable = 2
+    }
+
+
+    public enum CUstreamCigDataType
+    {
+        /// <summary>
+        /// D3D12 Command List Handle
+        /// </summary>
+        D3D12_COMMAND_LIST = 0x1,
     }
     #endregion
 }

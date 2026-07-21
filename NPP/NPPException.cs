@@ -135,6 +135,9 @@ namespace ManagedCuda.NPP
             {
                 case NppStatus.NotSupportedModeError:
                     break;
+                case NppStatus.LibraryVersionMismatchError:
+                    message = "Application and NPP library version mismatch.";
+                    break;
                 case NppStatus.InvalidHostPointerError:
                     break;
                 case NppStatus.InvalidDevicePointerError:

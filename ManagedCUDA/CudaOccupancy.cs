@@ -1783,6 +1783,12 @@ namespace ManagedCuda
             smemAvailableForDynamic = sharedMemPerMultiprocessor / numBlocks;
             smemAvailableForDynamic = (smemAvailableForDynamic / allocationGranularity) * allocationGranularity;
 
+            // Starting Ampere, CUDA driver reserves additional shared memory per block
+            if (properties.computeMajor >= 8)
+            {
+                smemAvailableForDynamic = smemAvailableForDynamic - properties.reservedSharedMemPerBlock;
+            }
+
             // Cap shared memory
             //
             if (smemAvailableForDynamic > smemLimitPerBlock)

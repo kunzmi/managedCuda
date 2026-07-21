@@ -4410,23 +4410,6 @@ namespace ManagedCuda.NPP
             return bufferSize;
         }
 
-        /// <summary>
-        /// Compute levels with even distribution.
-        /// </summary>
-        /// <param name="nLevels">The number of levels being computed. nLevels must be at least 2, otherwise an NPP_-
-        /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
-        /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
-        /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>An array of size nLevels which receives the levels being computed.</returns>
-        public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
-        {
-            int[] Levels = new int[nLevels];
-            status = NPPNativeMethods_Ctx.NPPi.Histogram.nppiEvenLevelsHost_32s_Ctx(Levels, nLevels, nLowerBound, nUpperBound, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEvenLevelsHost_32s_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return Levels;
-        }
 
         /// <summary>
         /// Histogram with evenly distributed bins. Buffer is internally allocated and freed.
@@ -9755,7 +9738,7 @@ namespace ManagedCuda.NPP
         }
 
         /// <summary>
-        /// Three-channel 8-bit unsigned image MS-SSIM*.
+        /// Four-channel 8-bit unsigned image MS-SSIM*.
         /// This function uses the algorithm described in the paper by Wang et.al.
         /// Wang, Z., Simoncelli, E.P., Bovik, A.C.Multiscale Structural Similarity for Image Quality Assessment.In: The
         /// Thirty-Seventh Asilomar Conference on Signals, Systems and Computers, 2003, 13981402. Pacific Grove, CA, USA: IEEE,
@@ -10564,6 +10547,159 @@ namespace ManagedCuda.NPP
             NppStatus status = NPPNativeMethods_Ctx.NPPi.YUVToRGBColorTwist.nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx(arraySrc, arraySrcPitch, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, aTwist, nAlpha, nppStreamCtx);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiYUV422ToRGB_8u_ColorTwist32f_P3AC4R_Ctx", status));
             NPPException.CheckNppStatus(status, null);
+        }
+        #endregion
+
+        #region New in Cuda 13.0
+
+        #region FilterCannyBorder
+
+        /// <summary>
+        /// 3 channel 8-bit unsigned grayscale to 1 channel 8-bit unsigned black (0x00) and white (0xFF) image with border control.
+        /// </summary>
+        /// <param name="dest">destination_image_pointer</param>
+        /// <param name="eFilterType">selects between Sobel or Scharr filter type.</param>
+        /// <param name="eMaskSize">fixed filter mask size to use.</param>
+        /// <param name="nLowThreshold">low hysteresis threshold value.</param>
+        /// <param name="nHighThreshold">high hysteresis threshold value.</param>
+        /// <param name="eNorm">gradient distance method to use.</param>
+        /// <param name="eBorderType">The border type operation to be applied at source image border boundaries.</param>
+        /// <param name="pDeviceBuffer">pointer to scratch DEVICE memory buffer of size hpBufferSize (see nppiFilterCannyBorderGetBufferSize() above)</param>
+        /// <param name="filterArea">The area where the filter is allowed to read pixels. The point is relative to the ROI set to source image, the size is the total size starting from the filterArea point. Default value is the set ROI.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void FilterCannyBorder(NPPImage_8uC1 dest, DifferentialKernel eFilterType,
+                     MaskSize eMaskSize, short nLowThreshold, short nHighThreshold, NppiNorm eNorm,
+                     NppiBorderType eBorderType, CudaDeviceVariable<byte> pDeviceBuffer, NppStreamContext nppStreamCtx, NppiRect filterArea = new NppiRect())
+        {
+            if (filterArea.Size == new NppiSize())
+            {
+                filterArea.Size = _sizeRoi;
+            }
+            status = NPPNativeMethods_Ctx.NPPi.FilterCannyBorder.nppiFilterCannyBorder_8u_C3C1R_Ctx(_devPtrRoi, _pitch, filterArea.Size, filterArea.Location, dest.DevicePointerRoi, dest.Pitch, dest.SizeRoi, eFilterType, eMaskSize, nLowThreshold, nHighThreshold, eNorm, eBorderType, pDeviceBuffer.DevicePointer, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiFilterCannyBorder_8u_C3C1R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+        #endregion
+
+
+        /// <summary>
+        /// Three unsigned 8-bit planar RGB channels color space conversion to three channel unsigned packed 10-bit UYVP pixel.
+        /// </summary>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void RGBToUYVP(NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGB_8u_ToUYVP_10u_C3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel planar 8-bit unsigned RGB to YCbCr color conversion.
+        /// </summary>
+        /// <param name="src0">Source image channel 0</param>
+        /// <param name="src1">Source image channel 1</param>
+        /// <param name="src2">Source image channel 2</param>
+        /// <param name="dest">Destination image packed 20-bit pixels but filled with 0 till the end of the line</param>
+        /// <param name="eColorSpace">The input color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public static void RGBToUYVP(NPPImage_8uC1 src0, NPPImage_8uC1 src1, NPPImage_8uC1 src2, NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arraySrc = new CUdeviceptr[] { src0.DevicePointer, src1.DevicePointer, src2.DevicePointer };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.RGBToUYVP.nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx(arraySrc, src0.Pitch, src0.PointRoi, dest.DevicePointerRoi, dest.Pitch, src0.SizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiRGB_8u_ToUYVP_10u_P3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 8-bit channels RGB.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_8uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_8u_C3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel planar 8-bit unsigned RGB to YCbCr color conversion.
+        /// </summary>
+        /// <param name="dest0">Destination image channel 0</param>
+        /// <param name="dest1">Destination image channel 1</param>
+        /// <param name="dest2">Destination image channel 2</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_8uC1 dest0, NPPImage_8uC1 dest1, NPPImage_8uC1 dest2, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx(_devPtr, _pitch, _pointRoi, arrayDest, dest0.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_8u_C3P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 8-bit channels RGB.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="alpha"></param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_8uC4 dest, byte alpha, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, alpha, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_8u_C3AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+
+        /// <summary>
+        /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 16-bit channels RGB.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_16uC3 dest, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_16u_C3C3R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
+        }
+
+        /// <summary>
+        /// 3 channel planar 16-bit unsigned RGB to YCbCr color conversion.
+        /// </summary>
+        /// <param name="dest0">Destination image channel 0</param>
+        /// <param name="dest1">Destination image channel 1</param>
+        /// <param name="dest2">Destination image channel 2</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_16uC1 dest0, NPPImage_16uC1 dest1, NPPImage_16uC1 dest2, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            CUdeviceptr[] arrayDest = new CUdeviceptr[] { dest0.DevicePointer, dest1.DevicePointer, dest2.DevicePointer };
+            NppStatus status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx(_devPtr, _pitch, _pointRoi, arrayDest, dest0.Pitch, _sizeRoi, eColorSpace, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_16u_C3P3R_Ctx", status));
+            NPPException.CheckNppStatus(status, null);
+        }
+
+
+        /// <summary>
+        /// Three channel unsigned packed 10-bit UYVP pixel color space conversion to three unsigned packed 16-bit channels RGB.
+        /// </summary>
+        /// <param name="dest">Destination image</param>
+        /// <param name="eColorSpace">The output color space.</param>
+        /// <param name="alpha"></param>
+        /// <param name="nppStreamCtx">NPP stream context.</param>
+        public void UYVPToRGB(NPPImage_16uC4 dest, ushort alpha, NppiColorSpace eColorSpace, NppStreamContext nppStreamCtx)
+        {
+            status = NPPNativeMethods_Ctx.NPPi.UYVPToRGB.nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx(_devPtr, _pitch, _pointRoi, dest.DevicePointerRoi, dest.Pitch, _sizeRoi, eColorSpace, alpha, nppStreamCtx);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiUYVP_10u_ToRGB_16u_C3AC4R_Ctx", status));
+            NPPException.CheckNppStatus(status, this);
         }
         #endregion
     }

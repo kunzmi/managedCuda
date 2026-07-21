@@ -41,7 +41,7 @@ namespace ManagedCuda.CudaFFT
 #if (NETCOREAPP)
         internal const string CUFFT_API_DLL_NAME_LINUX = "cufft";
         internal const string CUFFT_SHORT_VERSION_LINUX = "12";
-        internal const string CUFFT_LONG_VERSION_LINUX = "12.0.0.61";
+        internal const string CUFFT_LONG_VERSION_LINUX = "12.2.0.57";
 
         static CudaFFTNativeMethods()
         {

@@ -916,6 +916,18 @@ namespace ManagedCuda.BasicTypes
             return name;
         }
 
+        /// <summary>
+        /// Returns the number of parameters used by the function
+        /// </summary>
+        public SizeT GetParamCount()
+        {
+            SizeT paramCount = 0;
+            CUResult res = DriverAPINativeMethods.FunctionManagement.cuFuncGetParamCount(this, ref paramCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuFuncGetParamCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return paramCount;
+        }
+
 
 #if (NETCOREAPP) //old .net framework doesn't support tupels
         /// <summary>
@@ -1623,6 +1635,36 @@ namespace ManagedCuda.BasicTypes
                 return type;
             }
         }
+        /// <summary>
+        /// Returns the local node id of a given graph node
+        /// </summary>
+        public uint LocalId
+        {
+            get
+            {
+                uint id = 0;
+                CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetLocalId(this, ref id);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetLocalId", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return id;
+            }
+        }
+        /// <summary>
+        /// Returns an id used by tools to identify a given node
+        /// </summary>
+        public ulong ToolsId
+        {
+            get
+            {
+                ulong id = 0;
+                CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetToolsId(this, ref id);
+                Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetToolsId", res));
+                if (res != CUResult.Success) throw new CudaException(res);
+
+                return id;
+            }
+        }
         #endregion
 
         #region Methods
@@ -1820,6 +1862,18 @@ namespace ManagedCuda.BasicTypes
         }
 
         /// <summary>
+        /// Return a graph node's parameters
+        /// </summary>
+        public CUgraphNodeParams GetParameters()
+        {
+            CUgraphNodeParams nodeParams = new CUgraphNodeParams();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetParams(this, ref nodeParams);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetParams", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return nodeParams;
+        }
+
+        /// <summary>
         /// Only for ChildGraphNodes
         /// </summary>
         /// <returns></returns>
@@ -1828,6 +1882,21 @@ namespace ManagedCuda.BasicTypes
             CUgraph graph = new CUgraph();
             CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphChildGraphNodeGetGraph(this, ref graph);
             Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphChildGraphNodeGetGraph", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+
+            return new CudaGraph(graph);
+        }
+
+        /// <summary>
+        /// Returns the graph that contains a given graph node<para/>
+        /// Returns the graph that contains \p hNode in \p *phGraph.<para/>
+        /// If \p hNode is in a child graph, the child graph it is in is returned.
+        /// </summary>
+        public CudaGraph GetContainingGraph()
+        {
+            CUgraph graph = new CUgraph();
+            CUResult res = DriverAPINativeMethods.GraphManagment.cuGraphNodeGetContainingGraph(this, ref graph);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuGraphNodeGetContainingGraph", res));
             if (res != CUResult.Success) throw new CudaException(res);
 
             return new CudaGraph(graph);
@@ -2501,6 +2570,18 @@ namespace ManagedCuda.BasicTypes
             return name;
         }
 
+        /// <summary>
+        /// Returns the number of parameters used by the kernel
+        /// </summary>
+        public SizeT GetParamCount()
+        {
+            SizeT paramCount = 0;
+            CUResult res = DriverAPINativeMethods.LibraryManagement.cuKernelGetParamCount(this, ref paramCount);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuKernelGetParamCount", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return paramCount;
+        }
+
 #if (NETCOREAPP) //old .net framework doesn't support tupels
         /// <summary>
         /// Returns the offset and size of a kernel parameter in the device-side parameter layout
@@ -2650,5 +2731,18 @@ namespace ManagedCuda.BasicTypes
         public uint Pointer;
     }
 
+
+    /// <summary>
+    /// Opaque handle representing a registered coredump status callback<para/>
+    /// This handle is returned when registering a callback and must be provided when deregistering the callback.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CUcoredumpCallbackHandle
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public uint Pointer;
+    }
     #endregion
 }

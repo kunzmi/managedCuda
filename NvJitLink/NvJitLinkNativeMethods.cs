@@ -39,7 +39,7 @@ namespace ManagedCuda.NvJitLink
 #if (NETCOREAPP)
         internal const string NVJITLINK_API_DLL_NAME_LINUX = "nvJitLink";
         internal const string NVJITLINK_SHORT_VERSION_LINUX = "13";
-        internal const string NVJITLINK_LONG_VERSION_LINUX = "13.0.88";
+        internal const string NVJITLINK_LONG_VERSION_LINUX = "13.2.86";
 
         static NvJitLinkNativeMethods()
         {
@@ -83,7 +83,7 @@ namespace ManagedCuda.NvJitLink
 #endif
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkCreate_13_0(
+        internal static extern nvJitLinkResult __nvJitLinkCreate_13_2(
               ref nvJitLinkHandle handle, uint numOptions, IntPtr[] options);
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace ManagedCuda.NvJitLink
                     stringPtrs[i] = Marshal.StringToHGlobalAnsi(options[i]);
                 }
 
-                retVal = __nvJitLinkCreate_13_0(ref handle, numOptions, stringPtrs);
+                retVal = __nvJitLinkCreate_13_2(ref handle, numOptions, stringPtrs);
             }
             catch
             {
@@ -178,7 +178,7 @@ namespace ManagedCuda.NvJitLink
 
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkDestroy_13_0(ref nvJitLinkHandle handle);
+        internal static extern nvJitLinkResult __nvJitLinkDestroy_13_2(ref nvJitLinkHandle handle);
 
 
         /// <summary>
@@ -188,16 +188,16 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkDestroy(ref nvJitLinkHandle handle)
         {
-            return __nvJitLinkDestroy_13_0(ref handle);
+            return __nvJitLinkDestroy_13_2(ref handle);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkAddData_13_0(
+        internal static extern nvJitLinkResult __nvJitLinkAddData_13_2(
           nvJitLinkHandle handle, nvJitLinkInputType inputType, IntPtr data,
           SizeT size, [MarshalAs(UnmanagedType.LPStr)] string name); // name can be null
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkAddData_13_0(
+        internal static extern nvJitLinkResult __nvJitLinkAddData_13_2(
           nvJitLinkHandle handle, nvJitLinkInputType inputType, byte[] data,
           SizeT size, [MarshalAs(UnmanagedType.LPStr)] string name); // name can be null
 
@@ -213,7 +213,7 @@ namespace ManagedCuda.NvJitLink
         public static nvJitLinkResult nvJitLinkAddData(nvJitLinkHandle handle,
             nvJitLinkInputType inputType, IntPtr data, SizeT size, string name) // name can be null
         {
-            return __nvJitLinkAddData_13_0(handle, inputType, data, size, name);
+            return __nvJitLinkAddData_13_2(handle, inputType, data, size, name);
         }
         /// <summary>
         /// nvJitLinkAddData adds data image to the link. 
@@ -226,11 +226,11 @@ namespace ManagedCuda.NvJitLink
         public static nvJitLinkResult nvJitLinkAddData(nvJitLinkHandle handle,
             nvJitLinkInputType inputType, byte[] data, string name) // name can be null
         {
-            return __nvJitLinkAddData_13_0(handle, inputType, data, data.Length, name);
+            return __nvJitLinkAddData_13_2(handle, inputType, data, data.Length, name);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkAddFile_13_0(nvJitLinkHandle handle,
+        internal static extern nvJitLinkResult __nvJitLinkAddFile_13_2(nvJitLinkHandle handle,
             nvJitLinkInputType inputType, [MarshalAs(UnmanagedType.LPStr)] string fileName); // includes path to file
 
         /// <summary>
@@ -245,11 +245,11 @@ namespace ManagedCuda.NvJitLink
           nvJitLinkInputType inputType,
           string fileName) // includes path to file
         {
-            return __nvJitLinkAddFile_13_0(handle, inputType, fileName);
+            return __nvJitLinkAddFile_13_2(handle, inputType, fileName);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkComplete_13_0(nvJitLinkHandle handle);
+        internal static extern nvJitLinkResult __nvJitLinkComplete_13_2(nvJitLinkHandle handle);
 
         /// <summary>
         /// nvJitLinkComplete does the actual link.
@@ -258,11 +258,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkComplete(nvJitLinkHandle handle)
         {
-            return __nvJitLinkComplete_13_0(handle);
+            return __nvJitLinkComplete_13_2(handle);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetLinkedCubinSize_13_0(nvJitLinkHandle handle, ref SizeT size);
+        internal static extern nvJitLinkResult __nvJitLinkGetLinkedCubinSize_13_2(nvJitLinkHandle handle, ref SizeT size);
 
         /// <summary>
         /// nvJitLinkGetLinkedCubinSize gets the size of the linked cubin.
@@ -272,11 +272,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, ref SizeT size)
         {
-            return __nvJitLinkGetLinkedCubinSize_13_0(handle, ref size);
+            return __nvJitLinkGetLinkedCubinSize_13_2(handle, ref size);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetLinkedCubin_13_0(nvJitLinkHandle handle, byte[] cubin);
+        internal static extern nvJitLinkResult __nvJitLinkGetLinkedCubin_13_2(nvJitLinkHandle handle, byte[] cubin);
 
         /// <summary>
         /// nvJitLinkGetLinkedCubin gets the linked cubin.
@@ -286,11 +286,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, byte[] cubin)
         {
-            return __nvJitLinkGetLinkedCubin_13_0(handle, cubin);
+            return __nvJitLinkGetLinkedCubin_13_2(handle, cubin);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetLinkedPtxSize_13_0(nvJitLinkHandle handle, ref SizeT size);
+        internal static extern nvJitLinkResult __nvJitLinkGetLinkedPtxSize_13_2(nvJitLinkHandle handle, ref SizeT size);
 
         /// <summary>
         /// nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.
@@ -300,11 +300,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, ref SizeT size)
         {
-            return __nvJitLinkGetLinkedPtxSize_13_0(handle, ref size);
+            return __nvJitLinkGetLinkedPtxSize_13_2(handle, ref size);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetLinkedPtx_13_0(nvJitLinkHandle handle, byte[] ptx);
+        internal static extern nvJitLinkResult __nvJitLinkGetLinkedPtx_13_2(nvJitLinkHandle handle, byte[] ptx);
 
         /// <summary>
         /// nvJitLinkGetLinkedPtx gets the linked ptx.
@@ -314,11 +314,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, byte[] ptx)
         {
-            return __nvJitLinkGetLinkedPtx_13_0(handle, ptx);
+            return __nvJitLinkGetLinkedPtx_13_2(handle, ptx);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetErrorLogSize_13_0(nvJitLinkHandle handle, ref SizeT size);
+        internal static extern nvJitLinkResult __nvJitLinkGetErrorLogSize_13_2(nvJitLinkHandle handle, ref SizeT size);
 
         /// <summary>
         /// nvJitLinkGetErrorLogSize gets the size of the error log.
@@ -328,11 +328,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, ref SizeT size)
         {
-            return __nvJitLinkGetErrorLogSize_13_0(handle, ref size);
+            return __nvJitLinkGetErrorLogSize_13_2(handle, ref size);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetErrorLog_13_0(nvJitLinkHandle handle, byte[] log);
+        internal static extern nvJitLinkResult __nvJitLinkGetErrorLog_13_2(nvJitLinkHandle handle, byte[] log);
 
         /// <summary>
         /// nvJitLinkGetErrorLog puts any error messages in the log.
@@ -342,11 +342,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetErrorLog(nvJitLinkHandle handle, byte[] log)
         {
-            return __nvJitLinkGetErrorLog_13_0(handle, log);
+            return __nvJitLinkGetErrorLog_13_2(handle, log);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetInfoLogSize_13_0(nvJitLinkHandle handle, ref SizeT size);
+        internal static extern nvJitLinkResult __nvJitLinkGetInfoLogSize_13_2(nvJitLinkHandle handle, ref SizeT size);
 
         /// <summary>
         /// nvJitLinkGetInfoLogSize gets the size of the info log.
@@ -356,11 +356,11 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, ref SizeT size)
         {
-            return __nvJitLinkGetInfoLogSize_13_0(handle, ref size);
+            return __nvJitLinkGetInfoLogSize_13_2(handle, ref size);
         }
 
         [DllImport(NVJITLINK_API_DLL_NAME)]
-        internal static extern nvJitLinkResult __nvJitLinkGetInfoLog_13_0(nvJitLinkHandle handle, byte[] log);
+        internal static extern nvJitLinkResult __nvJitLinkGetInfoLog_13_2(nvJitLinkHandle handle, byte[] log);
 
         /// <summary>
         /// nvJitLinkGetInfoLog puts any info messages in the log.
@@ -370,7 +370,7 @@ namespace ManagedCuda.NvJitLink
         /// <returns></returns>
         public static nvJitLinkResult nvJitLinkGetInfoLog(nvJitLinkHandle handle, byte[] log)
         {
-            return __nvJitLinkGetInfoLog_13_0(handle, log);
+            return __nvJitLinkGetInfoLog_13_2(handle, log);
         }
 
 

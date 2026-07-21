@@ -476,24 +476,6 @@ namespace ManagedCuda.NPP
         }
 
         /// <summary>
-        /// Compute levels with even distribution.
-        /// </summary>
-        /// <param name="nLevels">The number of levels being computed. nLevels must be at least 2, otherwise an NPP_-
-        /// HISTO_NUMBER_OF_LEVELS_ERROR error is returned.</param>
-        /// <param name="nLowerBound">Lower boundary value of the lowest level.</param>
-        /// <param name="nUpperBound">Upper boundary value of the greatest level.</param>
-        /// <param name="nppStreamCtx">NPP stream context.</param>
-        /// <returns>An array of size nLevels which receives the levels being computed.</returns>
-        public int[] EvenLevels(int nLevels, int nLowerBound, int nUpperBound, NppStreamContext nppStreamCtx)
-        {
-            int[] Levels = new int[nLevels];
-            status = NPPNativeMethods_Ctx.NPPi.Histogram.nppiEvenLevelsHost_32s_Ctx(Levels, nLevels, nLowerBound, nUpperBound, nppStreamCtx);
-            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "nppiEvenLevelsHost_32s_Ctx", status));
-            NPPException.CheckNppStatus(status, this);
-            return Levels;
-        }
-
-        /// <summary>
         /// Histogram with evenly distributed bins. Buffer is internally allocated and freed.
         /// </summary>
         /// <param name="histogram">Allocated device memory of size nLevels</param>

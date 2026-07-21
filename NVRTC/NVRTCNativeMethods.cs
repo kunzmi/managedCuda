@@ -39,7 +39,7 @@ namespace ManagedCuda.NVRTC
 #if (NETCOREAPP)
         internal const string NVRTC_API_DLL_NAME_LINUX = "nvrtc";
         internal const string NVRTC_SHORT_VERSION_LINUX = "13";
-        internal const string NVRTC_LONG_VERSION_LINUX = "13.0.88";
+        internal const string NVRTC_LONG_VERSION_LINUX = "13.2.86";
 
         static NVRTCNativeMethods()
         {
@@ -372,5 +372,11 @@ namespace ManagedCuda.NVRTC
         /// <returns></returns>
         [DllImport(NVRTC_API_DLL_NAME)]
         public static extern nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, setFlowCallback callback, IntPtr payload);
+
+
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, ref SizeT TileIRSizeRet);
+        [DllImport(NVRTC_API_DLL_NAME)]
+        public static extern nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, [Out] byte[] TileIR);
     }
 }

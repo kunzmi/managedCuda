@@ -159,6 +159,16 @@ namespace ManagedCuda.CudaSolve
     }
 
 
+    /// <summary>
+    /// </summary>
+    public enum cusolverEigComp
+    {
+        N = 10,
+        I = 11,
+        V = 12
+    }
+
+
 
     /// <summary>
     /// </summary>
@@ -232,6 +242,8 @@ namespace ManagedCuda.CudaSolve
     {
         Default = 1,
         FP32EmulatedBF16X9 = 2,
+        FP64EmulatedFixpointMath = 4,
+        FP32FP64EmulatedMath = 6,
     }
 
     #endregion
@@ -317,8 +329,10 @@ namespace ManagedCuda.CudaSolve
     /// </summary>
     public enum cusolverDnFunction
     {
-        CUSOLVERDN_GETRF = 0,
-        CUSOLVERDN_POTRF = 1
+        GETRF = 0,
+        POTRF = 1,
+        SYEVBATCHED = 2,
+        GEQRF = 3
     }
 
     /// <summary>

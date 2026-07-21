@@ -524,6 +524,22 @@ namespace ManagedCuda
             return new GreenContext(ctx, device);
 
         }
+
+        /// <summary>
+        /// Get the \p type resources available to the \p hStream.<para/>
+        /// Note: The API will throw ::CUDA_ERROR_INVALID_RESOURCE_TYPE is \p type is
+        /// \p CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG or \p CU_DEV_RESOURCE_TYPE_WORKQUEUE.
+        /// </summary>
+        /// <param name="type">Type of resource to retrieve</param>
+        /// <returns></returns>
+        public CUdevResource GetDevResource(CUdevResourceType type)
+        {
+            CUdevResource devres = new CUdevResource();
+            CUResult res = DriverAPINativeMethods.GreenContextAPI.cuStreamGetDevResource(_stream, ref devres, type);
+            Debug.WriteLine(String.Format("{0:G}, {1}: {2}", DateTime.Now, "cuStreamGetDevResource", res));
+            if (res != CUResult.Success) throw new CudaException(res);
+            return devres;
+        }
         #endregion
     }
 }
